@@ -1,0 +1,93 @@
+#!/usr/bin/env python3
+__author__ = "Icseon"
+__copyright__ = "Copyright (C) 2020 Icseon"
+__version__ = "1.0"
+
+# Import MySQL interface to communicate with the database
+import MySQL.Interface as MySQL
+
+# Import all packet handlers to use throughout the service
+from GameServer.Controllers import BoutLogin, Lobby, Shop, Guild, Friend, Inbox, Room, Character
+
+"""
+This method will link the incoming packet to the right controller
+Similarly in backends seen in websites
+"""
+
+
+def route(socket, packet, server, client, connection_handler):
+    '''
+    If our client has no connected character with it, it means that the client is attempting to communicate with the server without
+    having sent a character request first.
+    
+    We must check if the client exists in the global client container and check if the command ID is equal to the ID request
+    and we must check if the client has a character, and if not we must only accept the character request packet
+    '''
+    if client not in server.clients and packet.id != 'f82a' or 'character' not in client and client in server.clients and not (
+            packet.id == 'f92a' or packet.id == 'fa2a'):
+        raise Exception('Invalid packet received')
+
+    # Create new MySQL connection
+    mysql_connection = MySQL.GetConnection()
+    mysql = mysql_connection.cursor(dictionary=True)
+
+    # Define packet commands to handle as well as their methods
+    packets = {
+
+        # Controller: Bout Authentication
+        'f82a': BoutLogin.ClientIDRequest,
+        'f92a': BoutLogin.CharacterRequest,
+        'fa2a': BoutLogin.CreateCharacterRequest,
+        '222b': BoutLogin.ExitServerRequest,
+
+        # Controller: Lobby
+        '082b': Lobby.GetLobby,
+        '1a27': Lobby.Chat,
+        '442b': Lobby.Whisper,
+        '0a2b': Lobby.RoomList,
+
+        # Controller: Friends
+        '272b': Friend.FriendRequest,
+        '242b': Friend.FriendRequestResult,
+        '252b': Friend.DeleteFriend,
+
+        # Controller: Inbox
+        '282b': Inbox.RequestInbox,
+        '292b': Inbox.SendMessage,
+        '2a2b': Inbox.RequestMessage,
+        '2b2b': Inbox.DeleteMessage,
+
+        # Controller: Shop
+        '512b': Shop.RequestCash,
+
+        # Controller: Guild
+        '552b': Guild.Create,
+        '562b': Guild.SendGuildApplication,
+        '572b': Guild.CancelGuildApplication,
+        '642b': Guild.FetchGuildApplications,
+        '5a2b': Guild.AcceptApplication,
+        '5b2b': Guild.RejectApplication,
+        '5d2b': Guild.LeaveGuild,
+        '592b': Guild.ExpelGuildMember,
+        '732b': Guild.UpdateGuildNotice,
+
+        # Controller: Room
+        '092b': Room.Create,
+        '652b': Room.SetLevel,
+        '7a2b': Room.set_difficulity,
+        '0b2b': Room.StartGame,
+        '3e2b': Room.GameLoadFinish,
+        '3a2b': Room.MonsterKill
+    }.get(packet.id, unknown)(**locals())
+
+    # Close MySQL connection after packet has been parsed
+    mysql_connection.close()
+
+
+"""
+Handle unknown packets
+"""
+
+
+def unknown(**_args):
+    print('Unknown packet: <0x{0}::{1}>'.format(_args['packet'].id, _args['packet'].data))

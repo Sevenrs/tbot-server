@@ -1,0 +1,54 @@
+#!/usr/bin/env python3
+__author__ = "Icseon"
+__copyright__ = "Copyright (C) 2020 Icseon"
+__version__ = "1.0"
+
+import socket
+import _thread
+from . import Client, Connection
+
+class Socket:
+
+    """
+    GameServer constructor
+    """
+    def __init__(self, port):
+        self.port = port
+        
+        # Client container
+        self.clients = []
+
+        # Room container
+        self.rooms = {}
+
+        # Start the server
+        self.listen()
+
+    """
+    This method will listen for new connections
+    """
+    def listen(self):
+        try:
+
+            # Start the server by binding a TCP socket to the right port
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
+                server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                server.bind(('0.0.0.0', self.port))
+                server.listen()
+                
+                print('[GameServer]: Started on port', self.port)
+                
+                # Create new instance of the connection handler
+                connection_handler = Connection.Handler(self)
+
+                # Listen for new connections
+                while True:
+                    
+                    # Accept the new client and handle the connection in a seperate thread
+                    client, address = server.accept()
+                    _thread.start_new_thread(Client.Client, (client, address, self, connection_handler,))
+                    
+                # Ensure the socket is freed once the application exits
+                server.close()
+        except Exception as e:
+            print('[GameServer]: Failed to start Game Server. Perhaps the port is already in use. Exception:', e)
