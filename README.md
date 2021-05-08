@@ -1,7 +1,7 @@
-###Bout Server
+### Bout Server
 This repository contains the code to the Bout server
 
-##Requirements
+## Requirements
 1. The following python packages are required: `mysql-connector` and `bcrypt`.
 2. The database, run `sudo bash ./run-migrations.sh`
 
