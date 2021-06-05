@@ -93,7 +93,31 @@ def AddSlot(_args, room_id, client):
         "loaded": False
     }
 
-    print(room)
+def RemoveSlot(_args, room_id, client):
+
+    # Find room
+    room = _args['server'].rooms[str(room_id)]
+
+    # Find our slot and remove it from the room
+    for key, slot in room['slots'].items():
+        if slot['client']['id'] == client['id']:
+            del room['slots'][key]
+
+            # Send the exit packet to the client who was in the slot
+            exit = PacketWrite()
+            exit.AddHeader(bytearray([0x2E, 0x27]))
+            exit.AppendBytes(bytearray([0x01, 0x00, (int(key) - 1), 0x01]))
+            client['socket'].send(exit.packet)
+
+            # Remove the room from the client so the client is no longer in the room
+            client.pop('room')
+
+            break
+
+    # If the room has no more slots left, delete the room
+    if len(room['slots']) == 0:
+        del _args['server'].rooms[str(room_id)]
+
 
 """
 This method will create a new room
@@ -281,3 +305,6 @@ def MonsterKill(**_args):
     kill.AppendInteger(mob_id, 1, 'little')
     kill.AppendBytes(bytearray([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]))
     _args['connection_handler'].SendRoomAll(_args['client']['room'], kill.packet)
+
+def ExitRoom(**_args):
+    RemoveSlot(_args, _args['client']['room'], _args['client'])

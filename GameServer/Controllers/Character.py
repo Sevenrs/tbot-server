@@ -92,7 +92,8 @@ def get_items(_args, character_id, mode = 'wearing'):
             # Modify specification summary
             if wearing[item_type]['item_id'] != 0:
                 for key, value in specifications_sum.items():
-                    specifications_sum[key] = (value + wearing[item_type][key])
+                    if wearing[item_type][key] is not None:
+                        specifications_sum[key] = (value + wearing[item_type][key])
 
             items.append(item)
 
