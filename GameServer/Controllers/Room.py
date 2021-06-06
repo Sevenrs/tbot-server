@@ -106,10 +106,13 @@ def ConstructRoomPlayers(_args, packet, character, slot_num):
         packet.AppendBytes(bytearray([0x00]))
 
     # p2p port, idk for now
-    packet.AppendInteger(45563, 2, 'little')
+    if slot_num == 1:
+        packet.AppendInteger(0, 2, 'little')
+    else:
+        packet.AppendInteger(43342, 2, 'little')
 
     # p2p ip addr (127.0.0.1 for now)
-    packet.AppendBytes(bytearray([0x7F, 0x00, 0x00, 0x00]))
+    packet.AppendBytes(bytearray([0x7F, 0x00, 0x00, 0x01]))
 
     for _ in range(10):
         packet.AppendBytes(bytearray([0x00]))
@@ -369,6 +372,12 @@ def StartGame(**_args):
     if room['master']['id'] != _args['client']['id']:
         return
 
+    room_info = PacketWrite()
+    room_info.AddHeader(bytearray([0x67, 0x66]))
+    room_info.AppendBytes(bytearray([0x65, 0x68]))
+    room_info.AppendString(room['name'], 27)
+    _args['connection_handler'].SendRoomAll(_args['client']['room'], room_info.packet)
+
     start = PacketWrite()
     start.AddHeader(bytearray([0x67, 0x66]))
     start.AppendBytes(bytearray([0x73, 0x68, 0x6C, 0x02]))
@@ -377,19 +386,30 @@ def StartGame(**_args):
     _args['connection_handler'].SendRoomAll(_args['client']['room'], start.packet)
 
     start = PacketWrite()
+    start.AddHeader(bytearray([0x67, 0x66]))
+    start.AppendBytes(bytearray([0x74, 0x68, 0x03]))
+    _args['connection_handler'].SendRoomAll(_args['client']['room'], start.packet)
+
+    start = PacketWrite()
     start.AddHeader(bytearray([0xF3, 0x2E]))
     start.AppendBytes(bytearray([0x01, 0x00]))
     start.AppendInteger(room['client_id'] + 1, 2, 'little')
     start.AppendInteger(room['level'], 2, 'little')
-                                                                    # spec_trans
-    start.AppendBytes(bytearray([0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01]))
+    start.AppendInteger(room['game_type'], 1)
+
+    start.AppendInteger(0, 2, 'little')     # Start X
+    start.AppendInteger(0, 2, 'little')     # Start Z
+    start.AppendBytes([0x00])               # Start direction
+
+    start.AppendBytes([0x02]) # Special trans
+    start.AppendBytes([0x01]) # Boss event
+
+    for _ in range(2):
+        start.AppendBytes(bytearray([0x00, 0x00]))
+
     _args['connection_handler'].SendRoomAll(_args['client']['room'], start.packet)
 
-    room_info = PacketWrite()
-    room_info.AddHeader(bytearray([0x00, 0x00]))
-    room_info.AppendBytes(bytearray([0x01, 0x00]))
-    room_info.AppendString(room['name'], 27)
-    _args['connection_handler'].SendRoomAll(_args['client']['room'], room_info.packet)
+    print('second done')
 
 def GameLoadFinish(**_args):
 
