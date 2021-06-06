@@ -78,7 +78,8 @@ def route(socket, packet, server, client, connection_handler):
         '0b2b': Room.StartGame,
         '3e2b': Room.GameLoadFinish,
         '3a2b': Room.MonsterKill,
-        '422b': Room.ExitRoom
+        '422b': Room.ExitRoom,
+        '062b': Room.JoinRoom
     }.get(packet.id, unknown)(**locals())
 
     # Close MySQL connection after packet has been parsed

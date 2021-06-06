@@ -172,10 +172,11 @@ def CharacterRequest(**_args):
         for i in range(200):
             character_information.AppendBytes([0x00])
         
-        for i in range(2):
-            character_information.AppendInteger(0, 4, 'little')
-            character_information.AppendInteger(0, 4, 'little')
-            character_information.AppendInteger(0, 1, 'little')
+        for i in range(17, 19):
+            item = wearing_items['items'][list(wearing_items['items'].keys())[i]]
+            character_information.AppendInteger(item['id'], 4, 'little')
+            character_information.AppendInteger(item['duration'], 4, 'little')
+            character_information.AppendInteger(item['duration_type'], 1, 'little')
             
         for i in range(30):
             character_information.AppendBytes([0x00])

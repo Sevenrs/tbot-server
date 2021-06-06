@@ -39,7 +39,7 @@ def get_items(_args, character_id, mode = 'wearing'):
 
         # Array with wearable item types
         types = ['head', 'body', 'arms', 'mini-bot', 'gun', 'ef', 'wing', 'shield', 'shoulder', 'flag1', 'flag2',
-                 'passive_skill', 'attack_skill', 'field_pack', 'trans_pack', 'merc1', 'merc2']
+                 'passive_skill', 'attack_skill', 'field_pack', 'trans_pack', 'merc1', 'merc2', 'coin_head', 'coin_minibot']
 
         # Obtain wearing item for each possible type
         for item_type in types:

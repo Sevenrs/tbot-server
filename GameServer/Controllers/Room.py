@@ -4,6 +4,7 @@ __copyright__ = "Copyright (C) 2020 Icseon"
 __version__ = "1.0"
 
 from Packet.Write import Write as PacketWrite
+from GameServer.Controllers import Character
 
 """
 This controller is responsible for handling all room related requests
@@ -79,19 +80,152 @@ def GetAvailableRoomNumber(_args, game_type):
                 "client_id": client_room_id
             }
 
-def AddSlot(_args, room_id, client):
+def ConstructRoomPlayers(_args, packet, character, slot_num):
+
+    # Send character level
+    packet.AppendInteger(character['level'], 2, 'little')
+
+    # Obtain wearing items
+    wearing_items = Character.get_items(_args, character['id'], 'wearing')
+
+    for i in range(19):
+        item = wearing_items['items'][list(wearing_items['items'].keys())[i]]
+        packet.AppendInteger(item['id'], 4, 'little')
+
+    # unknown, but needed
+    packet.AppendInteger(2, 2, 'little')
+    packet.AppendBytes(bytearray([0x00]))
+
+    # slot index
+    packet.AppendInteger(slot_num - 1)
+
+    # p2p ip addr (0.0.0.0 for now)
+    packet.AppendBytes(bytearray([0x7F, 0x00, 0x00, 0x01]))
+
+    for _ in range(10):
+        packet.AppendBytes(bytearray([0x00]))
+
+    # p2p port, idk for now
+    packet.AppendInteger(45563, 2, 'little')
+
+    # p2p ip addr (127.0.0.1 for now)
+    packet.AppendBytes(bytearray([0x7F, 0x00, 0x00, 0x00]))
+
+    for _ in range(10):
+        packet.AppendBytes(bytearray([0x00]))
+
+    packet.AppendBytes(bytearray([0x50]))
+
+    for _ in range(21):
+        packet.AppendBytes(bytearray([0x00]))
+
+    packet.AppendInteger(character['att_min'] + wearing_items['specifications']['effect_att_min'], 2, 'little')
+    packet.AppendInteger(character['att_max'] + wearing_items['specifications']['effect_att_max'], 2, 'little')
+    packet.AppendInteger(character['att_trans_min'] + wearing_items['specifications']['effect_att_trans_min'], 2,
+                       'little')
+    packet.AppendInteger(character['att_trans_max'] + wearing_items['specifications']['effect_att_trans_max'], 2,
+                       'little')
+    packet.AppendInteger(character['health'] + wearing_items['specifications']['effect_health'], 2, 'little')
+
+    packet.AppendInteger(0, 2, 'little')
+
+    packet.AppendInteger(character['trans_guage'] + wearing_items['specifications']['effect_trans_guage'], 2, 'little')
+    packet.AppendInteger(character['att_critical'] + wearing_items['specifications']['effect_critical'], 2, 'little')
+    packet.AppendInteger(character['att_evade'] + wearing_items['specifications']['effect_critical'], 2, 'little')
+    packet.AppendInteger(character['trans_special'] + wearing_items['specifications']['effect_special_trans'], 2,
+                       'little')
+    packet.AppendInteger(character['speed'] + wearing_items['specifications']['effect_speed'], 2, 'little')
+    packet.AppendInteger(character['trans_def'] + wearing_items['specifications']['effect_trans_bot_defense'], 2,
+                       'little')
+    packet.AppendInteger(character['trans_att'] + wearing_items['specifications']['effect_trans_bot_attack'], 2, 'little')
+    packet.AppendInteger(character['trans_speed'] + wearing_items['specifications']['effect_trans_speed'], 2, 'little')
+    packet.AppendInteger(character['att_ranged'] + wearing_items['specifications']['effect_ranged_attack'], 2, 'little')
+    packet.AppendInteger(character['luck'] + wearing_items['specifications']['effect_luck'], 2, 'little')
+
+    packet.AppendInteger(character['type'], 2, 'little')
+
+    packet.AppendInteger(slot_num - 1)
+
+    for _ in range(4):
+        packet.AppendBytes(bytearray([0x00]))
+
+    packet.AppendString(character['name'], 15)
+    packet.AppendString("guild name", 21)
+
+    for _ in range(4):
+        packet.AppendBytes(bytearray([0x00]))
+
+    packet.AppendInteger(character['rank'], 2, 'little')
+    for _ in range(6):
+        packet.AppendBytes(bytearray([0x00]))
+
+def AddSlot(_args, room_id, client, broadcast=False):
 
     # Find room
     room = _args['server'].rooms[str(room_id)]
 
     # Get first available slot number
-    slot = 1
+    available_slot = 0
+
+    for i in range(1, 8):
+        if str(i) not in room['slots']:
+            available_slot = i
+            break
 
     # Append to slots
-    room['slots'][str(slot)] = {
+    room['slots'][str(available_slot)] = {
         "client": client,
         "loaded": False
     }
+
+    if broadcast:
+
+        # Define the slot and character for easy access
+        slot        = room['slots'][str(available_slot)]
+        character   = slot['client']['character']
+
+        join = PacketWrite()
+        join.AddHeader([0x29, 0x27])
+
+        ConstructRoomPlayers(_args, join, character, available_slot)
+        _args['connection_handler'].SendRoomAll(room['id'], join.packet)
+
+    # Tell our client about the room
+    if broadcast:
+
+        players = PacketWrite()
+        players.AddHeader([0x28, 0x2F])
+        players.AppendBytes([0x01, 0x00])
+
+        # Loop through all players in the room
+        for i in range(0, 8):
+
+            # Get slot and character
+            if str((i + 1)) in room['slots']:
+                print("slot {0} found".format(str(i)))
+                character = room['slots'][str((i + 1))]['client']['character']
+                ConstructRoomPlayers(_args, players, character, (i + 1))
+            else:
+                print("slot {0} not found".format(str(i)))
+                for _ in range(221):
+                    players.AppendBytes([0x00])
+
+        players.AppendInteger(room['client_id'] + 1, 2, 'little')
+        players.AppendString(room['name'], 27)
+        players.AppendString(room['password'], 11)
+        players.AppendInteger(room['game_type'], 1)
+        for _ in range(7):
+            players.AppendBytes([0x00])
+        players.AppendBytes([0x00])
+
+        # Notify our client about all players in the room
+        client['socket'].send(players.packet)
+
+     # Set room id for current client to indicate that our client is in a room
+    _args['client']['room'] = room['id']
+
+
+
 
 def RemoveSlot(_args, room_id, client):
 
@@ -108,6 +242,7 @@ def RemoveSlot(_args, room_id, client):
             exit.AddHeader(bytearray([0x2E, 0x27]))
             exit.AppendBytes(bytearray([0x01, 0x00, (int(key) - 1), 0x01]))
             client['socket'].send(exit.packet)
+            #_args['connection_handler'].SendRoomAll(room['id'], exit.packet)
 
             # Remove the room from the client so the client is no longer in the room
             client.pop('room')
@@ -157,9 +292,6 @@ def Create(**_args):
 
     # Add ourselves to slots
     AddSlot(_args, room_ids['slot'], _args['client'])
-
-    # Set room id for current client to indicate that our client is in a room
-    _args['client']['room'] = room_ids['slot']
 
     room = PacketWrite()
     room.AddHeader(bytearray([0xEE, 0x2E]))
@@ -247,7 +379,7 @@ def StartGame(**_args):
     start = PacketWrite()
     start.AddHeader(bytearray([0xF3, 0x2E]))
     start.AppendBytes(bytearray([0x01, 0x00]))
-    start.AppendInteger(room['client_id'], 2, 'little')
+    start.AppendInteger(room['client_id'] + 1, 2, 'little')
     start.AppendInteger(room['level'], 2, 'little')
                                                                     # spec_trans
     start.AppendBytes(bytearray([0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x01]))
@@ -273,8 +405,11 @@ def GameLoadFinish(**_args):
             room['slots'][slot]['loaded'] = True
 
         # If a client hasn't indicated loading has finished, we continue waiting
-        if not room['slots'][slot]['loaded']:
-            return
+        #if not room['slots'][slot]['loaded']:
+        #    return
+
+
+    print(room['slots'])
 
     ready = PacketWrite()
     ready.AddHeader(bytearray([0x24, 0x2F]))
@@ -307,4 +442,31 @@ def MonsterKill(**_args):
     _args['connection_handler'].SendRoomAll(_args['client']['room'], kill.packet)
 
 def ExitRoom(**_args):
+
+    # Check if we are in a room
+    if 'room' not in _args['client']:
+        return
+
     RemoveSlot(_args, _args['client']['room'], _args['client'])
+
+def JoinRoom(**_args):
+
+    print(_args['packet'].data)
+
+    # Read information from join packet
+    room_client_id  = int(_args['packet'].ReadInteger(1, 2, 'little')) - 1
+    room_name       = _args['packet'].ReadStringByRange(2, 29)
+    room_password   = _args['packet'].ReadStringByRange(29, 40)
+
+    # Find room
+    print(_args['server'].rooms)
+
+    for key in _args['server'].rooms:
+
+        room = _args['server'].rooms[key]
+
+        if room['client_id'] == room_client_id:
+            print('Room found. Attempt to join the room')
+            AddSlot(_args, room['id'], _args['client'], True)
+
+            break

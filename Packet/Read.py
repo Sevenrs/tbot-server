@@ -128,5 +128,19 @@ class Read:
     """
     This method will get a byte from a specific position
     """
-    def GetByte(self, position):
+    def GetByte(self, position, length = 1):
         return self.data[position]
+
+    """
+    This method will get multiple bytes from start to end and parse them as an integer
+    """
+    def ReadInteger(self, start, end = 1, order='little'):
+
+        bytes = bytearray()
+
+        for i in range(end):
+            bytes.append(self.data[start + (i - 1)])
+
+        print(bytes)
+
+        return int.from_bytes(bytes, byteorder=order)
