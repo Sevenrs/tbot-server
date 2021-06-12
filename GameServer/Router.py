@@ -7,7 +7,7 @@ __version__ = "1.0"
 import MySQL.Interface as MySQL
 
 # Import all packet handlers to use throughout the service
-from GameServer.Controllers import BoutLogin, Lobby, Shop, Guild, Friend, Inbox, Room, Character
+from GameServer.Controllers import BoutLogin, Lobby, Shop, Guild, Friend, Inbox, Room, Character, Game
 
 """
 This method will link the incoming packet to the right controller
@@ -75,11 +75,15 @@ def route(socket, packet, server, client, connection_handler):
         '062b': Room.JoinRoom,
         '092b': Room.Create,
         '0b2b': Room.StartGame,
-        '3a2b': Room.MonsterKill,
         '3e2b': Room.GameLoadFinish,
         '422b': Room.ExitRoom,
         '652b': Room.SetLevel,
-        '7a2b': Room.set_difficulity
+        '7a2b': Room.set_difficulty,
+
+        # Controller: Game
+        '3a2b': Game.monster_kill,
+        '462b': Game.game_end
+
     }.get(packet.id, unknown)(**locals())
 
     # Close MySQL connection after packet has been parsed

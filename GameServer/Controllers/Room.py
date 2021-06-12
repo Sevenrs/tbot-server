@@ -110,9 +110,6 @@ def ConstructRoomPlayers(_args, packet, character, slot_num, client, join=False)
         packet.AppendBytes(bytearray([0x00]))
 
     # Peer port
-    #if join == True and client['id'] == _args['client']['id']:
-    #   packet.AppendInteger(0, 2, 'little')
-    #else:
     packet.AppendInteger(client['p2p_host']['port'], 2, 'big')
 
     # Peer IP address
@@ -235,9 +232,6 @@ def AddSlot(_args, room_id, client, broadcast=False):
      # Set room id for current client to indicate that our client is in a room
     _args['client']['room'] = room['id']
 
-
-
-
 def RemoveSlot(_args, room_id, client):
 
     # Find room
@@ -340,7 +334,7 @@ def SetLevel(**_args):
     _args['connection_handler'].SendRoomAll(_args['client']['room'], level.packet)
 
 
-def set_difficulity(**_args):
+def set_difficulty(**_args):
 
     # Check if we are in a room
     if 'room' not in _args['client']:
@@ -444,31 +438,6 @@ def GameLoadFinish(**_args):
     ready.AppendBytes(bytearray([0x00]))
     _args['connection_handler'].SendRoomAll(_args['client']['room'], ready.packet)
 
-def MonsterKill(**_args):
-
-    # Check if we are in a room
-    if 'room' not in _args['client']:
-        return
-
-    # Get room from ID
-    room = _args['server'].rooms[str(_args['client']['room'])]
-
-    # Check if we are the room master
-    if room['master']['id'] != _args['client']['id']:
-        return
-
-    print(_args['packet'].data)
-
-    # Read mob ID
-    mob_id = _args['packet'].GetByte(0)
-
-    kill = PacketWrite()
-    kill.AddHeader(bytearray([0x25, 0x2F]))
-    kill.AppendBytes(bytearray([0x01, 0x00]))
-    kill.AppendInteger(mob_id, 1, 'little')
-    kill.AppendBytes(bytearray([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]))
-    _args['connection_handler'].SendRoomAll(_args['client']['room'], kill.packet)
-
 def ExitRoom(**_args):
 
     # Check if we are in a room
@@ -479,22 +448,15 @@ def ExitRoom(**_args):
 
 def JoinRoom(**_args):
 
-    print(_args['packet'].data)
-
     # Read information from join packet
     room_client_id  = int(_args['packet'].ReadInteger(1, 2, 'little')) - 1
     room_name       = _args['packet'].ReadStringByRange(2, 29)
     room_password   = _args['packet'].ReadStringByRange(29, 40)
 
-    # Find room
-    print(_args['server'].rooms)
-
+    # Find room and join the room
     for key in _args['server'].rooms:
-
         room = _args['server'].rooms[key]
 
         if room['client_id'] == room_client_id:
-            print('Room found. Attempt to join the room')
             AddSlot(_args, room['id'], _args['client'], True)
-
             break
