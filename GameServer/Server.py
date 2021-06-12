@@ -21,9 +21,6 @@ class Socket:
         # Room container
         self.rooms = {}
 
-        # Start the server
-        self.listen()
-
     """
     This method will listen for new connections
     """
@@ -44,7 +41,7 @@ class Socket:
                 # Listen for new connections
                 while True:
                     
-                    # Accept the new client and handle the connection in a seperate thread
+                    # Accept the new client and handle the connection in a separate thread
                     client, address = server.accept()
                     _thread.start_new_thread(Client.Client, (client, address, self, connection_handler,))
                     

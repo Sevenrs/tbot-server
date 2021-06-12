@@ -8,7 +8,7 @@ from Packet.Write import Write as PacketWrite
 """
 This file is responsible for dealing with all the clients at once.
 For example, this will allow us to retrieve a specific client, or all at once or conditionally.
-This is also a container for global functions that we may to re-use multiple times
+This is also a container for global functions that we may re-use multiple times
 """
 class Handler:
     

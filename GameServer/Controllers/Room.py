@@ -80,7 +80,7 @@ def GetAvailableRoomNumber(_args, game_type):
                 "client_id": client_room_id
             }
 
-def ConstructRoomPlayers(_args, packet, character, slot_num):
+def ConstructRoomPlayers(_args, packet, character, slot_num, client, join=False):
 
     # Send character level
     packet.AppendInteger(character['level'], 2, 'little')
@@ -99,20 +99,25 @@ def ConstructRoomPlayers(_args, packet, character, slot_num):
     # slot index
     packet.AppendInteger(slot_num - 1)
 
-    # p2p ip addr (0.0.0.0 for now)
-    packet.AppendBytes(bytearray([0x7F, 0x00, 0x00, 0x01]))
+    # Split IP address so we can append it in a packet
+    p2p_ip = client['p2p_host']['ip'].split('.')
+
+    # Peer IP address
+    for number in p2p_ip:
+        packet.AppendInteger(int(number))
 
     for _ in range(10):
         packet.AppendBytes(bytearray([0x00]))
 
-    # p2p port, idk for now
-    if slot_num == 1:
-        packet.AppendInteger(0, 2, 'little')
-    else:
-        packet.AppendInteger(43342, 2, 'little')
+    # Peer port
+    #if join == True and client['id'] == _args['client']['id']:
+    #   packet.AppendInteger(0, 2, 'little')
+    #else:
+    packet.AppendInteger(client['p2p_host']['port'], 2, 'big')
 
-    # p2p ip addr (127.0.0.1 for now)
-    packet.AppendBytes(bytearray([0x7F, 0x00, 0x00, 0x01]))
+    # Peer IP address
+    for number in p2p_ip:
+        packet.AppendInteger(int(number), 1)
 
     for _ in range(10):
         packet.AppendBytes(bytearray([0x00]))
@@ -190,7 +195,7 @@ def AddSlot(_args, room_id, client, broadcast=False):
         join = PacketWrite()
         join.AddHeader([0x29, 0x27])
 
-        ConstructRoomPlayers(_args, join, character, available_slot)
+        ConstructRoomPlayers(_args, join, character, available_slot, client, join=False)
         _args['connection_handler'].SendRoomAll(room['id'], join.packet)
 
     # Tell our client about the room
@@ -205,9 +210,9 @@ def AddSlot(_args, room_id, client, broadcast=False):
 
             # Get slot and character
             if str((i + 1)) in room['slots']:
-                print("slot {0} found".format(str(i)))
-                character = room['slots'][str((i + 1))]['client']['character']
-                ConstructRoomPlayers(_args, players, character, (i + 1))
+                remote_client   = room['slots'][str((i + 1))]['client']
+                character       = remote_client['character']
+                ConstructRoomPlayers(_args, players, character, (i + 1), remote_client, join=True)
             else:
                 print("slot {0} not found".format(str(i)))
                 for _ in range(221):
@@ -223,6 +228,9 @@ def AddSlot(_args, room_id, client, broadcast=False):
 
         # Notify our client about all players in the room
         client['socket'].send(players.packet)
+
+        # Set room id for current client to indicate that our client is in a room
+        _args['client']['room'] = room['id']
 
      # Set room id for current client to indicate that our client is in a room
     _args['client']['room'] = room['id']

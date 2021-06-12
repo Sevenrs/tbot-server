@@ -11,10 +11,12 @@ class Client:
     """
     ChannelServer datagram client constructor
     """
-    def __init__(self, data, addr, server):
-        self.data = data
-        self.address = addr
-        self.server = server
+    def __init__(self, data, addr, server, game_server, connection_handler):
+        self.data               = data
+        self.address            = addr
+        self.server             = server
+        self.game_server        = game_server
+        self.connection_handler = connection_handler
         
         # Immediately handle the new client's connection
         self.handle()
@@ -23,10 +25,8 @@ class Client:
     This method will handle the client's data
     """
     def handle(self):
-        print('New connection from:', self.address)
-        
-        packet = ReadDatagram(self.data)
+        #print('New connection from:', self.address)
         
         # Obtain packet and execute the relevant command for it
         packet = ReadDatagram(self.data)
-        Commands.execute(self.server, self.address, packet)
+        Commands.execute(self.server, self.address, self.game_server, self.connection_handler, packet)

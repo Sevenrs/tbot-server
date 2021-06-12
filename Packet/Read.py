@@ -26,7 +26,7 @@ class Read:
             
             """
             Receive the first two bytes that represent the packet ID
-            Packet IDs should be converted to hexdecimal
+            Packet IDs should be converted to hexadecimal
             """
             self.id = "".join(map(chr, binascii.hexlify(socket.recv(2))))
             
@@ -40,7 +40,7 @@ class Read:
             """
             Validate packet length. Check if the amount of bytes are really available
             """
-            if (not socket.recv(self.length, Socket.MSG_PEEK)):
+            if not socket.recv(self.length, Socket.MSG_PEEK):
                 raise Exception('Invalid packet length')
             
             """
@@ -140,7 +140,5 @@ class Read:
 
         for i in range(end):
             bytes.append(self.data[start + (i - 1)])
-
-        print(bytes)
 
         return int.from_bytes(bytes, byteorder=order)

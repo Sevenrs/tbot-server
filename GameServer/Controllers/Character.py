@@ -155,6 +155,8 @@ def get_items(_args, character_id, mode = 'wearing'):
 
 def get_body_transformation(body_item_id):
 
+    return 0
+
     # body 0 should have trans 0e
     if body_item_id == 0:
         return 0

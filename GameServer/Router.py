@@ -14,15 +14,15 @@ This method will link the incoming packet to the right controller
 Similarly in backends seen in websites
 """
 
-
 def route(socket, packet, server, client, connection_handler):
-    '''
+
+    """
     If our client has no connected character with it, it means that the client is attempting to communicate with the server without
     having sent a character request first.
-    
+
     We must check if the client exists in the global client container and check if the command ID is equal to the ID request
     and we must check if the client has a character, and if not we must only accept the character request packet
-    '''
+    """
     if client not in server.clients and packet.id != 'f82a' or 'character' not in client and client in server.clients and not (
             packet.id == 'f92a' or packet.id == 'fa2a'):
         raise Exception('Invalid packet received')
@@ -72,14 +72,14 @@ def route(socket, packet, server, client, connection_handler):
         '732b': Guild.UpdateGuildNotice,
 
         # Controller: Room
+        '062b': Room.JoinRoom,
         '092b': Room.Create,
-        '652b': Room.SetLevel,
-        '7a2b': Room.set_difficulity,
         '0b2b': Room.StartGame,
-        '3e2b': Room.GameLoadFinish,
         '3a2b': Room.MonsterKill,
+        '3e2b': Room.GameLoadFinish,
         '422b': Room.ExitRoom,
-        '062b': Room.JoinRoom
+        '652b': Room.SetLevel,
+        '7a2b': Room.set_difficulity
     }.get(packet.id, unknown)(**locals())
 
     # Close MySQL connection after packet has been parsed
@@ -89,7 +89,6 @@ def route(socket, packet, server, client, connection_handler):
 """
 Handle unknown packets
 """
-
 
 def unknown(**_args):
     print('Unknown packet: <0x{0}::{1}>'.format(_args['packet'].id, _args['packet'].data))

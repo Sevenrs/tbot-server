@@ -19,7 +19,7 @@ def ClientIDRequest(**_args):
     # Get available ID
     id = len(_args['server'].clients) + 1
     
-    # Contruct packet and send it back to the client
+    # Construct packet and send it back to the client
     response = PacketWrite()
     response.AddHeader(bytearray([0xE0, 0x2E]))
     
