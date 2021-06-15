@@ -4,6 +4,8 @@ __copyright__   = 'Copyright (C) 2021 Icseon'
 __version__     = '1.0'
 
 from Packet.Write import Write as PacketWrite
+from GameServer.Controllers.data.drops import *
+import random
 
 """
 This controller is responsible for handling all game related actions
@@ -40,12 +42,32 @@ def monster_kill(**_args):
     # Read monster ID from the packet
     monster_id = _args['packet'].GetByte(0)
 
+    # Construct canister drops and drop chances
+    drops = [
+        (CANISTER_HEALTH,   0.05),
+        (CANISTER_REBIRTH,  0.02),
+        (CANISTER_STUN,     0.01),
+        (CANISTER_BOMB,     0.02),
+        (CANISTER_TRANS_UP, 0.01),
+        (CANISTER_AMMO,     0.01)
+    ]
+
+    # Calculate whether or not we should drop an item based on chance
+    death_drops = []
+    for drop, chance in drops:
+        if random.random() < chance:
+            death_drops.append(bytes([1, drop, 0, 0, 0]))
+    drop_bytes = b''.join(death_drops)
+
     # Create death response
     death = PacketWrite()
     death.AddHeader(bytes=bytearray([0x25, 0x2F]))
     death.AppendBytes(bytes=bytearray([0x01, 0x00]))
-    death.AppendInteger(integer=monster_id, length=1, byteorder='little')
-    death.AppendBytes(bytearray([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])) #todo: handle drops
+    death.AppendInteger(integer=monster_id, length=2, byteorder='little')
+
+    death.AppendBytes([0x00, 0x00])
+    death.AppendInteger(len(death_drops), length=2, byteorder='little')
+    death.AppendBytes(drop_bytes)
 
     # Broadcast the response to all sockets in the room
     _args['connection_handler'].SendRoomAll(_args['client']['room'], death.packet)
