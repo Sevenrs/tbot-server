@@ -37,12 +37,12 @@ def monster_kill(**_args):
     ]
 
     # Calculate whether or not we should drop an item based on chance
-    death_drops = []
+    monster_drops = []
     for drop, chance in drops:
         if random.random() < chance:
-            death_drops.append(bytes([room['drop_index'], drop, 0, 0, 0]))
+            monster_drops.append(bytes([room['drop_index'], drop, 0, 0, 0]))
             room['drop_index'] += 1
-    drop_bytes = b''.join(death_drops)
+    drop_bytes = b''.join(monster_drops)
 
     # Create death response
     death = PacketWrite()
@@ -51,11 +51,11 @@ def monster_kill(**_args):
     death.AppendInteger(integer=monster_id, length=2, byteorder='little')
 
     death.AppendBytes([0x00, 0x00])
-    death.AppendInteger(len(death_drops), length=2, byteorder='little')
+    death.AppendInteger(len(monster_drops), length=2, byteorder='little')
     death.AppendBytes(drop_bytes)
 
     # Broadcast the response to all sockets in the room
-    _args['connection_handler'].SendRoomAll(_args['client']['room'], death.packet)
+    _args['connection_handler'].SendRoomAll(room['id'], death.packet)
 
 '''
 This method will handle picking up items which were dropped from monsters
@@ -76,7 +76,33 @@ def use_item(**_args):
     use_canister.AppendInteger(get_slot(_args, room) - 1, 2, 'little')
     use_canister.AppendInteger(item_index, 1, 'little')
     use_canister.AppendInteger(item_type, 1, 'little')
-    _args['connection_handler'].SendRoomAll(_args['client']['room'], use_canister.packet)
+    _args['connection_handler'].SendRoomAll(room['id'], use_canister.packet)
+
+'''
+This method will handle player deaths.
+It works by reading the slot number and broadcasting that the player is dead to all room sockets
+'''
+def player_death(**_args):
+
+    # If the client is not in a room, drop the packet
+    room = get_room(_args)
+    if not room:
+        return
+
+    # Get slot number from the room
+    room_slot = get_slot(_args, room)
+
+    # Update room object and classify the player as dead
+    room['slots'][str(room_slot)]['dead'] = True
+
+    # Let the room know about the death of this player
+    death = PacketWrite()
+    death.AddHeader(bytearray([0x54, 0x2F]))
+    death.AppendBytes(bytes=bytearray([0x01, 0x00]))
+    death.AppendInteger(integer=(int(room_slot) - 1), length=2, byteorder='little')
+    _args['connection_handler'].SendRoomAll(room['id'], death.packet)
+
+
 
 '''
 This method will handle game ends
@@ -84,10 +110,15 @@ This method will handle game ends
 def game_end(**_args):
 
     # If the client is not in a room or is not its master, drop the packet
-    if not get_room(_args=_args, master=True):
+    room = get_room(_args, True)
+    if not room:
         return
+
+    # Check the status by checking the packet header
+    status = 0 if _args['packet'].id == '3b2b' else 1
 
     result = PacketWrite()
     result.AddHeader(bytes=bytearray([0x2A, 0x27]))
-    result.AppendBytes([0x01])
-    _args['connection_handler'].SendRoomAll(_args['client']['room'], result.packet)
+    result.AppendInteger(status, 2, 'little')
+
+    _args['connection_handler'].SendRoomAll(room['id'], result.packet)
