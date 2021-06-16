@@ -75,13 +75,14 @@ def route(socket, packet, server, client, connection_handler):
         '062b': Room.JoinRoom,
         '092b': Room.Create,
         '0b2b': Room.StartGame,
-        '3e2b': Room.GameLoadFinish,
+        '3e2b': Room.load_finish,
         '422b': Room.ExitRoom,
         '652b': Room.SetLevel,
         '7a2b': Room.set_difficulty,
 
         # Controller: Game
         '3a2b': Game.monster_kill,
+        '3c2b': Game.use_item,
         '462b': Game.game_end
 
     }.get(packet.id, unknown)(**locals())

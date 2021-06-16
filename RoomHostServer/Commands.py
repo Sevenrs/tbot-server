@@ -52,7 +52,10 @@ def host_update(**_args):
             ports.AddHeader(bytearray([0x39, 0x27]))
             for i in range(0, 8):
                 if str((i + 1)) in room['slots']:
-                    ports.AppendInteger(room['slots'][str((i + 1))]['client']['p2p_host']['port'], 2, 'big')
+
+                    # Get client and p2p port number and append to packet, if it exists
+                    client = room['slots'][str((i + 1))]['client']
+                    ports.AppendInteger(client['p2p_host']['port'] if 'p2p_host' in client else 0, 2, 'big')
                 else:
                     ports.AppendInteger(0, 2, 'big')
             _args['connection_handler'].SendRoomAll(room['id'], ports.packet)

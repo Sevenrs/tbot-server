@@ -5,29 +5,12 @@ __version__     = '1.0'
 
 from Packet.Write import Write as PacketWrite
 from GameServer.Controllers.data.drops import *
+from GameServer.Controllers.Room import get_room, get_slot
 import random
 
 """
 This controller is responsible for handling all game related actions
 """
-
-'''
-This method will check if the client is in a room.
-Additionally, the master flag will dictate whether or not a client should be a room master
-'''
-def in_room(_args, master=False):
-
-    # The client sending the packet must be in a room
-    if 'room' not in _args['client']:
-        return False
-
-    # Find room and check if the client is the room master
-    if master:
-        room = _args['server'].rooms[str(_args['client']['room'])]
-        if room['master']['id'] != _args['client']['id']:
-            return False
-
-    return True
 
 '''
 This method will handle monster deaths and broadcasts an acknowledgement to the room
@@ -36,7 +19,8 @@ of the monster being killed.
 def monster_kill(**_args):
 
     # If the client is not in a room or is not its master, drop the packet
-    if not in_room(_args, True):
+    room = get_room(_args, True)
+    if not room:
         return
 
     # Read monster ID from the packet
@@ -56,7 +40,8 @@ def monster_kill(**_args):
     death_drops = []
     for drop, chance in drops:
         if random.random() < chance:
-            death_drops.append(bytes([1, drop, 0, 0, 0]))
+            death_drops.append(bytes([room['drop_index'], drop, 0, 0, 0]))
+            room['drop_index'] += 1
     drop_bytes = b''.join(death_drops)
 
     # Create death response
@@ -73,12 +58,33 @@ def monster_kill(**_args):
     _args['connection_handler'].SendRoomAll(_args['client']['room'], death.packet)
 
 '''
+This method will handle picking up items which were dropped from monsters
+'''
+def use_item(**_args):
+
+    # If the client is not in a room, drop the packet
+    room = get_room(_args)
+    if not room:
+        return
+
+    # Read item index and type from packet
+    item_index  = _args['packet'].GetByte(2)
+    item_type   = _args['packet'].GetByte(3)
+
+    use_canister = PacketWrite()
+    use_canister.AddHeader(bytearray([0x23, 0x2F]))
+    use_canister.AppendInteger(get_slot(_args, room) - 1, 2, 'little')
+    use_canister.AppendInteger(item_index, 1, 'little')
+    use_canister.AppendInteger(item_type, 1, 'little')
+    _args['connection_handler'].SendRoomAll(_args['client']['room'], use_canister.packet)
+
+'''
 This method will handle game ends
 '''
 def game_end(**_args):
 
     # If the client is not in a room or is not its master, drop the packet
-    if not in_room(_args=_args, master=True):
+    if not get_room(_args=_args, master=True):
         return
 
     result = PacketWrite()

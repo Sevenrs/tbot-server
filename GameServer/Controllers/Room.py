@@ -100,7 +100,7 @@ def ConstructRoomPlayers(_args, packet, character, slot_num, client, join=False)
     packet.AppendInteger(slot_num - 1)
 
     # Split IP address so we can append it in a packet
-    p2p_ip = client['p2p_host']['ip'].split('.')
+    p2p_ip = client['socket'].getpeername()[0].split('.')
 
     # Peer IP address
     for number in p2p_ip:
@@ -110,7 +110,10 @@ def ConstructRoomPlayers(_args, packet, character, slot_num, client, join=False)
         packet.AppendBytes(bytearray([0x00]))
 
     # Peer port
-    packet.AppendInteger(client['p2p_host']['port'], 2, 'big')
+    if 'p2p_host' in client:
+        packet.AppendInteger(client['p2p_host']['port'], 2, 'big')
+    else:
+        packet.AppendInteger(0, 2, 'big')
 
     # Peer IP address
     for number in p2p_ip:
@@ -179,8 +182,9 @@ def AddSlot(_args, room_id, client, broadcast=False):
 
     # Append to slots
     room['slots'][str(available_slot)] = {
-        "client": client,
-        "loaded": False
+        'client':   client,
+        'loaded':   False,
+        'dead':     False
     }
 
     if broadcast:
@@ -280,17 +284,18 @@ def Create(**_args):
 
     # Store room in the room container
     room = {
-        "slots": {},
-        "name": room_name,
-        "password": room_password,
-        "game_type": room_gametype,
-        "time": room_time,
-        "id": room_ids['slot'],
-        "client_id": room_ids['client_id'],
-        "master": _args['client'],
-        "level": 0,
-        "difficulty": 0,
-        "status": 0
+        'slots':        {},
+        'name':         room_name,
+        'password':     room_password,
+        'game_type':    room_gametype,
+        'time':         room_time,
+        'id':           room_ids['slot'],
+        'client_id':    room_ids['client_id'],
+        'master':       _args['client'],
+        'level':        0,
+        'difficulty':   0,
+        'status':       0,
+        'drop_index':   0
     }
 
     _args['server'].rooms[str(room_ids['slot'])] = room
@@ -411,28 +416,28 @@ def StartGame(**_args):
 
     _args['connection_handler'].SendRoomAll(_args['client']['room'], start.packet)
 
-    print('second done')
+    room['status'] = 1
 
-def GameLoadFinish(**_args):
+'''
+This method will tell the room that the client has finished loading the map
+If a client has not loaded the map, the ready packet will not be sent
+'''
+def load_finish(**_args):
 
-    # Check if we are in a room
-    if 'room' not in _args['client']:
+    # Get room and check if we are in one
+    room = get_room(_args)
+    if not room:
         return
 
-    room = _args['server'].rooms[str(_args['client']['room'])]
+    # Get slot and update loading status
+    room['slots'][str(get_slot(_args, room))]['loaded'] = True
+
+    # Check if the other slots have loaded
     for slot in room['slots']:
+        if not room['slots'][slot]['loaded']:
+            return
 
-        # Set loaded status for our own client to true
-        if room['slots'][slot]['client'] == _args['client']:
-            room['slots'][slot]['loaded'] = True
-
-        # If a client hasn't indicated loading has finished, we continue waiting
-        #if not room['slots'][slot]['loaded']:
-        #    return
-
-
-    print(room['slots'])
-
+    # If all clients are ready to play, send the ready packet
     ready = PacketWrite()
     ready.AddHeader(bytearray([0x24, 0x2F]))
     ready.AppendBytes(bytearray([0x00]))
@@ -460,3 +465,38 @@ def JoinRoom(**_args):
         if room['client_id'] == room_client_id:
             AddSlot(_args, room['id'], _args['client'], True)
             break
+
+'''
+This method will check if the client is in a room.
+Additionally, the master flag will dictate whether or not a client should be a room master
+If the client is in the room and checks were passed (if any), the room is returned to the stack
+'''
+def get_room(_args, master=False):
+
+    # The client sending the packet must be in a room
+    if 'room' not in _args['client']:
+        return False
+
+    # Find room
+    room = _args['server'].rooms[str(_args['client']['room'])]
+
+    # If we have to, check if our client is room master
+    if master:
+        if room['master']['id'] != _args['client']['id']:
+            return False
+
+    return room
+
+'''
+This method will get the slot number for our current client and return it to the stack
+If the client is not assigned to any slot, we'll return False
+'''
+def get_slot(_args, room=None):
+
+    # Loop through all slots to find our client
+    for key, slot in room['slots'].items():
+        if slot['client']['id'] == _args['client']['id']:
+            return int(key)
+
+    # Finally, if nothing worked return False
+    return False
