@@ -6,7 +6,10 @@ __version__     = '1.0'
 from Packet.Write import Write as PacketWrite
 from GameServer.Controllers.data.drops import *
 from GameServer.Controllers.Room import get_room, get_slot
+from GameServer.Controllers.Character import get_items
 import random
+import time
+import _thread
 
 """
 This controller is responsible for handling all game related actions
@@ -122,3 +125,98 @@ def game_end(**_args):
     result.AppendInteger(status, 2, 'little')
 
     _args['connection_handler'].SendRoomAll(room['id'], result.packet)
+
+    # Get wearing items so we can pass them as arguments
+    wearing_items = get_items(_args, _args['client']['character']['id'], 'wearing')
+    print(wearing_items)
+
+    # Start new thread for the game statistics packets
+    _thread.start_new_thread(game_stats, (_args, room, wearing_items,))
+
+'''
+This method will show the score board to all players in the room
+'''
+def game_stats(_args, room, wearing_items):
+
+    time.sleep(6)
+
+    packet = PacketWrite()
+    packet.AddHeader(bytearray([0x1F, 0x2F]))
+
+    # result
+    packet.AppendBytes(bytearray([0x01, 0x00]))
+
+    # unknown, presumably new experience points
+    packet.AppendInteger(0, 2, 'little')
+
+    # new gold amount
+    packet.AppendInteger(10, 8, 'little')
+
+    # new level
+    packet.AppendInteger(71, 2, 'little')
+
+    # new experience amount
+    packet.AppendInteger(0, 4, 'little')
+
+    # new bot stract amount
+    packet.AppendInteger(60000, 4, 'little')
+
+    # unknown
+    packet.AppendInteger(6550, 4, 'little')
+
+    # item times
+    for idx in wearing_items['items']:
+        packet.AppendInteger(wearing_items['items'][idx]['duration'], 4, 'little')
+
+    # new attack min
+    packet.AppendInteger(2000, 2, 'little')
+
+    # new attack max
+    packet.AppendInteger(2000, 2, 'little')
+
+    # new attack max
+    packet.AppendInteger(2000, 2, 'little')
+
+    # 8 bytes that tell which player won
+    for _ in range(8):
+        packet.AppendInteger(0, 1, 'little')
+
+    # 8 bytes that well which player leveled up
+    for _ in range(8):
+        packet.AppendInteger(0, 1, 'little')
+
+    # another 8 bytes which contain the new levels of said players
+    for _ in range(8):
+        packet.AppendInteger(71, 1, 'little')
+
+    # new experience points for all players
+    for _ in range(8):
+        packet.AppendInteger(0, 4, 'little')
+
+    # new health amount for all players
+    for _ in range(8):
+        packet.AppendInteger(3000, 4, 'little')
+
+    # points
+    for _ in range(8):
+        packet.AppendInteger(3000, 4, 'little')
+
+    # player kills
+    for _ in range(8):
+        packet.AppendInteger(0, 4, 'little')
+
+    # mob kills
+    for _ in range(8):
+        packet.AppendInteger(20, 4, 'little')
+
+    # mvps shown
+    packet.AppendBytes(bytearray([0x00, 0x00]))
+
+    _args['connection_handler'].SendRoomAll(room['id'], packet.packet)
+
+    # We must now send the packet to go back to room after 6 seconds
+    time.sleep(6)
+    game_exit = PacketWrite()
+    game_exit.AddHeader(bytearray([0x2A, 0x2F]))
+    game_exit.AppendBytes(bytearray([0x00]))
+    _args['connection_handler'].SendRoomAll(room['id'], game_exit.packet)
