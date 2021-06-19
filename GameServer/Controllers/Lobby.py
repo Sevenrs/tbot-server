@@ -5,6 +5,8 @@ __version__ = "1.0"
 
 from Packet.Write import Write as PacketWrite
 from GameServer.Controllers import Guild, Friend, Room
+from GameServer.Controllers.Character import get_items
+import os
 
 """
 This method will notify the socket of the double experience event state
@@ -101,6 +103,54 @@ def Whisper(**_args):
     
     # Always send the result to our client
     _args['socket'].send(whisper_packet.packet)
+
+'''
+This method allows players to examine others in the lobby.
+It does not require the other player to be online.
+'''
+def examine_player(**_args):
+
+    # Read username from the packet
+    username = _args['packet'].ReadString()
+
+    # Retrieve the character id from the database and proceed to get the wearing items
+    _args['mysql'].execute('SELECT `id`, `level`, `type`, `name`, `experience` FROM `characters` WHERE `name` = %s', [username])
+    character = _args['mysql'].fetchone()
+
+    # If the character was not found send the user not found packet
+    if character is None:
+        return  _args['socket'].send(bytearray([0x2B, 0x2F, 0x02, 0x00, 0x00, 0x33]))
+
+    # Retrieve wearing items
+    wearing_items = get_items(_args, character['id'], 'wearing')
+
+    # Create examination packet
+    examination = PacketWrite()
+    examination.AddHeader(bytearray([0x27, 0x2F]))
+    examination.AppendInteger(character['experience'], 4, 'little')
+
+    examination.AppendInteger(character['level'], 2, 'little')  # Character level
+    examination.AppendInteger(0, 2, 'little')                   # room, todo: get character instance if exists
+
+    # Send character parts and gear
+    for i in range(0, 11):
+        item = wearing_items['items'][list(wearing_items['items'].keys())[i]]
+        examination.AppendInteger(item['id'], 4, 'little')
+
+    # Send coin parts
+    for i in range(17, 19):
+        item = wearing_items['items'][list(wearing_items['items'].keys())[i]]
+        examination.AppendInteger(item['id'], 4, 'little')
+
+    examination.AppendInteger(0, 1, 'little')                   # if in a room, it is 2, todo: get character instance if exists
+
+    examination.AppendInteger(character['type'], 1, 'little')   # Character type
+    examination.AppendBytes([0x01, 0x00])                       # Request status
+    examination.AppendString(character['name'], 15)             # Character name
+
+    # Send examination packet to the client
+    _args['socket'].send(examination.packet)
+
 
 """
 This method will load the lobby

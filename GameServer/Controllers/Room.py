@@ -295,7 +295,7 @@ def Create(**_args):
         'level':        0,
         'difficulty':   0,
         'status':       0,
-        'drop_index':   0
+        'drop_index':   1
     }
 
     _args['server'].rooms[str(room_ids['slot'])] = room

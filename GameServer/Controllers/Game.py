@@ -43,7 +43,8 @@ def monster_kill(**_args):
     monster_drops = []
     for drop, chance in drops:
         if random.random() < chance:
-            monster_drops.append(bytes([room['drop_index'], drop, 0, 0, 0]))
+            monster_drops.append(bytes([room['drop_index']]))
+            monster_drops.append(drop.to_bytes(length=4, byteorder='little'))
             room['drop_index'] += 1
     drop_bytes = b''.join(monster_drops)
 
@@ -74,11 +75,13 @@ def use_item(**_args):
     item_index  = _args['packet'].GetByte(2)
     item_type   = _args['packet'].GetByte(3)
 
+    print("Index: {0}, Type: {1}".format(item_index, item_type))
+
     use_canister = PacketWrite()
     use_canister.AddHeader(bytearray([0x23, 0x2F]))
     use_canister.AppendInteger(get_slot(_args, room) - 1, 2, 'little')
     use_canister.AppendInteger(item_index, 1, 'little')
-    use_canister.AppendInteger(item_type, 1, 'little')
+    use_canister.AppendInteger(item_type, 4, 'little')
     _args['connection_handler'].SendRoomAll(room['id'], use_canister.packet)
 
 '''

@@ -43,6 +43,7 @@ def route(socket, packet, server, client, connection_handler):
         # Controller: Lobby
         '082b': Lobby.GetLobby,
         '1a27': Lobby.Chat,
+        '412b': Lobby.examine_player,
         '442b': Lobby.Whisper,
         '0a2b': Lobby.RoomList,
 
