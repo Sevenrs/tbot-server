@@ -363,6 +363,43 @@ def set_difficulty(**_args):
     result.AppendInteger(new_difficulty, 2, 'little')
     _args['connection_handler'].SendRoomAll(_args['client']['room'], result.packet)
 
+'''
+This method allows users to enter the shop. This will notify any other client in the room of that status as well
+'''
+def enter_shop(**_args):
+
+    room = get_room(_args)
+    slot = get_slot(_args, room)
+
+    result = PacketWrite()
+    result.AddHeader(bytearray([0x60, 0x2F]))
+    result.AppendBytes(bytearray([0x01, 0x00]))
+    result.AppendInteger(slot - 1, 2, 'little')
+    _args['connection_handler'].SendRoomAll(_args['client']['room'], result.packet)
+
+'''
+This method allows users to exit the shop. This will notify all the other clients of the new character state as well
+'''
+def exit_shop(**_args):
+
+    room = get_room(_args)
+    slot = get_slot(_args, room)
+
+    result = PacketWrite()
+    result.AddHeader(bytearray([0x61, 0x2F]))
+    result.AppendBytes(bytearray([0x01, 0x00]))
+    result.AppendInteger(slot - 1, 2, 'little')
+    result.AppendBytes(bytearray([0x00, 0x00]))
+
+    result.AppendInteger(slot, 2, 'little')
+
+    wearing_items = Character.get_items(_args, _args['client']['character']['id'], 'wearing')
+    for i in range(19):
+        item = wearing_items['items'][list(wearing_items['items'].keys())[i]]
+        result.AppendInteger(item['id'], 4, 'little')
+
+    _args['connection_handler'].SendRoomAll(_args['client']['room'], result.packet)
+
 """
 This method will start the game
 """

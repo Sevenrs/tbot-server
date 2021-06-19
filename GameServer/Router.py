@@ -80,6 +80,8 @@ def route(socket, packet, server, client, connection_handler):
         '422b': Room.ExitRoom,
         '652b': Room.SetLevel,
         '7a2b': Room.set_difficulty,
+        '782b': Room.enter_shop,
+        '792b': Room.exit_shop,
 
         # Controller: Game
         '6f2b': Game.player_death,
