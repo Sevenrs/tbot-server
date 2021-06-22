@@ -391,7 +391,7 @@ def exit_shop(**_args):
     result.AppendInteger(slot - 1, 2, 'little')
     result.AppendBytes(bytearray([0x00, 0x00]))
 
-    result.AppendInteger(slot, 2, 'little')
+    result.AppendInteger(_args['client']['id'], 2, 'little')
 
     wearing_items = Character.get_items(_args, _args['client']['character']['id'], 'wearing')
     for i in range(19):
