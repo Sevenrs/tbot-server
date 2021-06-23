@@ -529,6 +529,30 @@ def load_finish(**_args):
     ready.AppendBytes(bytearray([0x00]))
     _args['connection_handler'].SendRoomAll(_args['client']['room'], ready.packet)
 
+'''
+This method allows room masters to kick players out of their rooms
+'''
+def kick_player(**_args):
+
+    # Obtain room and check if we are the room master
+    room = get_room(_args, True)
+    if not room:
+        return
+
+    # Read slot number from the packet
+    slot = int(_args['packet'].ReadInteger(18, 1, 'little'))
+
+    # Stop the room master from kicking themselves
+    if slot + 1 == get_slot(_args, room):
+        error = PacketWrite()
+        error.AddHeader(bytearray([0xF3, 0x2E]))
+        error.AppendBytes(bytearray([0x00, 0x73]))
+        return _args['client']['socket'].send(error.packet)
+
+    # Read slot number and remove player from the room
+    if str(slot +1) in room['slots']:
+        remove_slot(_args=_args, room_id=room['id'], client=room['slots'][str(slot + 1)]['client'], reason=2)
+
 def ExitRoom(**_args):
 
     # Check if we are in a room
