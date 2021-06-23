@@ -80,7 +80,7 @@ def GetAvailableRoomNumber(_args, game_type):
                 "client_id": client_room_id
             }
 
-def ConstructRoomPlayers(_args, packet, character, slot_num, client, join=False):
+def ConstructRoomPlayers(_args, packet, character, slot_num, client, room):
 
     # Send character level
     packet.AppendInteger(character['level'], 2, 'little')
@@ -122,7 +122,10 @@ def ConstructRoomPlayers(_args, packet, character, slot_num, client, join=False)
     for _ in range(10):
         packet.AppendBytes(bytearray([0x00]))
 
-    packet.AppendBytes(bytearray([0x50]))
+    if room['master']['id'] == client['id']:
+        packet.AppendBytes(bytearray([0x70]))
+    else:
+        packet.AppendBytes(bytearray([0x50]))
 
     for _ in range(21):
         packet.AppendBytes(bytearray([0x00]))
@@ -180,11 +183,16 @@ def AddSlot(_args, room_id, client, broadcast=False):
             available_slot = i
             break
 
+    print(client['id'])
+
     # Append to slots
     room['slots'][str(available_slot)] = {
         'client':   client,
         'loaded':   False,
-        'dead':     False
+        'dead':     False,
+        'ready':    False,
+        'shop':     False,
+        'team':     0
     }
 
     if broadcast:
@@ -196,7 +204,7 @@ def AddSlot(_args, room_id, client, broadcast=False):
         join = PacketWrite()
         join.AddHeader([0x29, 0x27])
 
-        ConstructRoomPlayers(_args, join, character, available_slot, client, join=False)
+        ConstructRoomPlayers(_args, join, character, available_slot, client, room)
         _args['connection_handler'].SendRoomAll(room['id'], join.packet)
 
     # Tell our client about the room
@@ -213,7 +221,7 @@ def AddSlot(_args, room_id, client, broadcast=False):
             if str((i + 1)) in room['slots']:
                 remote_client   = room['slots'][str((i + 1))]['client']
                 character       = remote_client['character']
-                ConstructRoomPlayers(_args, players, character, (i + 1), remote_client, join=True)
+                ConstructRoomPlayers(_args, players, character, (i + 1), remote_client, room)
             else:
                 print("slot {0} not found".format(str(i)))
                 for _ in range(221):
@@ -223,20 +231,21 @@ def AddSlot(_args, room_id, client, broadcast=False):
         players.AppendString(room['name'], 27)
         players.AppendString(room['password'], 11)
         players.AppendInteger(room['game_type'], 1)
-        for _ in range(7):
+        for _ in range(9):
             players.AppendBytes([0x00])
-        players.AppendBytes([0x00])
+
+        # Find room master slot number and append it to the packet
+        for key, slot in room['slots'].items():
+            if slot['client']['id'] == room['master']['id']:
+                players.AppendInteger(int(key) - 1, 1, 'little')
 
         # Notify our client about all players in the room
         client['socket'].send(players.packet)
 
-        # Set room id for current client to indicate that our client is in a room
-        _args['client']['room'] = room['id']
-
      # Set room id for current client to indicate that our client is in a room
     _args['client']['room'] = room['id']
 
-def RemoveSlot(_args, room_id, client):
+def remove_slot(_args, room_id, client, reason=1):
 
     # Find room
     room = _args['server'].rooms[str(room_id)]
@@ -244,21 +253,39 @@ def RemoveSlot(_args, room_id, client):
     # Find our slot and remove it from the room
     for key, slot in room['slots'].items():
         if slot['client']['id'] == client['id']:
+
+            # Remove slot from the room
             del room['slots'][key]
 
-            # Send the exit packet to the client who was in the slot
+            # If we are the room master, re-assign the room master to the first available slot
+            if slot['client']['id'] == room['master']['id']:
+                for k, s in room['slots'].items():
+                    room['master'] = s['client']
+                    break
+
+            # Construct exit packet
             exit = PacketWrite()
             exit.AddHeader(bytearray([0x2E, 0x27]))
-            exit.AppendBytes(bytearray([0x01, 0x00, (int(key) - 1), 0x01]))
-            client['socket'].send(exit.packet)
-            #_args['connection_handler'].SendRoomAll(room['id'], exit.packet)
+            exit.AppendBytes(bytearray([0x01, 0x00]))       # Success status
+            exit.AppendInteger(int(key) - 1, 1, 'little')   # Slot number
+            exit.AppendInteger(reason, 1, 'little')              # Change ID
+
+            # Construct ranks
+            for i in range(1, 9):
+                if str(i) in room['slots']:
+                    exit.AppendBytes([0x70] if room['slots'][str(i)]['client']['id'] == room['master']['id'] else [0x50])
+                else:
+                    exit.AppendBytes([0x00])
+                exit.AppendBytes([0x00])
+
+            _args['connection_handler'].SendRoomAll(room['id'], exit.packet)
 
             # Remove the room from the client so the client is no longer in the room
             client.pop('room')
-
             break
 
     # If the room has no more slots left, delete the room
+    print('check')
     if len(room['slots']) == 0:
         del _args['server'].rooms[str(room_id)]
 
@@ -364,6 +391,39 @@ def set_difficulty(**_args):
     _args['connection_handler'].SendRoomAll(_args['client']['room'], result.packet)
 
 '''
+This method allows users to change their status
+'''
+def set_status(**_args):
+
+    # Retrieve the room should be in
+    room = get_room(_args)
+    if not room:
+        return
+
+    print(room)
+
+    # Get slot number
+    slot = get_slot(_args, room)
+
+    # Read status type from the packet
+    status_type = int(_args['packet'].ReadInteger(6, 2, 'big'))
+    print("Status change request from slot {0} with type {1}".format(slot, status_type))
+
+    if status_type == 1:
+        room['slots'][str(slot)]['ready'] = not room['slots'][str(slot)]['ready']
+    elif status_type == 2:
+        room['slots'][str(slot)]['team'] = 1 if room['slots'][str(slot)]['team'] == 2 else 2
+
+    # Broadcast the status change to the room
+    status = PacketWrite()
+    status.AddHeader(bytearray([0x20, 0x2F]))
+    status.AppendInteger(slot - 1, 2, 'little')
+    status.AppendBytes(bytearray([0x00, 0x00, 0x00, 0x00]))
+    status.AppendInteger(room['slots'][str(slot)]['ready'], 2, 'little')
+    status.AppendInteger(room['slots'][str(slot)]['team'], 2, 'little')
+    _args['connection_handler'].SendRoomAll(_args['client']['room'], status.packet)
+
+'''
 This method allows users to enter the shop. This will notify any other client in the room of that status as well
 '''
 def enter_shop(**_args):
@@ -403,39 +463,24 @@ def exit_shop(**_args):
 """
 This method will start the game
 """
-def StartGame(**_args):
+def start_game(**_args):
 
-    # Check if we are in a room
-    if 'room' not in _args['client']:
+    # Get room and check if we are the room master
+    room = get_room(_args, True)
+    if not room:
         return
 
-    # Get room from ID
-    room = _args['server'].rooms[str(_args['client']['room'])]
-
-    # Check if we are the room master
-    if room['master']['id'] != _args['client']['id']:
-        return
-
-    room_info = PacketWrite()
-    room_info.AddHeader(bytearray([0x67, 0x66]))
-    room_info.AppendBytes(bytearray([0x65, 0x68]))
-    room_info.AppendString(room['name'], 27)
-    _args['connection_handler'].SendRoomAll(_args['client']['room'], room_info.packet)
-
-    start = PacketWrite()
-    start.AddHeader(bytearray([0x67, 0x66]))
-    start.AppendBytes(bytearray([0x73, 0x68, 0x6C, 0x02]))
-    for _ in range(30):
-        start.AppendBytes(bytearray([0x00]))
-    _args['connection_handler'].SendRoomAll(_args['client']['room'], start.packet)
-
-    start = PacketWrite()
-    start.AddHeader(bytearray([0x67, 0x66]))
-    start.AppendBytes(bytearray([0x74, 0x68, 0x03]))
-    _args['connection_handler'].SendRoomAll(_args['client']['room'], start.packet)
-
+    # Create start packet
     start = PacketWrite()
     start.AddHeader(bytearray([0xF3, 0x2E]))
+
+    # Check if everyone is ready
+    for key, slot in room['slots'].items():
+        if not slot['ready'] and slot['client']['id'] != room['master']['id']:
+            start.AppendBytes(bytearray([0x00, 0x6C]))
+            return _args['client']['socket'].send(start.packet)
+
+    # Finish start packet and broadcast to room
     start.AppendBytes(bytearray([0x01, 0x00]))
     start.AppendInteger(room['client_id'] + 1, 2, 'little')
     start.AppendInteger(room['level'], 2, 'little')
@@ -453,6 +498,7 @@ def StartGame(**_args):
 
     _args['connection_handler'].SendRoomAll(_args['client']['room'], start.packet)
 
+    # Set room status
     room['status'] = 1
 
 '''
@@ -486,7 +532,7 @@ def ExitRoom(**_args):
     if 'room' not in _args['client']:
         return
 
-    RemoveSlot(_args, _args['client']['room'], _args['client'])
+    remove_slot(_args, _args['client']['room'], _args['client'])
 
 def JoinRoom(**_args):
 

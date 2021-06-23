@@ -22,7 +22,7 @@ of the monster being killed.
 def monster_kill(**_args):
 
     # If the client is not in a room or is not its master, drop the packet
-    room = get_room(_args, True)
+    room = get_room(_args)
     if not room:
         return
 

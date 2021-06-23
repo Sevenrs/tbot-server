@@ -75,8 +75,9 @@ def route(socket, packet, server, client, connection_handler):
         # Controller: Room
         '062b': Room.JoinRoom,
         '092b': Room.Create,
-        '0b2b': Room.StartGame,
+        '0b2b': Room.start_game,
         '3e2b': Room.load_finish,
+        '392b': Room.set_status,
         '422b': Room.ExitRoom,
         '652b': Room.SetLevel,
         '7a2b': Room.set_difficulty,

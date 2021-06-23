@@ -4,6 +4,7 @@ __copyright__ = "Copyright (C) 2020 Icseon"
 __version__ = "1.0"
 
 from Packet.Write import Write as PacketWrite
+from GameServer.Controllers.Room import remove_slot
 
 """
 This file is responsible for dealing with all the clients at once.
@@ -65,7 +66,10 @@ class Handler:
     def SendRoomAll(self, room_id, packet = None):
         for client in self.GetClients():
             if 'room' in client and client['room'] == room_id:
-                client['socket'].send(packet)
+                try:
+                    client['socket'].send(packet)
+                except Exception:
+                    pass
     
     """
     Method:         UpdatePlayerStatus
@@ -98,6 +102,12 @@ class Handler:
 
         # Check if the current client exists in the service client container
         if client in self.server.clients:
+
+            # If the client is in a room, attempt to remove it
+            if 'room' in client:
+                remove_slot(_args={'server': self.server, 'connection_handler': self}, room_id=client['room'],
+                            client=client, reason=6)
+
             self.server.clients.remove(client)
 
             # Attempt to close the socket
