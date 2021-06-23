@@ -122,7 +122,7 @@ def ConstructRoomPlayers(_args, packet, character, slot_num, client, room):
     for _ in range(10):
         packet.AppendBytes(bytearray([0x00]))
 
-    if room['master'] == client:
+    if room['master'] is client:
         print('rm')
         packet.AppendBytes(bytearray([0x70]))
     else:
@@ -237,7 +237,7 @@ def AddSlot(_args, room_id, client, broadcast=False):
 
         # Find room master slot number and append it to the packet
         for key, slot in room['slots'].items():
-            if slot['client'] == room['master']:
+            if slot['client'] is room['master']:
                 players.AppendInteger(int(key) - 1, 1, 'little')
 
         # Notify our client about all players in the room
@@ -253,7 +253,7 @@ def remove_slot(_args, room_id, client, reason=1):
 
     # Find our slot and remove it from the room
     for key, slot in room['slots'].items():
-        if slot['client'] == client:
+        if slot['client'] is client:
 
             print('found')
 
@@ -261,7 +261,7 @@ def remove_slot(_args, room_id, client, reason=1):
             del room['slots'][key]
 
             # If we are the room master, re-assign the room master to the first available slot
-            if slot['client'] == room['master']:
+            if slot['client'] is room['master']:
                 for k, s in room['slots'].items():
                     room['master'] = s['client']
                     break
@@ -276,7 +276,7 @@ def remove_slot(_args, room_id, client, reason=1):
             # Construct ranks
             for i in range(1, 9):
                 if str(i) in room['slots']:
-                    exit.AppendBytes([0x70] if room['slots'][str(i)]['client'] == room['master'] else [0x50])
+                    exit.AppendBytes([0x70] if room['slots'][str(i)]['client'] is room['master'] else [0x50])
                 else:
                     exit.AppendBytes([0x00])
                 exit.AppendBytes([0x00])
@@ -581,7 +581,7 @@ def get_slot(_args, room=None):
 
     # Loop through all slots to find our client
     for key, slot in room['slots'].items():
-        if slot['client'] == _args['client']:
+        if slot['client'] is _args['client']:
             return int(key)
 
     # Finally, if nothing worked return False
