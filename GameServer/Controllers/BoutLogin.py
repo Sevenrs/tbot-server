@@ -28,13 +28,12 @@ def ClientIDRequest(**_args):
     response.AppendBytes([0x01, 0x00])
     
     _args['socket'].send(response.packet)
-
-    print(_args['socket'])
     
     # Update our socket to use this ID and assign the account to it as well
     _args['client']['id']       = id
     _args['client']['account']  = account
-    _args['client']['new']      = 1
+    _args['client']['new']      = 1,
+    _args['client']['lobby_data'] = {'mode': 0, 'page': 0}
     
     # Disconnect all connected sessions with this account name (to stop two or more clients with the same account)
     for session in _args['connection_handler'].GetClients():

@@ -190,4 +190,5 @@ def RoomList(**_args):
     # Read mode and page from packet
     page = _args['packet'].GetByte(2)
     mode = _args['packet'].GetByte(4)
-    Room.GetList(_args, mode, page)
+
+    Room.get_list(_args, mode, page)

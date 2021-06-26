@@ -5,7 +5,7 @@ __version__     = '1.0'
 
 from Packet.Write import Write as PacketWrite
 from GameServer.Controllers.data.drops import *
-from GameServer.Controllers.Room import get_room, get_slot
+from GameServer.Controllers.Room import get_room, get_slot, get_list, get_list_page_by_room_id
 from GameServer.Controllers.Character import get_items
 import random
 import time
@@ -31,20 +31,19 @@ def monster_kill(**_args):
 
     # Construct canister drops and drop chances
     drops = [
-        (CANISTER_HEALTH,   0.05),
-        (CANISTER_REBIRTH,  0.02),
-        (CANISTER_STUN,     0.01),
-        (CANISTER_BOMB,     0.02),
+        (CANISTER_HEALTH, 0.05),
+        (CANISTER_REBIRTH, 0.02),
+        (CANISTER_STUN, 0.01),
+        (CANISTER_BOMB, 0.02),
         (CANISTER_TRANS_UP, 0.01),
-        (CANISTER_AMMO,     0.01)
+        (CANISTER_AMMO, 0.01)
     ]
 
     # Calculate whether or not we should drop an item based on chance
     monster_drops = []
     for drop, chance in drops:
-        if random.random() < chance:
-            monster_drops.append(bytes([room['drop_index']]))
-            monster_drops.append(drop.to_bytes(length=4, byteorder='little'))
+        if random.random() < chance and room['drop_index'] < 256:
+            monster_drops.append(bytes([room['drop_index'], drop, 0, 0, 0]))
             room['drop_index'] += 1
     drop_bytes = b''.join(monster_drops)
 
@@ -54,7 +53,7 @@ def monster_kill(**_args):
     death.AppendBytes(bytes=bytearray([0x01, 0x00]))
     death.AppendInteger(integer=monster_id, length=2, byteorder='little')
 
-    death.AppendBytes([0x00, 0x00])
+    death.AppendBytes([0x01, 0x00])
     death.AppendInteger(len(monster_drops), length=2, byteorder='little')
     death.AppendBytes(drop_bytes)
 
@@ -215,10 +214,16 @@ def game_stats(_args, room, wearing_items):
     # mvps shown
     packet.AppendBytes(bytearray([0x00, 0x00]))
 
-    _args['connection_handler'].SendRoomAll(room['id'], packet.packet)
+    #_args['connection_handler'].SendRoomAll(room['id'], packet.packet)
 
     # We must now send the packet to go back to room after 6 seconds
     time.sleep(6)
+
+    # Reset room status and broadcast room status to lobby
+    room['status'] = 0
+    get_list(_args, mode=0 if room['game_type'] in [0, 1] else room['game_type'] - 1,
+             page=get_list_page_by_room_id(room['id'], room['game_type']), local=False)
+
     game_exit = PacketWrite()
     game_exit.AddHeader(bytearray([0x2A, 0x2F]))
     game_exit.AppendBytes(bytearray([0x00]))

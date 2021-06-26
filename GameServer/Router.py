@@ -73,14 +73,14 @@ def route(socket, packet, server, client, connection_handler):
         '732b': Guild.UpdateGuildNotice,
 
         # Controller: Room
-        '062b': Room.JoinRoom,
-        '092b': Room.Create,
+        '062b': Room.join_room,
+        '092b': Room.create,
         '0b2b': Room.start_game,
         '3e2b': Room.load_finish,
         '392b': Room.set_status,
         '402b': Room.kick_player,
-        '422b': Room.ExitRoom,
-        '652b': Room.SetLevel,
+        '422b': Room.exit_room,
+        '652b': Room.set_level,
         '7a2b': Room.set_difficulty,
         '782b': Room.enter_shop,
         '792b': Room.exit_shop,
