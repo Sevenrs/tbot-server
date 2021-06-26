@@ -180,7 +180,7 @@ def AddSlot(_args, room_id, client, broadcast=False):
     available_slot = 0
 
     for i in range(1, 8):
-        if str(i) not in room['slots']:
+        if str(i) not in room['slots'] and str(i) not in room['closed_slots']:
             available_slot = i
             break
 
@@ -315,6 +315,7 @@ def Create(**_args):
     # Store room in the room container
     room = {
         'slots':        {},
+        'closed_slots': [],
         'name':         room_name,
         'password':     room_password,
         'game_type':    room_gametype,
@@ -403,16 +404,31 @@ def set_status(**_args):
     if not room:
         return
 
-    print(room)
-
-    # Get slot number
+    # Get our own slot number
     slot = get_slot(_args, room)
 
     # Read status type from the packet
     status_type = int(_args['packet'].ReadInteger(6, 2, 'big'))
-    print("Status change request from slot {0} with type {1}".format(slot, status_type))
 
-    if status_type == 1:
+    if status_type == 0 and room['master'] is _args['client']:
+
+        # Retrieve the target slot number from the packet
+        target_slot = int(_args['packet'].ReadInteger(3, 1, 'little')) + 1
+
+        # Check if the target slot is empty and check if the slot is equal to our own slot
+        if str(target_slot) in room['slots'] or target_slot == slot:
+            return
+
+        # Overwrite our slot with the target slot number for further operations
+        slot = target_slot
+
+        # Append to or remove from the room's closed slots
+        if not slot in room['closed_slots']:
+            room['closed_slots'].append(slot)
+        else:
+            room['closed_slots'].remove(slot)
+
+    elif status_type == 1:
         room['slots'][str(slot)]['ready'] = not room['slots'][str(slot)]['ready']
     elif status_type == 2:
         room['slots'][str(slot)]['team'] = 1 if room['slots'][str(slot)]['team'] == 2 else 2
@@ -421,9 +437,10 @@ def set_status(**_args):
     status = PacketWrite()
     status.AddHeader(bytearray([0x20, 0x2F]))
     status.AppendInteger(slot - 1, 2, 'little')
-    status.AppendBytes(bytearray([0x00, 0x00, 0x00, 0x00]))
-    status.AppendInteger(room['slots'][str(slot)]['ready'], 2, 'little')
-    status.AppendInteger(room['slots'][str(slot)]['team'], 2, 'little')
+    status.AppendBytes(bytearray([0x00, 0x00]))
+    status.AppendInteger(1 if slot in room['closed_slots'] else 0, 2, 'little')
+    status.AppendInteger(room['slots'][str(slot)]['ready'] if str(slot) in room['slots'] else 0, 2, 'little')
+    status.AppendInteger(room['slots'][str(slot)]['team'] if str(slot) in room['slots'] else 0, 2, 'little')
     _args['connection_handler'].SendRoomAll(_args['client']['room'], status.packet)
 
 '''
