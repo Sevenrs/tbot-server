@@ -5,6 +5,7 @@ __version__     = '1.0'
 
 from Packet.Write import Write as PacketWrite
 from GameServer.Controllers.data.drops import *
+from GameServer.Controllers.data.exp import *
 from GameServer.Controllers.Room import get_room, get_slot, get_list, get_list_page_by_room_id
 from GameServer.Controllers.Character import get_items
 import random
@@ -128,93 +129,168 @@ def game_end(**_args):
 
     _args['connection_handler'].SendRoomAll(room['id'], result.packet)
 
-    # Get wearing items so we can pass them as arguments
-    wearing_items = get_items(_args, _args['client']['character']['id'], 'wearing')
-    print(wearing_items)
+    information = {}
 
-    # Start new thread for the game statistics packets
-    _thread.start_new_thread(game_stats, (_args, room, wearing_items,))
+    # Calculate new experience, level, etc for all players in the room
+    for key, slot in room['slots'].items():
+
+        # Retrieve character object belonging to this player
+        character = slot['client']['character']
+
+        # Obtain value additions, but default to 0 if we have lost the game
+        addition_experience = 40    if status == 1 else 0
+        addition_gigas      = 420   if status == 1 else 0
+
+        # Check if we have leveled up
+        level_up = character['experience'] + addition_experience >= EXP_TABLE[character['level'] + 1]
+        if level_up:
+
+            # Calculate experience remainder
+            remainder = 0 if character['experience'] + addition_experience == EXP_TABLE[character['level'] + 1] \
+                else character['experience'] + addition_experience - EXP_TABLE[character['level'] + 1]
+
+            # Update our level and experience
+            character['level'] += 1
+            character['experience'] = remainder
+        else:
+
+            # Update only our experience
+            character['experience'] = character['experience'] + addition_experience
+
+        # Calculate new gigas currency
+        character['currency_gigas'] = character['currency_gigas'] + addition_gigas
+
+        information[key] = {
+            'addition_experience':  addition_experience,
+            'addition_gigas':       addition_gigas,
+            'experience':           character['experience'],
+            'gold':                 character['currency_gigas'],
+            'wearing_items':        get_items(_args, character['id'], 'wearing'),
+            'won':                  True,
+            'leveled_up':           level_up,
+            'level':                character['level']
+        }
+
+        # Update character with the new values
+        _args['mysql'].execute("""UPDATE `characters` SET `experience` = %s, `currency_gigas` = %s, `level` = %s WHERE `id` = %s""",
+                               [
+                                   character['experience'],
+                                   character['currency_gigas'],
+                                   character['level'],
+                                   slot['client']['character']['id']
+                               ])
+
+    # Start new thread for the game statistics
+    _thread.start_new_thread(game_stats, (_args, room, information,))
 
 '''
 This method will show the score board to all players in the room
 '''
-def game_stats(_args, room, wearing_items):
+def game_stats(_args, room, information):
 
     time.sleep(6)
 
-    packet = PacketWrite()
-    packet.AddHeader(bytearray([0x1F, 0x2F]))
-
-    # result
-    packet.AppendBytes(bytearray([0x01, 0x00]))
-
-    # unknown, presumably new experience points
-    packet.AppendInteger(0, 2, 'little')
-
-    # new gold amount
-    packet.AppendInteger(10, 8, 'little')
-
-    # new level
-    packet.AppendInteger(71, 2, 'little')
-
-    # new experience amount
-    packet.AppendInteger(0, 4, 'little')
-
-    # new bot stract amount
-    packet.AppendInteger(60000, 4, 'little')
-
-    # unknown
-    packet.AppendInteger(6550, 4, 'little')
-
-    # item times
-    for idx in wearing_items['items']:
-        packet.AppendInteger(wearing_items['items'][idx]['duration'], 4, 'little')
-
-    # new attack min
-    packet.AppendInteger(2000, 2, 'little')
-
-    # new attack max
-    packet.AppendInteger(2000, 2, 'little')
-
-    # new attack max
-    packet.AppendInteger(2000, 2, 'little')
+    # Construct room-wide information
+    room_results = PacketWrite()
 
     # 8 bytes that tell which player won
-    for _ in range(8):
-        packet.AppendInteger(0, 1, 'little')
+    for i in range(8):
+        room_results.AppendInteger(0 if str(i + 1) not in information else (1 if information[str(i + 1)]['won'] else 0))
 
-    # 8 bytes that well which player leveled up
-    for _ in range(8):
-        packet.AppendInteger(0, 1, 'little')
+    # 8 bytes that will tell which player leveled up
+    for i in range(8):
+        room_results.AppendInteger(0 if str(i + 1) not in information else (1 if information[str(i + 1)]['leveled_up'] else 0))
 
     # another 8 bytes which contain the new levels of said players
-    for _ in range(8):
-        packet.AppendInteger(71, 1, 'little')
+    for i in range(8):
+        room_results.AppendInteger(0 if str(i + 1) not in information else information[str(i + 1)]['level'], 1, 'little')
 
     # new experience points for all players
-    for _ in range(8):
-        packet.AppendInteger(0, 4, 'little')
+    for i in range(8):
+        room_results.AppendInteger(0 if str(i + 1) not in information else information[str(i + 1)]['addition_experience'], 2, 'little')
 
     # new health amount for all players
     for _ in range(8):
-        packet.AppendInteger(3000, 4, 'little')
+        room_results.AppendInteger(3001, 2, 'little')
 
-    # points
+    # Attack points
     for _ in range(8):
-        packet.AppendInteger(3000, 4, 'little')
+        room_results.AppendInteger(4, 2, 'little')
 
-    # player kills
+    # unknown
+    for _ in range(4):
+        room_results.AppendInteger(0, 4, 'little')
+
+    # Player kills
     for _ in range(8):
+        room_results.AppendInteger(23, 2, 'little')
+
+    # Monster kills
+    for _ in range(8):
+        room_results.AppendInteger(69, 2, 'little')
+
+    # MVPs shown
+    room_results.AppendInteger(0, 2, 'little')
+    room_results.AppendInteger(0, 2, 'little')
+
+    # Cash item experience
+    for _ in range(8):
+        room_results.AppendInteger(0, 2, 'little')
+
+    # Party experience
+    for _ in range(8):
+        room_results.AppendInteger(0, 2, 'little')
+
+    # Player ranking and ranking experience
+    for _ in range(8):
+        # Ranking
+        room_results.AppendInteger(2, 4, 'little')
+        room_results.AppendBytes(bytearray([0x00]))
+
+        # Ranking experience
+        room_results.AppendInteger(5, 4, 'little')
+
+
+    for key, slot in room['slots'].items():
+
+        # Retrieve information for this specific player
+        result_information = information[key]
+
+        # Create game result packet
+        packet = PacketWrite()
+        packet.AddHeader(bytearray([0x1F, 0x2F]))
+        packet.AppendBytes(bytearray([0x01, 0x00, 0x00, 0x00]))
+
+        # New gold amount
+        packet.AppendInteger(result_information['gold'], 4, 'little')
+
+        # New level
+        packet.AppendInteger(70, 2, 'little')
+
+        # New experience
+        packet.AppendInteger(result_information['experience'], 4, 'little')
+
+        # New oil amount
         packet.AppendInteger(0, 4, 'little')
+        packet.AppendBytes(bytearray([0x00, 0x00, 0x00, 0x00]))
 
-    # mob kills
-    for _ in range(8):
-        packet.AppendInteger(20, 4, 'little')
+        # Remaining time for wearing items
+        for idx in [17, 18, 11, 12, 13, 14, 15, 16, 3, 4, 5, 6, 7, 8, 9, 10]:
+            packet.AppendInteger(result_information['wearing_items']['items'][idx]['duration'], 4, 'little')
 
-    # mvps shown
-    packet.AppendBytes(bytearray([0x00, 0x00]))
+        # New character statistics
+        packet.AppendInteger(room['slots'][key]['client']['character']['att_min']
+                             + result_information['wearing_items']['specifications']['effect_att_min'], 2, 'little')
+        packet.AppendInteger(room['slots'][key]['client']['character']['att_max']
+                             + result_information['wearing_items']['specifications']['effect_att_max'], 2, 'little')
+        packet.AppendInteger(room['slots'][key]['client']['character']['att_trans_min']
+                             + result_information['wearing_items']['specifications']['effect_att_trans_min'], 2, 'little')
+        packet.AppendInteger(room['slots'][key]['client']['character']['att_trans_max']
+                             + result_information['wearing_items']['specifications']['effect_att_trans_max'], 2, 'little')
 
-    #_args['connection_handler'].SendRoomAll(room['id'], packet.packet)
+        # Finally, append room-wide information and send to the client's socket
+        packet.AppendBytes(room_results.data)
+        room['slots'][key]['client']['socket'].send(packet.packet)
 
     # We must now send the packet to go back to room after 6 seconds
     time.sleep(6)
