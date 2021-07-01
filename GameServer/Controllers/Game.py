@@ -202,7 +202,7 @@ def post_game_transaction(_args, room, status):
         character = slot['client']['character']
 
         # Obtain value additions, but default to 0 if we have lost the game
-        addition_experience = PLANET_MAP_TABLE[room['level']][room['difficulty']] \
+        addition_experience = PLANET_MAP_TABLE[room['level']][0][room['difficulty']] \
             if room['level'] in PLANET_MAP_TABLE.keys() and status == 1 else 0
         print(addition_experience)
         addition_gigas = 420 if status == 1 else 0
@@ -386,7 +386,7 @@ def countdown_timer(_args, room):
 
     # Wait a predefined amount of time and check whether the game ended every second
     # If the game ended, stop polling. If everyone left the room, also stop.
-    for _ in range((60 * 7) + 30):
+    for _ in range(int(PLANET_MAP_TABLE[room['level']][1] * 60)):
         if len(room['slots']) == 0 or room['game_over']: break
         time.sleep(1)
 
