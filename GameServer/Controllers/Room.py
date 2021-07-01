@@ -4,8 +4,10 @@ __copyright__ = "Copyright (C) 2020 Icseon"
 __version__ = "1.0"
 
 from Packet.Write import Write as PacketWrite
-from GameServer.Controllers import Character
+from GameServer.Controllers import Character, Guild
+from GameServer.Controllers.data.planet import PLANET_MAP_TABLE
 import math
+import os
 
 """
 This controller is responsible for handling all room related requests
@@ -144,7 +146,6 @@ def construct_room_players(_args, packet, character, slot_num, client, room):
         packet.AppendBytes(bytearray([0x00]))
 
     if room['master'] is client:
-        print('rm')
         packet.AppendBytes(bytearray([0x70]))
     else:
         packet.AppendBytes(bytearray([0x50]))
@@ -183,7 +184,10 @@ def construct_room_players(_args, packet, character, slot_num, client, room):
         packet.AppendBytes(bytearray([0x00]))
 
     packet.AppendString(character['name'], 15)
-    packet.AppendString("guild name", 21)
+
+    # Fetch character guild membership and get the name of the guild
+    guild = Guild.FetchGuild(_args, character['id'])
+    packet.AppendString('' if guild is None else guild['name'], 21)
 
     for _ in range(4):
         packet.AppendBytes(bytearray([0x00]))
@@ -353,7 +357,8 @@ def create(**_args):
         'level':        0,
         'difficulty':   0,
         'status':       0,
-        'drop_index':   1
+        'drop_index':   1,
+        'game_over':    False
     }
 
     # Pass the room to the server room container and notify any client that may see this change in the lobby
@@ -391,8 +396,20 @@ def set_level(**_args):
     # Read level from the incoming packet
     selected_level = int(_args['packet'].GetByte(2))
 
+    # Check if the selected level is in our map table
+    if selected_level not in PLANET_MAP_TABLE.keys():
+        selected_level = 0
+
+        # Create error packet for the room master to tell them that their request has been denied
+        error = PacketWrite()
+        error.AddHeader(bytearray([0xF3, 0x2E]))
+        error.AppendBytes(bytearray([0x00, 0x3D]))
+        _args['socket'].send(error.packet)
+
     # Set level for the room and broadcast to all clients in this room
     room['level'] = selected_level
+
+    # Construct level packet
     level = PacketWrite()
     level.AddHeader(bytearray([0x4A, 0x2F]))
     level.AppendBytes(bytearray([0x01, 0x00]))
@@ -564,7 +581,8 @@ values, etc.
 def reset(room):
 
     # Reset room variables
-    room['drop_index'] = 1
+    room['drop_index']  = 1
+    room['game_over']   = False
 
     # Mark no client as ready or loaded
     for slot in room['slots']:
@@ -574,47 +592,29 @@ def reset(room):
         slot['loaded']  = False
 
 '''
-This method will tell the room that the client has finished loading the map
-If a client has not loaded the map, the ready packet will not be sent
-'''
-def load_finish(**_args):
-
-    # Get room and check if we are in one
-    room = get_room(_args)
-    if not room:
-        return
-
-    # Get slot and update loading status
-    room['slots'][str(get_slot(_args, room))]['loaded'] = True
-
-    # Check if the other slots have loaded
-    for slot in room['slots']:
-        if not room['slots'][slot]['loaded']:
-            return
-
-    # If all clients are ready to play, send the ready packet
-    ready = PacketWrite()
-    ready.AddHeader(bytearray([0x24, 0x2F]))
-    ready.AppendBytes(bytearray([0x00]))
-    _args['connection_handler'].SendRoomAll(_args['client']['room'], ready.packet)
-
-'''
 This method allows room masters to kick players out of their rooms
 '''
 def kick_player(**_args):
 
-    # Obtain room and check if we are the room master
-    room = get_room(_args, True)
+    # Obtain room. If we are not in a room, drop the packet entirely
+    room = get_room(_args)
     if not room:
         return
+
+    # In the event we need to send an error packet, construct it here
+    error = PacketWrite()
+    error.AddHeader(bytearray([0xF3, 0x2E]))
+
+    # If we are not the room master, send an error packet that does nothing so that the client will not lock up
+    if room['master']['id'] != _args['client']['id']:
+        error.AppendBytes(bytearray([0x00, 0x3A]))
+        return _args['client']['socket'].send(error.packet)
 
     # Read slot number from the packet
     slot = int(_args['packet'].ReadInteger(18, 1, 'little'))
 
     # Stop the room master from kicking themselves
     if slot + 1 == get_slot(_args, room):
-        error = PacketWrite()
-        error.AddHeader(bytearray([0xF3, 0x2E]))
         error.AppendBytes(bytearray([0x00, 0x73]))
         return _args['client']['socket'].send(error.packet)
 

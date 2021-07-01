@@ -6,8 +6,10 @@ __version__     = '1.0'
 from Packet.Write import Write as PacketWrite
 from GameServer.Controllers.data.drops import *
 from GameServer.Controllers.data.exp import *
+from GameServer.Controllers.data.planet import PLANET_MAP_TABLE
 from GameServer.Controllers.Room import get_room, get_slot, get_list, get_list_page_by_room_id
 from GameServer.Controllers.Character import get_items
+import MySQL.Interface as MySQL
 import random
 import time
 import _thread
@@ -15,6 +17,34 @@ import _thread
 """
 This controller is responsible for handling all game related actions
 """
+
+'''
+This method will tell the room that the client has finished loading the map
+If a client has not loaded the map, the ready packet will not be sent yet
+'''
+def load_finish(**_args):
+
+    # Get room and check if we are in one
+    room = get_room(_args)
+    if not room:
+        return
+
+    # Get slot and update loading status
+    room['slots'][str(get_slot(_args, room))]['loaded'] = True
+
+    # Check if the other slots have loaded
+    for slot in room['slots']:
+        if not room['slots'][slot]['loaded']:
+            return
+
+    # If all clients are ready to play, send the ready packet
+    ready = PacketWrite()
+    ready.AddHeader(bytearray([0x24, 0x2F]))
+    ready.AppendBytes(bytearray([0x00]))
+    _args['connection_handler'].SendRoomAll(_args['client']['room'], ready.packet)
+
+    # Start new countdown timer thread
+    _thread.start_new_thread(countdown_timer, (_args, room,))
 
 '''
 This method will handle monster deaths and broadcasts an acknowledgement to the room
@@ -109,25 +139,59 @@ def player_death(**_args):
     _args['connection_handler'].SendRoomAll(room['id'], death.packet)
 
 
-
 '''
-This method will handle game ends
+This method will handle the game end RPC. This acts as a caller for game_end through a packet instead of being
+called manually in the game code.
 '''
-def game_end(**_args):
+def game_end_rpc(**_args):
 
     # If the client is not in a room or is not its master, drop the packet
     room = get_room(_args, True)
     if not room:
         return
 
-    # Check the status by checking the packet header
-    status = 0 if _args['packet'].id == '3b2b' else 1
+    game_end(_args=_args, room=room, status=(0 if _args['packet'].id == '3b2b' else 1))
 
+'''
+This method will send the correct packed to indicate what the game end result is to the room or specified client.
+After this, it will start a new thread that will run the post-game transaction and show the game stats to the clients.
+'''
+def game_end(_args, room, status=0):
+
+    # If the game is already over, there is not anything to do.
+    if room['game_over']:
+        return
+
+    # The game is over. This is to avoid multiple calls to this method and to stop polling threads.
+    room['game_over'] = True
+
+    # If the room mode is equal to Planet and if the map is not defined in our data, we must assume the game has been lost
+    if room['level'] not in PLANET_EXP_TABLE.keys():
+        status = 0
+
+    # Create game result packet and send it to all the room clients
     result = PacketWrite()
     result.AddHeader(bytes=bytearray([0x2A, 0x27]))
     result.AppendInteger(status, 2, 'little')
-
     _args['connection_handler'].SendRoomAll(room['id'], result.packet)
+
+    # Start new thread for the game statistics
+    _thread.start_new_thread(game_stats, (_args, room, status,))
+
+'''
+This method will update all characters in the room with their new results (if applicable)
+Additionally, this method will return the results of the transaction in the form of a dictionary
+'''
+def post_game_transaction(_args, room, status):
+
+    """
+    Because we are not in the main thread, the database connection is not available to this method.
+    We'll have to connect again in order to perform a database transaction.
+    ---
+    What we'll do is overwrite the object that would have been our mysql object if we were in the main thread
+    """
+    mysql_connection    = MySQL.GetConnection()
+    _args['mysql']      = mysql_connection.cursor(dictionary=True)
 
     information = {}
 
@@ -138,20 +202,18 @@ def game_end(**_args):
         character = slot['client']['character']
 
         # Obtain value additions, but default to 0 if we have lost the game
-        addition_experience = 40    if status == 1 else 0
-        addition_gigas      = 420   if status == 1 else 0
+        addition_experience = PLANET_MAP_TABLE[room['level']][room['difficulty']] \
+            if room['level'] in PLANET_MAP_TABLE.keys() and status == 1 else 0
+        print(addition_experience)
+        addition_gigas = 420 if status == 1 else 0
 
         # Check if we have leveled up
         level_up = character['experience'] + addition_experience >= EXP_TABLE[character['level'] + 1]
         if level_up:
 
-            # Calculate experience remainder
-            remainder = 0 if character['experience'] + addition_experience == EXP_TABLE[character['level'] + 1] \
-                else character['experience'] + addition_experience - EXP_TABLE[character['level'] + 1]
-
             # Update our level and experience
             character['level'] += 1
-            character['experience'] = remainder
+            character['experience'] = 0
         else:
 
             # Update only our experience
@@ -161,34 +223,42 @@ def game_end(**_args):
         character['currency_gigas'] = character['currency_gigas'] + addition_gigas
 
         information[key] = {
-            'addition_experience':  addition_experience,
-            'addition_gigas':       addition_gigas,
-            'experience':           character['experience'],
-            'gold':                 character['currency_gigas'],
-            'wearing_items':        get_items(_args, character['id'], 'wearing'),
-            'won':                  True,
-            'leveled_up':           level_up,
-            'level':                character['level']
+            'addition_experience': addition_experience,
+            'addition_gigas': addition_gigas,
+            'experience': character['experience'],
+            'gold': character['currency_gigas'],
+            'wearing_items': get_items(_args, character['id'], 'wearing'),
+            'won': True,
+            'leveled_up': level_up,
+            'level': character['level']
         }
 
         # Update character with the new values
-        _args['mysql'].execute("""UPDATE `characters` SET `experience` = %s, `currency_gigas` = %s, `level` = %s WHERE `id` = %s""",
-                               [
-                                   character['experience'],
-                                   character['currency_gigas'],
-                                   character['level'],
-                                   slot['client']['character']['id']
-                               ])
+        _args['mysql'].execute(
+            """UPDATE `characters` SET `experience` = %s, `currency_gigas` = %s, `level` = %s WHERE `id` = %s""",
+            [
+                character['experience'],
+                character['currency_gigas'],
+                character['level'],
+                slot['client']['character']['id']
+            ])
 
-    # Start new thread for the game statistics
-    _thread.start_new_thread(game_stats, (_args, room, information,))
+    # After doing updates to the character object, we should close the mysql connection and return the results
+    mysql_connection.close()
+    return information
+
 
 '''
-This method will show the score board to all players in the room
+This method will show the game statistics and the result of the post game transaction which is also
+invoked in this method
 '''
-def game_stats(_args, room, information):
+def game_stats(_args, room, status):
 
+    # To give players the chance to obtain items such as drops, we will be waiting six seconds.
     time.sleep(6)
+
+    # Perform post game transaction and obtain its results
+    information = post_game_transaction(_args, room, status)
 
     # Construct room-wide information
     room_results = PacketWrite()
@@ -304,3 +374,23 @@ def game_stats(_args, room, information):
     game_exit.AddHeader(bytearray([0x2A, 0x2F]))
     game_exit.AppendBytes(bytearray([0x00]))
     _args['connection_handler'].SendRoomAll(room['id'], game_exit.packet)
+
+'''
+This method is responsible for waiting for the time to be over in sessions.
+It uses polling due to having no ability to mutate the thread's state once it has been started.
+'''
+def countdown_timer(_args, room):
+
+    # Always wait for the game count down to conclude. That's when the timer starts on the client.
+    time.sleep(2)
+
+    # Wait a predefined amount of time and check whether the game ended every second
+    # If the game ended, stop polling. If everyone left the room, also stop.
+    for _ in range((60 * 7) + 30):
+        if len(room['slots']) == 0 or room['game_over']: break
+        time.sleep(1)
+
+    # If polling stopped while the game is not over, the game has ran out of time.
+    # Also check if there are actually any players in the room
+    if len(room['slots']) > 0 and not room['game_over']:
+        game_end(_args=_args, room=room, status=2)

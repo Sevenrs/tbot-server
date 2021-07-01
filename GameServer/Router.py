@@ -76,7 +76,6 @@ def route(socket, packet, server, client, connection_handler):
         '062b': Room.join_room,
         '092b': Room.create,
         '0b2b': Room.start_game,
-        '3e2b': Room.load_finish,
         '392b': Room.set_status,
         '402b': Room.kick_player,
         '422b': Room.exit_room,
@@ -89,8 +88,9 @@ def route(socket, packet, server, client, connection_handler):
         '6f2b': Game.player_death,
         '3a2b': Game.monster_kill,
         '3c2b': Game.use_item,
-        '3b2b': Game.game_end,  # Game lost
-        '462b': Game.game_end   # Game won
+        '3e2b': Game.load_finish,
+        '3b2b': Game.game_end_rpc,  # Game lost
+        '462b': Game.game_end_rpc   # Game won
 
     }.get(packet.id, unknown)(**locals())
 
