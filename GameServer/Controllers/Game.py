@@ -7,7 +7,7 @@ from Packet.Write import Write as PacketWrite
 from GameServer.Controllers.data.drops import *
 from GameServer.Controllers.data.exp import *
 from GameServer.Controllers.data.planet import PLANET_MAP_TABLE
-from GameServer.Controllers.Room import get_room, get_slot, get_list, get_list_page_by_room_id
+from GameServer.Controllers.Room import get_room, get_slot, get_list, get_list_page_by_room_id, reset
 from GameServer.Controllers.Character import get_items
 import MySQL.Interface as MySQL
 import random
@@ -366,6 +366,7 @@ def game_stats(_args, room, status):
     time.sleep(6)
 
     # Reset room status and broadcast room status to lobby
+    reset(room)
     room['status'] = 0
     get_list(_args, mode=0 if room['game_type'] in [0, 1] else room['game_type'] - 1,
              page=get_list_page_by_room_id(room['id'], room['game_type']), local=False)

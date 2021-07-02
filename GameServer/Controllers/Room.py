@@ -548,9 +548,6 @@ def start_game(**_args):
             start.AppendBytes(bytearray([0x00, 0x6C]))
             return _args['client']['socket'].send(start.packet)
 
-    # Reset room
-    reset(room)
-
     # Finish start packet and broadcast to room
     start.AppendBytes(bytearray([0x01, 0x00]))
     start.AppendInteger(room['client_id'] + 1, 2, 'little')
@@ -585,6 +582,7 @@ def reset(room):
     room['game_over']   = False
 
     # Mark no client as ready or loaded
+    print(room['slots'])
     for slot in room['slots']:
         slot = room['slots'][slot]
         slot['ready']   = 0

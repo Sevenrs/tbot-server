@@ -33,13 +33,13 @@ def get_items(_args, character_id, mode = 'wearing'):
         'effect_luck': 0
     }
 
+    # Array with item types
+    types = ['head', 'body', 'arms', 'mini-bot', 'gun', 'ef', 'wing', 'shield', 'shoulder', 'flag1', 'flag2',
+             'passive_skill', 'attack_skill', 'field_pack', 'trans_pack', 'merc1', 'merc2', 'coin_head', 'coin_minibot']
+
     # Get and return wearing items
     if mode == 'wearing':
         wearing = {}
-
-        # Array with wearable item types
-        types = ['head', 'body', 'arms', 'mini-bot', 'gun', 'ef', 'wing', 'shield', 'shoulder', 'flag1', 'flag2',
-                 'passive_skill', 'attack_skill', 'field_pack', 'trans_pack', 'merc1', 'merc2', 'coin_head', 'coin_minibot']
 
         # Obtain wearing item for each possible type
         for item_type in types:
@@ -62,7 +62,9 @@ def get_items(_args, character_id, mode = 'wearing'):
                                                     gitem.`effect_trans_bot_attack`,
                                                     gitem.`effect_trans_speed`,
                                                     gitem.`effect_ranged_attack`,
-                                                    gitem.`effect_luck`
+                                                    gitem.`effect_luck`,
+                                                    gitem.`part_type`,
+                                                    citem.`id` AS `character_item_id`
                                                     FROM `character_wearing` cwear
                                                     LEFT JOIN `character_items` citem 
                                                         ON citem.`id` = cwear.`{0}`
@@ -83,10 +85,12 @@ def get_items(_args, character_id, mode = 'wearing'):
                 wearing['trans_pack']['item_id'] = get_body_transformation(int(str(wearing['body']['item_id'])[:-1]))
 
             item = {
-                "item_id": wearing[item_type]['item_id'],
-                'remaining_hours': wearing[item_type]['remaining_hours'],
-                'remaining_games': wearing[item_type]['remaining_games'],
-                'remaining_times': wearing[item_type]['remaining_times']
+                "item_id":              wearing[item_type]['item_id'],
+                'remaining_hours':      wearing[item_type]['remaining_hours'],
+                'remaining_games':      wearing[item_type]['remaining_games'],
+                'remaining_times':      wearing[item_type]['remaining_times'],
+                'part_type':            wearing[item_type]['part_type'],
+                'character_item_id':    wearing[item_type]['character_item_id']
             }
 
             # Modify specification summary
@@ -107,7 +111,11 @@ def get_items(_args, character_id, mode = 'wearing'):
                                                 citem.`remaining_games`                                        
                                                     AS `remaining_games`,
                                                 citem.`remaining_times`                                         
-                                                    AS `remaining_times`
+                                                    AS `remaining_times`,
+                                                gitem.`part_type`
+                                                    AS `part_type`,
+                                                citem.`id`
+                                                    AS `character_item_id`
 
                                                 FROM `inventory` inventory
                                                 LEFT JOIN `character_items` citem   
@@ -139,9 +147,11 @@ def get_items(_args, character_id, mode = 'wearing'):
             duration_type = 3
 
         result[idx] = {
-            "id": item['item_id'],
-            "duration": duration,
-            "duration_type": duration_type
+            "id":                   item['item_id'],
+            "duration":             duration,
+            "duration_type":        duration_type,
+            "type":                 types[int(item['part_type']) - 1] if item['part_type'] is not None else None,
+            'character_item_id':    item['character_item_id']
         }
 
     if mode == 'wearing':
@@ -151,6 +161,147 @@ def get_items(_args, character_id, mode = 'wearing'):
         }
 
     return result
+
+'''
+This method gets the first available inventory slot number
+'''
+def get_available_inventory_slot(inventory):
+    for item in inventory:
+        if inventory[item]['id'] == 0:
+            return item
+
+    return None
+
+'''
+This method inserts a new item into character_wearing and puts it in our inventory
+'''
+def add_item(_args, item, slot):
+
+    # Insert into character items
+    _args['mysql'].execute("""INSERT INTO `character_items` (`game_item`) VALUES (%s)""", [
+        item['id']
+    ])
+
+    # Retrieve character item id from the last row identifier
+    character_item_id = _args['mysql'].lastrowid
+
+    # Insert item into the inventory of our character
+    _args['mysql'].execute("""UPDATE `inventory` SET `item_{0}` = %s WHERE `character_id` = %s""".format(str(slot + 1)), [
+        character_item_id,
+        _args['client']['character']['id']
+    ])
+
+'''
+This method constructs the bot data which can then be appended to a packet to send the character information sheet
+'''
+def construct_bot_data(_args, character):
+
+    bot = PacketWrite()
+
+    # Obtain wearing items
+    wearing_items = get_items(_args, character['id'], 'wearing')
+
+    # Append general character information to packet
+    bot.AppendString(character['name'], 15)
+    bot.AppendInteger(character['type'], 2, 'little')
+    bot.AppendInteger(character['experience'], 4, 'little')
+    bot.AppendInteger(character['level'], 2, 'little')
+    bot.AppendInteger(character['health']
+                                        + wearing_items['specifications']['effect_health'], 2, 'little')
+    bot.AppendInteger(character['att_min']
+                                        + wearing_items['specifications']['effect_att_min'], 2, 'little')
+    bot.AppendInteger(character['att_max']
+                                        + wearing_items['specifications']['effect_att_max'], 2, 'little')
+    bot.AppendInteger(character['att_trans_min']
+                                        + wearing_items['specifications']['effect_att_trans_min'], 2, 'little')
+    bot.AppendInteger(character['att_trans_max']
+                                        + wearing_items['specifications']['effect_att_trans_max'], 2, 'little')
+
+    bot.AppendBytes([0x00, 0x00])
+
+    # Append character effects to the packet
+    bot.AppendInteger(character['trans_guage']
+                                        + wearing_items['specifications']['effect_trans_guage'], 2, 'little')
+    bot.AppendInteger(character['att_critical']
+                                        + wearing_items['specifications']['effect_critical'], 2, 'little')
+    bot.AppendInteger(character['att_evade']
+                                        + wearing_items['specifications']['effect_critical'], 2, 'little')
+    bot.AppendInteger(character['trans_special']
+                                        + wearing_items['specifications']['effect_special_trans'], 2, 'little')
+    bot.AppendInteger(character['speed']
+                                        + wearing_items['specifications']['effect_speed'], 2, 'little')
+    bot.AppendInteger(character['trans_def']
+                                        + wearing_items['specifications']['effect_trans_bot_defense'], 2, 'little')
+    bot.AppendInteger(character['trans_att']
+                                        + wearing_items['specifications']['effect_trans_bot_attack'], 2, 'little')
+    bot.AppendInteger(character['trans_speed']
+                                        + wearing_items['specifications']['effect_trans_speed'], 2, 'little')
+    bot.AppendInteger(character['att_ranged']
+                                        + wearing_items['specifications']['effect_ranged_attack'], 2, 'little')
+    bot.AppendInteger(character['luck']
+                                        + wearing_items['specifications']['effect_luck'], 2, 'little')
+
+    # Append the amount of botstract to the packet
+    bot.AppendInteger(character['currency_botstract'], 4, 'little')
+
+    for _ in range(4):
+        bot.AppendBytes([0x00, 0x00, 0x00, 0x00])
+
+    for i in range(0, 3):
+        item = wearing_items['items'][list(wearing_items['items'].keys())[i]]
+        bot.AppendInteger(item['id'], 4, 'little')
+        bot.AppendInteger(item['duration'], 4, 'little')
+        bot.AppendInteger(item['duration_type'], 1, 'little')
+
+    bot.AppendBytes([0x01, 0x00, 0x00])
+
+    inventory = get_items(_args, character['id'], 'inventory')
+    for item in inventory:
+        bot.AppendInteger(inventory[item]['id'], 4, 'little')
+        bot.AppendInteger(inventory[item]['duration'], 4, 'little')
+        bot.AppendInteger(inventory[item]['duration_type'], 1, 'little')
+
+    for _ in range(904):
+        bot.AppendBytes([0x00])
+
+    # Gigas
+    bot.AppendInteger(character['currency_gigas'], 4, 'little')
+
+    for _ in range(242):
+        bot.AppendBytes([0x00])
+
+    for i in range(3, 17):
+        item = wearing_items['items'][list(wearing_items['items'].keys())[i]]
+        bot.AppendInteger(item['id'], 4, 'little')
+        bot.AppendInteger(item['duration'], 4, 'little')
+        bot.AppendInteger(item['duration_type'], 1, 'little')
+
+    for i in range(200):
+        bot.AppendBytes([0x00])
+
+    for i in range(17, 19):
+        item = wearing_items['items'][list(wearing_items['items'].keys())[i]]
+        bot.AppendInteger(item['id'], 4, 'little')
+        bot.AppendInteger(item['duration'], 4, 'little')
+        bot.AppendInteger(item['duration_type'], 1, 'little')
+
+    for _ in range(30):
+        bot.AppendBytes([0x00])
+
+    bot.AppendInteger(2, 1, 'little')
+
+    for _ in range(50):
+        bot.AppendInteger(0, 4, 'little')
+        bot.AppendInteger(0, 4, 'little')
+        bot.AppendInteger(0, 1, 'little')
+
+    for _ in range(27):
+        bot.AppendBytes([0x00, 0x00, 0x00, 0x00])
+
+    bot.AppendInteger(character['rank_exp'], 4, 'little')
+    bot.AppendInteger(character['rank'], 4, 'little')
+
+    return bot.data
 
 
 def get_body_transformation(body_item_id):

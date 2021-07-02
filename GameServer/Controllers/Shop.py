@@ -23,20 +23,106 @@ def RequestCash(**_args):
     coin_packet.AppendInteger(result['cash'], 4, 'little')
     _args['socket'].send(coin_packet.packet)
 
-    # Test giga purchase packet
-    test = PacketWrite()
-    test.AddHeader(bytearray([0xEA, 0x2E]))
-    test.AppendBytes(bytearray([0x01, 0x00]))
-    test.AppendBytes([0x01, 0x00, 0x00])
+'''
+This method allows users to purchase gold items
+'''
+def purchase_gold_item(**_args):
+
+    # Read item id from the packet
+    item_id = int(_args['packet'].ReadInteger(39, 3, 'little'))
+
+    # Attempt to find the item in the database
+    _args['mysql'].execute('''SELECT `id`, `item_id`, `buyable`, `gold_price` FROM `game_items` WHERE `item_id` = %s''', [item_id])
+    item = _args['mysql'].fetchone()
+
+    # Construct purchase result packet
+    result = PacketWrite()
+    result.AddHeader(bytearray([0xEA, 0x2E]))
+
+    # Define error
+    error = None
+
+    # Retrieve our inventory and check if we have a remaining slot available
+    inventory       = Character.get_items(_args, _args['client']['character']['id'], 'inventory')
+    available_slot  = Character.get_available_inventory_slot(inventory)
+
+    # Define an error if the item has not been found or can not be purchased
+    if item is None or item['buyable'] != 1: error = 66
+
+    # Define another error if we have no available inventory slot for this operation
+    if available_slot is None: error = 68
+
+    # Check if we have enough currency to purchase this item
+    if _args['client']['character']['currency_gigas'] < int(item['gold_price']): error = 65
+
+    # If an error has been defined, send the error
+    if error is not None:
+        result.AppendBytes(bytearray([0x00]))
+        result.AppendInteger(error, 1, 'little')
+        return _args['socket'].send(result.packet)
+
+    # Decrease character currency and update local state with new value
+    _args['client']['character']['currency_gigas'] = _args['client']['character']['currency_gigas'] \
+                                                     - int(item['gold_price'])
+    _args['mysql'].execute('''UPDATE `characters` SET `currency_gigas` = (`currency_gigas` - %s) WHERE `id` = %s''', [
+        int(item['gold_price']),
+        _args['client']['character']['id']
+    ])
+
+    # If there are no errors, proceed to create an instance of character_items and insert the item into our inventory
+    Character.add_item(_args, item, available_slot)
+
+    # Send packet to sync the inventory and currency state
+    result.AppendBytes(bytearray([0x01, 0x00]))
+    result.AppendBytes([0x01, 0x00, 0x00])
 
     inventory = Character.get_items(_args, _args['client']['character']['id'], 'inventory')
     for item in inventory:
-        test.AppendInteger(inventory[item]['id'], 4, 'little')
-        test.AppendInteger(inventory[item]['duration'], 4, 'little')
-        test.AppendInteger(inventory[item]['duration_type'], 1, 'little')
+        result.AppendInteger(inventory[item]['id'], 4, 'little')
+        result.AppendInteger(inventory[item]['duration'], 4, 'little')
+        result.AppendInteger(inventory[item]['duration_type'], 1, 'little')
 
     for _ in range(180):
-        test.AppendBytes([0x00])
+        result.AppendBytes([0x00])
 
-    test.AppendInteger(42069, 4, 'little')
-    #_args['socket'].send(test.packet)
+    result.AppendInteger(_args['client']['character']['currency_gigas'], 4, 'little')
+    _args['socket'].send(result.packet)
+
+'''
+This method allows users to wear items
+'''
+def wear_item(**_args):
+
+    # Read slot number from packet
+    slot = int(_args['packet'].ReadInteger(26, 1, 'little'))
+
+    # Retrieve our inventory to obtain more information about the item
+    wearing_items   = Character.get_items(_args, _args['client']['character']['id'], 'wearing')
+    inventory       = Character.get_items(_args, _args['client']['character']['id'], 'inventory')
+
+    item = inventory[slot]
+
+    # Automatically move any item that we may already be wearing to our inventory
+    for wearing_idx in wearing_items['items']:
+        if item['type'] == wearing_items['items'][wearing_idx]['type']:
+
+            # Update the inventory slot to contain the already wearing item
+            _args['mysql'].execute(
+                """UPDATE `inventory` SET `item_{0}` = %s WHERE `character_id` = %s""".format(str(slot + 1)), [
+                    wearing_items['items'][wearing_idx]['character_item_id'],
+                    _args['client']['character']['id']
+                ])
+
+    # Wear the item we wish to wear
+    _args['mysql'].execute(
+        """UPDATE `character_wearing` SET `{0}` = %s WHERE `character_id` = %s""".format(item['type']), [
+            item['character_item_id'],
+            _args['client']['character']['id']
+        ])
+
+    # Construct the response packet
+    result = PacketWrite()
+    result.AddHeader(bytearray([0x19, 0x2F]))
+    result.AppendBytes([0x01, 0x00])
+    result.AppendBytes(Character.construct_bot_data(_args, _args['client']['character']))
+    _args['socket'].send(result.packet)

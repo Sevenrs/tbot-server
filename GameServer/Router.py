@@ -60,6 +60,8 @@ def route(socket, packet, server, client, connection_handler):
 
         # Controller: Shop
         '512b': Shop.RequestCash,
+        '022b': Shop.purchase_gold_item,
+        'fc2a': Shop.wear_item,
 
         # Controller: Guild
         '552b': Guild.Create,
@@ -103,4 +105,4 @@ Handle unknown packets
 """
 
 def unknown(**_args):
-    print('Unknown packet: <0x{0}::{1}>'.format(_args['packet'].id, _args['packet'].data))
+    print('Unknown packet: <0x{0}[len={2}]::{1}>'.format(_args['packet'].id, _args['packet'].data, len(_args['packet'].data)))
