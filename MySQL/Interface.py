@@ -4,17 +4,22 @@ __copyright__ = "Copyright (C) 2020 Icseon"
 __version__ = "1.0"
 
 import mysql.connector
+from dotenv import dotenv_values
 
 """
 This method obtains the connector interface
 """
 def GetConnection():
     try:
+
+        ''' Load database configuration from dotenv '''
+        config = dotenv_values('.env')
+
         connection = mysql.connector.connect(
-            host="127.0.0.1",
-            user="development",
-            password="development",
-            database="bout",
+            host=config["MYSQL_HOST"],
+            user=config["MYSQL_USER"],
+            password=config["MYSQL_PASS"],
+            database=config["MYSQL_DATABASE"],
             connect_timeout=10
         )
         
