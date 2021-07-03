@@ -48,6 +48,7 @@ def get_items(_args, character_id, mode = 'wearing'):
                                                         AS `remaining_hours`,
                                                     citem.`remaining_games`,
                                                     citem.`remaining_times`,
+                                                    citem.`used`,
                                                     gitem.`effect_health`,
                                                     gitem.`effect_att_min`,
                                                     gitem.`effect_att_max`,
@@ -89,6 +90,7 @@ def get_items(_args, character_id, mode = 'wearing'):
                 'remaining_hours':      wearing[item_type]['remaining_hours'],
                 'remaining_games':      wearing[item_type]['remaining_games'],
                 'remaining_times':      wearing[item_type]['remaining_times'],
+                'used':                 wearing[item_type]['used'],
                 'part_type':            wearing[item_type]['part_type'],
                 'character_item_id':    wearing[item_type]['character_item_id']
             }
@@ -112,6 +114,8 @@ def get_items(_args, character_id, mode = 'wearing'):
                                                     AS `remaining_games`,
                                                 citem.`remaining_times`                                         
                                                     AS `remaining_times`,
+                                                citem.`used`
+                                                    AS `used`,    
                                                 gitem.`part_type`
                                                     AS `part_type`,
                                                 citem.`id`
@@ -146,6 +150,10 @@ def get_items(_args, character_id, mode = 'wearing'):
             duration = item['remaining_games']
             duration_type = 3
 
+        # If the item has not been used, and the duration type is higher than 1, update the duration type to be unused
+        if item['used'] == 0:
+            duration_type = 4
+
         result[idx] = {
             "id":                   item['item_id'],
             "duration":             duration,
@@ -173,13 +181,28 @@ def get_available_inventory_slot(inventory):
     return None
 
 '''
-This method inserts a new item into character_wearing and puts it in our inventory
+This method inserts a new item into character_items and puts it in our inventory
 '''
-def add_item(_args, item, slot):
+def add_item(_args, item, slot, item_type):
+
+    # Standard values
+    remaining_games, remaining_times, used = None, None, (0 if item_type == 'cash' else None)
+
+    # If the part is a pack or a special part, add the amount of times they can be used
+    if item['part_type'] in (0, 14):
+        remaining_times, used = item['duration'], 1
+
+    # If the item type is either gun or passive/active skill, add remaining games
+    if (item['part_type'] == 5 and item_type != 'gold') or item['part_type'] in (12, 13):
+        remaining_games, used = item['duration'], 1
 
     # Insert into character items
-    _args['mysql'].execute("""INSERT INTO `character_items` (`game_item`) VALUES (%s)""", [
-        item['id']
+    _args['mysql'].execute("""INSERT INTO `character_items` (`game_item`, `remaining_games`, `remaining_times`, `used`)
+     VALUES (%s, %s, %s, %s)""", [
+        item['id'],
+        remaining_games,
+        remaining_times,
+        used
     ])
 
     # Retrieve character item id from the last row identifier
@@ -190,6 +213,21 @@ def add_item(_args, item, slot):
         character_item_id,
         _args['client']['character']['id']
     ])
+
+'''
+This method removes an item from character_items and removes it from our inventory
+'''
+def remove_item(_args, character_item_id, slot):
+
+    # Remove item from the inventory of our character, but only if the item id actually matches the slot index
+    _args['mysql'].execute("""UPDATE `inventory` SET `item_{0}` = 0 WHERE `character_id` = %s AND `item_{0}` = %s""".format(str(slot + 1)), [
+        _args['client']['character']['id'],
+        character_item_id
+    ])
+
+    # Remove item from character_items
+    _args['mysql'].execute("""DELETE FROM `character_items` WHERE `id` = %s""", [character_item_id])
+
 
 '''
 This method constructs the bot data which can then be appended to a packet to send the character information sheet
