@@ -183,17 +183,23 @@ def get_available_inventory_slot(inventory):
 '''
 This method inserts a new item into character_items and puts it in our inventory
 '''
-def add_item(_args, item, slot, item_type):
+def add_item(_args, item, slot):
 
-    # Standard values
-    remaining_games, remaining_times, used = None, None, (0 if item_type == 'cash' else None)
+    # Standard values. The used parameter is set only if the duration of the item is greater than 0
+    remaining_games, remaining_times, used = None, None, (0 if item['duration'] > 0 else None)
 
-    # If the part is a pack or a special part, add the amount of times they can be used
-    if item['part_type'] in (0, 14):
+    '''
+    If the part is a pack or a special part, add the amount of times they can be used
+    Additionally, the item should be marked as used
+    '''
+    if item['part_type'] in (0, 14) and item['duration'] > 0:
         remaining_times, used = item['duration'], 1
 
-    # If the item type is either gun or passive/active skill, add remaining games
-    if (item['part_type'] == 5 and item_type != 'gold') or item['part_type'] in (12, 13):
+    '''
+    If the item type is a gun, passive or active skill, add the remaining games
+    Also mark the item as used
+    '''
+    if item['part_type'] in (5, 12, 13) and item['duration'] > 0:
         remaining_games, used = item['duration'], 1
 
     # Insert into character items

@@ -100,24 +100,27 @@ def purchase_item(**_args):
     result = PacketWrite()
     result.AddHeader(bytearray([0xEA, 0x2E]))
 
-    # Define error
-    error = None
-
     # Retrieve our inventory and check if we have a remaining slot available
     inventory       = Character.get_items(_args, _args['client']['character']['id'], 'inventory')
     available_slot  = Character.get_available_inventory_slot(inventory)
 
     # Define an error if the item has not been found or can not be purchased
     if item is None or item['buyable'] != 1:
-        error = 66
 
-    # temporary
-    if item['buyable'] != 1:
-        _args['mysql'].execute("""UPDATE `game_items` SET `buyable` = 1 WHERE id = %s""", [item['id']])
+        # temporary
+        if item is not None:
+                _args['mysql'].execute("""UPDATE `game_items` SET `buyable` = 1 WHERE id = %s""", [item['id']])
+
+        return sync_inventory(_args, 'purchase', 66)
+
+    # If the item type is equal to gold or cash but there is no price for assumed type, the request should fail
+    if (type_data['type'] == 'gold' and item['gold_price'] == 0) or (type_data['type'] == 'cash' and item['cash_price'] == 0):
+        print('oof')
+        return sync_inventory(_args, 'purchase', 66)
 
     # Define another error if we have no available inventory slot for this operation
     if available_slot is None:
-        error = 68
+        return sync_inventory(_args, 'purchase', 68)
 
     # Retrieve currency
     currency = _args['client']['character']['currency_gigas'] if type_data['type'] == 'gold' \
@@ -128,11 +131,7 @@ def purchase_item(**_args):
 
     # Check if we have enough currency to afford this item
     if currency < int(price):
-        error = 65
-
-    # If an error has been defined, send the error
-    if error is not None:
-        return sync_inventory(_args, 'purchase', error)
+        return sync_inventory(_args, 'purchase', 65)
 
     # Only update the local value if the type is equal to gold because we use that at other places
     if type_data['type'] == 'gold':
@@ -147,7 +146,7 @@ def purchase_item(**_args):
             [int(price), type_data['db_info']['is']])
 
     # If there are no errors, proceed to create an instance of character_items and insert the item into our inventory
-    Character.add_item(_args, item, available_slot, type_data['type'])
+    Character.add_item(_args, item, available_slot)
 
     # Send packet to sync the inventory and currency state
     sync_inventory(_args, 'purchase')
@@ -198,7 +197,7 @@ def wear_item(**_args):
 
     """
     This dictionary contains the location of the slot id in the packet as well as the command id to reply with
-    Structure: packet id, [slot location, response header]
+    Structure: packet id, [slot packet index, response header]
     """
     type_data = {
 
@@ -221,7 +220,6 @@ def wear_item(**_args):
     inventory       = Character.get_items(_args, _args['client']['character']['id'], 'inventory')
 
     item = inventory[slot]
-    print(item)
 
     # Check if we have anything wearing in the slot we are trying to overwrite. If we are, do not replace the inventory
     # slot with 0, but replace it with the item we are wearing
