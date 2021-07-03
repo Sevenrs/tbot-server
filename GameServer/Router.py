@@ -59,9 +59,11 @@ def route(socket, packet, server, client, connection_handler):
         '2b2b': Inbox.DeleteMessage,
 
         # Controller: Shop
-        '512b': Shop.RequestCash,
+        '512b': Shop.request_cash,
         '022b': Shop.purchase_gold_item,
         'fc2a': Shop.wear_item,
+        '322b': Shop.wear_item,
+        '342b': Shop.wear_item,
 
         # Controller: Guild
         '552b': Guild.Create,

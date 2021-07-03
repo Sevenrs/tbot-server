@@ -6,7 +6,7 @@ __version__ = "1.0"
 from Packet.Write import Write as PacketWrite
 from GameServer.Controllers import Character
 
-def RequestCash(**_args):
+def request_cash(**_args):
 
     # Get amount of cash(coins) from the database
     _args['mysql'].execute('SELECT `cash` FROM `users` WHERE `username` = %s', [
@@ -93,8 +93,25 @@ This method allows users to wear items
 '''
 def wear_item(**_args):
 
+    """
+    This dictionary contains the location of the slot id in the packet as well as the command id to reply with
+    Structure: packet id, [slot location, response header]
+    """
+    type_data = {
+
+        # Parts
+        'fc2a': [26],
+
+        # Accessories
+        '322b': [3],
+
+        # Skills
+        '342b': [3]
+
+    }
+
     # Read slot number from packet
-    slot = int(_args['packet'].ReadInteger(26, 1, 'little'))
+    slot = int(_args['packet'].ReadInteger(type_data[_args['packet'].id][0], 1, 'little'))
 
     # Retrieve our inventory to obtain more information about the item
     wearing_items   = Character.get_items(_args, _args['client']['character']['id'], 'wearing')
@@ -102,21 +119,21 @@ def wear_item(**_args):
 
     item = inventory[slot]
 
-    # Automatically move any item that we may already be wearing to our inventory
+    # Check if we have anything wearing in the slot we are trying to overwrite. If we are, do not replace the inventory
+    # slot with 0, but replace it with the item we are wearing
+    wearing_item = 0
     for wearing_idx in wearing_items['items']:
         if item['type'] == wearing_items['items'][wearing_idx]['type']:
+            wearing_item = wearing_items['items'][wearing_idx]['character_item_id']
+            break
 
-            # Update the inventory slot to contain the already wearing item
-            _args['mysql'].execute(
-                """UPDATE `inventory` SET `item_{0}` = %s WHERE `character_id` = %s""".format(str(slot + 1)), [
-                    wearing_items['items'][wearing_idx]['character_item_id'],
-                    _args['client']['character']['id']
-                ])
-
-    # Wear the item we wish to wear
+    # Wear the item we wish to wear and replace the inventory slot with nothing, or if applicable, the item we are already wearing
     _args['mysql'].execute(
-        """UPDATE `character_wearing` SET `{0}` = %s WHERE `character_id` = %s""".format(item['type']), [
+        """UPDATE `character_wearing` `character` INNER JOIN `inventory` inventory ON (`character`.`id` = `inventory`.`character_id`)
+            SET `character`.`{0}` = %s, `inventory`.`item_{1}` = %s
+                WHERE `character`.`id` = %s""".format(item['type'], str(slot + 1)), [
             item['character_item_id'],
+            wearing_item,
             _args['client']['character']['id']
         ])
 
