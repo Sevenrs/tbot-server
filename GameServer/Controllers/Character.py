@@ -106,28 +106,29 @@ def get_items(_args, character_id, mode = 'wearing'):
     # Get and return inventory items
     elif mode == 'inventory':
         for i in range(1, 21):
-            _args['mysql'].execute("""SELECT    IFNULL(gitem.`item_id`, 0)                                      
-                                                    AS `item_id`,
-                                                TIMESTAMPDIFF(HOUR, UTC_TIMESTAMP(), citem.`expiration_date`)
-                                                    AS `remaining_hours`,
-                                                citem.`remaining_games`                                        
-                                                    AS `remaining_games`,
-                                                citem.`remaining_times`                                         
-                                                    AS `remaining_times`,
-                                                citem.`used`
-                                                    AS `used`,    
-                                                gitem.`part_type`
-                                                    AS `part_type`,
-                                                citem.`id`
-                                                    AS `character_item_id`
-
-                                                FROM `inventory` inventory
-                                                LEFT JOIN `character_items` citem   
-                                                    ON  citem.`id` = inventory.`item_{0}`
-                                                LEFT JOIN `game_items`      gitem  
-                                                    ON  gitem.`id` = citem.`game_item`
-                                                WHERE `character_id` = %s""".format(i), [
-                                                    _args['client']['character']['id']])
+            items.append(None)
+            # _args['mysql'].execute("""SELECT    IFNULL(gitem.`item_id`, 0)
+            #                                         AS `item_id`,
+            #                                     TIMESTAMPDIFF(HOUR, UTC_TIMESTAMP(), citem.`expiration_date`)
+            #                                         AS `remaining_hours`,
+            #                                     citem.`remaining_games`
+            #                                         AS `remaining_games`,
+            #                                     citem.`remaining_times`
+            #                                         AS `remaining_times`,
+            #                                     citem.`used`
+            #                                         AS `used`,
+            #                                     gitem.`part_type`
+            #                                         AS `part_type`,
+            #                                     citem.`id`
+            #                                         AS `character_item_id`
+            #
+            #                                     FROM `inventory` inventory
+            #                                     LEFT JOIN `character_items` citem
+            #                                         ON  citem.`id` = inventory.`item_{0}`
+            #                                     LEFT JOIN `game_items`      gitem
+            #                                         ON  gitem.`id` = citem.`game_item`
+            #                                     WHERE `character_id` = %s""".format(i), [
+            #                                         _args['client']['character']['id']])
 
             items.append(_args['mysql'].fetchone())
 

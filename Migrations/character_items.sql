@@ -17,22 +17,20 @@
 CREATE DATABASE IF NOT EXISTS `bout` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci */;
 USE `bout`;
 
--- Dumping structure for table bout.channels
-CREATE TABLE IF NOT EXISTS `channels` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Incremental channel ID',
-  `world` int(11) DEFAULT NULL COMMENT 'World index',
-  `name` varchar(12) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Channel name',
-  `min_level` int(11) DEFAULT 1 COMMENT 'Minimum level',
-  `max_level` int(11) DEFAULT 70 COMMENT 'Maxmimum level',
-  `population` int(11) DEFAULT 0 COMMENT 'Amount of online clients',
+-- Dumping structure for table bout.character_items
+CREATE TABLE IF NOT EXISTS `character_items` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `game_item` int(11) NOT NULL DEFAULT 0 COMMENT 'The game item this is linked to',
+  `expiration_date` datetime DEFAULT NULL,
+  `remaining_games` int(11) DEFAULT NULL,
+  `remaining_times` int(11) DEFAULT NULL,
+  `used` int(11) DEFAULT 0,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table bout.channels: ~0 rows (approximately)
-/*!40000 ALTER TABLE `channels` DISABLE KEYS */;
-REPLACE INTO `channels` (`id`, `world`, `name`, `min_level`, `max_level`, `population`) VALUES
-	(1, 1, 'Mars #1', 1, 100, 0);
-/*!40000 ALTER TABLE `channels` ENABLE KEYS */;
+-- Dumping data for table bout.character_items: ~0 rows (approximately)
+/*!40000 ALTER TABLE `character_items` DISABLE KEYS */;
+/*!40000 ALTER TABLE `character_items` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IFNULL(@OLD_FOREIGN_KEY_CHECKS, 1) */;
