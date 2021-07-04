@@ -13,8 +13,8 @@ def execute(socket, packet):
     """
     Check the command ID and execute the correct action based on that
     """
-    if (packet.id == 'f82a'):
-        Login.Authenticate(socket, packet)
+    if packet.id == 'f82a':
+        Login.authenticate(socket, packet)
 
     else:
         print('Unknown packet ID:', packet.id)

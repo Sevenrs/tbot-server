@@ -11,10 +11,23 @@ import re
 """
 This method will send the new client its unique ID
 """
-def ClientIDRequest(**_args):
-    
+def id_request(**_args):
+
     # Read account name from packet
     account = _args['packet'].ReadString()
+
+    # Get user from the database
+    _args['mysql'].execute(
+        'SELECT `id`, `username`, `active_bot_slot` FROM `users` WHERE `username` = %s AND `banned` = 0 AND `last_ip` = %s',
+        [
+            account,
+            _args['socket'].getpeername()[0]
+        ])
+
+    # Get user and check if we have a result. Just disconnect the client if we do not
+    user = _args['mysql'].fetchone()
+    if user is None:
+        raise Exception('Invalid user given in the ID request')
     
     # Get available ID
     id = len(_args['server'].clients) + 1
@@ -30,10 +43,12 @@ def ClientIDRequest(**_args):
     _args['socket'].send(response.packet)
     
     # Update our socket to use this ID and assign the account to it as well
-    _args['client']['id']       = id
-    _args['client']['account']  = account
-    _args['client']['new']      = 1
-    _args['client']['lobby_data'] = {'mode': 0, 'page': 0}
+    _args['client']['id']           = id
+    _args['client']['account']      = user['username']
+    _args['client']['account_data'] = {'bot_slot': user['active_bot_slot'], 'id': user['id']}
+    _args['client']['character']    = None
+    _args['client']['new']          = 1
+    _args['client']['lobby_data']   = {'mode': 0, 'page': 0}
     
     # Disconnect all connected sessions with this account name (to stop two or more clients with the same account)
     for session in _args['connection_handler'].GetClients():
@@ -46,32 +61,18 @@ def ClientIDRequest(**_args):
 """
 This method will obtain the character and return it to the client
 """
-def CharacterRequest(**_args):
+def get_character(**_args):
     print('Character request for', _args['client']['account'])
     
-    # Create MySQL connection and get cursor
-    connection = MySQL.GetConnection()
-    cursor = connection.cursor(dictionary=True, buffered=True)
-    
-    # Get user from the database
-    cursor.execute('SELECT `id`, `username`, `active_bot_slot` FROM `users` WHERE `username` = %s AND `banned` = 0', [
-        _args['client']['account']
-    ])
-    
-    # Get user and check if we have a result. Just disconnect the client if we do not
-    user = cursor.fetchone()
-    if user is None:
-        raise Exception('Invalid user given in the character request')
-    
     # Check if we have a bot in the active slot (or have a character, at all)
-    cursor.execute("""SELECT `character`.* FROM `characters` `character` WHERE character.user_id = %s
+    _args['mysql'].execute("""SELECT `character`.* FROM `characters` `character` WHERE character.user_id = %s
                     ORDER BY `character`.`id` ASC LIMIT 1 OFFSET %s""", [
-        user['id'],
-        user['active_bot_slot']
+        _args['client']['account_data']['id'],
+        _args['client']['account_data']['bot_slot']
     ])
     
     # Fetch character row
-    character = cursor.fetchone()
+    character = _args['mysql'].fetchone()
     
     # If we do not have a character, simply send the character not found packet
     if character is None:
@@ -89,69 +90,68 @@ def CharacterRequest(**_args):
         character_information.AppendBytes([0x01, 0x00])
         character_information.AppendBytes(Character.construct_bot_data(_args, character))
         _args['socket'].send(character_information.packet)
-        
-    connection.close()
 
 """
 This method will handle new character creation requests
 """
-def CreateCharacterRequest(**_args):
+def create_character(**_args):
     
     # Character creation results
-    CHARACTER_CREATE_SUCCESS      = bytearray([0x01, 0x00])
-    CHARACTER_CREATE_NAME_TAKEN   = bytearray([0x00, 0x36])
-    CHARACTER_CREATE_NAME_ERROR   = bytearray([0x00, 0x33])
+    character_create_success      = bytearray([0x01, 0x00])
+    character_create_name_taken   = bytearray([0x00, 0x36])
+    character_create_name_error   = bytearray([0x00, 0x33])
     
     character_type  = int(_args['packet'].GetByte(2))
     username        = _args['packet'].ReadString(6)[1:]
     character_name  = _args['packet'].ReadString()
     
-    print("Username", username)
-    print("Character", character_name)
-    
-    # Create MySQL connection and get cursor
-    connection = MySQL.GetConnection()
-    cursor = connection.cursor(dictionary=True, buffered=True)
-    
     # Check if the username exists in the user table, close the connection if this fails
-    cursor.execute('SELECT `id`, `banned` FROM `users` WHERE `username` = %s', [username])
-    user = cursor.fetchone()
+    _args['mysql'].execute('SELECT `id`, `banned`, `last_ip` FROM `users` WHERE `username` = %s', [username])
+    user = _args['mysql'].fetchone()
     
     # Check if the row has been found and if it has been, check if the user has been banned
     if user is None:
         raise Exception('User was not found while trying to create a character')
+
+    # Check if our ip address matches the last ip of the account.
+    #   We should not be able to create a character that does not belong to us
+    elif user['last_ip'] != _args['socket'].getpeername()[0]:
+        raise Exception('The IP address the user connected from trying to create a character does not match the IP address in the database')
     
     # Check if the user has been banned
     elif user['banned'] == 1:
         raise Exception('User has been banned and attempted to create a character')
     
     # Check if there's already a character connected to this account
-    cursor.execute('SELECT `id` FROM `characters` WHERE `user_id` = %s', [user['id']])
-    if cursor.rowcount > 2:
+    _args['mysql'].execute('SELECT `id` FROM `characters` WHERE `user_id` = %s', [user['id']])
+    if _args['mysql'].rowcount > 2:
         raise Exception('User attempted to create a character while already having the maximum amount of allowed characters')
     
     # Check the character type is between 1 and 3
     elif character_type < 1 or character_type > 3:
         raise Exception('User sent an invalid character type')
     
-    #TODO: [Close connection] - Check if we're authorized to create a character for this username
-    
     # Create a new packet with the character creation result command
     packet = PacketWrite()
     packet.AddHeader(bytearray([0xE2, 0x2E]))
     
     # Check if the name has been taken
-    cursor.execute('SELECT `id` FROM `characters` WHERE `name` = %s', [character_name])
-    if cursor.rowcount > 0:
-        packet.AppendBytes(CHARACTER_CREATE_NAME_TAKEN)
+    _args['mysql'].execute('SELECT `id` FROM `characters` WHERE `name` = %s', [character_name])
+    if _args['mysql'].rowcount > 0:
+        packet.AppendBytes(character_create_name_taken)
     elif not re.match('^[a-zA-Z0-9]+$', character_name) or len(character_name) < 4 or len(character_name) > 13:
-        packet.AppendBytes(CHARACTER_CREATE_NAME_ERROR)
+        packet.AppendBytes(character_create_name_error)
     else:
-        packet.AppendBytes(CHARACTER_CREATE_SUCCESS)
+        packet.AppendBytes(character_create_success)
         
         # Insert the new character in the database
-        cursor.execute('INSERT INTO `characters` (`user_id`, `name`, `type`) VALUES (%s, %s, %s)',
+        _args['mysql'].execute("""INSERT INTO `characters` (`user_id`, `name`, `type`) VALUES (%s, %s, %s)""",
                        [user['id'], character_name, character_type])
+
+        # Retrieve character id of the character we just built and create a new wearing and inventory table for our character
+        character_id = _args['mysql'].lastrowid
+        _args['mysql'].execute('INSERT INTO `character_wearing` (`character_id`) VALUES (%s)', [character_id])
+        _args['mysql'].execute('INSERT INTO `inventory` (`character_id`) VALUES (%s)', [character_id])
     
     # Send the result with the status code to the client
     _args['socket'].send(packet.packet)
@@ -159,7 +159,7 @@ def CreateCharacterRequest(**_args):
 """
 This method will handle exit server requests
 """
-def ExitServerRequest(**_args):
+def exit_server(**_args):
     
     # Send acknowledgement to the client
     exit = PacketWrite()

@@ -18,27 +18,27 @@ def route(socket, packet, server, client, connection_handler):
 
     """
     If our client has no connected character with it, it means that the client is attempting to communicate with the server without
-    having sent a character request first.
+    having sent a ID request first.
 
     We must check if the client exists in the global client container and check if the command ID is equal to the ID request
-    and we must check if the client has a character, and if not we must only accept the character request packet
+    and we must check if the client has a character, and if not we must only accept the character create packet
     """
     if client not in server.clients and packet.id != 'f82a' or 'character' not in client and client in server.clients and not (
-            packet.id == 'f92a' or packet.id == 'fa2a'):
+            packet.id == 'fa2a'):
         raise Exception('Invalid packet received')
 
     # Create new MySQL connection
     mysql_connection = MySQL.GetConnection()
-    mysql = mysql_connection.cursor(dictionary=True)
+    mysql = mysql_connection.cursor(dictionary=True, buffered=True)
 
     # Define packet commands to handle as well as their methods
     packets = {
 
         # Controller: Bout Authentication
-        'f82a': BoutLogin.ClientIDRequest,
-        'f92a': BoutLogin.CharacterRequest,
-        'fa2a': BoutLogin.CreateCharacterRequest,
-        '222b': BoutLogin.ExitServerRequest,
+        'f82a': BoutLogin.id_request,
+        'f92a': BoutLogin.get_character,
+        'fa2a': BoutLogin.create_character,
+        '222b': BoutLogin.exit_server,
 
         # Controller: Lobby
         '082b': Lobby.GetLobby,
