@@ -25,7 +25,7 @@ class Handler:
         for client in self.server.clients:
             
             ''' Check if the client has a character assigned to it '''
-            if 'character' not in client:
+            if 'character' not in client or client['character'] is None:
                 continue
             
             ''' Append client to results '''
