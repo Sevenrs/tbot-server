@@ -23,9 +23,6 @@ def main():
     '''
     game_server = GameServer.Socket(11002)
     _thread.start_new_thread(game_server.listen, ())
-
-    # Start the Login Server in a separate thread on port 11000
-    _thread.start_new_thread(LoginServer.Socket, (11000,))
     
     # Start the Channel Server
     _thread.start_new_thread(ChannelServer.Socket, (11010,))
@@ -33,9 +30,8 @@ def main():
     # Start the RoomHost Server
     _thread.start_new_thread(RoomHostServer.Socket, (11011, game_server,))
 
-    # Without waiting, the main thread would be killed.
-    print("End the process to kill the server")
-    while True: pass
+    # Use the main thread as the login server
+    LoginServer.Socket(11000)
     
 # Only run the entry point code when needed
 if __name__ == '__main__':
