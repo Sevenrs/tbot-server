@@ -37,6 +37,8 @@ def get_items(_args, character_id, mode = 'wearing'):
     types = ['head', 'body', 'arms', 'mini-bot', 'gun', 'ef', 'wing', 'shield', 'shoulder', 'flag1', 'flag2',
              'passive_skill', 'attack_skill', 'field_pack', 'trans_pack', 'merc1', 'merc2', 'coin_head', 'coin_minibot']
 
+    print('test')
+
     # Get and return wearing items
     if mode == 'wearing':
         wearing = {}
@@ -106,29 +108,28 @@ def get_items(_args, character_id, mode = 'wearing'):
     # Get and return inventory items
     elif mode == 'inventory':
         for i in range(1, 21):
-            items.append(None)
-            # _args['mysql'].execute("""SELECT    IFNULL(gitem.`item_id`, 0)
-            #                                         AS `item_id`,
-            #                                     TIMESTAMPDIFF(HOUR, UTC_TIMESTAMP(), citem.`expiration_date`)
-            #                                         AS `remaining_hours`,
-            #                                     citem.`remaining_games`
-            #                                         AS `remaining_games`,
-            #                                     citem.`remaining_times`
-            #                                         AS `remaining_times`,
-            #                                     citem.`used`
-            #                                         AS `used`,
-            #                                     gitem.`part_type`
-            #                                         AS `part_type`,
-            #                                     citem.`id`
-            #                                         AS `character_item_id`
-            #
-            #                                     FROM `inventory` inventory
-            #                                     LEFT JOIN `character_items` citem
-            #                                         ON  citem.`id` = inventory.`item_{0}`
-            #                                     LEFT JOIN `game_items`      gitem
-            #                                         ON  gitem.`id` = citem.`game_item`
-            #                                     WHERE `character_id` = %s""".format(i), [
-            #                                         _args['client']['character']['id']])
+            _args['mysql'].execute("""SELECT    IFNULL(gitem.`item_id`, 0)                                      
+                                                    AS `item_id`,
+                                                TIMESTAMPDIFF(HOUR, UTC_TIMESTAMP(), citem.`expiration_date`)
+                                                    AS `remaining_hours`,
+                                                citem.`remaining_games`                                        
+                                                    AS `remaining_games`,
+                                                citem.`remaining_times`                                         
+                                                    AS `remaining_times`,
+                                                citem.`used`
+                                                    AS `used`,    
+                                                gitem.`part_type`
+                                                    AS `part_type`,
+                                                citem.`id`
+                                                    AS `character_item_id`
+
+                                                FROM `inventory` inventory
+                                                LEFT JOIN `character_items` citem   
+                                                    ON  citem.`id` = inventory.`item_{0}`
+                                                LEFT JOIN `game_items`      gitem  
+                                                    ON  gitem.`id` = citem.`game_item`
+                                                WHERE `character_id` = %s""".format(i), [
+                                                    _args['client']['character']['id']])
 
             items.append(_args['mysql'].fetchone())
 
