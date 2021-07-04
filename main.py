@@ -34,7 +34,8 @@ def main():
     _thread.start_new_thread(RoomHostServer.Socket, (11011, game_server,))
 
     # Without waiting, the main thread would be killed.
-    input("Press Enter to kill all services...\n")
+    print("End the process to kill the server")
+    while True: pass
     
 # Only run the entry point code when needed
 if __name__ == '__main__':
