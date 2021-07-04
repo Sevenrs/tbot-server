@@ -30,7 +30,28 @@ def id_request(**_args):
         raise Exception('Invalid user given in the ID request')
     
     # Get available ID
-    id = len(_args['server'].clients) + 1
+    id = 0
+    for i in range(65535):
+
+        in_use = False
+
+        # Loop through all clients
+        for client in _args['connection_handler'].GetClients():
+
+            # If the client id is equal to the index, it is in use.
+            # Skip this number.
+            if client['id'] == i:
+                in_use = True
+                break
+
+        # If we passed the loop, we have found an available client id
+        if in_use:
+            continue
+
+        id = i
+        break
+
+    print("Client id: {0}".format(id))
     
     # Construct packet and send it back to the client
     response = PacketWrite()
