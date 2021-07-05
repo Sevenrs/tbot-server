@@ -588,6 +588,7 @@ def reset(room):
         slot['ready']   = 0
         slot['in_shop'] = False
         slot['loaded']  = False
+        slot['dead']    = False
 
 '''
 This method allows room masters to kick players out of their rooms

@@ -146,11 +146,21 @@ called manually in the game code.
 def game_end_rpc(**_args):
 
     # If the client is not in a room or is not its master, drop the packet
-    room = get_room(_args, True)
+    room = get_room(_args)
     if not room:
         return
 
-    game_end(_args=_args, room=room, status=(0 if _args['packet'].id == '3b2b' else 1))
+    # Determine the status of the end result
+    status = 0 if _args['packet'].id == '3b2b' else 1
+
+    # If the status is equal to 0, we must check if all players in the room are actually dead
+    # If one player is not dead, drop the packet
+    if status == 0:
+        for slot in room['slots']:
+            if not room['slots'][slot]['dead']:
+                return
+
+    game_end(_args=_args, room=room, status=status)
 
 '''
 This method will send the correct packed to indicate what the game end result is to the room or specified client.
@@ -280,8 +290,9 @@ def game_stats(_args, room, status):
         room_results.AppendInteger(0 if str(i + 1) not in information else information[str(i + 1)]['addition_experience'], 2, 'little')
 
     # new health amount for all players
-    for _ in range(8):
-        room_results.AppendInteger(3001, 2, 'little')
+    for i in range(8):
+        room_results.AppendInteger(0 if str(i + 1) not in information else room['slots'][str(i + 1)]['client']['character']['health']
+                             + information[str(i + 1)]['wearing_items']['specifications']['effect_health'], 2, 'little')
 
     # Attack points
     for _ in range(8):
@@ -293,7 +304,7 @@ def game_stats(_args, room, status):
 
     # Player kills
     for _ in range(8):
-        room_results.AppendInteger(23, 2, 'little')
+        room_results.AppendInteger(0, 2, 'little')
 
     # Monster kills
     for _ in range(8):
