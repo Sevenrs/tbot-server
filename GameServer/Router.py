@@ -60,12 +60,17 @@ def route(socket, packet, server, client, connection_handler):
 
         # Controller: Shop
         '512b': Shop.request_cash,
-        '022b': Shop.purchase_item, # Gold items
-        '042b': Shop.purchase_item, # Cash items
+        '022b': Shop.purchase_item,     # Gold items
+        '042b': Shop.purchase_item,     # Cash items
         '032b': Shop.sell_item,
-        'fc2a': Shop.wear_item, # Parts
-        '322b': Shop.wear_item, # Accessories
-        '342b': Shop.wear_item, # Skills
+
+        'fc2a': Shop.wear_item,         # Parts
+        '322b': Shop.wear_item,         # Accessories
+        '342b': Shop.wear_item,         # Packs
+
+        'fd2a': Shop.unwear_item,       # Parts
+        '332b': Shop.unwear_item,       # Accessories
+        '352b': Shop.unwear_item,       # Packs
 
         # Controller: Guild
         '552b': Guild.Create,

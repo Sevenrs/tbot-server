@@ -58,7 +58,8 @@ def monster_kill(**_args):
         return
 
     # Read monster ID from the packet
-    monster_id = _args['packet'].GetByte(0)
+    monster_id  = _args['packet'].GetByte(0)
+    who         = _args['packet'].GetByte(4)
 
     # Construct canister drops and drop chances
     drops = [
@@ -90,6 +91,10 @@ def monster_kill(**_args):
 
     # Broadcast the response to all sockets in the room
     _args['connection_handler'].SendRoomAll(room['id'], death.packet)
+
+    # Count up the amount of mobs the slot has killed
+    if str(who +1) in room['slots'] and who != 65535:
+        room['slots'][str(who + 1)]['monster_kills'] += 1
 
 '''
 This method will handle picking up items which were dropped from monsters
@@ -307,8 +312,9 @@ def game_stats(_args, room, status):
         room_results.AppendInteger(0, 2, 'little')
 
     # Monster kills
-    for _ in range(8):
-        room_results.AppendInteger(69, 2, 'little')
+    for i in range(8):
+        room_results.AppendInteger(0 if str(i + 1) not in information else room['slots'][str(i + 1)]['monster_kills'],
+                                   2, 'little')
 
     # MVPs shown
     room_results.AppendInteger(0, 2, 'little')

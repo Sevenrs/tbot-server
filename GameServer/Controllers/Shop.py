@@ -115,7 +115,6 @@ def purchase_item(**_args):
 
     # If the item type is equal to gold or cash but there is no price for assumed type, the request should fail
     if (type_data['type'] == 'gold' and item['gold_price'] == 0) or (type_data['type'] == 'cash' and item['cash_price'] == 0):
-        print('oof')
         return sync_inventory(_args, 'purchase', 66)
 
     # Define another error if we have no available inventory slot for this operation
@@ -191,7 +190,7 @@ def sell_item(**_args):
 
 
 '''
-This method allows users to wear items
+This method allows users to wear their items
 '''
 def wear_item(**_args):
 
@@ -199,21 +198,24 @@ def wear_item(**_args):
     This dictionary contains the location of the slot id in the packet as well as the command id to reply with
     Structure: packet id, [slot packet index, response header]
     """
-    type_data = {
+    types = {
 
         # Parts
-        'fc2a': [26],
+        'fc2a': [26, [0xE4, 0x2E]],
 
         # Accessories
-        '322b': [3],
+        '322b': [3, [0x19, 0x2F]],
 
         # Skills
-        '342b': [3]
+        '342b': [3, [0x1B, 0x2F]]
 
     }
 
+    # Retrieve type data
+    type_data = types[_args['packet'].id]
+
     # Read slot number from packet
-    slot = int(_args['packet'].ReadInteger(type_data[_args['packet'].id][0], 1, 'little'))
+    slot = int(_args['packet'].ReadInteger(type_data[0], 1, 'little'))
 
     # Retrieve our inventory to obtain more information about the item
     wearing_items   = Character.get_items(_args, _args['client']['character']['id'], 'wearing')
@@ -249,7 +251,75 @@ def wear_item(**_args):
 
     # Construct the response packet
     result = PacketWrite()
-    result.AddHeader(bytearray([0x19, 0x2F]))
+    result.AddHeader(bytearray(type_data[1]))
+    result.AppendBytes([0x01, 0x00])
+    result.AppendBytes(Character.construct_bot_data(_args, _args['client']['character']))
+    _args['socket'].send(result.packet)
+
+'''
+This method allows users to unwear their items
+'''
+def unwear_item(**_args):
+
+    types = {
+
+        # Parts
+        'fd2a': {"type_index": 26, "types": ['head', 'body', 'arms']},
+        '332b': {"type_index": 3, "types": ['mini-bot', 'gun', 'ef', 'wing', 'shield', 'shoulder', 'flag1', 'flag2']},
+        '352b': {"type_index": 3, "types": ['passive_skill', 'attack_skill', 'field_pack', 'trans_pack', 'merc1', 'merc2']}
+    }
+
+    # Retrieve data based on packet id
+    data = types[_args['packet'].id]
+
+    # Retrieve item type from the starting index of the packet
+    type = data['types'][int(_args['packet'].ReadInteger(data['type_index'], 1, 'little'))]
+
+    # Construct response packet
+    result = PacketWrite()
+    result.AddHeader([0xE5, 0x2E])
+
+    # Retrieve inventory and the first free inventory slot to put our item in
+    inventory       = Character.get_items(_args, _args['client']['character']['id'], 'inventory')
+    available_slot  = Character.get_available_inventory_slot(inventory)
+
+    # Return an error if we do not have a slot available for the item to go in
+    if available_slot is None:
+        result.AppendBytes([0x00, 0x44])
+        return _args['socket'].send(result.packet)
+
+    # Retrieve our wearing items so we know what to remove
+    wearing = Character.get_items(_args, _args['client']['character']['id'], 'wearing')
+
+    ''' Construct a dictionary with all items. It is constructed as following: 'type': character_item_id
+        for easy access and manipulation of the state '''
+    items = {}
+    for idx in wearing['items']:
+        if wearing['items'][idx]['type'] is not None:
+            items[wearing['items'][idx]['type']] = wearing['items'][idx]['character_item_id']
+
+    # If the item type we are trying to find is in the dictionary, use the found item id
+    wearing_item = items[type] if type in items else 0
+
+    # If the type is equal to head and a coin head exists, the wearing item id should become the coin head's id
+    if type == 'head' and 'coin_head' in items:
+        wearing_item, type = items['coin_head'], 'coin_head'
+
+    # If the type is equal to mini-bot and a coin_minibot exists, the wearing item id should become that
+    elif type == 'mini-bot' and 'coin_minibot' in items:
+        wearing_item, type = items['coin_minibot'], 'coin_minibot'
+
+    # Remove the item from our wearing table and send the character information in case our wearing item is not equal to 0
+    if wearing_item != 0:
+        _args['mysql'].execute(
+            """UPDATE `character_wearing` `character` INNER JOIN `inventory` inventory ON (`character`.`id` = `inventory`.`character_id`)
+                SET `character`.`{0}` = 0, `inventory`.`item_{1}` = %s
+                    WHERE `character`.`id` = %s""".format(type, str(available_slot + 1)), [
+                wearing_item,
+                _args['client']['character']['id']
+            ])
+
+    # Send character information back to our client and the removal is complete
     result.AppendBytes([0x01, 0x00])
     result.AppendBytes(Character.construct_bot_data(_args, _args['client']['character']))
     _args['socket'].send(result.packet)

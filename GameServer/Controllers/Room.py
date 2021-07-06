@@ -215,13 +215,15 @@ def add_slot(_args, room_id, client, broadcast=False):
     # Append to slots if the available slot is greater than 0
     if available_slot > 0:
         room['slots'][str(available_slot)] = {
-            'client':   client,
-            'loaded':   False,
-            'dead':     False,
-            'ready':    False,
-            'shop':     False,
-            'team':     0,
-            'in_shop':  False
+            'client':           client,
+            'loaded':           False,
+            'dead':             False,
+            'ready':            False,
+            'shop':             False,
+            'team':             0,
+            'in_shop':          False,
+            'monster_kills':    0,
+            'player_kills':     0
         }
 
     # Tell all the sockets about the player and tell our client about the room
@@ -581,14 +583,15 @@ def reset(room):
     room['drop_index']  = 1
     room['game_over']   = False
 
-    # Mark no client as ready or loaded
-    print(room['slots'])
+    # Reset player status
     for slot in room['slots']:
         slot = room['slots'][slot]
-        slot['ready']   = 0
-        slot['in_shop'] = False
-        slot['loaded']  = False
-        slot['dead']    = False
+        slot['ready']           = 0
+        slot['in_shop']         = False
+        slot['loaded']          = False
+        slot['dead']            = False
+        slot['monster_kills']   = 0
+        slot['player_kills']    = 0
 
 '''
 This method allows room masters to kick players out of their rooms

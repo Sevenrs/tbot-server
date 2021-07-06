@@ -37,8 +37,6 @@ def get_items(_args, character_id, mode = 'wearing'):
     types = ['head', 'body', 'arms', 'mini-bot', 'gun', 'ef', 'wing', 'shield', 'shoulder', 'flag1', 'flag2',
              'passive_skill', 'attack_skill', 'field_pack', 'trans_pack', 'merc1', 'merc2', 'coin_head', 'coin_minibot']
 
-    print('test')
-
     # Get and return wearing items
     if mode == 'wearing':
         wearing = {}
