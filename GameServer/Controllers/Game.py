@@ -71,7 +71,7 @@ def monster_kill(**_args):
         (CANISTER_AMMO, 0.01),
 
         # Test drop item, gold for now
-        (CHEST_GOLD, 0.01)
+        (CHEST_GOLD, 0.02)
     ]
 
     # Calculate whether or not we should drop an item based on chance
@@ -160,7 +160,7 @@ def use_item(**_args):
         pickup.AppendInteger(item_id, 4, 'little')
         pickup.AppendInteger(0, 4, 'little')
         pickup.AppendInteger(get_slot(_args, room) - 1, 2, 'little')
-        _args['connection_handler'].SendRoomAll(room['id'], pickup.packet)
+        _args['socket'].send(pickup.packet)
 
 '''
 This method will handle player deaths.

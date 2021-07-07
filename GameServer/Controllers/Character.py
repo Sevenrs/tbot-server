@@ -142,7 +142,7 @@ def get_items(_args, character_id, mode = 'wearing'):
             duration = item['remaining_games']
             duration_type = 3
 
-        # If the item has not been used, and the duration type is higher than 1, update the duration type to be unused
+        # If the item has not been used, update the duration type to be unused
         if item['used'] == 0:
             duration_type = 4
 
@@ -182,17 +182,17 @@ def add_item(_args, item, slot):
 
     '''
     If the part is a pack or a special part, add the amount of times they can be used
-    Additionally, the item should be marked as used
+    Additionally, the item should have its used state removed
     '''
     if item['part_type'] in (0, 14) and item['duration'] > 0:
-        remaining_times, used = item['duration'], 1
+        remaining_times, used = item['duration'], None
 
     '''
     If the item type is a gun, passive or active skill, add the remaining games
-    Also mark the item as used
+    Remove the used state from the item because there is no need to track that
     '''
     if item['part_type'] in (5, 12, 13) and item['duration'] > 0:
-        remaining_games, used = item['duration'], 1
+        remaining_games, used = item['duration'], None
 
     # Insert into character items
     _args['mysql'].execute("""INSERT INTO `character_items` (`game_item`, `remaining_games`, `remaining_times`, `used`)
@@ -254,10 +254,10 @@ def remove_expired_items(_args, character_id):
         in_statement+="{0}, ".format(str(id))
 
     # Retrieve expired items dynamically
-    _args['mysql'].execute("""SELECT `id` FROM `character_items` WHERE `used` IS NOT NULL AND (
-        (UTC_TIMESTAMP() >= `expiration_date` AND `expiration_date` IS NOT NULL)    OR
-            `remaining_games` < 1                                                   OR
-            `remaining_times` < 1
+    _args['mysql'].execute("""SELECT `id` FROM `character_items` WHERE (
+            (UTC_TIMESTAMP() >= `expiration_date` AND `expiration_date` IS NOT NULL)    OR
+                (`remaining_games` < 1 AND `remaining_games` IS NOT NULL)               OR
+                    (`remaining_times` < 1 AND `remaining_times` IS NOT NULL)
     ) AND `id` IN ({})""".format(in_statement[:-2]))
     expired_items = _args['mysql'].fetchall()
 

@@ -51,8 +51,7 @@ def sync_inventory(_args, type='sell', state=1):
     result.AppendInteger(0 if state == 1 else state, 1, 'little')
 
     # If there is an error, send the packet right now.
-    # We should also do this when the type is purchase_cash due to the cash_sync_rpc invoking this method as well
-    if state != 1 or type == 'purchase_cash':
+    if state != 1:
         _args['socket'].send(result.packet)
         return
 
