@@ -248,6 +248,10 @@ def remove_expired_items(_args, character_id):
         # Append item to the wearing table and item id array
         wearing_table[wearing_items[item]['character_item_id']] = wearing_items[item]['type']
 
+    # There is nothing to do if we are not wearing anything
+    if len(wearing_table) == 0:
+        return
+
     # Construct IN statement for the query
     in_statement = ''
     for id in wearing_table.keys():
