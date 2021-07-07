@@ -8,7 +8,7 @@ from GameServer.Controllers.data.drops import *
 from GameServer.Controllers.data.exp import *
 from GameServer.Controllers.data.planet import PLANET_MAP_TABLE
 from GameServer.Controllers.Room import get_room, get_slot, get_list, get_list_page_by_room_id, reset
-from GameServer.Controllers.Character import get_items
+from GameServer.Controllers.Character import get_items, add_item, get_available_inventory_slot
 import MySQL.Interface as MySQL
 import random
 import time
@@ -68,7 +68,10 @@ def monster_kill(**_args):
         (CANISTER_STUN, 0.01),
         (CANISTER_BOMB, 0.02),
         (CANISTER_TRANS_UP, 0.01),
-        (CANISTER_AMMO, 0.01)
+        (CANISTER_AMMO, 0.01),
+
+        # Test drop item, gold for now
+        (CHEST_GOLD, 0.01)
     ]
 
     # Calculate whether or not we should drop an item based on chance
@@ -118,6 +121,46 @@ def use_item(**_args):
     use_canister.AppendInteger(item_index, 1, 'little')
     use_canister.AppendInteger(item_type, 4, 'little')
     _args['connection_handler'].SendRoomAll(room['id'], use_canister.packet)
+
+    # Item drops start at index 18
+    if item_type >= 18:
+
+        # Find available slot
+        inventory = get_items(_args, _args['client']['character']['id'], 'inventory')
+        available_slot = get_available_inventory_slot(inventory)
+
+        # Do not do anything if we have no slot available
+        if available_slot is None:
+            return
+
+        # For now we'll only be dropping gold/cash
+        gold    = [6000001, 6000002, 6000003]
+        item_id = gold[random.randint(0, 2)]
+
+        # Construct pickup packet
+        pickup = PacketWrite()
+        pickup.AddHeader(bytes=[0x2C, 0x2F])
+
+        # Find item in the database
+        _args['mysql'].execute(
+            '''SELECT `id`, `item_id`, `buyable`, `gold_price`, `cash_price`, `part_type`, `duration` FROM `game_items` WHERE `item_id` = %s''',
+            [item_id])
+        item = _args['mysql'].fetchone()
+
+        # If the item hasn't been found, return an error
+        if item is None:
+            pickup.AppendBytes(bytes=[0x00, 0x00])
+            return _args['socket'].send(pickup.packet)
+
+        # Add item to inventory of the user
+        add_item(_args, item, available_slot)
+
+        # Send pickup packet to the room
+        pickup.AppendBytes(bytes=[0x01, 0x00])
+        pickup.AppendInteger(item_id, 4, 'little')
+        pickup.AppendInteger(0, 4, 'little')
+        pickup.AppendInteger(get_slot(_args, room) - 1, 2, 'little')
+        _args['connection_handler'].SendRoomAll(room['id'], pickup.packet)
 
 '''
 This method will handle player deaths.

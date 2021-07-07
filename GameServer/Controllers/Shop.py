@@ -18,11 +18,11 @@ def get_cash(_args):
 
     return _args['mysql'].fetchone()['cash']
 
-def request_cash(**_args):
+def sync_cash(_args):
 
     # Get cash amount
     cash = get_cash(_args)
-    
+
     # Create coin packet and send it to our client
     coin_packet = PacketWrite()
     coin_packet.AddHeader(bytearray([0x37, 0x2F]))
@@ -30,13 +30,17 @@ def request_cash(**_args):
     coin_packet.AppendInteger(cash, 4, 'little')
     _args['socket'].send(coin_packet.packet)
 
+def sync_cash_rpc(**_args):
+    sync_cash(_args)
+    sync_inventory(_args)
+
 '''
 This method will sync the inventory.
 '''
 def sync_inventory(_args, type='sell', state=1):
 
     # Packet types
-    types = {'sell': 0xEB, 'purchase':  0xEA}
+    types = {'sell': 0xEB, 'purchase':  0xEA, 'purchase_cash': 0xEC}
 
     # Construct response packet
     result = PacketWrite()
@@ -46,8 +50,9 @@ def sync_inventory(_args, type='sell', state=1):
     result.AppendInteger(state if state == 1 else 0, 1, 'little')
     result.AppendInteger(0 if state == 1 else state, 1, 'little')
 
-    # If there is an error, send the packet right now
-    if state != 1:
+    # If there is an error, send the packet right now.
+    # We should also do this when the type is purchase_cash due to the cash_sync_rpc invoking this method as well
+    if state != 1 or type == 'purchase_cash':
         _args['socket'].send(result.packet)
         return
 
@@ -148,7 +153,7 @@ def purchase_item(**_args):
     Character.add_item(_args, item, available_slot)
 
     # Send packet to sync the inventory and currency state
-    sync_inventory(_args, 'purchase')
+    sync_inventory(_args, 'purchase' if type_data['type'] == 'gold' else 'purchase_cash')
 
 '''
 This method will allow users to sell their items
@@ -167,7 +172,7 @@ def sell_item(**_args):
         return sync_inventory(_args, 'sell', 66)
 
     # Retrieve item selling price from the database
-    _args['mysql'].execute('''SELECT `id`, `selling_price` FROM `game_items` WHERE `item_id` = %s''', [
+    _args['mysql'].execute('''SELECT `id`, `item_id`, `selling_price` FROM `game_items` WHERE `item_id` = %s''', [
         inventory_item['id']])
     item = _args['mysql'].fetchone()
 
@@ -175,17 +180,26 @@ def sell_item(**_args):
     if item is None:
         return sync_inventory(_args, 'sell', 66)
 
-    # Increase our currency by the selling amount by mutating our local variable and pushing it to the database as well
-    _args['client']['character']['currency_gigas'] = _args['client']['character']['currency_gigas'] + int(item['selling_price'])
-    _args['mysql'].execute("""UPDATE `characters` SET `currency_gigas` = (`currency_gigas` + %s) WHERE `id` = %s""", [
-        int(item['selling_price']),
-        _args['client']['character']['id']
-    ])
+    # Gold bars should give cash points
+    if item['item_id'] in [6000001, 6000002, 6000003]:
+        _args['mysql'].execute("""UPDATE `users` SET `cash` = (`cash` + %s) WHERE `username` = %s""", [
+            item['selling_price'] / 10,
+            _args['client']['account']
+        ])
+    else:
+
+        # Increase our currency by the selling amount by mutating our local variable and pushing it to the database as well
+        _args['client']['character']['currency_gigas'] = _args['client']['character']['currency_gigas'] + int(item['selling_price'])
+        _args['mysql'].execute("""UPDATE `characters` SET `currency_gigas` = (`currency_gigas` + %s) WHERE `id` = %s""", [
+            int(item['selling_price']),
+            _args['client']['character']['id']
+        ])
 
     # Remove item from our inventory and from character_items
     Character.remove_item(_args, inventory_item['character_item_id'], slot)
 
     # Create response packet and send it to our socket
+    sync_cash(_args)
     sync_inventory(_args, 'sell')
 
 
@@ -231,13 +245,22 @@ def wear_item(**_args):
             wearing_item = wearing_items['items'][wearing_idx]['character_item_id']
             break
 
-    # If the item duration type is equal to 4, the item time has not yet started. We need to calculate the expiration date
-    # and update the item's used state
-    if item['duration_type'] == 4:
-        _args['mysql'].execute("""UPDATE `character_items` SET `used` = 1, 
-            expiration_date = DATE_ADD(UTC_TIMESTAMP(), INTERVAL (SELECT `duration` FROM `game_items` WHERE `id` = `game_item`) DAY) WHERE `id` = %s""", [
-            item['character_item_id']
-        ])
+    ''' If the item has a used state, update it to 1 (if not already updated) and calculate the expiration.
+        If we have the amount of remaining seconds stored, use that to calculate the expiration.
+        Otherwise, base the expiration off of the duration in game_items instead.'''
+    _args['mysql'].execute("""UPDATE `character_items` SET `used` = 1, 
+                expiration_date = IF(`remaining_seconds` IS NULL,
+                                                                    DATE_ADD(UTC_TIMESTAMP(), INTERVAL (SELECT `duration` FROM `game_items` WHERE `id` = `game_item`) DAY),
+                                                                    DATE_ADD(UTC_TIMESTAMP(), INTERVAL `remaining_seconds` SECOND)
+                                    ),
+                                    `remaining_seconds` = NULL
+                                    WHERE `id` = %s AND `used` IS NOT NULL""", [
+        item['character_item_id']
+    ])
+
+    # If the wearing item is not equal to zero and it has an expire date, calculate the amount of remaining seconds
+    if wearing_item != 0:
+        unwear_item_calculate_seconds(_args, wearing_item)
 
     # Wear the item we wish to wear and replace the inventory slot with nothing, or if applicable, the item we are already wearing
     _args['mysql'].execute(
@@ -319,7 +342,21 @@ def unwear_item(**_args):
                 _args['client']['character']['id']
             ])
 
+        # In case the item has a used state and the expiration date is set, calculate the remaining seconds and store that.
+        # We need this because we do not want to let the time keep going after the user has unweared an item
+        unwear_item_calculate_seconds(_args, wearing_item)
+
     # Send character information back to our client and the removal is complete
     result.AppendBytes([0x01, 0x00])
     result.AppendBytes(Character.construct_bot_data(_args, _args['client']['character']))
     _args['socket'].send(result.packet)
+
+'''
+In case the item has a used state and the expiration date is set, calculate the remaining seconds and store that.
+We need this because we do not want to let the time keep going after the user has unweared an item
+'''
+def unwear_item_calculate_seconds(_args, wearing_item):
+    _args['mysql'].execute("""UPDATE `character_items`
+                    SET     `remaining_seconds` = TIMESTAMPDIFF(SECOND, UTC_TIMESTAMP(), `expiration_date`),
+                            `expiration_date` = NULL
+                WHERE `id` = %s AND `used` IS NOT NULL""", [wearing_item])

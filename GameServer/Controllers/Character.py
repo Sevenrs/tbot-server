@@ -67,16 +67,8 @@ def get_items(_args, character_id, mode = 'wearing'):
                                                     gitem.`part_type`,
                                                     citem.`id` AS `character_item_id`
                                                     FROM `character_wearing` cwear
-                                                    LEFT JOIN `character_items` citem 
-                                                        ON citem.`id` = cwear.`{0}`
-                                                            AND (citem.`expiration_date` IS NULL 
-                                                                OR TIMESTAMPDIFF(MINUTE, UTC_TIMESTAMP(),
-                                                                    citem.`expiration_date`) > 0)
-                                                            AND (citem.`remaining_games` IS NULL 
-                                                                OR citem.`remaining_games` > 0)
-                                                            AND (citem.`remaining_times` IS NULL 
-                                                                OR citem.`remaining_times` > 0)
-                                                    LEFT JOIN `game_items` gitem ON gitem.`id` = citem.`game_item`
+                                                    LEFT JOIN `character_items` citem   ON citem.`id` = cwear.`{0}`
+                                                    LEFT JOIN `game_items` gitem        ON gitem.`id` = citem.`game_item`
                                                     WHERE cwear.`character_id` = %s""".format(item_type),
                                                         [character_id])
             wearing[item_type] = _args['mysql'].fetchone()
@@ -108,7 +100,7 @@ def get_items(_args, character_id, mode = 'wearing'):
         for i in range(1, 21):
             _args['mysql'].execute("""SELECT    IFNULL(gitem.`item_id`, 0)                                      
                                                     AS `item_id`,
-                                                TIMESTAMPDIFF(HOUR, UTC_TIMESTAMP(), citem.`expiration_date`)
+                                                TIMESTAMPDIFF(HOUR, UTC_TIMESTAMP(), DATE_ADD(UTC_TIMESTAMP(), INTERVAL `remaining_seconds` SECOND))
                                                     AS `remaining_hours`,
                                                 citem.`remaining_games`                                        
                                                     AS `remaining_games`,
@@ -223,17 +215,59 @@ def add_item(_args, item, slot):
 '''
 This method removes an item from character_items and removes it from our inventory
 '''
-def remove_item(_args, character_item_id, slot):
+def remove_item(_args, character_item_id, slot=None):
 
     # Remove item from the inventory of our character, but only if the item id actually matches the slot index
-    _args['mysql'].execute("""UPDATE `inventory` SET `item_{0}` = 0 WHERE `character_id` = %s AND `item_{0}` = %s""".format(str(slot + 1)), [
-        _args['client']['character']['id'],
-        character_item_id
-    ])
+    if slot is not None:
+        _args['mysql'].execute("""UPDATE `inventory` SET `item_{0}` = 0 WHERE `character_id` = %s AND `item_{0}` = %s""".format(str(slot + 1)), [
+            _args['client']['character']['id'],
+            character_item_id
+        ])
 
     # Remove item from character_items
     _args['mysql'].execute("""DELETE FROM `character_items` WHERE `id` = %s""", [character_item_id])
 
+
+'''
+This method will remove expired items which we are wearing
+'''
+def remove_expired_items(_args, character_id):
+
+    # Retrieve currently wearing items
+    wearing_items = get_items(_args, character_id, 'wearing')['items']
+
+    # Construct wearing table
+    wearing_table   = {}
+
+    for item in wearing_items:
+
+        # Skip iteration if the character_item_id is equal to None
+        if wearing_items[item]['character_item_id'] is None:
+            continue
+
+        # Append item to the wearing table and item id array
+        wearing_table[wearing_items[item]['character_item_id']] = wearing_items[item]['type']
+
+    # Construct IN statement for the query
+    in_statement = ''
+    for id in wearing_table.keys():
+        in_statement+="{0}, ".format(str(id))
+
+    # Retrieve expired items dynamically
+    _args['mysql'].execute("""SELECT `id` FROM `character_items` WHERE `used` IS NOT NULL AND (
+        (UTC_TIMESTAMP() >= `expiration_date` AND `expiration_date` IS NOT NULL)    OR
+            `remaining_games` < 1                                                   OR
+            `remaining_times` < 1
+    ) AND `id` IN ({})""".format(in_statement[:-2]))
+    expired_items = _args['mysql'].fetchall()
+
+    # Remove the expired items from our character and from the game entirely
+    for item in expired_items:
+
+        # Remove item from our character and from the game
+        _args['mysql'].execute("""UPDATE `character_wearing` SET `{0}` = 0 WHERE `character_id` = %s"""
+                               .format(wearing_table[item['id']]), [character_id])
+        remove_item(_args, item['id'])
 
 '''
 This method constructs the bot data which can then be appended to a packet to send the character information sheet
@@ -241,6 +275,9 @@ This method constructs the bot data which can then be appended to a packet to se
 def construct_bot_data(_args, character):
 
     bot = PacketWrite()
+
+    # Before we obtain wearing items, remove any expired items that we may have
+    remove_expired_items(_args, character['id'])
 
     # Obtain wearing items
     wearing_items = get_items(_args, character['id'], 'wearing')
