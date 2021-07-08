@@ -57,7 +57,10 @@ def host_update(**_args):
 
                     # Get client and p2p port number and append to packet, if it exists
                     client = room['slots'][str((i + 1))]['client']
-                    print(client)
+
+                    port = client['p2p_host']['port'] if 'p2p_host' in client else 0
+                    print("Slot, {0}, User: {1}, Port: {2}".format(str(i), client['character']['name'], port))
+
                     ports.AppendInteger(client['p2p_host']['port'] if 'p2p_host' in client else 0, 2, 'big')
                 else:
                     ports.AppendInteger(0, 2, 'big')
