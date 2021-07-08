@@ -689,7 +689,6 @@ def sync_state(_args, room):
         _args['connection_handler'].SendRoomAll(room['id'], status.packet)
 
     # Send P2P room information
-    print('send p2p')
     p2p = PacketWrite()
     p2p.AddHeader(bytes=[0x39, 0x27])
     for i in range(0, 8):
