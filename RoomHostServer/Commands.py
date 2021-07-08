@@ -47,6 +47,9 @@ def host_update(**_args):
             # Find room
             room = _args['game_server'].rooms[str(client['room'])]
 
+            print(room)
+            print(room['slots'])
+
             # Send p2p ports to all clients in the room
             ports = PacketWrite()
             ports.AddHeader(bytearray([0x39, 0x27]))
