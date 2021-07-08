@@ -1,1 +1,1 @@
-LOBBY_MSG = '[Server] Welcome to the closed beta of T-Bot Rewritten!', 0
+LOBBY_MSG = '[Server] Welcome to the closed beta of T-Bot Rewritten!', 1
