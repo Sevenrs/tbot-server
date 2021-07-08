@@ -61,9 +61,9 @@ def host_update(**_args):
                     port = client['p2p_host']['port'] if 'p2p_host' in client else 0
                     print("Slot: {0}, User: {1}, Port: {2}, ID: {3}".format(str(i), client['character']['name'], port, client['id']))
 
-                    ports.AppendInteger(client['p2p_host']['port'] if 'p2p_host' in client else 0, 2, 'little')
+                    ports.AppendInteger(client['p2p_host']['port'] if 'p2p_host' in client else 0, 2, 'big')
                 else:
                     ports.AppendInteger(0, 2, 'big')
             print(ports.packet)
-            _args['connection_handler'].SendRoomAll(room['id'], ports.packet)
+            #_args['connection_handler'].SendRoomAll(room['id'], ports.packet)
             break
