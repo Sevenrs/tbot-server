@@ -6,6 +6,7 @@ __version__ = "1.0"
 from Packet.Write import Write as PacketWrite
 from GameServer.Controllers import Guild, Friend, Room
 from GameServer.Controllers.Character import get_items
+from GameServer.Controllers.data.lobby import LOBBY_MSG
 import os
 
 """
@@ -181,9 +182,16 @@ def GetLobby(**_args):
     Guild.GetGuild(_args, _args['client'], True)
     
     # If this is the first time that this client has requested the lobby, notify all their friends
-    if _args['client']['new'] == 1:
+    if _args['client']['new']:
+
+        # Notify all friends
         Friend.PresenceNotification(_args)
-        _args['client']['new'] = 0
+
+        # Send welcome message to our client
+        ChatMessage(_args['client'], LOBBY_MSG[0] + ' Your client ID is {0}.'.format(_args['client']['id']), LOBBY_MSG[1])
+
+        # Update client status
+        _args['client']['new'] = False
 
 def RoomList(**_args):
 

@@ -109,6 +109,7 @@ class Handler:
                             client=client, reason=6)
 
             self.server.clients.remove(client)
+            self.server.client_ids.remove(client['id'])
 
             # Attempt to close the socket
             try:

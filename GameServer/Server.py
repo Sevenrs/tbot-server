@@ -18,6 +18,9 @@ class Socket:
         # Client container
         self.clients = []
 
+        # Client ID container
+        self.client_ids = []
+
         # Room container
         self.rooms = {}
 

@@ -33,22 +33,13 @@ def id_request(**_args):
     id = 0
     for i in range(65535):
 
-        in_use = False
-
-        # Loop through all clients
-        for client in _args['connection_handler'].GetClients():
-
-            # If the client id is equal to the index, it is in use.
-            # Skip this number.
-            if client['id'] == i:
-                in_use = True
-                break
-
-        # If we passed the loop, we have found an available client id
-        if in_use:
+        # If the ID is in use, skip the iteration
+        if i in _args['server'].client_ids:
             continue
 
+        # If the ID is not in the client id container of the server, use the id and add it to the container
         id = i
+        _args['server'].client_ids.append(id)
         break
 
     print("Client id: {0}".format(id))
@@ -68,7 +59,7 @@ def id_request(**_args):
     _args['client']['account']      = user['username']
     _args['client']['account_data'] = {'bot_slot': user['active_bot_slot'], 'id': user['id']}
     _args['client']['character']    = None
-    _args['client']['new']          = 1
+    _args['client']['new']          = True
     _args['client']['lobby_data']   = {'mode': 0, 'page': 0}
     
     # Disconnect all connected sessions with this account name (to stop two or more clients with the same account)
