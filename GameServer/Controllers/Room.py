@@ -700,6 +700,7 @@ def sync_state(_args, room):
         if str((i + 1)) in room['slots']:
             client = room['slots'][str((i + 1))]['client']
             port = client['p2p_host']['port'] if 'p2p_host' in client else 0
+            print(port)
 
         # Append port to the packet
         p2p.AppendInteger(port, 2, 'big')
