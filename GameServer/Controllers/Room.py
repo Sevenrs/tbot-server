@@ -688,6 +688,25 @@ def sync_state(_args, room):
         status.AppendInteger(room['slots'][str(i)]['team'] if str(i) in room['slots'] else 0, 2, 'little')
         _args['connection_handler'].SendRoomAll(room['id'], status.packet)
 
+    # Send P2P room information
+    print('send p2p')
+    p2p = PacketWrite()
+    p2p.AddHeader(bytes=[0x39, 0x27])
+    for i in range(0, 8):
+
+        # Initialize port number
+        port = 0
+
+        # Retrieve port numbers from every slot in the room
+        if str((i + 1)) in room['slots']:
+            client = room['slots'][str((i + 1))]['client']
+            port = client['p2p_host']['port'] if 'p2p_host' in client else 0
+
+        # Append port to the packet
+        ports.AppendInteger(port, 2, 'big')
+
+    # Send port information to the room
+    _args['connection_handler'].SendRoomAll(room['id'], p2p.packet)
 
 '''
 This method will check if the client is in a room.
