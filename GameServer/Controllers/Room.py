@@ -703,7 +703,7 @@ def sync_state(_args, room):
             port = client['p2p_host']['port'] if 'p2p_host' in client else 0
 
         # Append port to the packet
-        ports.AppendInteger(port, 2, 'big')
+        p2p.AppendInteger(port, 2, 'big')
 
     # Send port information to the room
     _args['connection_handler'].SendRoomAll(room['id'], p2p.packet)
