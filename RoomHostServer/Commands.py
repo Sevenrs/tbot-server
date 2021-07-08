@@ -65,5 +65,5 @@ def host_update(**_args):
                 else:
                     ports.AppendInteger(0, 2, 'big')
             print(ports.packet)
-            #_args['connection_handler'].SendRoomAll(room['id'], ports.packet)
+            _args['connection_handler'].SendRoomAll(room['id'], ports.packet)
             break
