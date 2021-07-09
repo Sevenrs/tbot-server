@@ -4,6 +4,7 @@ __copyright__ = "Copyright (C) 2020 Icseon"
 __version__ = "1.0"
 
 from Packet.Write import Write as PacketWrite
+from GameServer.Controllers.Room import get_peer_port
 
 """
 This method will execute a command based on the received command ID
@@ -41,10 +42,8 @@ def host_update(**_args):
     # Now that we have the client ID, update the host and tell the room about it
     for client in _args['game_server'].clients:
 
-        if client['id'] == client_id:
+        if client['id'] == client_id :
             client['p2p_host'] = {'ip': _args['address'][0], 'port': _args['address'][1]}
-
-            print('req')
 
             # Find room
             room = _args['game_server'].rooms[str(client['room'])]
@@ -57,11 +56,10 @@ def host_update(**_args):
 
                     # Get client and p2p port number and append to packet, if it exists
                     client = room['slots'][str((i + 1))]['client']
+                    port = get_peer_port(_args['connection_handler'], _args['game_server'], client)
 
-                    port = client['p2p_host']['port'] if 'p2p_host' in client else 0
                     print("Slot: {0}, User: {1}, Port: {2}, ID: {3}".format(str(i), client['character']['name'], port, client['id']))
-
-                    ports.AppendInteger(client['p2p_host']['port'] if 'p2p_host' in client else 0, 2, 'big')
+                    ports.AppendInteger(port, 2, 'big')
                 else:
                     ports.AppendInteger(0, 2, 'big')
             print(ports.packet)

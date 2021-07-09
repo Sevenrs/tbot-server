@@ -6,8 +6,7 @@ __version__ = "1.0"
 from Packet.Write import Write as PacketWrite
 from GameServer.Controllers import Character, Guild
 from GameServer.Controllers.data.planet import PLANET_MAP_TABLE
-import math
-import os
+import math, os, time
 
 """
 This controller is responsible for handling all room related requests
@@ -132,7 +131,7 @@ def construct_room_players(_args, packet, character, slot_num, client, room):
         packet.AppendBytes(bytearray([0x00]))
 
     # Peer port
-    if 'p2p_host' in client:
+    if 'p2p_host' in client and client == room['master']:
        packet.AppendInteger(client['p2p_host']['port'], 2, 'little')
     else:
        packet.AppendInteger(0, 2, 'little')
@@ -689,6 +688,28 @@ def sync_state(_args, room):
         status.AppendInteger(room['slots'][str(i)]['ready'] if str(i) in room['slots'] else 0, 2, 'little')
         status.AppendInteger(room['slots'][str(i)]['team'] if str(i) in room['slots'] else 0, 2, 'little')
         _args['connection_handler'].SendRoomAll(room['id'], status.packet)
+
+'''
+This method gets the peer to peer port of a client and waits for it to be available.
+If after 10 attempts this fails, we kill the connection
+'''
+def get_peer_port(connection_handler, server, client):
+
+    # Number of attempts
+    attempts = 0
+
+    while 'p2p_host' not in client:
+        if attempts >= 10 or client not in server.clients:
+            print('Disconnecting client due to being too slow')
+            connection_handler.CloseConnection(client)
+            return 0
+
+        print('[Attempt #{0}] Peer information not found. Trying again in 300ms ...'.format(attempts))
+        attempts+=1
+        time.sleep(0.300)
+
+    # If we have found the port, return the port
+    return int(client['p2p_host']['port'])
 
 '''
 This method will check if the client is in a room.
