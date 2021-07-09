@@ -116,11 +116,10 @@ def construct_room_players(_args, packet, character, slot_num, client, room):
         packet.AppendInteger(item['id'], 4, 'little')
 
     # unknown, but needed
-    packet.AppendInteger(2, 2, 'little')
-    packet.AppendBytes(bytearray([0x00]))
+    packet.AppendInteger(2, 2, 'big')
 
-    # slot index
-    packet.AppendInteger(slot_num - 1)
+    # Room number
+    packet.AppendInteger(room['id'], 2, 'little')
 
     # Split IP address so we can append it in a packet
     p2p_ip = client['socket'].getpeername()[0].split('.')
@@ -129,14 +128,14 @@ def construct_room_players(_args, packet, character, slot_num, client, room):
     for number in p2p_ip:
         packet.AppendInteger(int(number))
 
-    for _ in range(10):
+    for _ in range(12):
         packet.AppendBytes(bytearray([0x00]))
 
     # Peer port
-    if 'p2p_host' in client:
-        packet.AppendInteger(client['p2p_host']['port'], 2, 'big')
-    else:
-        packet.AppendInteger(0, 2, 'big')
+    #if 'p2p_host' in client:
+    #    packet.AppendInteger(client['p2p_host']['port'], 2, 'big')
+    #else:
+    #    packet.AppendInteger(0, 2, 'big')
 
     # Peer IP address
     for number in p2p_ip:
@@ -701,9 +700,6 @@ def sync_state(_args, room):
             client = room['slots'][str((i + 1))]['client']
             port = client['p2p_host']['port'] if 'p2p_host' in client else 0
             print(port)
-            if port == 0:
-                print('no sent yet')
-                return
 
         # Append port to the packet
         p2p.AppendInteger(port, 2, 'big')
