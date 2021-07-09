@@ -133,9 +133,9 @@ def construct_room_players(_args, packet, character, slot_num, client, room):
 
     # Peer port
     if 'p2p_host' in client:
-       packet.AppendInteger(client['p2p_host']['port'], 2, 'big')
+       packet.AppendInteger(client['p2p_host']['port'], 2, 'little')
     else:
-       packet.AppendInteger(0, 2, 'big')
+       packet.AppendInteger(0, 2, 'little')
 
     # Peer IP address
     for number in p2p_ip:
@@ -377,7 +377,6 @@ def create(**_args):
 
     ip_addr = _args['socket'].getpeername()[0].split('.')
     for number in ip_addr:
-        print(number)
         room.AppendInteger(int(number))
 
     _args['socket'].send(room.packet)
