@@ -27,8 +27,8 @@ def ping(**_args):
     # Construct pong packet and send it back to the client
     pong = PacketWrite()
     pong.AddHeader(bytes=bytearray([0xC8, 0x00]))
-    pong.AppendBytes(bytes=bytearray([0x01]))
-    pong.AppendInteger(integer=client_id, length=3, byteorder='big')
+    pong.AppendBytes(bytes=bytearray([0x01, 0x00]))
+    pong.AppendInteger(integer=client_id, length=2, byteorder='little')
     _args['server'].sendto(pong.packet, _args['address'])
 
 ''' This handler will handle host updates '''
