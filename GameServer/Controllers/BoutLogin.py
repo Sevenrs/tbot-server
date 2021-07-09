@@ -31,7 +31,7 @@ def id_request(**_args):
     
     # Get available ID
     id = 1
-    for i in range(65535):
+    for i in range(1, 65535):
 
         # If the ID is in use, skip the iteration
         if i in _args['server'].client_ids:
