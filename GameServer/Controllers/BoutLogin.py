@@ -6,7 +6,7 @@ __version__ = "1.0"
 from Packet.Write import Write as PacketWrite
 from GameServer.Controllers import Character, Shop
 import MySQL.Interface as MySQL
-import re, time
+import re, time, _thread
 
 """
 This method will send the new client its unique ID
