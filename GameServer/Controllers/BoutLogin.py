@@ -30,7 +30,7 @@ def id_request(**_args):
         raise Exception('Invalid user given in the ID request')
     
     # Get available ID
-    id = 0
+    id = 1
     for i in range(65535):
 
         # If the ID is in use, skip the iteration
