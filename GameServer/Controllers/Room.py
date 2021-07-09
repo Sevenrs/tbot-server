@@ -374,7 +374,11 @@ def create(**_args):
     room.AddHeader(bytearray([0xEE, 0x2E]))
     room.AppendBytes(bytearray([0x01, 0x00]))
     room.AppendInteger(room_ids['client_id'] + 1, 2, 'little')
-    room.AppendString("0.0.0.0")
+
+    ip_addr = _args['socket'].getpeername()[0].split('.')
+    for number in ip_addr:
+        print(number)
+        room.AppendInteger(int(number))
 
     _args['socket'].send(room.packet)
 
