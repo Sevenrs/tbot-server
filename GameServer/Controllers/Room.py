@@ -130,14 +130,14 @@ def construct_room_players(_args, packet, character, slot_num, client, room):
     for number in p2p_ip:
         packet.AppendInteger(int(number))
 
-    for _ in range(10):
+    for _ in range(12):
         packet.AppendBytes(bytearray([0x00]))
 
     # Peer port
-    if 'p2p_host' in client and client == room['master']:
-       packet.AppendInteger(client['p2p_host']['port'], 2, 'little')
-    else:
-       packet.AppendInteger(0, 2, 'little')
+    # if 'p2p_host' in client and client == room['master']:
+    #    packet.AppendInteger(client['p2p_host']['port'], 2, 'little')
+    # else:
+    #    packet.AppendInteger(0, 2, 'little')
 
     # Peer IP address
     for number in p2p_ip:
@@ -181,8 +181,7 @@ def construct_room_players(_args, packet, character, slot_num, client, room):
 
     packet.AppendInteger(slot_num - 1)
 
-    for _ in range(4):
-        packet.AppendBytes(bytearray([0x00]))
+    packet.AppendBytes(bytearray([0x03, 0x00, 0x06, 0x00]))
 
     packet.AppendString(character['name'], 15)
 
