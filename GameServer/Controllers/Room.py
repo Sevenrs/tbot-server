@@ -121,7 +121,7 @@ def construct_room_players(_args, packet, character, slot_num, client, room):
     print(room['client_id'])
 
     # Room number
-    packet.AppendInteger(room['client_id'] + 1, 2, 'little')
+    packet.AppendInteger(room['client_id'], 2, 'little')
 
     # Split IP address so we can append it in a packet
     p2p_ip = client['socket'].getpeername()[0].split('.')
