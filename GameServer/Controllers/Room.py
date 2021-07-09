@@ -708,7 +708,7 @@ def sync_state(_args, room):
         p2p.AppendInteger(port, 2, 'big')
 
     # Send port information to the room
-    _args['connection_handler'].SendRoomAll(room['id'], p2p.packet)
+    #_args['connection_handler'].SendRoomAll(room['id'], p2p.packet)
 
 '''
 This method will check if the client is in a room.
