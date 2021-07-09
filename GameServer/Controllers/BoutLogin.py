@@ -6,7 +6,7 @@ __version__ = "1.0"
 from Packet.Write import Write as PacketWrite
 from GameServer.Controllers import Character, Shop
 import MySQL.Interface as MySQL
-import re
+import re, time
 
 """
 This method will send the new client its unique ID
@@ -69,6 +69,9 @@ def id_request(**_args):
     
     # Add new connection to server client container
     _args['server'].clients.append(_args['client'])
+
+    # Start ping thread
+    _thread.start_new_thread(ping, (_args['server'], _args['client'],))
     
 """
 This method will obtain the character and return it to the client
@@ -182,3 +185,11 @@ def exit_server(**_args):
     # Disconnect the client, in case the connection is still alive
     _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
 
+def ping(server, client):
+
+    while client in server.clients:
+        print('ping')
+        pack = PacketWrite()
+        pack.AddHeader([0x01, 0x00])
+        client['socket'].send(pack.packet)
+        time.sleep(3)

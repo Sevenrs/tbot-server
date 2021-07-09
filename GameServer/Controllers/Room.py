@@ -702,11 +702,9 @@ def get_peer_port(connection_handler, server, client):
 
     while 'p2p_host' not in client:
         if attempts >= 10 or client not in server.clients:
-            print('Disconnecting client due to being too slow')
             connection_handler.CloseConnection(client)
             return 0
 
-        print('[Attempt #{0}] Peer information not found. Trying again in 300ms ...'.format(attempts))
         attempts+=1
         time.sleep(0.300)
 
@@ -714,6 +712,20 @@ def get_peer_port(connection_handler, server, client):
 
     # If we have found the port, return the port
     return int(client['p2p_host']['port'])
+
+'''
+This method will send the peer state to the whole room
+'''
+# def send_peer_status(room):
+#
+#     peer_status = PacketWrite()
+#     peer_status.AddHeader(bytes=[0x39, 0x27])
+#     for i in range(0, 8):
+#         if not str((i + 1)) in room['slots']:
+#
+#
+#         # Retrieve client and its p2p port
+#         client = room['slots']
 
 '''
 This method will check if the client is in a room.
