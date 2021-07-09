@@ -313,6 +313,7 @@ def remove_slot(_args, room_id, client, reason=1):
 
             # Remove the room from the client so the client is no longer in the room
             client.pop('room')
+            client.pop('p2p_host')
             break
 
     # If the room has no more slots left, delete the room and send the new room list to the lobby
