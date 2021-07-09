@@ -191,5 +191,6 @@ def ping(server, client):
         print('ping')
         pack = PacketWrite()
         pack.AddHeader([0x01, 0x00])
+        pack.AppendBytes([0xCC])
         client['socket'].send(pack.packet)
         time.sleep(3)
