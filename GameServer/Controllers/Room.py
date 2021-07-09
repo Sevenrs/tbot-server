@@ -314,6 +314,7 @@ def remove_slot(_args, room_id, client, reason=1):
             # Remove the room from the client so the client is no longer in the room
             client.pop('room')
             client.pop('p2p_host')
+            print(client)
             break
 
     # If the room has no more slots left, delete the room and send the new room list to the lobby
@@ -708,6 +709,8 @@ def get_peer_port(connection_handler, server, client):
         print('[Attempt #{0}] Peer information not found. Trying again in 300ms ...'.format(attempts))
         attempts+=1
         time.sleep(0.300)
+
+    print('found')
 
     # If we have found the port, return the port
     return int(client['p2p_host']['port'])
