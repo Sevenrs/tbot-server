@@ -4,7 +4,6 @@ __copyright__ = "Copyright (C) 2020 Icseon"
 __version__ = "1.0"
 
 from Packet.Write import Write as PacketWrite
-from GameServer.Controllers.Room import get_peer_port
 
 """
 This method will execute a command based on the received command ID
@@ -42,10 +41,7 @@ def host_update(**_args):
     # Now that we have the client ID, update the host and tell the room about it
     for client in _args['game_server'].clients:
 
-        if client['id'] == client_id :
-
-            print(_args['address'])
-
+        if client['id'] == client_id:
             client['p2p_host'] = {'ip': _args['address'][0], 'port': _args['address'][1]}
 
             # Find room

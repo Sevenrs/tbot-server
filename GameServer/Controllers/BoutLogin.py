@@ -71,7 +71,7 @@ def id_request(**_args):
     _args['server'].clients.append(_args['client'])
 
     # Start ping thread
-    _thread.start_new_thread(ping, (_args['server'], _args['client'],))
+    #_thread.start_new_thread(ping, (_args['server'], _args['client'],))
     
 """
 This method will obtain the character and return it to the client
@@ -188,7 +188,6 @@ def exit_server(**_args):
 def ping(server, client):
 
     while client in server.clients:
-        print('ping')
         pack = PacketWrite()
         pack.AddHeader([0x01, 0x00])
         pack.AppendBytes([0xCC])

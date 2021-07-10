@@ -122,20 +122,19 @@ def construct_room_players(_args, packet, character, slot_num, client, room):
 
     # Split IP address so we can append it in a packet
     p2p_ip = client['socket'].getpeername()[0].split('.')
-    print(p2p_ip)
 
     # Peer IP address
     for number in p2p_ip:
         packet.AppendInteger(int(number))
 
-    for _ in range(12):
+    for _ in range(10):
         packet.AppendBytes(bytearray([0x00]))
 
     # Peer port
-    # if 'p2p_host' in client and client == room['master']:
-    #    packet.AppendInteger(client['p2p_host']['port'], 2, 'little')
-    # else:
-    #    packet.AppendInteger(0, 2, 'little')
+    if 'p2p_host' in client:
+       packet.AppendInteger(client['p2p_host']['port'], 2, 'little')
+    else:
+       packet.AppendInteger(0, 2, 'little')
 
     # Peer IP address
     for number in p2p_ip:
@@ -315,8 +314,10 @@ def remove_slot(_args, room_id, client, reason=1):
 
             # Remove the room from the client so the client is no longer in the room
             client.pop('room')
-            client.pop('p2p_host')
-            print(client)
+
+            # Remove peer information as we most likely need to assign new information later
+            if 'p2p_host' in client:
+                client.pop('p2p_host')
             break
 
     # If the room has no more slots left, delete the room and send the new room list to the lobby
@@ -692,42 +693,6 @@ def sync_state(_args, room):
         status.AppendInteger(room['slots'][str(i)]['ready'] if str(i) in room['slots'] else 0, 2, 'little')
         status.AppendInteger(room['slots'][str(i)]['team'] if str(i) in room['slots'] else 0, 2, 'little')
         _args['connection_handler'].SendRoomAll(room['id'], status.packet)
-
-'''
-This method gets the peer to peer port of a client and waits for it to be available.
-If after 10 attempts this fails, we kill the connection
-'''
-def get_peer_port(connection_handler, server, client):
-
-    # Number of attempts
-    attempts = 0
-
-    while 'p2p_host' not in client:
-        if attempts >= 10 or client not in server.clients:
-            connection_handler.CloseConnection(client)
-            return 0
-
-        attempts+=1
-        time.sleep(0.300)
-
-    print('found')
-
-    # If we have found the port, return the port
-    return int(client['p2p_host']['port'])
-
-'''
-This method will send the peer state to the whole room
-'''
-# def send_peer_status(room):
-#
-#     peer_status = PacketWrite()
-#     peer_status.AddHeader(bytes=[0x39, 0x27])
-#     for i in range(0, 8):
-#         if not str((i + 1)) in room['slots']:
-#
-#
-#         # Retrieve client and its p2p port
-#         client = room['slots']
 
 '''
 This method will check if the client is in a room.
