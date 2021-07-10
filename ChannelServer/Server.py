@@ -33,7 +33,7 @@ class Socket:
             # Continue to listen for new connections
             while True:
                 
-                # Accept the new client and handle the connection in a seperate thread
+                # Accept the new client and handle the connection in a separate thread
                 message, address = server.recvfrom(12)
                 _thread.start_new_thread(Client.Client, (message, address, server,))
                 
