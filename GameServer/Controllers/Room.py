@@ -117,9 +117,6 @@ def construct_room_players(_args, packet, character, slot_num, client, room):
     # unknown, but needed
     packet.AppendInteger(2, 2, 'big')
 
-    print(room['id'])
-    print(room['client_id'])
-
     # Room number
     packet.AppendInteger(room['client_id'] + 1, 2, 'little')
 
@@ -181,7 +178,8 @@ def construct_room_players(_args, packet, character, slot_num, client, room):
 
     packet.AppendInteger(slot_num - 1)
 
-    packet.AppendBytes(bytearray([0x03, 0x00, 0x06, 0x00]))
+    for _ in range(4):
+        packet.AppendBytes(bytearray([0x00]))
 
     packet.AppendString(character['name'], 15)
 

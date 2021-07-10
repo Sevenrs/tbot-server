@@ -55,13 +55,9 @@ def host_update(**_args):
                 if str((i + 1)) in room['slots']:
 
                     # Get client and p2p port number and append to packet, if it exists
-                    client = room['slots'][str((i + 1))]['client']
-                    port = get_peer_port(_args['connection_handler'], _args['game_server'], client)
-
-                    print("Slot: {0}, User: {1}, Port: {2}, ID: {3}".format(str(i), client['character']['name'], port, client['id']))
-                    ports.AppendInteger(port, 2, 'big')
+                    room_client = room['slots'][str((i + 1))]['client']
+                    ports.AppendInteger(0 if 'p2p_host' not in room_client else room_client['p2p_host']['port'], 2, 'big')
                 else:
                     ports.AppendInteger(0, 2, 'big')
-            print(ports.packet)
-            _args['connection_handler'].SendRoomAll(room['id'], ports.packet)
+            client['socket'].send(ports.packet)
             break
