@@ -138,7 +138,6 @@ def construct_room_players(_args, packet, character, slot_num, client, room):
 
     # Peer IP address
     for number in p2p_ip:
-        print(number)
         packet.AppendInteger(int(number), 1)
 
     for _ in range(10):
