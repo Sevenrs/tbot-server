@@ -43,6 +43,9 @@ def host_update(**_args):
     for client in _args['game_server'].clients:
 
         if client['id'] == client_id :
+
+            print(_args['address'])
+
             client['p2p_host'] = {'ip': _args['address'][0], 'port': _args['address'][1]}
 
             # Find room
