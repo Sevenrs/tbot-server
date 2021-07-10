@@ -66,6 +66,13 @@ def id_request(**_args):
     for session in _args['connection_handler'].GetClients():
         if session['account'] == account and session['socket'] is not _args['socket']:
             _args['connection_handler'].UpdatePlayerStatus(session, 2)
+
+    # Find our relay client and connect it with this client
+    for client in _args['server'].relay_server.clients:
+        if client['account'] == _args['client']['account']:
+            client['game_client'] = _args['client']
+            client['game_server'] = _args['server']
+            break
     
     # Add new connection to server client container
     _args['server'].clients.append(_args['client'])

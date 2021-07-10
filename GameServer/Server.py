@@ -12,7 +12,7 @@ class Socket:
     """
     GameServer constructor
     """
-    def __init__(self, port):
+    def __init__(self, port, relay_tcp_server):
         self.port = port
         
         # Client container
@@ -23,6 +23,9 @@ class Socket:
 
         # Room container
         self.rooms = {}
+
+        # Access to the relay server
+        self.relay_server = relay_tcp_server
 
     """
     This method will listen for new connections

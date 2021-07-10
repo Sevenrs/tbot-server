@@ -6,10 +6,11 @@ __version__ = "1.0"
 
 import _thread
 import threading
-from LoginServer    import Server as LoginServer
-from ChannelServer  import Server as ChannelServer
-from RoomHostServer import Server as RoomHostServer
-from GameServer     import Server as GameServer
+from LoginServer        import Server as LoginServer
+from ChannelServer      import Server as ChannelServer
+from RoomHostServer     import Server as RoomHostServer
+from GameServer         import Server as GameServer
+from relay_tcp_server   import server as relay_tcp_server
 
 """
 This method will start all services
@@ -17,11 +18,15 @@ This method will start all services
 def main():
     print('[Bout Galaxy]: Server version:', __version__)
 
+    # Start the RelayTCPServer
+    relay_tcp = relay_tcp_server.RelayTCPServer(11004)
+    _thread.start_new_thread(relay_tcp.listen, ())
+
     '''
     Create a new instance of GameServer so we can access its values from any server
     Then, run the server on a new thread
     '''
-    game_server = GameServer.Socket(11002)
+    game_server = GameServer.Socket(11002, relay_tcp)
     _thread.start_new_thread(game_server.listen, ())
     
     # Start the Channel Server

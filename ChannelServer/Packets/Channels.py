@@ -32,6 +32,9 @@ def GetChannels(server, address, packet):
     
     # Get requested world for channels
     world = int(packet.data[0])
+
+    # Array with relay servers
+    relay_servers = []
     
     # Obtain channels with this world ID
     try:
@@ -43,7 +46,7 @@ def GetChannels(server, address, packet):
         packet.AddHeader(bytearray([0xEE, 0x2C]))
         
         # Find channels with this world ID
-        cursor.execute('SELECT `name`, `population`, `min_level`, `max_level` FROM `channels` WHERE `world` = %s', [world])
+        cursor.execute('SELECT `name`, `population`, `min_level`, `max_level`, `relay_server_addr` FROM `channels` WHERE `world` = %s', [world])
         
         # Loop through every channel and add to packet
         for channel in cursor:
@@ -53,13 +56,22 @@ def GetChannels(server, address, packet):
             packet.AppendInteger(channel['min_level'])
             packet.AppendInteger(channel['max_level'])
             packet.AppendString(channel['name'], 22)
+
+            # Append relay server to relay servers
+            relay_servers.append(channel['relay_server_addr'])
         
         # For all channels that do not exist, send over NO_CHANNEL
         for i in range(12 - cursor.rowcount):
             packet.AppendBytes(NO_CHANNEL)
             
         # Send the array with available relay servers
-        for i in range(6):
+        for relay_server in relay_servers:
+            packet.AppendBytes(bytes=[0x00, 0x00])
+            ip_addr = relay_server.split('.')
+            for oct in ip_addr:
+                packet.AppendInteger(int(oct))
+
+        for _ in range(6 - len(relay_servers)):
             packet.AppendBytes(RELAY_NONE)
         
         server.sendto(packet.packet, address)
