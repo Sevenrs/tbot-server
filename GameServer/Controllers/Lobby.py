@@ -44,6 +44,11 @@ def Chat(**_args):
     command_msg = message[message.find(']') + 2:]
     print(command_msg[0:11] + 'a')
     if command_msg[0:11] == '@changeslot':
+
+        # Drop invalid ranges
+        if command_msg[12] < 1 or command_msg[12] > 3:
+            return
+
         _args['mysql'].execute('UPDATE `users` SET `active_bot_slot` = (%s - 1) WHERE `username` = %s', [
             command_msg[12],
             _args['client']['account']
