@@ -69,7 +69,11 @@ def relay_action(**_args):
             relay_ids = slot['relay_ids']
             for id in relay_ids:
                 for client_id in _args['client']['server'].relay.clients:
-                    if client_id['id'] == id:
+
+                    # Check if the id matches and if the client has peer information assigned to it
+                    # It is possible the client adds themselves to the id list before having peer information.
+                    if client_id['id'] == id and 'peer_info' in client_id:
+                        print(client_id['peer_info'])
                         _args['client']['server'].socket.sendto(answer, (client_id['peer_info']['ip'],
                                                                          client_id['peer_info']['port']))
                         break

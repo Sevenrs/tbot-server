@@ -49,4 +49,9 @@ class RelayTCPClient:
                 router.route(self.__dict__, packet)
             except Exception as e:
                 print(e)
+                print("[{0}]: Disconnected from {1}:{2}".format(self.server.name, self.address[0], self.address[1]))
+
+                # Remove the client from the containers
+                self.server.clients.remove(self.__dict__)
+                self.server.ids.remove(self.id)
                 break

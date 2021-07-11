@@ -36,6 +36,8 @@ def id_request(**_args):
     _args['client']['account']  = account
     _args['client']['id']       = id
 
+    print(id)
+
     # Add the client to our client container
     _args['client']['server'].clients.append(_args['client'])
 
@@ -67,21 +69,32 @@ def check_connection(**_args):
             # Add relay ID of the player that is not connected
             for client in _args['client']['server'].clients:
                 if client['game_client']['character']['name'] == character_name:
-                    room_slot['relay_ids'].append(client['id'])
-
-            print(room_slot)
-
-        print("connected for {0} is {1}".format(character_name, connected))
+                    if client['id'] not in room_slot['relay_ids']:
+                        room_slot['relay_ids'].append(client['id'])
 
 def remove_connection(**_args):
     character_name  = _args['packet'].ReadStringByRange(2, 17)
 
+    # Find our own room
+    room = _args['client']['game_server'].rooms[str(_args['client']['game_client']['room'])]
+
     # Remove relay ID from the room
     for client in _args['client']['server'].clients:
         if client['game_client']['character']['name'] == character_name:
-
-            # Find our own room and slot number and remove the relay ID from the list
-            room = _args['client']['game_server'].rooms[str(_args['client']['game_client']['room'])]
             slot_nr = get_slot({'client': _args['client']['game_client']}, room)
             room_slot = room['slots'][str(slot_nr)]
-            room_slot['relay_ids'].remove(client['id'])
+
+            # It is possible this is invoked before the client sent the check_connection packet so we must check
+            # if the id is actually in relay_ids
+            if client['id'] in room_slot['relay_ids']:
+                room_slot['relay_ids'].remove(client['id'])
+
+    # It is possible that the connection was closed by the remote client causing the ID to be removed from
+    # the state and not from the room, making the above snippet not work. This will loop through all IDs in the
+    # entire room and check if we should remove them
+    for i in range(0, 8):
+        if str(i + 1) in room['slots']:
+            ids = room['slots'][str(i + 1)]['relay_ids']
+            for id in ids:
+                if id not in _args['client']['server'].ids:
+                    ids.remove(id)
