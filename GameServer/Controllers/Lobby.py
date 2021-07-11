@@ -54,7 +54,7 @@ def Chat(**_args):
         exit.AddHeader(bytearray([0x0A, 0x2F]))
         exit.AppendBytes(bytearray([0x01, 0x00]))
         _args['socket'].send(exit.packet)
-        _args['server'].clients.remove(_args['client'])
+        _args['connection_handler'].CloseConnection(_args['client'])
         return
 
     if int(chat_type) == 5:
