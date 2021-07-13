@@ -122,6 +122,7 @@ def construct_room_players(_args, packet, character, slot_num, client, room):
 
     # Split IP address so we can append it in a packet
     p2p_ip = client['socket'].getpeername()[0].split('.')
+    p2p_ip = '1.1.1.1'
 
     # Peer IP address
     for number in p2p_ip:
