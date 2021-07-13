@@ -82,6 +82,7 @@ def id_request(**_args):
     response.AppendBytes([0x01, 0x00])
 
     _args['socket'].send(response.packet)
+    print('sent')
 
     # Start ping thread
     #_thread.start_new_thread(ping, (_args['server'], _args['client'],))
