@@ -73,16 +73,12 @@ def id_request(**_args):
     if 'relay_client' not in _args['client']:
         return _args['connection_handler'].CloseConnection(_args['client'])
 
-    # Construct packet and send it back to the client
+    # Construct ID request response and send it to the client
     response = PacketWrite()
     response.AddHeader(bytearray([0xE0, 0x2E]))
-
-    # Add connection ID and send the packet to the client
     response.AppendInteger(id, 2, 'little')
     response.AppendBytes([0x01, 0x00])
-
     _args['socket'].send(response.packet)
-    print('sent')
 
     # Start ping thread
     #_thread.start_new_thread(ping, (_args['server'], _args['client'],))
