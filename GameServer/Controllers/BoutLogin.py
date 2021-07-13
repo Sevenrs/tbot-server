@@ -74,15 +74,15 @@ def id_request(**_args):
             client['game_server'] = _args['server']
             _args['client']['relay_client'] = client
             break
-
-    ''' If we have no relay client, then something is wrong. We must have a relay client.
-        In this case, close our own connection. '''
-    if 'relay_client' not in _args['client']:
-        print('no relay')
-        return _args['connection_handler'].CloseConnection(_args['client'])
     
     # Add new connection to server client container
     _args['server'].clients.append(_args['client'])
+
+    ''' If we have no relay client, then something is wrong. We must have a relay client.
+            In this case, close our own connection. '''
+    if 'relay_client' not in _args['client']:
+        print('no relay')
+        return _args['connection_handler'].CloseConnection(_args['client'])
 
     # Start ping thread
     #_thread.start_new_thread(ping, (_args['server'], _args['client'],))
