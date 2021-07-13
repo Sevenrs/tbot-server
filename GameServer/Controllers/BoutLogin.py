@@ -44,16 +44,6 @@ def id_request(**_args):
 
     print("Client id: {0}".format(id))
     
-    # Construct packet and send it back to the client
-    response = PacketWrite()
-    response.AddHeader(bytearray([0xE0, 0x2E]))
-    
-    # Add connection ID and send the packet to the client
-    response.AppendInteger(id, 2, 'little')
-    response.AppendBytes([0x01, 0x00])
-    
-    _args['socket'].send(response.packet)
-    
     # Update our socket to use this ID and assign the account to it as well
     _args['client']['id']           = id
     _args['client']['account']      = user['username']
@@ -81,8 +71,17 @@ def id_request(**_args):
     ''' If we have no relay client, then something is wrong. We must have a relay client.
             In this case, close our own connection. '''
     if 'relay_client' not in _args['client']:
-        print('no relay')
         return _args['connection_handler'].CloseConnection(_args['client'])
+
+    # Construct packet and send it back to the client
+    response = PacketWrite()
+    response.AddHeader(bytearray([0xE0, 0x2E]))
+
+    # Add connection ID and send the packet to the client
+    response.AppendInteger(id, 2, 'little')
+    response.AppendBytes([0x01, 0x00])
+
+    _args['socket'].send(response.packet)
 
     # Start ping thread
     #_thread.start_new_thread(ping, (_args['server'], _args['client'],))
