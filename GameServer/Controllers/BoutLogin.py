@@ -78,7 +78,8 @@ def id_request(**_args):
     ''' If we have no relay client, then something is wrong. We must have a relay client.
         In this case, close our own connection. '''
     if 'relay_client' not in _args['client']:
-        return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
+        print('no relay')
+        return _args['connection_handler'].CloseConnection(_args['client'])
     
     # Add new connection to server client container
     _args['server'].clients.append(_args['client'])

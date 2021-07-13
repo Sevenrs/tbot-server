@@ -112,6 +112,8 @@ class Handler:
             self.server.clients.remove(client)
             self.server.client_ids.remove(client['id'])
 
+            print(self.server.client_ids)
+
             # Attempt to shutdown and close the socket
             try:
                 client['socket'].shutdown(socket.SHUT_RDWR)
