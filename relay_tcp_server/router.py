@@ -30,6 +30,7 @@ def id_request(**_args):
         _args['client']['server'].ids.append(id)
         break
 
+    #todo: Check if our IP is the last IP used to successfully authenticate with this account
     account = _args['packet'].ReadString()[1:]
 
     # Fill our client object with relevant information
@@ -47,6 +48,8 @@ def id_request(**_args):
     result.AppendBytes([0x01, 0x00])
     result.AppendBytes([id & 0xFF, id >> 8 & 0xFF])
     _args['client']['socket'].send(result.packet)
+
+    #todo: after 10 seconds, check if we have a game_client assigned. if not, close our own connection (time out)
 
 def check_connection(**_args):
 

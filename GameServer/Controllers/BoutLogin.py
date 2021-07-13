@@ -61,7 +61,7 @@ def id_request(**_args):
     _args['client']['character']    = None
     _args['client']['new']          = True
     _args['client']['lobby_data']   = {'mode': 0, 'page': 0}
-    
+
     # Disconnect all connected sessions with this account name (to stop two or more clients with the same account)
     for session in _args['connection_handler'].GetClients():
         if session['account'] == account and session['socket'] is not _args['socket']:
@@ -72,7 +72,13 @@ def id_request(**_args):
         if client['account'] == _args['client']['account']:
             client['game_client'] = _args['client']
             client['game_server'] = _args['server']
+            _args['client']['relay_client'] = client
             break
+
+    ''' If we have no relay client, then something is wrong. We must have a relay client.
+        In this case, close our own connection. '''
+    if 'relay_client' not in _args['client']:
+        return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
     
     # Add new connection to server client container
     _args['server'].clients.append(_args['client'])

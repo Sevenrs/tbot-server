@@ -58,7 +58,8 @@ def GetChannels(server, address, packet):
             packet.AppendString(channel['name'], 22)
 
             # Append relay server to relay servers
-            relay_servers.append(channel['relay_server_addr'])
+            if channel['relay_server_addr'] is not None:
+                relay_servers.append(channel['relay_server_addr'])
         
         # For all channels that do not exist, send over NO_CHANNEL
         for i in range(12 - cursor.rowcount):

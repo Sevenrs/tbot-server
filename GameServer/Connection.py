@@ -5,6 +5,7 @@ __version__ = "1.0"
 
 from Packet.Write import Write as PacketWrite
 from GameServer.Controllers.Room import remove_slot
+import socket
 
 """
 This file is responsible for dealing with all the clients at once.
@@ -111,8 +112,14 @@ class Handler:
             self.server.clients.remove(client)
             self.server.client_ids.remove(client['id'])
 
-            # Attempt to close the socket
+            # Attempt to shutdown and close the socket
             try:
+                client['socket'].shutdown(socket.SHUT_RDWR)
                 client['socket'].close()
+
+                # If we have a relay client, attempt to shutdown and close that connection as well
+                if 'relay_client' in client:
+                    client['relay_client']['socket'].shutdown(socket.SHUT_RDWR)
+                    client['relay_client']['socket'].close()
             except Exception:
                 pass
