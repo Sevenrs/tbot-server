@@ -37,6 +37,9 @@ def load_finish(**_args):
         if not room['slots'][slot]['loaded']:
             return
 
+    # Mark the room's game as loaded
+    room['game_loaded'] = True
+
     # If all clients are ready to play, send the ready packet
     ready = PacketWrite()
     ready.AddHeader(bytearray([0x24, 0x2F]))
@@ -260,9 +263,8 @@ def post_game_transaction(_args, room, status):
         character = slot['client']['character']
 
         # Obtain value additions, but default to 0 if we have lost the game
-        addition_experience = PLANET_MAP_TABLE[room['level']][0][room['difficulty']] \
+        addition_experience = int(PLANET_MAP_TABLE[room['level']][0][room['difficulty']] * room['experience_modifier']) \
             if room['level'] in PLANET_MAP_TABLE.keys() and status == 1 else 0
-        print(addition_experience)
         addition_gigas = 420 if status == 1 else 0
 
         # Check if we have leveled up

@@ -6,7 +6,7 @@ __version__ = "1.0"
 from Packet.Write import Write as PacketWrite
 from GameServer.Controllers import Character, Shop
 import MySQL.Interface as MySQL
-import re, time, _thread
+import re, time, _thread, datetime
 
 """
 This method will send the new client its unique ID
@@ -51,6 +51,7 @@ def id_request(**_args):
     _args['client']['character']    = None
     _args['client']['new']          = True
     _args['client']['lobby_data']   = {'mode': 0, 'page': 0}
+    _args['client']['last_ping']    = datetime.datetime.now()
 
     # Disconnect all connected sessions with this account name (to stop two or more clients with the same account)
     for session in _args['connection_handler'].GetClients():
@@ -81,7 +82,7 @@ def id_request(**_args):
     _args['socket'].send(response.packet)
 
     # Start ping thread
-    #_thread.start_new_thread(ping, (_args['server'], _args['client'],))
+    _thread.start_new_thread(ping, (_args,))
     
 """
 This method will obtain the character and return it to the client
@@ -195,11 +196,31 @@ def exit_server(**_args):
     # Disconnect the client, in case the connection is still alive
     _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
 
-def ping(server, client):
+'''
+This method will ask the client to send back a pong packet to the server so we know
+it is still alive
+'''
+def ping(_args):
 
-    while client in server.clients:
-        pack = PacketWrite()
-        pack.AddHeader([0x01, 0x00])
-        pack.AppendBytes([0xCC])
-        client['socket'].send(pack.packet)
+    while _args['client'] in _args['server'].clients:
+
+        # If the amount of seconds between now and the last ping exceeds 10, disconnect the client
+        if (datetime.datetime.now() - _args['client']['last_ping']).total_seconds() >= 10:
+            return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
+
+        # Send ping packet and wait 3 seconds
+        ping_rpc = PacketWrite()
+        ping_rpc.AddHeader([0x01, 0x00])
+        ping_rpc.AppendBytes([0xCC])
+        try:
+            _args['client']['socket'].send(ping_rpc.packet)
+        except Exception:
+            pass
         time.sleep(3)
+
+'''
+This method is invoked when the client sends us a pong packet indicating it is still alive.
+We should update the last ping time
+'''
+def pong(**_args):
+    _args['client']['last_ping'] = datetime.datetime.now()

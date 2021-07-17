@@ -50,7 +50,18 @@ class RelayTCPClient:
             except Exception as e:
                 print("[{0}]: Disconnected from {1}:{2}".format(self.server.name, self.address[0], self.address[1]))
 
-                # Remove the client from the containers
-                self.server.clients.remove(self.__dict__)
-                self.server.ids.remove(self.id)
+                # If the client is in the server client container, remove it from the server client container
+                if self.__dict__ in self.server.clients:
+                    self.server.clients.remove(self.__dict__)
+
+                # If the ID is in the ID container, and our client has an ID assigned to it, remove it from the ID container
+                if hasattr(self, 'id') and self.id in self.server.ids:
+                    self.server.ids.remove(self.id)
+
+                # Finally, close the client's socket entirely. It may already be closed, but in exceptions it may still remain open
+                try:
+                    self.socket.shutdown(socket.SHUT_RDWR)
+                    self.socket.close()
+                except Exception:
+                    pass
                 break

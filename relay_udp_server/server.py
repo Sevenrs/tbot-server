@@ -43,6 +43,6 @@ class RelayUDPClient:
     Read packet and determine what to do in the router
     '''
     def handle(self):
-        print("[{0}]: New connection from {1}:{2}".format(self.server.name, self.address[0], self.address[1]))
+        #print("[{0}]: New connection from {1}:{2}".format(self.server.name, self.address[0], self.address[1]))
         packet = ReadDatagram(self.data)
         router.route(self.__dict__, packet)

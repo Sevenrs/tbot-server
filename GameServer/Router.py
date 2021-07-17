@@ -35,6 +35,7 @@ def route(socket, packet, server, client, connection_handler):
     packets = {
 
         # Controller: Bout Authentication
+        '0200': BoutLogin.pong,
         'f82a': BoutLogin.id_request,
         'f92a': BoutLogin.get_character,
         'fa2a': BoutLogin.create_character,

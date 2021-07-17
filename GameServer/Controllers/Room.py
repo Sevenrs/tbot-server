@@ -6,7 +6,8 @@ __version__ = "1.0"
 from Packet.Write import Write as PacketWrite
 from GameServer.Controllers import Character, Guild
 from GameServer.Controllers.data.planet import PLANET_MAP_TABLE
-import math, os, time
+import math, os, time, datetime
+from random import randrange
 
 """
 This controller is responsible for handling all room related requests
@@ -350,20 +351,22 @@ def create(**_args):
 
     # Store room in the room container
     room = {
-        'slots':        {},
-        'closed_slots': [],
-        'name':         room_name,
-        'password':     room_password,
-        'game_type':    room_gametype,
-        'time':         room_time,
-        'id':           room_ids['slot'],
-        'client_id':    room_ids['client_id'],
-        'master':       _args['client'],
-        'level':        0,
-        'difficulty':   0,
-        'status':       0,
-        'drop_index':   1,
-        'game_over':    False
+        'slots':                {},
+        'closed_slots':         [],
+        'name':                 room_name,
+        'password':             room_password,
+        'game_type':            room_gametype,
+        'time':                 room_time,
+        'id':                   room_ids['slot'],
+        'client_id':            room_ids['client_id'],
+        'master':               _args['client'],
+        'level':                0,
+        'difficulty':           0,
+        'status':               0,
+        'drop_index':           1,
+        'game_over':            False,
+        'game_loaded':          False,
+        'experience_modifier':  1.0
     }
 
     # Pass the room to the server room container and notify any client that may see this change in the lobby
@@ -546,33 +549,47 @@ def start_game(**_args):
     if not room:
         return
 
-    # Create start packet
+    # Create start packet which will be used for errors
     start = PacketWrite()
     start.AddHeader(bytearray([0xF3, 0x2E]))
 
     # Check if everyone is ready
     for key, slot in room['slots'].items():
-        if not slot['ready'] and slot['client']['id'] != room['master']['id']:
+        if not slot['ready'] and slot['client']['id'] != room['master']['id'] and int(_args['client']['character']['position']) != 1:
             start.AppendBytes(bytearray([0x00, 0x6C]))
             return _args['client']['socket'].send(start.packet)
 
-    # Finish start packet and broadcast to room
-    start.AppendBytes(bytearray([0x01, 0x00]))
-    start.AppendInteger(room['client_id'] + 1, 2, 'little')
-    start.AppendInteger(room['level'], 2, 'little')
-    start.AppendInteger(room['game_type'], 1)
+    # Construct a start packet for each player in the room
+    for slot in room['slots']:
+        start = PacketWrite()
+        start.AddHeader(bytearray([0xF3, 0x2E]))
 
-    start.AppendInteger(0, 2, 'little')     # Start X
-    start.AppendInteger(0, 2, 'little')     # Start Z
-    start.AppendBytes([0x00])               # Start direction
+        # Finish start packet and broadcast to room
+        start.AppendBytes(bytearray([0x01, 0x00]))
+        start.AppendInteger(room['client_id'] + 1, 2, 'little')
+        start.AppendInteger(room['level'], 2, 'little')
+        start.AppendInteger(room['game_type'], 1)
 
-    start.AppendBytes([0x02]) # Special trans
-    start.AppendBytes([0x01]) # Event boss
+        start.AppendInteger(0, 2, 'little')  # Start X
+        start.AppendInteger(0, 2, 'little')  # Start Z
+        start.AppendBytes([0x00])  # Start direction
 
-    for _ in range(2):
-        start.AppendBytes(bytearray([0x00, 0x00]))
+        # Calculate special transformation
+        special_transformation = randrange(5)
+        start.AppendInteger(special_transformation, 1, 'little')
+        start.AppendBytes([0x00])  # Event boss
 
-    _args['connection_handler'].SendRoomAll(_args['client']['room'], start.packet)
+        for _ in range(2):
+            start.AppendBytes(bytearray([0x00, 0x00]))
+
+        # Send to individual client
+        room['slots'][slot]['client']['socket'].send(start.packet)
+        room['slots'][slot]['client']['socket'].send(bytearray([0x28, 0x27, 0x02, 0x00, 0x01, 0x00]))
+
+    # Determine whether or not it is weekend. Based on that result, a 1.5x experience buff will be enabled
+    room['experience_modifier'] = 1.0 if not datetime.datetime.today().weekday() >= 5 else 1.5
+    _args['connection_handler'].SendRoomAll(room['id'], bytearray(
+        [0x28, 0x27, 0x02, 0x00, 0x01 if room['experience_modifier'] > 1.0 else 0x00, 0x00]))
 
     # Set room status
     room['status'] = 3
@@ -588,6 +605,7 @@ def reset(room):
     # Reset room variables
     room['drop_index']  = 1
     room['game_over']   = False
+    room['game_loaded'] = False
 
     # Reset player status
     for slot in room['slots']:
@@ -642,7 +660,6 @@ def join_room(**_args):
 
     # Read information from join packet
     room_client_id  = int(_args['packet'].ReadInteger(1, 2, 'little')) - 1
-    room_name       = _args['packet'].ReadStringByRange(2, 29)
     room_password   = _args['packet'].ReadStringByRange(29, 40)
 
     # Find room and join the room
@@ -651,7 +668,19 @@ def join_room(**_args):
 
         if room['client_id'] == room_client_id:
 
-            # TODO: Check if game started and check if the password is correct, if it exists
+            # Construct room join result
+            join_result = PacketWrite()
+            join_result.AddHeader([0x28, 0x2F])
+
+            # If the room has a password, check if the entered password is correct
+            if len(room['password']) > 0 and room['password'] != room_password:
+                join_result.AppendBytes([0x00, 0x3E])
+                return _args['client']['socket'].send(join_result.packet)
+
+            # Check if the game has started
+            if room['status'] == 3:
+                join_result.AppendBytes([0x00, 0x3B])
+                return _args['client']['socket'].send(join_result.packet)
 
             add_slot(_args, room['id'], _args['client'], True)
             sync_state(_args, room)
@@ -662,37 +691,59 @@ This method will sync the state for all the peers inside of it
 '''
 def sync_state(_args, room):
 
-    # Sync the currently selected map and difficulty
-    for data in [
-        [0x4A, room['level']],
-        [0x62, room['difficulty']],
-    ]:
-        packet = PacketWrite()
-        packet.AddHeader(bytearray([data[0], 0x2F]))
-        packet.AppendBytes(bytearray([0x01, 0x00]))
-        packet.AppendInteger(data[1], 2, 'little')
-        _args['connection_handler'].SendRoomAll(room['id'], packet.packet)
+    # Sync room state if the room status is equal to 0
+    if room['status'] == 0:
 
-    # Sync player in_shop state and status
-    for i in range(1, 9):
+        # Sync the currently selected map and difficulty
+        for data in [
+            [0x4A, room['level']],
+            [0x62, room['difficulty']],
+        ]:
+            packet = PacketWrite()
+            packet.AddHeader(bytearray([data[0], 0x2F]))
+            packet.AppendBytes(bytearray([0x01, 0x00]))
+            packet.AppendInteger(data[1], 2, 'little')
+            _args['connection_handler'].SendRoomAll(room['id'], packet.packet)
 
-        # Send shop packet if the player is in the shop
-        if str(i) in room['slots'] and room['slots'][str(i)]['in_shop']:
-            shop_state = PacketWrite()
-            shop_state.AddHeader(bytearray([0x60, 0x2F]))
-            shop_state.AppendBytes(bytearray([0x01, 0x00]))
-            shop_state.AppendInteger(i - 1, 2, 'little')
-            _args['connection_handler'].SendRoomAll(room['id'], shop_state.packet)
+        # Sync player in_shop state and status
+        for i in range(1, 9):
 
-        # Sync slot status
-        status = PacketWrite()
-        status.AddHeader(bytearray([0x20, 0x2F]))
-        status.AppendInteger(i - 1, 2, 'little')
-        status.AppendBytes(bytearray([0x00, 0x00]))
-        status.AppendInteger(1 if i in room['closed_slots'] else 0, 2, 'little')
-        status.AppendInteger(room['slots'][str(i)]['ready'] if str(i) in room['slots'] else 0, 2, 'little')
-        status.AppendInteger(room['slots'][str(i)]['team'] if str(i) in room['slots'] else 0, 2, 'little')
-        _args['connection_handler'].SendRoomAll(room['id'], status.packet)
+            # Send shop packet if the player is in the shop
+            if str(i) in room['slots'] and room['slots'][str(i)]['in_shop']:
+                shop_state = PacketWrite()
+                shop_state.AddHeader(bytearray([0x60, 0x2F]))
+                shop_state.AppendBytes(bytearray([0x01, 0x00]))
+                shop_state.AppendInteger(i - 1, 2, 'little')
+                _args['connection_handler'].SendRoomAll(room['id'], shop_state.packet)
+
+            # Sync slot status
+            status = PacketWrite()
+            status.AddHeader(bytearray([0x20, 0x2F]))
+            status.AppendInteger(i - 1, 2, 'little')
+            status.AppendBytes(bytearray([0x00, 0x00]))
+            status.AppendInteger(1 if i in room['closed_slots'] else 0, 2, 'little')
+            status.AppendInteger(room['slots'][str(i)]['ready'] if str(i) in room['slots'] else 0, 2, 'little')
+            status.AppendInteger(room['slots'][str(i)]['team'] if str(i) in room['slots'] else 0, 2, 'little')
+            _args['connection_handler'].SendRoomAll(room['id'], status.packet)
+
+    # If the room status is equal to 3 (started) and the game has not loaded yet, check all clients' loaded state again
+    elif room['status'] == 3 and not room['game_loaded']:
+
+        ''' Check every slot's loaded status. If they've all started then send the ready packet to the room.
+            No reason to wait for other clients that may not exist anymore. '''
+        for slot in room['slots']:
+            if not room['slots'][slot]['loaded']:
+                return
+
+        # Update the loaded state to True
+        room['game_loaded'] = True
+
+        # Send the ready packet to all sockets in the room
+        ready = PacketWrite()
+        ready.AddHeader(bytearray([0x24, 0x2F]))
+        ready.AppendBytes(bytearray([0x00]))
+        _args['connection_handler'].SendRoomAll(room['id'], ready.packet)
+
 
 '''
 This method will check if the client is in a room.

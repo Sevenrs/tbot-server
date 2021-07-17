@@ -22,8 +22,7 @@ def add_peer_info(**_args):
     # Find our client and assign the peer information to it
     for client in _args['client']['server'].relay.clients:
 
-        #todo: check if our current address matches the tcp client
-        if client['id'] == relay_id:
+        if client['id'] == relay_id and client['socket'].getpeername()[0] == _args['client']['address'][0]:
             client['peer_info'] = {
                 'ip':   _args['client']['address'][0],
                 'port': _args['client']['address'][1]
@@ -58,8 +57,7 @@ def relay_action(**_args):
     # Retrieve our relay client to find the room we are in
     for client in _args['client']['server'].relay.clients:
 
-        # todo: check if our current address matches the tcp client
-        if client['id'] == relay_id:
+        if client['id'] == relay_id and client['socket'].getpeername()[0] == _args['client']['address'][0]:
 
             # Create a reference to the game client for easier access
             game_client = client['game_client']

@@ -1,5 +1,7 @@
 from Packet.Write import Write as PacketWrite
 from GameServer.Controllers.Room import get_slot
+import _thread, time, socket
+import MySQL.Interface as MySQL
 
 def route(client, packet):
 
@@ -20,6 +22,31 @@ Retrieve first available ID and register the client for later access
 '''
 def id_request(**_args):
 
+    # Read account name from the packet
+    account = _args['packet'].ReadString()[1:]
+
+    # Create MySQL connection to see if we are authorized to use this account
+    connection = MySQL.GetConnection()
+    cursor = connection.cursor(dictionary=True)
+    cursor.execute(
+        'SELECT `id` FROM `users` WHERE `username` = %s AND `banned` = 0 AND `last_ip` = %s',[
+            account, _args['client']['socket'].getpeername()[0]
+        ]
+    )
+
+    # Fetch user
+    user = cursor.fetchone()
+
+    # Before checking, close the SQL connection
+    connection.close()
+
+    # Check if the user exists. If it does not, throw an exception which closes the connection
+    if user is None:
+        raise Exception('IP address {0} is not authorized to sign in with account {1}'.format(
+            _args['client']['socket'].getpeername()[0],
+            account
+        ))
+
     # Retrieve first available ID
     id = 0
     for i in range(65535):
@@ -30,14 +57,9 @@ def id_request(**_args):
         _args['client']['server'].ids.append(id)
         break
 
-    #todo: Check if our IP is the last IP used to successfully authenticate with this account
-    account = _args['packet'].ReadString()[1:]
-
     # Fill our client object with relevant information
     _args['client']['account']  = account
     _args['client']['id']       = id
-
-    print(id)
 
     # Add the client to our client container
     _args['client']['server'].clients.append(_args['client'])
@@ -49,13 +71,14 @@ def id_request(**_args):
     result.AppendBytes([id & 0xFF, id >> 8 & 0xFF])
     _args['client']['socket'].send(result.packet)
 
-    #todo: after 10 seconds, check if we have a game_client assigned. if not, close our own connection (time out)
+    # After 10 seconds, we should check if we have a game client assigned
+    _thread.start_new_thread(check_state, (_args['client'],))
 
+'''
+This method determines who is relayed and who is not
+If a client is relay, their relay ID is pushed to the relay ID container
+'''
 def check_connection(**_args):
-
-    #client_id   = int(_args['packet'].ReadInteger(0, 2, 'big'))
-    #room_number = int(_args['packet'].ReadInteger(4, 2, 'big'))
-
     for i in range(0, 8):
         start = (17 * i) + 8
 
@@ -75,6 +98,9 @@ def check_connection(**_args):
                     if client['id'] not in room_slot['relay_ids']:
                         room_slot['relay_ids'].append(client['id'])
 
+'''
+This method removes a relay ID from the requesting client's relay ID container
+'''
 def remove_connection(**_args):
     character_name  = _args['packet'].ReadStringByRange(2, 17)
 
@@ -101,3 +127,12 @@ def remove_connection(**_args):
             for id in ids:
                 if id not in _args['client']['server'].ids:
                     ids.remove(id)
+
+''' Check if we have a client assigned after 10 seconds. If not, disconnect (time out)'''
+def check_state(client):
+    time.sleep(10)
+
+    # Check if we have a game_client assigned to our client
+    if 'game_client' not in client:
+        client['socket'].shutdown(socket.SHUT_RDWR)
+        client['socket'].close()
