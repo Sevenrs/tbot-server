@@ -205,8 +205,8 @@ def ping(_args):
     while _args['client'] in _args['server'].clients:
 
         # If the amount of seconds between now and the last ping exceeds 10, disconnect the client
-        if (datetime.datetime.now() - _args['client']['last_ping']).total_seconds() >= 10:
-            return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
+        # if (datetime.datetime.now() - _args['client']['last_ping']).total_seconds() >= 10:
+        #     return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
 
         # Send ping packet and wait 3 seconds
         ping_rpc = PacketWrite()
