@@ -201,17 +201,56 @@ def game_end_rpc(**_args):
     if not room:
         return
 
-    # Determine the status of the end result
-    status = 0 if _args['packet'].id == '3b2b' else 1
+    # Player vs Player or DeathMatch
+    if room['game_type'] == 0 or room['game_type'] == 4:
 
-    # If the status is equal to 0, we must check if all players in the room are actually dead
-    # If one player is not dead, drop the packet
-    if status == 0:
+        # Get slot number from the room
+        room_slot = get_slot(_args, room)
+        room['slots'][str(room_slot)]['dead'] = True
+
+        # Tell room about the death of the player
+        death = PacketWrite()
+        death.AddHeader([0x22, 0x2F])
+        death.AppendBytes(bytes=bytearray([0x01, 0x00]))
+        death.AppendInteger(integer=(int(room_slot) - 1), length=2, byteorder='little')
+        death.AppendBytes(bytes=bytearray([0x00, 0x00, 0x00, 0x00, 0x00]))
+        _args['connection_handler'].SendRoomAll(room['id'], death.packet)
+
+        # If the game type is DeathMatch, do not continue.
+        # The DeathMatch mode is time based, so the death of a player won't effect the ending of the game
+        if room['game_type'] == 4:
+
+            # Try brute-forcing the scoreboard update packet
+            update = PacketWrite()
+            update.AddHeader([0x5B, 0x2F])
+            update.AppendBytes(bytes=bytearray([0x01, 0x00]))
+            update.AppendInteger(integer=(int(room_slot) - 1), length=2, byteorder='little') # killer
+            update.AppendInteger(integer=(int(room_slot) - 1), length=2, byteorder='little') # victim
+            _args['connection_handler'].SendRoomAll(room['id'], update.packet)
+            return
+
+        # Check if everyone is dead
         for slot in room['slots']:
             if not room['slots'][slot]['dead']:
                 return
 
-    game_end(_args=_args, room=room, status=status)
+        # If everyone is dead, end the game
+        game_end(_args=_args, room=room)
+
+    # Planet Mode
+    elif room['game_type'] == 2:
+
+        # Determine the status of the end result
+        status = 0 if _args['packet'].id == '3b2b' else 1
+
+        # If the status is equal to 0, we must check if all players in the room are actually dead
+        # If one player is not dead, drop the packet
+        if status == 0:
+            for slot in room['slots']:
+                if not room['slots'][slot]['dead']:
+                    return
+
+        game_end(_args=_args, room=room, status=status)
 
 '''
 This method will send the correct packed to indicate what the game end result is to the room or specified client.
@@ -447,9 +486,18 @@ def countdown_timer(_args, room):
     # Always wait for the game count down to conclude. That's when the timer starts on the client.
     time.sleep(2)
 
+    # Retrieve the amount of minutes from the room setting
+    minutes = 3 if room['time'] == 0 else 5
+
+    # For planet gameplay, retrieve the amount of minutes from the map
+    if room['game_type'] == 2:
+        minutes = PLANET_MAP_TABLE[room['level']][1]
+
+    print(minutes)
+
     # Wait a predefined amount of time and check whether the game ended every second
     # If the game ended, stop polling. If everyone left the room, also stop.
-    for _ in range(int(PLANET_MAP_TABLE[room['level']][1] * 60)):
+    for _ in range(int(minutes * 60)):
         if len(room['slots']) == 0 or room['game_over']: break
         time.sleep(1)
 

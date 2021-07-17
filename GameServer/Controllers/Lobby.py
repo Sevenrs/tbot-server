@@ -8,15 +8,6 @@ from GameServer.Controllers import Guild, Friend, Room
 from GameServer.Controllers.Character import get_items
 from GameServer.Controllers.data.lobby import LOBBY_MSG
 import os
-
-"""
-This method will notify the socket of the double experience event state
-"""
-def GetDoubleExperienceState(socket):
-    
-    # If it's weekend, the event banner should be enabled.
-    double_exp = 0
-    socket.send(bytearray([0x28, 0x27, 0x02, 0x00, 0x00, 0x00]))
     
 """
 This method will send a chat message to a specific target client
@@ -40,7 +31,6 @@ def Chat(**_args):
     chat_type = _args['packet'].GetByte(4)
 
     # temporary, just for testing
-    # todo: this is insecure as fuck at the moment, validate number and range 1 - 3
     command_msg = message[message.find(']') + 2:]
     print(command_msg[0:11] + 'a')
     if command_msg[0:11] == '@changeslot':

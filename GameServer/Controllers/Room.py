@@ -559,6 +559,11 @@ def start_game(**_args):
             start.AppendBytes(bytearray([0x00, 0x6C]))
             return _args['client']['socket'].send(start.packet)
 
+    # If the game mode is not equal to planet, determine if we should randomize the map or not
+    map = room['level']
+    if room['game_type'] != 2:
+        map = int(map) - 1 if map > 0 else randrange(1, 8)
+
     # Construct a start packet for each player in the room
     for slot in room['slots']:
         start = PacketWrite()
@@ -567,7 +572,7 @@ def start_game(**_args):
         # Finish start packet and broadcast to room
         start.AppendBytes(bytearray([0x01, 0x00]))
         start.AppendInteger(room['client_id'] + 1, 2, 'little')
-        start.AppendInteger(room['level'], 2, 'little')
+        start.AppendInteger(map, 2, 'little')
         start.AppendInteger(room['game_type'], 1)
 
         start.AppendInteger(0, 2, 'little')  # Start X
@@ -587,7 +592,10 @@ def start_game(**_args):
         room['slots'][slot]['client']['socket'].send(bytearray([0x28, 0x27, 0x02, 0x00, 0x01, 0x00]))
 
     # Determine whether or not it is weekend. Based on that result, a 1.5x experience buff will be enabled
-    room['experience_modifier'] = 1.0 if not datetime.datetime.today().weekday() >= 5 else 1.5
+    # Additionally, this will only be in effect in planet gameplay
+    room['experience_modifier'] = 1.0 if not datetime.datetime.today().weekday() >= 5 or \
+                                         room['game_type'] != 2 else 1.5
+
     _args['connection_handler'].SendRoomAll(room['id'], bytearray(
         [0x28, 0x27, 0x02, 0x00, 0x01 if room['experience_modifier'] > 1.0 else 0x00, 0x00]))
 
