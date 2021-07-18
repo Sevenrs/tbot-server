@@ -50,6 +50,8 @@ class RelayTCPClient:
             except Exception as e:
                 print("[{0}]: Disconnected from {1}:{2}".format(self.server.name, self.address[0], self.address[1]))
 
+                print(e)
+
                 f = open('relay_exceptions', 'a')
                 f.write(e)
                 f.close()
