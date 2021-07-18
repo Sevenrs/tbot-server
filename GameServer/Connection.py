@@ -5,6 +5,7 @@ __version__ = "1.0"
 
 from Packet.Write import Write as PacketWrite
 from GameServer.Controllers.Room import remove_slot
+from relay_tcp_server import connection as relay_connection
 import socket
 
 """
@@ -116,10 +117,9 @@ class Handler:
             try:
                 client['socket'].shutdown(socket.SHUT_RDWR)
                 client['socket'].close()
-
-                # If we have a relay client, attempt to shutdown and close that connection as well
-                if 'relay_client' in client:
-                    client['relay_client']['socket'].shutdown(socket.SHUT_RDWR)
-                    client['relay_client']['socket'].close()
             except Exception:
                 pass
+
+            # If we have a relay client, close its connection as well
+            if 'relay_client' in client:
+                relay_connection.close_connection(client['relay_client'])
