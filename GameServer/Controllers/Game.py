@@ -208,6 +208,9 @@ def game_end_rpc(**_args):
         room_slot = get_slot(_args, room)
         room['slots'][str(room_slot)]['dead'] = True
 
+        # Retrieve who killed the player
+        who = int(_args['packet'].ReadInteger(5, 2, 'little'))
+
         # Tell room about the death of the player
         death = PacketWrite()
         death.AddHeader([0x22, 0x2F])
@@ -216,17 +219,19 @@ def game_end_rpc(**_args):
         death.AppendBytes(bytes=bytearray([0x00, 0x00, 0x00, 0x00, 0x00]))
         _args['connection_handler'].SendRoomAll(room['id'], death.packet)
 
-        # If the game type is DeathMatch, do not continue.
-        # The DeathMatch mode is time based, so the death of a player won't effect the ending of the game
-        if room['game_type'] == 4:
+        # Update the score board if we are playing DeathMatch and if the player is not killed by nobody
+        if room['game_type'] == 4 and who != 65535 and str(who + 1) in room['slots']:
 
-            # Try brute-forcing the scoreboard update packet
+            # Update the score board
             update = PacketWrite()
             update.AddHeader([0x5B, 0x2F])
             update.AppendBytes(bytes=bytearray([0x01, 0x00]))
-            update.AppendInteger(integer=(int(room_slot) - 1), length=2, byteorder='little') # killer
-            update.AppendInteger(integer=(int(room_slot) - 1), length=2, byteorder='little') # victim
+            update.AppendInteger(integer=(int(room_slot) - 1), length=2, byteorder='little')
+            update.AppendInteger(integer=who, length=2, byteorder='little')
             _args['connection_handler'].SendRoomAll(room['id'], update.packet)
+
+        # Do not end game based on the deaths of players if the game type is DeathMatch
+        if room['game_type'] == 4:
             return
 
         # Check if everyone is dead
@@ -492,8 +497,6 @@ def countdown_timer(_args, room):
     # For planet gameplay, retrieve the amount of minutes from the map
     if room['game_type'] == 2:
         minutes = PLANET_MAP_TABLE[room['level']][1]
-
-    print(minutes)
 
     # Wait a predefined amount of time and check whether the game ended every second
     # If the game ended, stop polling. If everyone left the room, also stop.
