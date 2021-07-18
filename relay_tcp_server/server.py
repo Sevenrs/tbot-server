@@ -53,7 +53,7 @@ class RelayTCPClient:
                 print(e)
 
                 f = open('relay_exceptions', 'a')
-                f.write(e)
+                f.write(str(e))
                 f.close()
 
                 # If the client is in the server client container, remove it from the server client container
