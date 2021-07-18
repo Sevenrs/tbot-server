@@ -50,6 +50,10 @@ class RelayTCPClient:
             except Exception as e:
                 print("[{0}]: Disconnected from {1}:{2}".format(self.server.name, self.address[0], self.address[1]))
 
+                f = open('relay_exceptions', 'a')
+                f.write(e)
+                f.close()
+
                 # If the client is in the server client container, remove it from the server client container
                 if self.__dict__ in self.server.clients:
                     self.server.clients.remove(self.__dict__)
