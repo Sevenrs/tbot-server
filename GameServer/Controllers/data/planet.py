@@ -1,3 +1,5 @@
+from GameServer.Controllers.data.drops import *
+
 # This table contains the experience points to award per planet level.
 # Structure: Level index, easy, medium and hard difficulty awards
 PLANET_MAP_TABLE = {
@@ -11,12 +13,12 @@ PLANET_MAP_TABLE = {
     7: ([540, 780, 1334], 21),      # [Lv18]Mine-Alderan2
     8: ([600, 700, 900], 21),       # [Lv20]Mine-Blaster
     9: ([540, 680, 920], 22.5),     # [Lv23]Lava-Sea1
-    10: ([560, 680, 920], 22.5),    # [Lv26]Lava-Sea2
+    10: ([560, 680, 920], 22.5),    # [Lv28]Lava-Sea2
     11: ([700, 800, 1240], 22.5),   # [Lv26]Lava-Sea3
     12: ([740, 850, 1480], 22.5),   # [Lv30]Acurin-Ruins1
     13: ([780, 870, 1500], 22.5),   # [Lv33]Acurin-Ruins2
     14: ([840, 980, 1040], 22.5),   # [Lv36]Planet-Acurin
-    15: ([840, 980, 1040], 24),     # [Lv36]Planet-Acurin2
+    15: ([840, 980, 1040], 24),     # [Lv38]Planet-Acurin2
     16: ([980, 1040, 1220], 24),    # [Lv40]Port-Acurin
     17: ([1040, 1220, 1340], 24),   # [Lv43]Escape-Acurin
     18: ([840, 850, 960], 24),      # [Lv46]Planet-MECA
@@ -35,4 +37,211 @@ PLANET_MAP_TABLE = {
     47: ([1020, 1430, 1560], 45),   # [Lv28]The-Pirate([Elite)
     48: ([1340, 1530, 1800], 45),   # [Lv38]Evil-Port([Elite)
     49: ([1560, 1890, 2050], 48),   # [Lv48]Bloodway(Elite)
+}
+
+# This table contains the mob table from which to drops boxes from
+PLANET_BOX_MOBS = {
+
+    # [Lv01]Training Camp
+    0: [
+        32,
+        33,
+        50  # Boss
+    ],
+
+    # [Lv03]Base Camp
+    1: [
+        2,
+        24 # Boss
+    ],
+
+    # [Lv06]Camp-Spike
+    #2: [
+
+    #],
+
+    # [Lv08]Camp-Spike2
+    #3: [
+
+    #],
+
+    # [Lv10]Planet-Alderan
+    4: [
+        20,
+        21,
+        23,
+        40,
+        47,
+        49  # Boss
+    ],
+
+    # [Lv13]Alderan-Entrance
+    5: [
+        11,
+        14,
+        37,
+        44  # Boss
+    ],
+
+    # [Lv16]Mine-Alderan
+    6: [
+        12,
+        23,
+        24,
+        25,
+        30,
+        34,
+        35,
+        45, # Boss
+        47
+    ],
+
+    # [Lv18]Mine-Alderan2
+    7: [
+        24 # Boss
+    ],
+
+    # [Lv20]Mine-Blaster
+    8: [
+        24,
+        25,
+        34,
+        35,
+        41,
+        42,
+        43,
+        44,
+        49,
+        50,
+        55 # Boss
+    ],
+
+    # [Lv23]Lava-Sea1
+    9: [
+        21,
+        33,
+        34,
+        35,
+        50 # Boss
+    ],
+
+    # [Lv26]Lava-Sea2
+    10: [
+        28,
+        29,
+        30,
+        67,
+        72,
+        73,
+        74,
+        75,
+        76 # Boss
+    ],
+
+    # [Lv28]Lava-Sea3
+    11: [
+        28,
+        29,
+        88, # Boss
+        95,
+        96,
+        97
+    ],
+
+    # [Lv30]Acurin-Ruins1
+    12: [
+        16,
+        21,
+        33,
+        39,
+        40,
+        44,
+        56,
+        59,
+        71, # Boss
+        76,
+        78,
+        79,
+        77
+    ],
+
+    # [Lv33]Acurin-Ruins2
+    13: [
+        0,
+        14,
+        24,
+        25,
+        26,
+        40,
+        41,
+        49,
+        58,
+        70, # Boss
+        71,
+        72,
+        78,
+        79,
+        80
+    ],
+
+    # [Lv36]Planet-Acurin
+    14: [
+        14,
+        25,
+        31,
+        36,
+        44,
+        50,
+        53,
+        66,
+        69,
+        70,
+        76,
+        81,
+        101 # Boss
+    ],
+
+    # [Lv38]Planet-Acurin2
+    15: [
+        12,
+        17,
+        30,
+        35,
+        38,
+        39,
+        44,
+        49,
+        51,
+        53,
+        66,
+        67,
+        72,
+        73,
+        76,
+        89,
+        97,  # Boss
+        100,
+        109,
+        110
+    ],
+
+    # [Lv40]Port-Acurin
+    16: [
+
+    ]
+}
+
+# This table contains the mob table from which to increase the canister drop rate
+PLANET_ASSISTS = {
+
+}
+
+PLANET_BOXES = {
+
+    #[Lv01]Training Camp
+    0: [
+        (BOX_HEAD, 0.15),
+        (BOX_BODY, 0.15),
+        (BOX_ARMS, 0.15)
+    ]
 }

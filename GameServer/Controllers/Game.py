@@ -6,7 +6,7 @@ __version__     = '1.0'
 from Packet.Write import Write as PacketWrite
 from GameServer.Controllers.data.drops import *
 from GameServer.Controllers.data.exp import *
-from GameServer.Controllers.data.planet import PLANET_MAP_TABLE
+from GameServer.Controllers.data.planet import PLANET_MAP_TABLE, PLANET_BOXES, PLANET_BOX_MOBS
 from GameServer.Controllers.Room import get_room, get_slot, get_list, get_list_page_by_room_id, reset
 from GameServer.Controllers.Character import get_items, add_item, get_available_inventory_slot
 import MySQL.Interface as MySQL
@@ -64,6 +64,8 @@ def monster_kill(**_args):
     monster_id  = _args['packet'].GetByte(0)
     who         = _args['packet'].GetByte(4)
 
+    print(monster_id)
+
     # Construct canister drops and drop chances
     drops = [
         (CANISTER_HEALTH, 0.05),
@@ -76,6 +78,10 @@ def monster_kill(**_args):
         # Test drop item, gold for now
         (CHEST_GOLD, 0.02)
     ]
+
+    # If the monster is a mob from which to drop boxes from, append the boxes array
+    if room['level'] in PLANET_BOX_MOBS and monster_id in PLANET_BOX_MOBS[room['level']]:
+        drops += PLANET_BOXES[room['level']]
 
     # Calculate whether or not we should drop an item based on chance
     monster_drops = []
