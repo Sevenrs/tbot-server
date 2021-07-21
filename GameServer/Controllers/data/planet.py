@@ -56,14 +56,14 @@ PLANET_BOX_MOBS = {
     ],
 
     # [Lv06]Camp-Spike
-    #2: [
+    2: [
 
-    #],
+    ],
 
     # [Lv08]Camp-Spike2
-    #3: [
+    3: [
 
-    #],
+    ],
 
     # [Lv10]Planet-Alderan
     4: [
@@ -227,12 +227,185 @@ PLANET_BOX_MOBS = {
 
     # [Lv40]Port-Acurin
     16: [
+        26,
+        27,
+        28,
+        33,
+        77 # Boss
+    ],
+
+    # [Lv43]Escape-Acurin
+    17: [
+        9,
+        30,
+        62,
+        64,
+        47,
+        48,
+        53,
+        61 # Boss
+    ],
+
+    # [Lv46]Planet-MECA
+    18: [
+
+    ],
+
+    # [Lv48]Planet-MECA2
+    19: [
+
+    ],
+
+    # [Lv50]Hidden-Archive
+    20: [
+
+    ],
+
+    # [Lv53]Secret-passage
+    21: [
+
+    ],
+
+    # [Lv56]Destroy-all
+    22: [
+
+    ],
+
+    # [Lv58]Destroy-all2
+    23: [
+
+    ],
+
+    # [Lv60]Escape-From-MECA
+    24: [
+        38,
+        39,
+        40,
+        52,
+        53,
+        55,
+        73,
+        74,
+        97,
+        98, # Boss
+        99
+    ],
+
+    # [Lv63]MeraMountin
+    25: [
+        19,
+        20,
+        21,
+        54,
+        55,
+        77,
+        105,
+        113, # Boss
+        121,
+        122,
+        123
+    ],
+
+    # [Lv66]MeraMountin2
+    26: [
+        29,
+        30,
+        31,
+        50,
+        60,
+        61,
+        62,
+        95,
+        96,
+        97,
+        118,
+        119,
+        120,
+        122 # Boss
+    ],
+
+    # [Lv68]MeraMountin3
+    27: [
+        43,
+        44,
+        45,
+        46,
+        47,
+        77,
+        91,
+        92,
+        117,
+        118,
+        123 # Boss
+    ],
+
+    # [Lv70]MeraMountin4
+    28: [
+        43,
+        44,
+        45,
+        46,
+        87,
+        121, # Boss
+        125
+    ],
+
+    # [Lv08]The-Fallen([Elite)
+    45: [
+        2,
+        22,
+        27,
+        33  # Boss
+    ],
+
+    # [Lv18]Lava-Field([Elite)
+    46: [
+
+    ],
+
+    # [Lv28]The-Pirate([Elite)
+    47: [
+
+    ],
+
+    # [Lv38]Evil-Port([Elite)
+    48: [
+
+    ],
+
+    # [Lv48]Bloodway(Elite)
+    49: [
 
     ]
 }
 
 # This table contains the mob table from which to increase the canister drop rate
 PLANET_ASSISTS = {
+
+    # [Lv60]Escape-From-MECA
+    24: [
+        56
+    ],
+
+    # [Lv63]MeraMountin
+    25: [
+        75
+    ],
+
+    # [Lv66]MeraMountin2
+    26: [
+        82
+    ],
+
+    # [Lv68]MeraMountin3
+    27: [
+        79
+    ],
+
+    # [Lv70]MeraMountin4
+    28: [
+        88
+    ]
 
 }
 

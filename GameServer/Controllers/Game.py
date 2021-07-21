@@ -277,7 +277,7 @@ def game_end(_args, room, status=0):
     room['game_over'] = True
 
     # If the room mode is equal to Planet and if the map is not defined in our data, we must assume the game has been lost
-    if room['level'] not in PLANET_EXP_TABLE.keys():
+    if room['level'] not in PLANET_MAP_TABLE.keys():
         status = 0
 
     # Create game result packet and send it to all the room clients
