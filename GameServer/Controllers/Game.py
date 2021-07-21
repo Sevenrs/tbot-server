@@ -80,7 +80,7 @@ def monster_kill(**_args):
     ]
 
     # If the monster is a mob from which to drop boxes from, append the boxes array
-    if room['level'] in PLANET_BOX_MOBS and monster_id in PLANET_BOX_MOBS[room['level']]:
+    if room['level'] in PLANET_BOXES and monster_id in PLANET_BOX_MOBS[room['level']]:
         drops += PLANET_BOXES[room['level']]
 
     # Calculate whether or not we should drop an item based on chance
