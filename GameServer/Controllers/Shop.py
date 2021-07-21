@@ -236,6 +236,9 @@ def wear_item(**_args):
 
     item = inventory[slot]
 
+    print(slot)
+    print(item)
+
     # Check if we have anything wearing in the slot we are trying to overwrite. If we are, do not replace the inventory
     # slot with 0, but replace it with the item we are wearing
     wearing_item = 0
