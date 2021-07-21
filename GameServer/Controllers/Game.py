@@ -6,7 +6,8 @@ __version__     = '1.0'
 from Packet.Write import Write as PacketWrite
 from GameServer.Controllers.data.drops import *
 from GameServer.Controllers.data.exp import *
-from GameServer.Controllers.data.planet import PLANET_MAP_TABLE, PLANET_BOXES, PLANET_BOX_MOBS
+from GameServer.Controllers.data.planet import PLANET_MAP_TABLE, PLANET_BOXES, PLANET_BOX_MOBS, PLANET_DROPS,\
+    PLANET_ASSISTS
 from GameServer.Controllers.Room import get_room, get_slot, get_list, get_list_page_by_room_id, reset
 from GameServer.Controllers.Character import get_items, add_item, get_available_inventory_slot
 import MySQL.Interface as MySQL
@@ -64,7 +65,9 @@ def monster_kill(**_args):
     monster_id  = _args['packet'].GetByte(0)
     who         = _args['packet'].GetByte(4)
 
-    print(monster_id)
+    # If the mob is an assistant, multiply the canister chance by a factor of 1.75
+    assistant_multiplication = 50.0 if room['level'] in PLANET_ASSISTS \
+                                       and monster_id in PLANET_ASSISTS[room['level']] else 1.0
 
     # Construct canister drops and drop chances
     drops = [
@@ -74,9 +77,7 @@ def monster_kill(**_args):
         (CANISTER_BOMB, 0.02),
         (CANISTER_TRANS_UP, 0.01),
         (CANISTER_AMMO, 0.01),
-
-        # Test drop item, gold for now
-        (CHEST_GOLD, 0.02)
+        (CHEST_GOLD, 0.015)
     ]
 
     # If the monster is a mob from which to drop boxes from, append the boxes array
@@ -86,7 +87,9 @@ def monster_kill(**_args):
     # Calculate whether or not we should drop an item based on chance
     monster_drops = []
     for drop, chance in drops:
-        if random.random() < chance and room['drop_index'] < 256:
+
+        # If applicable, apply the assistant multiplication except if the drop type is a gold chest
+        if random.random() < (chance * (assistant_multiplication if drop != CHEST_GOLD else 1.0)) and room['drop_index'] < 256:
             monster_drops.append(bytes([room['drop_index'], drop, 0, 0, 0]))
             room['drop_index'] += 1
     drop_bytes = b''.join(monster_drops)
@@ -142,9 +145,36 @@ def use_item(**_args):
         if available_slot is None:
             return
 
-        # For now we'll only be dropping gold/cash
-        gold    = [6000001, 6000002, 6000003]
-        item_id = gold[random.randint(0, 2)]
+        # If the item is gold, calculate what gold bar to award
+        if item_type == CHEST_GOLD:
+            item_id = [
+                6000001,
+                6000002,
+                6000003
+            ][random.randint(0, 2)]
+        else:
+
+            # If we do not have this item type in the drop table, do nothing
+            if item_type not in PLANET_DROPS[room['level']]:
+                return
+
+            # Retrieve random drop and calculate the chance
+            drops = PLANET_DROPS[room['level']][item_type]
+
+            # Calculate the chance
+            sc = random.random()
+            last_chance = 0.0
+
+            # Based on the randomized chance, retrieve the item we are going to award
+            item_id = 0
+            for iid, chance in drops:
+                if sc <= (chance + last_chance):
+                    item_id = iid
+                    break
+                else:
+
+                    # No match? Try again with a higher chance
+                    last_chance += chance
 
         # Construct pickup packet
         pickup = PacketWrite()

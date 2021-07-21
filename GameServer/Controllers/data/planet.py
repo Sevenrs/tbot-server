@@ -57,12 +57,17 @@ PLANET_BOX_MOBS = {
 
     # [Lv06]Camp-Spike
     2: [
-
+        18,
+        36 # Boss
     ],
 
     # [Lv08]Camp-Spike2
     3: [
-
+        33,
+        34,
+        44,
+        45,
+        50 # Boss
     ],
 
     # [Lv10]Planet-Alderan
@@ -248,32 +253,71 @@ PLANET_BOX_MOBS = {
 
     # [Lv46]Planet-MECA
     18: [
-
+        16,
+        17,
+        43,
+        44,
+        45,
+        56,
+        69,
+        70,
+        71,
+        67,
+        77 # Boss
     ],
 
     # [Lv48]Planet-MECA2
     19: [
-
+        108,
+        107,
+        105 # Boss
     ],
 
     # [Lv50]Hidden-Archive
     20: [
-
+        30,
+        51,
+        50,
+        49,
+        61,
+        71,
+        69,
+        70,
+        89,
+        90,
+        83 # Boss
     ],
 
     # [Lv53]Secret-passage
     21: [
-
+        9,
+        21,
+        41,
+        40,
+        42,
+        43,
+        72,
+        73,
+        87,
+        88,
+        81 # Boss
     ],
 
     # [Lv56]Destroy-all
     22: [
-
+        35,
+        36,
+        65,
+        101,
+        102,
+        107,
+        105 # Boss
     ],
 
     # [Lv58]Destroy-all2
     23: [
-
+        44,
+        100 # Boss
     ],
 
     # [Lv60]Escape-From-MECA
@@ -360,27 +404,82 @@ PLANET_BOX_MOBS = {
 
     # [Lv18]Lava-Field([Elite)
     46: [
-
+        25,
+        33,
+        34,
+        35,
+        50, # Boss
+        52,
+        53
     ],
 
     # [Lv28]The-Pirate([Elite)
     47: [
-
+        9,
+        10,
+        25,
+        23,
+        34,
+        35,
+        43,
+        42,
+        41,
+        49,
+        55 # Boss
     ],
 
     # [Lv38]Evil-Port([Elite)
     48: [
-
+        16,
+        17,
+        24,
+        26,
+        28,
+        54,
+        74,
+        75,
+        76,
+        77 # Boss
     ],
 
     # [Lv48]Bloodway(Elite)
     49: [
-
+        30,
+        37,
+        49,
+        50,
+        61,
+        70,
+        72,
+        83, # Boss
+        89,
+        90
     ]
 }
 
 # This table contains the mob table from which to increase the canister drop rate
 PLANET_ASSISTS = {
+
+
+    # [Lv46]Planet-MECA
+    18: [
+        34
+    ],
+
+    # [Lv50]Hidden-Archive
+    20: [
+        60
+    ],
+
+    # [Lv53]Secret-passage
+    21: [
+        28
+    ],
+
+    # [Lv56]Destroy-all
+    22: [
+        64
+    ],
 
     # [Lv60]Escape-From-MECA
     24: [
@@ -405,6 +504,11 @@ PLANET_ASSISTS = {
     # [Lv70]MeraMountin4
     28: [
         88
+    ],
+
+    # [Lv48]Bloodway(Elite)
+    49: [
+        60
     ]
 
 }
@@ -413,8 +517,77 @@ PLANET_BOXES = {
 
     #[Lv01]Training Camp
     0: [
-        #(BOX_HEAD, 0.15),
-        #(BOX_BODY, 0.15),
-        #(BOX_ARMS, 0.15)
+        (BOX_GUN, 0.50)
+    ],
+
+    # [Lv03]Base Camp
+    1: [
+        (BOX_GUN, 0.15)
+    ],
+
+    # [Lv06]Camp-Spike
+    2: [
+        (BOX_GUN, 0.15)
+    ],
+
+    # [Lv08]Camp-Spike2
+    3: [
+        (BOX_GUN, 0.15)
+    ],
+
+    # [Lv10]Planet-Alderan
+    4: [
+        (BOX_GUN, 0.15)
     ]
+}
+
+PLANET_DROPS = {
+
+    #[Lv01]Training Camp
+    0: {
+        BOX_GUN: [
+            (3021101, 0.60), # HydraGun(+1)
+            (3021102, 0.25), # HydraGun(+2)
+            (3021103, 0.15), # HydraGun(+3)
+        ]
+    },
+
+    # [Lv03]Base Camp
+    1: {
+        BOX_GUN: [
+            (3021101, 0.20),  # HydraGun(+1)
+            (3021102, 0.70),  # HydraGun(+2)
+            (3021103, 0.10),  # HydraGun(+3)
+        ]
+    },
+
+    # [Lv06]Camp-Spike
+    2: {
+        BOX_GUN: [
+            (3021101, 0.10),  # HydraGun(+1)
+            (3021102, 0.50),  # HydraGun(+2)
+            (3021103, 0.20),  # HydraGun(+3)
+            (3021201, 0.20)   # smartGun(+1)
+        ]
+    },
+
+    # [Lv08]Camp-Spike2
+    3: {
+        BOX_GUN: [
+            (3021102, 0.30),  # HydraGun(+2)
+            (3021103, 0.20),  # HydraGun(+3)
+            (3021201, 0.40),  # smartGun(+1)
+            (3021202, 0.10)   # smartGun(+2)
+        ]
+    },
+
+    # [Lv10]Planet-Alderan
+    4: {
+        BOX_GUN: [
+            (3021103, 0.40),  # HydraGun(+3)
+            (3021201, 0.20),  # smartGun(+1)
+            (3021202, 0.30),  # smartGun(+2)
+            (3021202, 0.10)   # smartGun(+3)
+        ]
+    }
 }

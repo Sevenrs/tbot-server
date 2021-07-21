@@ -1,1 +1,1 @@
-LOBBY_MSG = 'Welcome to the closed beta of T-Bot Rewritten! PvP and DeathMatch are now partially playable.', 1
+LOBBY_MSG = 'Welcome to the closed beta of T-Bot Rewritten! Work on box drops has begun. Guns now drop from level 1 to 10 with more to come.', 1
