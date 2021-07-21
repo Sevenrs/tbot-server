@@ -83,7 +83,7 @@ def get_items(_args, character_id, mode = 'wearing'):
                 'remaining_games':      wearing[item_type]['remaining_games'],
                 'remaining_times':      wearing[item_type]['remaining_times'],
                 'used':                 wearing[item_type]['used'],
-                'part_type':            wearing[item_type]['part_type'],
+                'part_type':            17 if item_type == 'merc2' else wearing[item_type]['part_type'],
                 'character_item_id':    wearing[item_type]['character_item_id']
             }
 
@@ -302,7 +302,7 @@ def construct_bot_data(_args, character):
     bot.AppendInteger(character['att_trans_max']
                                         + wearing_items['specifications']['effect_att_trans_max'], 2, 'little')
 
-    bot.AppendBytes([0x00, 0x00])
+    bot.AppendInteger(512, 2, 'little')
 
     # Append character effects to the packet
     bot.AppendInteger(character['trans_guage']

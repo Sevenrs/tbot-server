@@ -236,9 +236,16 @@ def wear_item(**_args):
 
     item = inventory[slot]
 
+    # If we have a wearing merc, change the item type to merc2 to allow for wearing multiple mercs at once
+    if item['type'] == 'merc1':
+        for wearing_idx in wearing_items['items']:
+            if wearing_items['items'][wearing_idx]['type'] == 'merc1':
+                item['type'] = 'merc2'
+
     # Check if we have anything wearing in the slot we are trying to overwrite. If we are, do not replace the inventory
     # slot with 0, but replace it with the item we are wearing
     wearing_item = 0
+    print(wearing_items['items'])
     for wearing_idx in wearing_items['items']:
         if item['type'] == wearing_items['items'][wearing_idx]['type']:
             wearing_item = wearing_items['items'][wearing_idx]['character_item_id']

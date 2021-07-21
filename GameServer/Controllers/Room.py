@@ -160,7 +160,8 @@ def construct_room_players(_args, packet, character, slot_num, client, room):
                        'little')
     packet.AppendInteger(character['health'] + wearing_items['specifications']['effect_health'], 2, 'little')
 
-    packet.AppendInteger(0, 2, 'little')
+    # Defense
+    packet.AppendInteger(512, 2, 'little')
 
     packet.AppendInteger(character['trans_guage'] + wearing_items['specifications']['effect_trans_guage'], 2, 'little')
     packet.AppendInteger(character['att_critical'] + wearing_items['specifications']['effect_critical'], 2, 'little')

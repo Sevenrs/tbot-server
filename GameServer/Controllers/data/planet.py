@@ -413,8 +413,8 @@ PLANET_BOXES = {
 
     #[Lv01]Training Camp
     0: [
-        (BOX_HEAD, 0.15),
-        (BOX_BODY, 0.15),
-        (BOX_ARMS, 0.15)
+        #(BOX_HEAD, 0.15),
+        #(BOX_BODY, 0.15),
+        #(BOX_ARMS, 0.15)
     ]
 }
