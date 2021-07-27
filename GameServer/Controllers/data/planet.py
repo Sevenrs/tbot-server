@@ -13,8 +13,8 @@ PLANET_MAP_TABLE = {
     7: ([540, 780, 1334], 21),      # [Lv18]Mine-Alderan2
     8: ([600, 700, 900], 21),       # [Lv20]Mine-Blaster
     9: ([540, 680, 920], 22.5),     # [Lv23]Lava-Sea1
-    10: ([560, 680, 920], 22.5),    # [Lv28]Lava-Sea2
-    11: ([700, 800, 1240], 22.5),   # [Lv26]Lava-Sea3
+    10: ([560, 680, 920], 22.5),    # [Lv26]Lava-Sea2
+    11: ([700, 800, 1240], 22.5),   # [Lv28]Lava-Sea3
     12: ([740, 850, 1480], 22.5),   # [Lv30]Acurin-Ruins1
     13: ([780, 870, 1500], 22.5),   # [Lv33]Acurin-Ruins2
     14: ([840, 980, 1040], 22.5),   # [Lv36]Planet-Acurin
@@ -32,10 +32,10 @@ PLANET_MAP_TABLE = {
     26: ([1687, 1890, 1950], 27),   # [Lv66]MeraMountin2
     27: ([1799, 1905, 1980], 27),   # [Lv68]MeraMountin3
     28: ([1900, 2030, 2530], 27),   # [Lv70]MeraMountin4
-    45: ([540, 760, 870], 18),      # [Lv08]The-Fallen([Elite)
-    46: ([980, 1040, 1230], 36),    # [Lv18]Lava-Field([Elite)
-    47: ([1020, 1430, 1560], 45),   # [Lv28]The-Pirate([Elite)
-    48: ([1340, 1530, 1800], 45),   # [Lv38]Evil-Port([Elite)
+    45: ([540, 760, 870], 18),      # [Lv08]The-Fallen(Elite)
+    46: ([980, 1040, 1230], 36),    # [Lv18]Lava-Field(Elite)
+    47: ([1020, 1430, 1560], 45),   # [Lv28]The-Pirate(Elite)
+    48: ([1340, 1530, 1800], 45),   # [Lv38]Evil-Port(Elite)
     49: ([1560, 1890, 2050], 48),   # [Lv48]Bloodway(Elite)
 }
 
@@ -538,6 +538,151 @@ PLANET_BOXES = {
     # [Lv10]Planet-Alderan
     4: [
         (BOX_GUN, 0.15)
+    ],
+
+    # [Lv13]Alderan-Entrance
+    5: [
+        (BOX_GUN, 0.15)
+    ],
+
+    # [Lv16]Mine-Alderan
+    6: [
+        (BOX_GUN, 0.15)
+    ],
+
+    # [Lv18]Mine-Alderan2
+    7: [
+        (BOX_GUN, 0.15)
+    ],
+
+    # [Lv20]Mine-Blaster
+    8: [
+        (BOX_GUN, 0.15)
+    ],
+
+    # [Lv23]Lava-Sea1
+    9: [
+        (BOX_GUN, 0.15)
+    ],
+
+    # [Lv26]Lava-Sea2
+    10: [
+        (BOX_GUN, 0.15)
+    ],
+
+    # [Lv28]Lava-Sea3
+    11: [
+        (BOX_GUN, 0.15)
+    ],
+
+    # [Lv30]Acurin-Ruins1
+    12: [
+        (BOX_GUN, 0.15)
+    ],
+
+    # [Lv33]Acurin-Ruins2
+    13: [
+        (BOX_GUN, 0.15)
+    ],
+
+    # [Lv36]Planet-Acurin
+    14: [
+        (BOX_GUN, 0.15)
+    ],
+
+    # [Lv38]Planet-Acurin2
+    15: [
+        (BOX_GUN, 0.15)
+    ],
+
+    # [Lv40]Port-Acurin
+    16: [
+        (BOX_GUN, 0.15)
+    ],
+
+    # [Lv43]Escape-Acurin
+    17: [
+        (BOX_GUN, 0.15)
+    ],
+
+    # [Lv46]Planet-MECA
+    18: [
+        (BOX_GUN, 0.15)
+    ],
+
+    # [Lv48]Planet-MECA2
+    19: [
+        (BOX_GUN, 0.15)
+    ],
+
+    # [Lv50]Hidden-Archive
+    20: [
+        (BOX_GUN, 0.15)
+    ],
+
+    # [Lv53]Secret-passage
+    21: [
+        (BOX_GUN, 0.15)
+    ],
+
+    # [Lv56]Destroy-all
+    22: [
+        (BOX_GUN, 0.15)
+    ],
+
+    # [Lv58]Destroy-all2
+    23: [
+        (BOX_GUN, 0.15)
+    ],
+
+    # [Lv60]Escape-From-MECA
+    24: [
+        (BOX_GUN, 0.15)
+    ],
+
+    # [Lv63]MeraMountin
+    25: [
+        (BOX_GUN, 0.15)
+    ],
+
+    # [Lv66]MeraMountin2
+    26: [
+        (BOX_GUN, 0.15)
+    ],
+
+    # [Lv68]MeraMountin3
+    27: [
+        (BOX_GUN, 0.15)
+    ],
+
+    # [Lv70]MeraMountin4
+    28: [
+        (BOX_GUN, 0.15)
+    ],
+
+    # [Lv08]The-Fallen(Elite)
+    45: [
+        (BOX_GUN, 0.15)
+    ],
+
+    # [Lv18]Lava-Field(Elite)
+    46: [
+        (BOX_GUN, 0.15)
+    ],
+
+    # [Lv28]The-Pirate(Elite)
+    47: [
+        (BOX_GUN, 0.15)
+    ],
+
+    # [Lv38]Evil-Port(Elite)
+    48: [
+        (BOX_GUN, 0.15)
+    ],
+
+    # [Lv48]Bloodway(Elite)
+    49: [
+        (BOX_GUN, 0.15)
     ]
 }
 
@@ -548,46 +693,321 @@ PLANET_DROPS = {
         BOX_GUN: [
             (3021101, 0.60), # HydraGun(+1)
             (3021102, 0.25), # HydraGun(+2)
-            (3021103, 0.15), # HydraGun(+3)
+            (3021103, 0.15)  # HydraGun(+3)
         ]
     },
 
     # [Lv03]Base Camp
     1: {
         BOX_GUN: [
-            (3021101, 0.20),  # HydraGun(+1)
-            (3021102, 0.70),  # HydraGun(+2)
-            (3021103, 0.10),  # HydraGun(+3)
+            (3021101, 0.20), # HydraGun(+1)
+            (3021102, 0.70), # HydraGun(+2)
+            (3021103, 0.10)  # HydraGun(+3)
         ]
     },
 
     # [Lv06]Camp-Spike
     2: {
         BOX_GUN: [
-            (3021101, 0.10),  # HydraGun(+1)
-            (3021102, 0.50),  # HydraGun(+2)
-            (3021103, 0.20),  # HydraGun(+3)
-            (3021201, 0.20)   # smartGun(+1)
+            (3021101, 0.10), # HydraGun(+1)
+            (3021102, 0.50), # HydraGun(+2)
+            (3021103, 0.20), # HydraGun(+3)
+            (3021201, 0.20)  # smartGun(+1)
         ]
     },
 
     # [Lv08]Camp-Spike2
     3: {
         BOX_GUN: [
-            (3021102, 0.30),  # HydraGun(+2)
-            (3021103, 0.20),  # HydraGun(+3)
-            (3021201, 0.40),  # smartGun(+1)
-            (3021202, 0.10)   # smartGun(+2)
+            (3021102, 0.30), # HydraGun(+2)
+            (3021103, 0.20), # HydraGun(+3)
+            (3021201, 0.40), # smartGun(+1)
+            (3021202, 0.10)  # smartGun(+2)
         ]
     },
 
     # [Lv10]Planet-Alderan
     4: {
         BOX_GUN: [
-            (3021103, 0.40),  # HydraGun(+3)
-            (3021201, 0.20),  # smartGun(+1)
-            (3021202, 0.30),  # smartGun(+2)
-            (3021202, 0.10)   # smartGun(+3)
+            (3021103, 0.40), # HydraGun(+3)
+            (3021201, 0.20), # smartGun(+1)
+            (3021202, 0.30), # smartGun(+2)
+            (3021202, 0.10)  # smartGun(+3)
         ]
+    },
+
+    # [Lv13]Alderan-Entrance
+    5: {
+        BOX_GUN: [
+            (3021201, 0.20), # smartGun(+1)
+            (3021103, 0.30), # HydraGun(+3)
+            (3021202, 0.40), # smartGun(+2)
+            (3021203, 0.10)  # smartGun(+3)
+        ]
+    },
+
+    # [Lv16]Mine-Alderan
+    6: {
+        BOX_GUN: [
+            (3021203, 0.40), # smartGun(+3)
+            (3021202, 0.30), # smartGun(+2)
+            (3021103, 0.15), # HydraGun(+3)
+            (3021301, 0.15)  # FableShooter(+1)
+        ]
+    },
+
+    # [Lv18]Mine-Alderan2
+    7: {
+        BOX_GUN: [
+            (3021203, 0.60), # smartGun(+3)
+            (3021301, 0.30), # FableShooter(+1)
+            (3021202, 0.10)  # smartGun(+2)
+        ]
+    },
+
+    # [Lv20]Mine-Blaster
+    8: {
+        BOX_GUN: [
+            (3021301, 0.70), # FableShooter(+1)
+            (3021203, 0.30)  # smartGun(+3)
+        ]
+    },
+
+    # [Lv23]Lava-Sea1
+    9: {
+        BOX_GUN: {
+            (3021301, 0.40), # FableShooter(+1)
+            (3021302, 0.30), # FableShooter(+2)
+            (3021203, 0.15), # smartGun(+3)
+            (3021401, 0.15)  # PaletteGun(+1)
+        }
+    },
+
+     # [Lv26]Lava-Sea2
+    10: {
+        BOX_GUN: {
+            (3021302, 0.50), # FableShooter(+2)
+            (3021401, 0.30), # PaletteGun(+1)
+            (3021301, 0.10), # FableShooter(+1)
+            (3021303, 0.10)  # FableShooter(+3)
+        }
+    },
+
+    # [Lv28]Lava-Sea3
+    11: {
+        BOX_GUN: {
+            (3021401, 0.50), # PaletteGun(+1)
+            (3021302, 0.20), # FableShooter(+2)
+            (3021303, 0.20), # FableShooter(+3)
+            (3021402, 0.10)  # PaletteGun(+2)
+        }
+    },
+
+    # [Lv30]Acurin-Ruins1
+    12: {
+        BOX_GUN: {
+            (3021303, 0.40), # FableShooter(+3)
+            (3021401, 0.30), # PaletteGun(+1)
+            (3021402, 0.20), # PaletteGun(+2)
+            (3021302, 0.10)  # FableShooter(+2)
+        }
+    },
+
+    # [Lv33]Acurin-Ruins2
+    13: {
+        BOX_GUN: {
+            (3021402, 0.40), # PaletteGun(+2)
+            (3021303, 0.30), # FableShooter(+3)
+            (3021401, 0.15), # PaletteGun(+1)
+            (3021403, 0.15)  # PaletteGun(+3)
+        }
+    },
+
+    # [Lv36]Planet-Acurin
+    14: {
+        BOX_GUN: {
+            (3021403, 0.40), # PaletteGun(+3)
+            (3021402, 0.30), # PaletteGun(+2)
+            (3021303, 0.15), # FableShooter(+3)
+            (3021501, 0.15)  # LightningGun(+1)
+        }
+    },
+
+    # [Lv38]Planet-Acurin2
+    15: {
+        BOX_GUN: {
+            (3021403, 0.60), # PaletteGun(+3)
+            (3021501, 0.30), # LightningGun(+1)
+            (3021402, 0.10)  # PaletteGun(+2)
+        }
+    },
+
+    # [Lv40]Port-Acurin
+    16: {
+        BOX_GUN: {
+            (3021501, 0.60), # LightningGun(+1)
+            (3021403, 0.40)  # PaletteGun(+3)
+        }
+    },
+
+    # [Lv43]Escape-Acurin
+    17: {
+        BOX_GUN: {
+            (3021501, 0.40), # LightningGun(+1)
+            (3021502, 0.30), # LightningGun(+2)
+            (3021403, 0.15), # PaletteGun(+3)
+            (3021601, 0.15)  # WhiteBlazer(+1)
+        }
+    },
+
+    # [Lv46]Planet-MECA
+    18: {
+        BOX_GUN: {
+            (3021502, 0.40), # LightningGun(+2)
+            (3021502, 0.30), # WhiteBlazer(+1)
+            (3021502, 0.15), # LightningGun(+1)
+            (3021502, 0.15)  # LightningGun(+3)
+        }
+    },
+
+    # [Lv48]Planet-MECA2
+    19: {
+        BOX_GUN: {
+            (3021601, 0.40), # WhiteBlazer(+1)
+            (3021502, 0.30), # LightningGun(+2)
+            (3021602, 0.20), # LightningGun(+3)
+            (3021503, 0.10)  # WhiteBlazer(+2)
+        }
+    },
+
+    # [Lv50]Hidden-Archive
+    20: {
+        BOX_GUN: {
+            (3021503, 0.40), # LightningGun(+3)
+            (3021601, 0.30), # WhiteBlazer(+1)
+            (3021602, 0.20), # WhiteBlazer(+2)
+            (3021502, 0.10)  # LightningGun(+2)
+        }
+    },
+
+    # [Lv53]Secret-passage
+    21: {
+        BOX_GUN: {
+            (3021602, 0.40), # WhiteBlazer(+2)
+            (3021602, 0.30), # LightningGun(+3)
+            (3021602, 0.15), # WhiteBlazer(+1)
+            (3021602, 0.15)  # WhiteBlazer(+3)
+        }
+    },
+
+    # [Lv56]Destroy-all
+    22: {
+        BOX_GUN: {
+            (3021603, 0.40), # WhiteBlazer(+3)
+            (3021602, 0.30), # WhiteBlazer(+2)
+            (3021503, 0.15), # LightningGun(+3)
+            (3021701, 0.15)  # AuraBlazer(+1)
+        }
+    },
+
+    # [Lv58]Destroy-all2
+    23: {
+        BOX_GUN: {
+            (3021603, 0.60), # WhiteBlazer(+3)
+            (3021701, 0.30), # AuraBlazer(+1)
+            (3021602, 0.10)  # WhiteBlazer(+2)
+        }
+    },
+
+    # [Lv60]Escape-From-MECA
+    24: {
+        BOX_GUN: {
+            (3021701, 0.60), # AuraBlazer(+1)
+            (3021603, 0.40)  # WhiteBlazer(+3)
+        }
+    },
+
+    # [Lv63]MeraMountin
+    25: {
+        BOX_GUN: {
+            (3021701, 0.40), # AuraBlazer(+1)
+            (3021702, 0.30), # AuraBlazer(+2)
+            (3021603, 0.15), # WhiteBlazer(+3)
+            (3021801, 0.15)  # HeavyLaunch(+1)
+        }
+    },
+
+    # [Lv66]MeraMountin2
+    26: {
+        BOX_GUN: {
+            (3021702, 0.40), # AuraBlazer(+2)
+            (3021801, 0.30), # HeavyLaunch(+1)
+            (3021701, 0.15), # AuraBlazer(+1)
+            (3021703, 0.15)  # AuraBlazer(+3)
+        }
+    },
+
+    # [Lv68]MeraMountin3
+    27: {
+        BOX_GUN: {
+            (3021801, 0.60), # HeavyLaunch(+1)
+            (3021702, 0.40)  # AuraBlazer(+2)
+        }
+    },
+
+    # [Lv70]MeraMountin4
+    28: {
+        BOX_GUN: {
+            (3021801, 0.60), # HeavyLaunch(+1)
+            (3021702, 0.40)  # AuraBlazer(+2)
+        }
+    },
+
+    # [Lv08]The-Fallen(Elite)
+    45: {
+        BOX_GUN: {
+            (3021202, 0.40), # smartGun(+2)
+            (3021103, 0.30), # smartGun(+2)
+            (3021102, 0.20), # smartGun(+2)
+            (3021201, 0.10)  # smartGun(+2)
+        }
+    },
+
+    # [Lv18]Lava-Field(Elite)
+    46: {
+        BOX_GUN: {
+            (3021202, 0.60),  # smartGun(+2)
+            (3021301, 0.30),  # FableShooter(+1)
+            (3021203, 0.10)   # smartGun(+3)
+        }
+    },
+
+    # [Lv28]The-Pirate(Elite)
+    47: {
+        BOX_GUN: {
+            (3021402, 0.40),  # PaletteGun(+2)
+            (3021303, 0.30),  # FableShooter(+3)
+            (3021302, 0.20),  # FableShooter(+2)
+            (3021401, 0.10)   # PaletteGun(+1)
+        }
+    },
+
+    # [Lv38]Evil-Port(Elite)
+    48: {
+        BOX_GUN: {
+            (3021402, 0.60),  # PaletteGun(+2)
+            (3021501, 0.30),  # LightningGun(+1)
+            (3021403, 0.10)   # PaletteGun(+3)
+        }
+    },
+
+    # [Lv48]Bloodway(Elite)
+    49: {
+        BOX_GUN: {
+            (3021602, 0.40),  # WhiteBlazer(+2)
+            (3021503, 0.30),  # LightningGun(+3)
+            (3021502, 0.20),  # LightningGun(+2)
+            (3021601, 0.10)   # WhiteBlazer(+1)
+        }
     }
 }
