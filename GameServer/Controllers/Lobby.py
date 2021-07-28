@@ -183,7 +183,7 @@ def GetLobby(**_args):
         Friend.PresenceNotification(_args)
 
         # Send welcome message to our client
-        ChatMessage(_args['client'], LOBBY_MSG[0] + ' Your client ID is {0}.'.format(_args['client']['id']), LOBBY_MSG[1])
+        ChatMessage(_args['client'], LOBBY_MSG[0], LOBBY_MSG[1])
 
         # Update client status
         _args['client']['new'] = False

@@ -234,7 +234,27 @@ def wear_item(**_args):
     wearing_items   = Character.get_items(_args, _args['client']['character']['id'], 'wearing')
     inventory       = Character.get_items(_args, _args['client']['character']['id'], 'inventory')
 
+    # Construct the response packet
+    result = PacketWrite()
+    result.AddHeader(bytearray(type_data[1]))
+
+    # Retrieve item from the inventory
     item = inventory[slot]
+
+    # Retrieve item from the database
+    _args['mysql'].execute('''SELECT `id`, `level`, `part_type` FROM `game_items` WHERE `item_id` = %s''', [
+        item['id']])
+    game_item = _args['mysql'].fetchone()
+
+    # Check if the item was found. If it wasn't, send the "This item does not exist" error
+    if game_item is None or game_item['part_type'] == 0:
+        result.AppendBytes([0x00, 0x42])
+        return _args['client']['socket'].send(result.packet)
+
+    # Check if we have the minimum level required to wear the item. If we do not meet the requirement, send an error.
+    if game_item['level'] > _args['client']['character']['level']:
+        result.AppendBytes([0x00, 0x65])
+        return _args['client']['socket'].send(result.packet)
 
     # If we have a wearing merc, change the item type to merc2 to allow for wearing multiple mercs at once
     if item['type'] == 'merc1':
@@ -277,9 +297,6 @@ def wear_item(**_args):
             _args['client']['character']['id']
         ])
 
-    # Construct the response packet
-    result = PacketWrite()
-    result.AddHeader(bytearray(type_data[1]))
     result.AppendBytes([0x01, 0x00])
     result.AppendBytes(Character.construct_bot_data(_args, _args['client']['character']))
     _args['socket'].send(result.packet)

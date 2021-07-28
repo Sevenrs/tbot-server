@@ -88,8 +88,14 @@ def monster_kill(**_args):
     monster_drops = []
     for drop, chance in drops:
 
-        # If applicable, apply the assistant multiplication except if the drop type is a gold chest
-        if random.random() < (chance * (assistant_multiplication if drop != CHEST_GOLD else 1.0)) and room['drop_index'] < 256:
+        ''' If the monster ID is equal to the last monster ID in the list, we've killed a boss.
+            We need to ensure that Rebirth is always dropped '''
+        if room['level'] in PLANET_BOXES and drop == CANISTER_REBIRTH and \
+                monster_id == PLANET_BOX_MOBS[room['level']][len(PLANET_BOX_MOBS[room['level']]) - 1]:
+            chance = 1.00
+
+        # If applicable, apply the assistant multiplication except if the drop type is greater or equal to CHEST_GOLD(18)
+        if random.random() < (chance * (assistant_multiplication if drop < CHEST_GOLD else 1.0)) and room['drop_index'] < 256:
             monster_drops.append(bytes([room['drop_index'], drop, 0, 0, 0]))
             room['drop_index'] += 1
     drop_bytes = b''.join(monster_drops)
@@ -141,9 +147,14 @@ def use_item(**_args):
         inventory = get_items(_args, _args['client']['character']['id'], 'inventory')
         available_slot = get_available_inventory_slot(inventory)
 
-        # Do not do anything if we have no slot available
+        # Construct pickup packet
+        pickup = PacketWrite()
+        pickup.AddHeader(bytes=[0x2C, 0x2F])
+
+        # Send inventory full packet if we do not have an available slot
         if available_slot is None:
-            return
+            pickup.AppendBytes(bytes=[0x00, 0x44])
+            return _args['socket'].send(pickup.packet)
 
         # If the item is gold, calculate what gold bar to award
         if item_type == CHEST_GOLD:
@@ -176,10 +187,6 @@ def use_item(**_args):
                     # No match? Try again with a higher chance
                     last_chance += chance
 
-        # Construct pickup packet
-        pickup = PacketWrite()
-        pickup.AddHeader(bytes=[0x2C, 0x2F])
-
         # Find item in the database
         _args['mysql'].execute(
             '''SELECT `id`, `item_id`, `buyable`, `gold_price`, `cash_price`, `part_type`, `duration` FROM `game_items` WHERE `item_id` = %s''',
@@ -194,7 +201,7 @@ def use_item(**_args):
         # Add item to inventory of the user
         add_item(_args, item, available_slot)
 
-        # Send pickup packet to the room
+        # Send pickup packet to the player
         pickup.AppendBytes(bytes=[0x01, 0x00])
         pickup.AppendInteger(item_id, 4, 'little')
         pickup.AppendInteger(0, 4, 'little')
@@ -342,9 +349,15 @@ def post_game_transaction(_args, room, status):
         # Retrieve character object belonging to this player
         character = slot['client']['character']
 
-        # Obtain value additions, but default to 0 if we have lost the game
-        addition_experience = int(PLANET_MAP_TABLE[room['level']][0][room['difficulty']] * room['experience_modifier']) \
-            if room['level'] in PLANET_MAP_TABLE.keys() and status == 1 else 0
+        ''' Calculate the amount of experience to award to the player. If the player's level has a difference of at least 10,
+            the experience is divided by four. Otherwise, the experience is not mutated. 
+            
+            If there is an experience modifier present, it will be applied on top of the base experience.
+            Finally, if the player has lost the game, no experience will be awarded at all. '''
+        addition_experience = int(PLANET_MAP_TABLE[room['level']][0][room['difficulty']] * room['experience_modifier'] \
+                              / (1.00 if abs(PLANET_MAP_TABLE[room['level']][2] - character['level']) < 10 else 4.00)) \
+                                    if room['level'] in PLANET_MAP_TABLE.keys() and status == 1 else 0
+
         addition_gigas = 420 if status == 1 else 0
 
         # Check if we have leveled up

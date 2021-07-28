@@ -3,43 +3,45 @@ from GameServer.Controllers.data.drops import *
 # This table contains the experience points to award per planet level.
 # Structure: Level index, easy, medium and hard difficulty awards
 PLANET_MAP_TABLE = {
-    0: ([100, 150, 200], 7.5),      # [Lv01]Training Camp
-    1: ([125, 175, 250], 10.5),     # [Lv03]Base Camp
-    2: ([150, 250, 300], 10.5),     # [Lv06]Camp-Spike
-    3: ([500, 750, 1000], 15),      # [Lv08]Camp-Spike2
-    4: ([250, 300, 500], 18),       # [Lv10]Planet-Alderan
-    5: ([250, 430, 640], 19.5),     # [Lv13]Alderan-Entrance
-    6: ([540, 780, 1334], 19.5),    # [Lv16]Mine-Alderan
-    7: ([540, 780, 1334], 21),      # [Lv18]Mine-Alderan2
-    8: ([600, 700, 900], 21),       # [Lv20]Mine-Blaster
-    9: ([540, 680, 920], 22.5),     # [Lv23]Lava-Sea1
-    10: ([560, 680, 920], 22.5),    # [Lv26]Lava-Sea2
-    11: ([700, 800, 1240], 22.5),   # [Lv28]Lava-Sea3
-    12: ([740, 850, 1480], 22.5),   # [Lv30]Acurin-Ruins1
-    13: ([780, 870, 1500], 22.5),   # [Lv33]Acurin-Ruins2
-    14: ([840, 980, 1040], 22.5),   # [Lv36]Planet-Acurin
-    15: ([840, 980, 1040], 24),     # [Lv38]Planet-Acurin2
-    16: ([980, 1040, 1220], 24),    # [Lv40]Port-Acurin
-    17: ([1040, 1220, 1340], 24),   # [Lv43]Escape-Acurin
-    18: ([840, 850, 960], 24),      # [Lv46]Planet-MECA
-    19: ([840, 850, 960], 24),      # [Lv48]Planet-MECA2
-    20: ([780, 830, 920], 24.5),    # [Lv50]Hidden-Archive
-    21: ([840, 930, 1020], 25.5),   # [Lv53]Secret-passage
-    22: ([950, 1060, 1170], 25.5),  # [Lv56]Destroy-all
-    23: ([950, 1060, 1170], 25.5),  # [Lv58]Destroy-all2
-    24: ([1288, 1450, 1650], 27),   # [Lv60]Escape-From-MECA
-    25: ([1588, 1650, 1889], 27),   # [Lv63]MeraMountin
-    26: ([1687, 1890, 1950], 27),   # [Lv66]MeraMountin2
-    27: ([1799, 1905, 1980], 27),   # [Lv68]MeraMountin3
-    28: ([1900, 2030, 2530], 27),   # [Lv70]MeraMountin4
-    45: ([540, 760, 870], 18),      # [Lv08]The-Fallen(Elite)
-    46: ([980, 1040, 1230], 36),    # [Lv18]Lava-Field(Elite)
-    47: ([1020, 1430, 1560], 45),   # [Lv28]The-Pirate(Elite)
-    48: ([1340, 1530, 1800], 45),   # [Lv38]Evil-Port(Elite)
-    49: ([1560, 1890, 2050], 48),   # [Lv48]Bloodway(Elite)
+    0: ([100, 150, 200], 7.5, 1),       # [Lv01]Training Camp
+    1: ([125, 175, 250], 10.5, 3),      # [Lv03]Base Camp
+    2: ([150, 250, 300], 10.5, 6),      # [Lv06]Camp-Spike
+    3: ([500, 750, 1000], 15, 8),       # [Lv08]Camp-Spike2
+    4: ([250, 300, 500], 18, 10),       # [Lv10]Planet-Alderan
+    5: ([250, 430, 640], 19.5, 13),     # [Lv13]Alderan-Entrance
+    6: ([540, 780, 1334], 19.5, 16),    # [Lv16]Mine-Alderan
+    7: ([540, 780, 1334], 21, 18),      # [Lv18]Mine-Alderan2
+    8: ([600, 700, 900], 21, 20),       # [Lv20]Mine-Blaster
+    9: ([540, 680, 920], 22.5, 23),     # [Lv23]Lava-Sea1
+    10: ([560, 680, 920], 22.5, 26),    # [Lv26]Lava-Sea2
+    11: ([700, 800, 1240], 22.5, 28),   # [Lv28]Lava-Sea3
+    12: ([740, 850, 1480], 22.5, 30),   # [Lv30]Acurin-Ruins1
+    13: ([780, 870, 1500], 22.5, 33),   # [Lv33]Acurin-Ruins2
+    14: ([840, 980, 1040], 22.5, 36),   # [Lv36]Planet-Acurin
+    15: ([840, 980, 1040], 24, 38),     # [Lv38]Planet-Acurin2
+    16: ([980, 1040, 1220], 24, 40),    # [Lv40]Port-Acurin
+    17: ([1040, 1220, 1340], 24, 43),   # [Lv43]Escape-Acurin
+    18: ([840, 850, 960], 24, 46),      # [Lv46]Planet-MECA
+    19: ([840, 850, 960], 24, 48),      # [Lv48]Planet-MECA2
+    20: ([780, 830, 920], 24.5, 50),    # [Lv50]Hidden-Archive
+    21: ([840, 930, 1020], 25.5, 53),   # [Lv53]Secret-passage
+    22: ([950, 1060, 1170], 25.5, 56),  # [Lv56]Destroy-all
+    23: ([950, 1060, 1170], 25.5, 58),  # [Lv58]Destroy-all2
+    24: ([1288, 1450, 1650], 27, 60),   # [Lv60]Escape-From-MECA
+    25: ([1588, 1650, 1889], 27, 63),   # [Lv63]MeraMountin
+    26: ([1687, 1890, 1950], 27, 66),   # [Lv66]MeraMountin2
+    27: ([1799, 1905, 1980], 27, 68),   # [Lv68]MeraMountin3
+    28: ([1900, 2030, 2530], 27, 70),   # [Lv70]MeraMountin4
+    45: ([540, 760, 870], 18, 8),       # [Lv08]The-Fallen(Elite)
+    46: ([980, 1040, 1230], 36, 18),    # [Lv18]Lava-Field(Elite)
+    47: ([1020, 1430, 1560], 45, 28),   # [Lv28]The-Pirate(Elite)
+    48: ([1340, 1530, 1800], 45, 38),   # [Lv38]Evil-Port(Elite)
+    49: ([1560, 1890, 2050], 48, 48),   # [Lv48]Bloodway(Elite)
 }
 
 # This table contains the mob table from which to drops boxes from
+
+# This table contains the mob table from which to increase the canister drop rate
 PLANET_BOX_MOBS = {
 
     # [Lv01]Training Camp
@@ -97,8 +99,8 @@ PLANET_BOX_MOBS = {
         30,
         34,
         35,
-        45, # Boss
-        47
+        47,
+        45 # Boss
     ],
 
     # [Lv18]Mine-Alderan2
@@ -147,10 +149,10 @@ PLANET_BOX_MOBS = {
     11: [
         28,
         29,
-        88, # Boss
         95,
         96,
-        97
+        97,
+        88 # Boss
     ],
 
     # [Lv30]Acurin-Ruins1
@@ -163,11 +165,11 @@ PLANET_BOX_MOBS = {
         44,
         56,
         59,
-        71, # Boss
         76,
         78,
         79,
-        77
+        77,
+        71 # Boss
     ],
 
     # [Lv33]Acurin-Ruins2
@@ -181,12 +183,12 @@ PLANET_BOX_MOBS = {
         41,
         49,
         58,
-        70, # Boss
         71,
         72,
         78,
         79,
-        80
+        80,
+        70 # Boss
     ],
 
     # [Lv36]Planet-Acurin
@@ -224,10 +226,10 @@ PLANET_BOX_MOBS = {
         73,
         76,
         89,
-        97,  # Boss
         100,
         109,
-        110
+        110,
+        97  # Boss
     ],
 
     # [Lv40]Port-Acurin
@@ -331,8 +333,8 @@ PLANET_BOX_MOBS = {
         73,
         74,
         97,
-        98, # Boss
-        99
+        99,
+        98 # Boss
     ],
 
     # [Lv63]MeraMountin
@@ -344,10 +346,10 @@ PLANET_BOX_MOBS = {
         55,
         77,
         105,
-        113, # Boss
         121,
         122,
-        123
+        123,
+        113 # Boss
     ],
 
     # [Lv66]MeraMountin2
@@ -390,8 +392,8 @@ PLANET_BOX_MOBS = {
         45,
         46,
         87,
-        121, # Boss
-        125
+        125,
+        121 # Boss
     ],
 
     # [Lv08]The-Fallen([Elite)
@@ -408,9 +410,9 @@ PLANET_BOX_MOBS = {
         33,
         34,
         35,
-        50, # Boss
         52,
-        53
+        53,
+        50 # Boss
     ],
 
     # [Lv28]The-Pirate([Elite)
@@ -451,13 +453,11 @@ PLANET_BOX_MOBS = {
         61,
         70,
         72,
-        83, # Boss
         89,
-        90
+        90,
+        83 # Boss
     ]
 }
-
-# This table contains the mob table from which to increase the canister drop rate
 PLANET_ASSISTS = {
 
 
