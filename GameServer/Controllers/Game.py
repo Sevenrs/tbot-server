@@ -95,7 +95,7 @@ def monster_kill(**_args):
             chance = 1.00
 
         # If applicable, apply the assistant multiplication except if the drop type is greater or equal to CHEST_GOLD(18)
-        if random.random() < (chance * (assistant_multiplication if drop < CHEST_GOLD else 1.0)) and room['drop_index'] < 256:
+        if random.random() < (chance * (assistant_multiplication if drop < BOX_ARMS else 1.0)) and room['drop_index'] < 256:
             monster_drops.append(bytes([room['drop_index'], drop, 0, 0, 0]))
             room['drop_index'] += 1
     drop_bytes = b''.join(monster_drops)
