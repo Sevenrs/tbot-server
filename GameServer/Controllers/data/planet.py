@@ -32,11 +32,11 @@ PLANET_MAP_TABLE = {
     26: ([1687, 1890, 1950], 27, 66),   # [Lv66]MeraMountin2
     27: ([1799, 1905, 1980], 27, 68),   # [Lv68]MeraMountin3
     28: ([1900, 2030, 2530], 27, 70),   # [Lv70]MeraMountin4
-    45: ([540, 760, 870], 18, 8),       # [Lv08]The-Fallen(Elite)
-    46: ([980, 1040, 1230], 36, 18),    # [Lv18]Lava-Field(Elite)
-    47: ([1020, 1430, 1560], 45, 28),   # [Lv28]The-Pirate(Elite)
-    48: ([1340, 1530, 1800], 45, 38),   # [Lv38]Evil-Port(Elite)
-    49: ([1560, 1890, 2050], 48, 48),   # [Lv48]Bloodway(Elite)
+    29: ([540, 760, 870], 18, 8),       # [Lv08]The-Fallen(Elite)
+    30: ([980, 1040, 1230], 36, 18),    # [Lv18]Lava-Field(Elite)
+    31: ([1020, 1430, 1560], 45, 28),   # [Lv28]The-Pirate(Elite)
+    32: ([1340, 1530, 1800], 45, 38),   # [Lv38]Evil-Port(Elite)
+    33: ([1560, 1890, 2050], 48, 48),   # [Lv48]Bloodway(Elite)
 }
 
 # This table contains the mob table from which to drops boxes from
@@ -397,7 +397,7 @@ PLANET_BOX_MOBS = {
     ],
 
     # [Lv08]The-Fallen([Elite)
-    45: [
+    29: [
         2,
         22,
         27,
@@ -405,7 +405,7 @@ PLANET_BOX_MOBS = {
     ],
 
     # [Lv18]Lava-Field([Elite)
-    46: [
+    30: [
         25,
         33,
         34,
@@ -416,7 +416,7 @@ PLANET_BOX_MOBS = {
     ],
 
     # [Lv28]The-Pirate([Elite)
-    47: [
+    31: [
         9,
         10,
         25,
@@ -431,7 +431,7 @@ PLANET_BOX_MOBS = {
     ],
 
     # [Lv38]Evil-Port([Elite)
-    48: [
+    32: [
         16,
         17,
         24,
@@ -445,7 +445,7 @@ PLANET_BOX_MOBS = {
     ],
 
     # [Lv48]Bloodway(Elite)
-    49: [
+    33: [
         30,
         37,
         49,
@@ -507,7 +507,7 @@ PLANET_ASSISTS = {
     ],
 
     # [Lv48]Bloodway(Elite)
-    49: [
+    33: [
         60
     ]
 
@@ -661,27 +661,27 @@ PLANET_BOXES = {
     ],
 
     # [Lv08]The-Fallen(Elite)
-    45: [
+    29: [
         (BOX_GUN, 0.15)
     ],
 
     # [Lv18]Lava-Field(Elite)
-    46: [
+    30: [
         (BOX_GUN, 0.15)
     ],
 
     # [Lv28]The-Pirate(Elite)
-    47: [
+    31: [
         (BOX_GUN, 0.15)
     ],
 
     # [Lv38]Evil-Port(Elite)
-    48: [
+    32: [
         (BOX_GUN, 0.15)
     ],
 
     # [Lv48]Bloodway(Elite)
-    49: [
+    33: [
         (BOX_GUN, 0.15)
     ]
 }
@@ -964,7 +964,7 @@ PLANET_DROPS = {
     },
 
     # [Lv08]The-Fallen(Elite)
-    45: {
+    29: {
         BOX_GUN: {
             (3021202, 0.40), # smartGun(+2)
             (3021103, 0.30), # smartGun(+2)
@@ -974,7 +974,7 @@ PLANET_DROPS = {
     },
 
     # [Lv18]Lava-Field(Elite)
-    46: {
+    30: {
         BOX_GUN: {
             (3021202, 0.60),  # smartGun(+2)
             (3021301, 0.30),  # FableShooter(+1)
@@ -983,7 +983,7 @@ PLANET_DROPS = {
     },
 
     # [Lv28]The-Pirate(Elite)
-    47: {
+    31: {
         BOX_GUN: {
             (3021402, 0.40),  # PaletteGun(+2)
             (3021303, 0.30),  # FableShooter(+3)
@@ -993,7 +993,7 @@ PLANET_DROPS = {
     },
 
     # [Lv38]Evil-Port(Elite)
-    48: {
+    32: {
         BOX_GUN: {
             (3021402, 0.60),  # PaletteGun(+2)
             (3021501, 0.30),  # LightningGun(+1)
@@ -1002,7 +1002,7 @@ PLANET_DROPS = {
     },
 
     # [Lv48]Bloodway(Elite)
-    49: {
+    33: {
         BOX_GUN: {
             (3021602, 0.40),  # WhiteBlazer(+2)
             (3021503, 0.30),  # LightningGun(+3)
