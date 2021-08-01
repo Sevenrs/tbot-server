@@ -864,9 +864,9 @@ PLANET_DROPS = {
     18: {
         BOX_GUN: {
             (3021502, 0.40), # LightningGun(+2)
-            (3021502, 0.30), # WhiteBlazer(+1)
-            (3021502, 0.15), # LightningGun(+1)
-            (3021502, 0.15)  # LightningGun(+3)
+            (3021601, 0.30), # WhiteBlazer(+1)
+            (3021501, 0.15), # LightningGun(+1)
+            (3021503, 0.15)  # LightningGun(+3)
         }
     },
 
@@ -875,8 +875,8 @@ PLANET_DROPS = {
         BOX_GUN: {
             (3021601, 0.40), # WhiteBlazer(+1)
             (3021502, 0.30), # LightningGun(+2)
-            (3021602, 0.20), # LightningGun(+3)
-            (3021503, 0.10)  # WhiteBlazer(+2)
+            (3021503, 0.20), # LightningGun(+3)
+            (3021602, 0.10)  # WhiteBlazer(+2)
         }
     },
 
@@ -894,9 +894,9 @@ PLANET_DROPS = {
     21: {
         BOX_GUN: {
             (3021602, 0.40), # WhiteBlazer(+2)
-            (3021602, 0.30), # LightningGun(+3)
-            (3021602, 0.15), # WhiteBlazer(+1)
-            (3021602, 0.15)  # WhiteBlazer(+3)
+            (3021503, 0.30), # LightningGun(+3)
+            (3021601, 0.15), # WhiteBlazer(+1)
+            (3021603, 0.15)  # WhiteBlazer(+3)
         }
     },
 

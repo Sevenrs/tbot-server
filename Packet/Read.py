@@ -33,7 +33,7 @@ class Read:
             """
             Receive the next two bytes that represent the packet length
             This contains an unsigned short (max length is 65535 bytes)
-            Also remove null bytes from the legth bytes to avoid it reading them
+            Also remove null bytes from the length bytes to avoid it reading them
             """
             self.length = int.from_bytes(socket.recv(2), 'little')
             
