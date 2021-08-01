@@ -97,6 +97,7 @@ def monster_kill(**_args):
         # If applicable, apply the assistant multiplication except if the drop type is greater or equal to CHEST_GOLD(18)
         if random.random() < (chance * (assistant_multiplication if drop < BOX_ARMS else 1.0)) and room['drop_index'] < 256:
             monster_drops.append(bytes([room['drop_index'], drop, 0, 0, 0]))
+            room['drops'][room['drop_index']] = {'type': drop, 'used': False}
             room['drop_index'] += 1
     drop_bytes = b''.join(monster_drops)
 
@@ -131,8 +132,17 @@ def use_item(**_args):
     item_index  = _args['packet'].GetByte(2)
     item_type   = _args['packet'].GetByte(3)
 
-    print("Index: {0}, Type: {1}".format(item_index, item_type))
+    # Check if the drop is valid. If it is not, change the item type to 0 so nothing happens.
+    if item_index not in room['drops'] or room['drops'][item_index]['used'] == True \
+             or room['drops'][item_index]['type'] != item_type:
+         item_type = 0
 
+    # Mark the drop as used before further processing of the packet
+    # but only if the item index is actually registered
+    if item_index in room['drops']:
+        room['drops'][item_index]['used'] = True
+
+    # Broadcast the use canister packet to the room
     use_canister = PacketWrite()
     use_canister.AddHeader(bytearray([0x23, 0x2F]))
     use_canister.AppendInteger(get_slot(_args, room) - 1, 2, 'little')
@@ -140,7 +150,7 @@ def use_item(**_args):
     use_canister.AppendInteger(item_type, 4, 'little')
     _args['connection_handler'].SendRoomAll(room['id'], use_canister.packet)
 
-    # Item drops start at index 18
+    # If the item type is equal or exceeds 18, process a box pickup
     if item_type >= 18:
 
         # Find available slot

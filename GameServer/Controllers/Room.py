@@ -365,6 +365,7 @@ def create(**_args):
         'difficulty':           0,
         'status':               0,
         'drop_index':           1,
+        'drops':                {},
         'game_over':            False,
         'game_loaded':          False,
         'experience_modifier':  1.0
