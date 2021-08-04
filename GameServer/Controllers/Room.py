@@ -4,7 +4,7 @@ __copyright__ = "Copyright (C) 2020 Icseon"
 __version__ = "1.0"
 
 from Packet.Write import Write as PacketWrite
-from GameServer.Controllers import Character, Guild
+from GameServer.Controllers import Character, Guild, Lobby
 from GameServer.Controllers.data.planet import PLANET_MAP_TABLE
 import math, os, time, datetime
 from random import randrange
@@ -278,6 +278,9 @@ def add_slot(_args, room_id, client, broadcast=False):
 
      # Set room id for current client to indicate that our client is in a room
     _args['client']['room'] = room['id']
+
+    # Send a message to the client about the commands they can use
+    Lobby.ChatMessage(_args['client'], 'There are commands available. Type @help for a list of commands.', 2)
 
 def remove_slot(_args, room_id, client, reason=1):
 

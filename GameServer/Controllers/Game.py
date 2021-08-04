@@ -8,8 +8,9 @@ from GameServer.Controllers.data.drops import *
 from GameServer.Controllers.data.exp import *
 from GameServer.Controllers.data.planet import PLANET_MAP_TABLE, PLANET_BOXES, PLANET_BOX_MOBS, PLANET_DROPS,\
     PLANET_ASSISTS
-from GameServer.Controllers.Room import get_room, get_slot, get_list, get_list_page_by_room_id, reset
+from GameServer.Controllers.Room import get_room, get_slot, get_list, get_list_page_by_room_id, reset, remove_slot
 from GameServer.Controllers.Character import get_items, add_item, get_available_inventory_slot
+from GameServer.Controllers import Lobby
 import MySQL.Interface as MySQL
 import random
 import time
@@ -567,3 +568,39 @@ def countdown_timer(_args, room):
     # Also check if there are actually any players in the room
     if len(room['slots']) > 0 and not room['game_over']:
         game_end(_args=_args, room=room, status=2)
+
+'''
+This method will parse chat commands
+'''
+def chat_command(**_args):
+
+    # Check if we are in a room, if not drop the packet
+    room = get_room(_args)
+    if not room:
+        return
+
+    # Read message
+    message = _args['packet'].ReadString()
+
+    if message[0] == '@':
+        command = message[1:]
+
+        # Handle exit requests
+        if command == 'exit':
+            remove_slot(_args, _args['client']['room'], _args['client'])
+
+        elif command == 'help':
+
+            # List of commands
+            commands = [
+                {
+                    "command": "@exit",
+                    "description": "Exits the current room you are in"
+                }
+            ]
+
+            for command in commands:
+                Lobby.ChatMessage(_args['client'], '{0} -- {1}'.format(command['command'], command['description']), 2)
+
+        else:
+            Lobby.ChatMessage(_args['client'], 'Unknown command. Type @help for a list of commands', 2)
