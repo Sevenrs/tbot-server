@@ -151,6 +151,11 @@ def use_item(**_args):
     use_canister.AppendInteger(item_type, 4, 'little')
     _args['connection_handler'].SendRoomAll(room['id'], use_canister.packet)
 
+    # If the item is a rebirth pack, make all players alive
+    if item_type == CANISTER_REBIRTH:
+        for key, slot in room['slots'].items():
+            slot['dead'] = False
+
     # If the item type is equal or exceeds 18, process a box pickup
     if item_type >= 18:
 
@@ -219,19 +224,32 @@ def use_item(**_args):
         pickup.AppendInteger(get_slot(_args, room) - 1, 2, 'little')
         _args['socket'].send(pickup.packet)
 
+
 '''
 This method will handle player deaths.
-It works by reading the slot number and broadcasting that the player is dead to all room sockets
 '''
-def player_death(**_args):
+def player_death_rpc(**_args):
 
     # If the client is not in a room, drop the packet
     room = get_room(_args)
     if not room:
         return
 
+    # Kill player
+    player_death(_args, room)
+
+'''
+This method will kill a player
+It works by reading the slot number and broadcasting that the player is dead to all room sockets
+'''
+def player_death(_args, room):
+
     # Get slot number from the room
     room_slot = get_slot(_args, room)
+
+    # Do not kill the player if the player is already dead
+    if room['slots'][str(room_slot)]['dead']:
+        return False
 
     # Update room object and classify the player as dead
     room['slots'][str(room_slot)]['dead'] = True
@@ -589,13 +607,72 @@ def chat_command(**_args):
         if command == 'exit':
             remove_slot(_args, _args['client']['room'], _args['client'])
 
+        # Handle suicide requests
+        elif command == 'suicide':
+
+            # Drop packet if the game has not started
+            if room['status'] != 3:
+                return
+
+            # This command is only supposed to work in planet mode
+            if room['game_type'] == 2:
+                result = player_death(_args, room)
+                if result is not False:
+                    Lobby.ChatMessage(_args['client'], 'You have just killed your player', 2)
+            else:
+                Lobby.ChatMessage(_args['client'], 'This command only works in planet mode', 2)
+
+        # Handle kick requests
+        elif command[:4] == 'kick':
+
+            # Check message length
+            if len(message) < 6:
+                return
+
+            # Check if we are the room master
+            if room['master'] != _args['client']:
+                return Lobby.ChatMessage(_args['client'], 'Only room masters can kick players from their rooms', 2)
+
+            # Retrieve the character name of the new room master and attempt to find the user in the room
+            who     = message[6:]
+            slots   = room['slots'].items()
+
+            # If we are trying to kick ourselves, stop.
+            if who == _args['client']['character']['name']:
+                return Lobby.ChatMessage(_args['client'], 'You can not kick yourself', 2)
+
+            # Attempt to find the player we are trying to kick from the room
+            for key, slot in slots:
+                if slot['client']['character']['name'] == who:
+                    remove_slot(_args, room['id'], slot['client'], 2)
+                    return
+
+            # If we have passed the loop with no result, the player was not found
+            Lobby.ChatMessage(_args['client'], 'Player {0} not found'.format(who), 2)
+
         elif command == 'help':
 
             # List of commands
             commands = [
+
+                {
+                    "command": "@help",
+                    "description": "Show a list of available commands"
+                },
+
                 {
                     "command": "@exit",
-                    "description": "Exits the current room you are in"
+                    "description": "Leaves the current room you are in"
+                },
+
+                {
+                    "command": "@suicide",
+                    "description": "Kills your player"
+                },
+
+                {
+                    "command": "@kick <name>",
+                    "description": "Kicks a player from your room"
                 }
             ]
 
