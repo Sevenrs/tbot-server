@@ -134,6 +134,5 @@ def check_state(client):
 
     # Check if we have a game_client assigned to our client
     if 'game_client' not in client:
-        print('timed out!')
         client['socket'].shutdown(socket.SHUT_RDWR)
         client['socket'].close()

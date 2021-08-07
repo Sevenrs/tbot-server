@@ -323,6 +323,12 @@ def remove_slot(_args, room_id, client, reason=1):
             # Remove peer information as we most likely need to assign new information later
             if 'p2p_host' in client:
                 client.pop('p2p_host')
+
+            # Ensure the relay ID of this client is removed from the relay ID array of everyone else in the room
+            relay_id = client['relay_client']['id']
+            for k, s in room['slots'].items():
+                if relay_id in s['relay_ids']:
+                    s['relay_ids'].remove(relay_id)
             break
 
     # If the room has no more slots left, delete the room and send the new room list to the lobby
