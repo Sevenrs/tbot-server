@@ -542,122 +542,146 @@ PLANET_BOXES = {
 
     # [Lv13]Alderan-Entrance
     5: [
-        (BOX_GUN, 0.15)
+        (BOX_GUN, 0.15),
+        (BOX_SHIELD, 0.15)
     ],
 
     # [Lv16]Mine-Alderan
     6: [
-        (BOX_GUN, 0.15)
+        (BOX_GUN, 0.15),
+        (BOX_SHIELD, 0.15)
     ],
 
     # [Lv18]Mine-Alderan2
     7: [
-        (BOX_GUN, 0.15)
+        (BOX_GUN, 0.15),
+        (BOX_SHIELD, 0.15)
     ],
 
     # [Lv20]Mine-Blaster
     8: [
-        (BOX_GUN, 0.15)
+        (BOX_GUN, 0.15),
+        (BOX_SHIELD, 0.15)
     ],
 
     # [Lv23]Lava-Sea1
     9: [
-        (BOX_GUN, 0.15)
+        (BOX_GUN, 0.15),
+        (BOX_SHIELD, 0.15)
     ],
 
     # [Lv26]Lava-Sea2
     10: [
-        (BOX_GUN, 0.15)
+        (BOX_GUN, 0.15),
+        (BOX_SHIELD, 0.15)
     ],
 
     # [Lv28]Lava-Sea3
     11: [
-        (BOX_GUN, 0.15)
+        (BOX_GUN, 0.15),
+        (BOX_SHIELD, 0.15)
     ],
 
     # [Lv30]Acurin-Ruins1
     12: [
-        (BOX_GUN, 0.15)
+        (BOX_GUN, 0.15),
+        (BOX_SHIELD, 0.15)
     ],
 
     # [Lv33]Acurin-Ruins2
     13: [
-        (BOX_GUN, 0.15)
+        (BOX_GUN, 0.15),
+        (BOX_SHIELD, 0.15)
     ],
 
     # [Lv36]Planet-Acurin
     14: [
-        (BOX_GUN, 0.15)
+        (BOX_GUN, 0.15),
+        (BOX_SHIELD, 0.15)
     ],
 
     # [Lv38]Planet-Acurin2
     15: [
-        (BOX_GUN, 0.15)
+        (BOX_GUN, 0.15),
+        (BOX_SHIELD, 0.15)
     ],
 
     # [Lv40]Port-Acurin
     16: [
-        (BOX_GUN, 0.15)
+        (BOX_GUN, 0.15),
+        (BOX_SHIELD, 0.15)
     ],
 
     # [Lv43]Escape-Acurin
     17: [
-        (BOX_GUN, 0.15)
+        (BOX_GUN, 0.15),
+        (BOX_SHIELD, 0.15)
     ],
 
     # [Lv46]Planet-MECA
     18: [
-        (BOX_GUN, 0.15)
+        (BOX_GUN, 0.15),
+        (BOX_SHIELD, 0.15)
     ],
 
     # [Lv48]Planet-MECA2
     19: [
-        (BOX_GUN, 0.15)
+        (BOX_GUN, 0.15),
+        (BOX_SHIELD, 0.15)
     ],
 
     # [Lv50]Hidden-Archive
     20: [
-        (BOX_GUN, 0.15)
+        (BOX_GUN, 0.15),
+        (BOX_SHIELD, 0.15)
     ],
 
     # [Lv53]Secret-passage
     21: [
-        (BOX_GUN, 0.15)
+        (BOX_GUN, 0.15),
+        (BOX_SHIELD, 0.15)
     ],
 
     # [Lv56]Destroy-all
     22: [
-        (BOX_GUN, 0.15)
+        (BOX_GUN, 0.15),
+        (BOX_SHIELD, 0.15)
     ],
 
     # [Lv58]Destroy-all2
     23: [
-        (BOX_GUN, 0.15)
+        (BOX_GUN, 0.15),
+        (BOX_SHIELD, 0.15)
     ],
 
     # [Lv60]Escape-From-MECA
     24: [
-        (BOX_GUN, 0.15)
+        (BOX_GUN, 0.15),
+        (BOX_SHIELD, 0.15)
     ],
 
     # [Lv63]MeraMountin
     25: [
-        (BOX_GUN, 0.15)
+        (BOX_GUN, 0.15),
+        (BOX_SHIELD, 0.15)
     ],
 
     # [Lv66]MeraMountin2
     26: [
-        (BOX_GUN, 0.15)
+        (BOX_GUN, 0.15),
+        (BOX_SHIELD, 0.15)
     ],
 
     # [Lv68]MeraMountin3
     27: [
-        (BOX_GUN, 0.15)
+        (BOX_GUN, 0.15),
+        (BOX_SHIELD, 0.15)
     ],
 
     # [Lv70]MeraMountin4
     28: [
-        (BOX_GUN, 0.15)
+        (BOX_GUN, 0.15),
+        (BOX_SHIELD, 0.15)
     ],
 
     # [Lv08]The-Fallen(Elite)
@@ -667,22 +691,26 @@ PLANET_BOXES = {
 
     # [Lv18]Lava-Field(Elite)
     30: [
-        (BOX_GUN, 0.15)
+        (BOX_GUN, 0.15),
+        (BOX_SHIELD, 0.15)
     ],
 
     # [Lv28]The-Pirate(Elite)
     31: [
-        (BOX_GUN, 0.15)
+        (BOX_GUN, 0.15),
+        (BOX_SHIELD, 0.15)
     ],
 
     # [Lv38]Evil-Port(Elite)
     32: [
-        (BOX_GUN, 0.15)
+        (BOX_GUN, 0.15),
+        (BOX_SHIELD, 0.15)
     ],
 
     # [Lv48]Bloodway(Elite)
     33: [
-        (BOX_GUN, 0.15)
+        (BOX_GUN, 0.15),
+        (BOX_SHIELD, 0.15)
     ]
 }
 
@@ -743,6 +771,12 @@ PLANET_DROPS = {
             (3021103, 0.30), # HydraGun(+3)
             (3021202, 0.40), # smartGun(+2)
             (3021203, 0.10)  # smartGun(+3)
+        ],
+
+        BOX_SHIELD: [
+            (3051101, 0.33), # AegisTD(+1)
+            (3051104, 0.33), # AegisGUN(+1)
+            (3051107, 0.33)  # AegisTG(+1)
         ]
     },
 
@@ -753,6 +787,15 @@ PLANET_DROPS = {
             (3021202, 0.30), # smartGun(+2)
             (3021103, 0.15), # HydraGun(+3)
             (3021301, 0.15)  # FableShooter(+1)
+        ],
+
+        BOX_SHIELD: [
+            (3051101, 0.20), # AegisTD(+1)
+            (3051104, 0.20), # AegisGUN(+1)
+            (3051107, 0.20), # AegisTG(+1)
+            (3051102, 0.14), # AegisTD(+2)
+            (3051105, 0.13), # AegisGUN(+2)
+            (3051108, 0.13)  # AegisTG(+2)
         ]
     },
 
@@ -762,6 +805,18 @@ PLANET_DROPS = {
             (3021203, 0.60), # smartGun(+3)
             (3021301, 0.30), # FableShooter(+1)
             (3021202, 0.10)  # smartGun(+2)
+        ],
+
+        BOX_SHIELD: [
+            (3051101, 0.20), # AegisTD(+1)
+            (3051104, 0.20), # AegisGUN(+1)
+            (3051107, 0.20), # AegisTG(+1)
+            (3051102, 0.10), # AegisTD(+2)
+            (3051105, 0.10), # AegisGUN(+2)
+            (3051108, 0.10), # AegisTG(+2)
+            (3051103, 0.04), # AegisTD(+3)
+            (3051106, 0.03), # AegisGUN(+3)
+            (3051109, 0.03)  # AegisTG(+3)
         ]
     },
 
@@ -770,244 +825,562 @@ PLANET_DROPS = {
         BOX_GUN: [
             (3021301, 0.70), # FableShooter(+1)
             (3021203, 0.30)  # smartGun(+3)
+        ],
+
+        BOX_SHIELD: [
+            (3051101, 0.20), # AegisTD(+2)
+            (3051105, 0.20), # AegisGUN(+2)
+            (3051108, 0.20), # AegisTG(+2)
+            (3051101, 0.08), # AegisTD(+1)
+            (3051103, 0.06), # AegisTD(+3)
+            (3051104, 0.07), # AegisGUN(+1)
+            (3051106, 0.06), # AegisGUN(+3)
+            (3051107, 0.07), # AegisTG(+1)
+            (3051109, 0.06)  # AegisTG(+3)
         ]
     },
 
     # [Lv23]Lava-Sea1
     9: {
-        BOX_GUN: {
+        BOX_GUN: [
             (3021301, 0.40), # FableShooter(+1)
             (3021302, 0.30), # FableShooter(+2)
             (3021203, 0.15), # smartGun(+3)
             (3021401, 0.15)  # PaletteGun(+1)
-        }
+        ],
+
+        BOX_SHIELD: [
+            (3051103, 0.20), # AegisTD(+2)
+            (3051106, 0.20), # AegisGUN(+3)
+            (3051109, 0.20), # AegisTG(+3)
+            (3051102, 0.10), # AegisTD(+2)
+            (3051105, 0.10), # AegisGUN(+2)
+            (3051108, 0.10), # AegisTG(+2)
+            (3050101, 0.04), # HonorshieldTD(+1)
+            (3050104, 0.03), # HonorshieldGUN(+1)
+            (3050107, 0.03)  # HonorshieldTG(+1)
+        ]
     },
 
      # [Lv26]Lava-Sea2
     10: {
-        BOX_GUN: {
+        BOX_GUN: [
             (3021302, 0.50), # FableShooter(+2)
             (3021401, 0.30), # PaletteGun(+1)
             (3021301, 0.10), # FableShooter(+1)
             (3021303, 0.10)  # FableShooter(+3)
-        }
+        ],
+
+        BOX_SHIELD: [
+            (3051103, 0.20), # HonorshieldTD(+1)
+            (3051103, 0.20), # HonorshieldGUN(+1)
+            (3051103, 0.20), # HonorshieldTG(+1)
+            (3051103, 0.10), # AegisTD(+3)
+            (3051103, 0.10), # AegisGUN(+3)
+            (3051103, 0.10), # AegisTG(+3)
+            (3051103, 0.04), # HonorshieldTD(+2)
+            (3051103, 0.03), # HonorshieldGUN(+2)
+            (3051103, 0.03)  # HonorshieldTG(+2)
+        ]
     },
 
     # [Lv28]Lava-Sea3
     11: {
-        BOX_GUN: {
+        BOX_GUN: [
             (3021401, 0.50), # PaletteGun(+1)
             (3021302, 0.20), # FableShooter(+2)
             (3021303, 0.20), # FableShooter(+3)
             (3021402, 0.10)  # PaletteGun(+2)
-        }
+        ],
+
+        BOX_SHIELD: [
+            (3050104, 0.15), # HonorshieldGUN(+1)
+            (3050101, 0.15), # HonorshieldTG(+1)
+            (3050107, 0.15), # HonorshieldTD(+1)
+            (3050108, 0.10), # HonorshieldTG(+2)
+            (3050102, 0.10), # HonorshieldTD(+2)
+            (3050105, 0.10), # HonorshieldGUN(+2)
+            (3050106, 0.05), # HonorshieldGUN(+3)
+            (3051103, 0.04), # AegisTD(+3)
+            (3050103, 0.04), # HonorshieldTD(+3)
+            (3051109, 0.04), # AegisTG(+3)
+            (3051106, 0.04), # AegisGUN(+3)
+            (3050109, 0.04)  # HonorshieldTG(+3)
+        ]
     },
 
     # [Lv30]Acurin-Ruins1
     12: {
-        BOX_GUN: {
+        BOX_GUN: [
             (3021303, 0.40), # FableShooter(+3)
             (3021401, 0.30), # PaletteGun(+1)
             (3021402, 0.20), # PaletteGun(+2)
             (3021302, 0.10)  # FableShooter(+2)
-        }
+        ],
+
+        BOX_SHIELD: [
+            (3050102, 0.20), # HonorshieldTD(+2)
+            (3050105, 0.20), # HonorshieldGUN(+2)
+            (3050108, 0.20), # HonorshieldTG(+2)
+            (3050101, 0.08), # HonorshieldTD(+1)
+            (3050103, 0.06), # HonorshieldTD(+3)
+            (3050104, 0.07), # HonorshieldGUN(+1)
+            (3050106, 0.06), # HonorshieldGUN(+3)
+            (3050107, 0.07), # HonorshieldTG(+1)
+            (3050109, 0.06)  # HonorshieldTG(+3)
+        ]
     },
 
     # [Lv33]Acurin-Ruins2
     13: {
-        BOX_GUN: {
+        BOX_GUN: [
             (3021402, 0.40), # PaletteGun(+2)
             (3021303, 0.30), # FableShooter(+3)
             (3021401, 0.15), # PaletteGun(+1)
             (3021403, 0.15)  # PaletteGun(+3)
-        }
+        ],
+
+        BOX_SHIELD: [
+            (3050103, 0.20), # HonorshieldTD(+3)
+            (3050106, 0.20), # HonorshieldGUN(+3)
+            (3050109, 0.20), # HonorshieldTG(+3)
+            (3050102, 0.10), # HonorshieldTD(+2)
+            (3050105, 0.10), # HonorshieldGUN(+2)
+            (3050108, 0.10), # HonorshieldTG(+2)
+            (3050201, 0.04), # BucklerShldTD(+1)
+            (3050204, 0.03), # BucklerShldGUN(+1)
+            (3050207, 0.03)  # BucklerShldTG(+1)
+        ]
     },
 
     # [Lv36]Planet-Acurin
     14: {
-        BOX_GUN: {
+        BOX_GUN: [
             (3021403, 0.40), # PaletteGun(+3)
             (3021402, 0.30), # PaletteGun(+2)
             (3021303, 0.15), # FableShooter(+3)
             (3021501, 0.15)  # LightningGun(+1)
-        }
+        ],
+
+        BOX_SHIELD: [
+            (3050201, 0.20), # BucklerShldTD(+1)
+            (3050204, 0.20), # BucklerShldGUN(+1)
+            (3050207, 0.20), # BucklerShldTG(+1)
+            (3050103, 0.10), # HonorshieldTD(+3)
+            (3050106, 0.10), # HonorshieldGUN(+3)
+            (3050109, 0.10), # HonorshieldTG(+3)
+            (3050202, 0.04), # BucklerShldTD(+2)
+            (3050205, 0.03), # BucklerShldGUN(+2)
+            (3050208, 0.03)  # BucklerShldTG(+2)
+        ]
     },
 
     # [Lv38]Planet-Acurin2
     15: {
-        BOX_GUN: {
+        BOX_GUN: [
             (3021403, 0.60), # PaletteGun(+3)
             (3021501, 0.30), # LightningGun(+1)
             (3021402, 0.10)  # PaletteGun(+2)
-        }
+        ],
+
+        BOX_SHIELD: [
+            (3050204, 0.15), # BucklerShldGUN(+1)
+            (3050207, 0.15), # BucklerShldTG(+1)
+            (3050201, 0.15), # BucklerShldTD(+1)
+            (3050208, 0.10), # BucklerShldTG(+2)
+            (3050202, 0.10), # BucklerShldTD(+2)
+            (3050205, 0.10), # BucklerShldGUN(+2)
+            (3050206, 0.05), # BucklerShldGUN(+3)
+            (3050103, 0.04), # HonorshieldTD(+3)
+            (3050203, 0.04), # BucklerShldTD(+3)
+            (3050109, 0.04), # HonorshieldTG(+3)
+            (3050106, 0.04), # HonorshieldGUN(+3)
+            (3050209, 0.04)  # BucklerShldTG(+3)
+        ]
     },
 
     # [Lv40]Port-Acurin
     16: {
-        BOX_GUN: {
+        BOX_GUN: [
             (3021501, 0.60), # LightningGun(+1)
             (3021403, 0.40)  # PaletteGun(+3)
-        }
+        ],
+
+        BOX_SHIELD: [
+            (3050202, 0.20), # BucklerShldTD(+2)
+            (3050205, 0.20), # BucklerShldGUN(+2)
+            (3050208, 0.20), # BucklerShldTG(+2)
+            (3050201, 0.08), # BucklerShldTD(+1)
+            (3050203, 0.06), # BucklerShldTD(+3)
+            (3050204, 0.07), # BucklerShldGUN(+1)
+            (3050206, 0.06), # BucklerShldGUN(+3)
+            (3050207, 0.07), # BucklerShldTG(+1)
+            (3050209, 0.06)  # BucklerShldTG(+3)
+        ]
     },
 
     # [Lv43]Escape-Acurin
     17: {
-        BOX_GUN: {
+        BOX_GUN: [
             (3021501, 0.40), # LightningGun(+1)
             (3021502, 0.30), # LightningGun(+2)
             (3021403, 0.15), # PaletteGun(+3)
             (3021601, 0.15)  # WhiteBlazer(+1)
-        }
+        ],
+
+        BOX_SHIELD: [
+            (3050203, 0.20), # BucklerShldTD(+3)
+            (3050206, 0.20), # BucklerShldGUN(+3)
+            (3050209, 0.20), # BucklerShldTG(+3)
+            (3050202, 0.10), # BucklerShldTD(+2)
+            (3050205, 0.10), # BucklerShldGUN(+2)
+            (3050208, 0.10), # BucklerShldTG(+2)
+            (3050301, 0.04), # HeavyshieldTD(+1)
+            (3050304, 0.03), # HeavyshieldGUN(+1)
+            (3050307, 0.03)  # HeavyshieldTG(+1)
+        ]
     },
 
     # [Lv46]Planet-MECA
     18: {
-        BOX_GUN: {
+        BOX_GUN: [
             (3021502, 0.40), # LightningGun(+2)
             (3021601, 0.30), # WhiteBlazer(+1)
             (3021501, 0.15), # LightningGun(+1)
             (3021503, 0.15)  # LightningGun(+3)
-        }
+        ],
+
+        BOX_SHIELD: [
+            (3050304, 0.20),  # HeavyshieldTD(+1)
+            (3050301, 0.20),  # HeavyshieldGUN(+1)
+            (3050307, 0.20),  # HeavyshieldTG(+1)
+            (3050203, 0.10),  # BucklerShldTD(+3)
+            (3050206, 0.10),  # BucklerShldGUN(+3)
+            (3050209, 0.10),  # BucklerShldTG(+3)
+            (3050302, 0.04),  # HeavyshieldTD(+2)
+            (3050305, 0.03),  # HeavyshieldGUN(+2)
+            (3050308, 0.03)   # HeavyshieldTG(+2)
+        ]
     },
 
     # [Lv48]Planet-MECA2
     19: {
-        BOX_GUN: {
+        BOX_GUN: [
             (3021601, 0.40), # WhiteBlazer(+1)
             (3021502, 0.30), # LightningGun(+2)
             (3021503, 0.20), # LightningGun(+3)
             (3021602, 0.10)  # WhiteBlazer(+2)
-        }
+        ],
+
+        BOX_SHIELD: [
+            (3050304, 0.15), # HeavyshieldGUN(+1)
+            (3050307, 0.15), # HeavyshieldTG(+1)
+            (3050301, 0.15), # HeavyshieldTD(+1)
+            (3050308, 0.10), # HeavyshieldTG(+2)
+            (3050302, 0.10), # HeavyshieldTD(+2)
+            (3050305, 0.10), # HeavyshieldGUN(+2)
+            (3050306, 0.05), # HeavyshieldGUN(+3)
+            (3050203, 0.04), # BucklerShldTD(+3)
+            (3050209, 0.04), # HeavyshieldTD(+3)
+            (3050303, 0.04), # BucklerShldTG(+3)
+            (3050206, 0.04), # BucklerShldGUN(+3)
+            (3050309, 0.04)  # HeavyshieldTG(+3)
+        ]
     },
 
     # [Lv50]Hidden-Archive
     20: {
-        BOX_GUN: {
+        BOX_GUN: [
             (3021503, 0.40), # LightningGun(+3)
             (3021601, 0.30), # WhiteBlazer(+1)
             (3021602, 0.20), # WhiteBlazer(+2)
             (3021502, 0.10)  # LightningGun(+2)
-        }
+        ],
+
+        BOX_SHIELD: [
+            (3050302, 0.20), # HeavyshieldTD(+2)
+            (3050305, 0.20), # HeavyshieldGUN(+2)
+            (3050308, 0.20), # HeavyshieldTG(+2)
+            (3050301, 0.08), # HeavyshieldTD(+1)
+            (3050303, 0.06), # HeavyshieldTD(+3)
+            (3050304, 0.07), # HeavyshieldGUN(+1)
+            (3050306, 0.06), # HeavyshieldGUN(+3)
+            (3050307, 0.07), # HeavyshieldTG(+1)
+            (3050309, 0.06)  # HeavyshieldTG(+3)
+        ]
     },
 
     # [Lv53]Secret-passage
     21: {
-        BOX_GUN: {
+        BOX_GUN: [
             (3021602, 0.40), # WhiteBlazer(+2)
             (3021503, 0.30), # LightningGun(+3)
             (3021601, 0.15), # WhiteBlazer(+1)
             (3021603, 0.15)  # WhiteBlazer(+3)
-        }
+        ],
+
+        BOX_SHIELD: [
+            (3050303, 0.20), # HeavyshieldTD(+3)
+            (3050306, 0.20), # HeavyshieldGUN(+3)
+            (3050309, 0.20), # HeavyshieldTG(+3)
+            (3050302, 0.10), # HeavyshieldTD(+2)
+            (3050305, 0.10), # HeavyshieldGUN(+2)
+            (3050308, 0.10), # HeavyshieldTG(+2)
+            (3050401, 0.04), # TowershieldTD(+1)
+            (3050404, 0.03), # TowershieldGUN(+1)
+            (3050407, 0.03)  # TowershieldTG(+1)
+        ]
     },
 
     # [Lv56]Destroy-all
     22: {
-        BOX_GUN: {
+        BOX_GUN: [
             (3021603, 0.40), # WhiteBlazer(+3)
             (3021602, 0.30), # WhiteBlazer(+2)
             (3021503, 0.15), # LightningGun(+3)
             (3021701, 0.15)  # AuraBlazer(+1)
-        }
+        ],
+
+        BOX_SHIELD: [
+            (3050401, 0.20), # TowershieldTD(+1)
+            (3050404, 0.20), # TowershieldGUN(+1)
+            (3050407, 0.20), # TowershieldTG(+1)
+            (3050303, 0.10), # HeavyshieldTD(+3)
+            (3050306, 0.10), # HeavyshieldGUN(+3)
+            (3050309, 0.10), # HeavyshieldTG(+3)
+            (3050402, 0.04), # TowershieldTD(+2)
+            (3050405, 0.03), # TowershieldGUN(+2)
+            (3050408, 0.03)  # TowershieldTG(+2)
+        ]
     },
 
     # [Lv58]Destroy-all2
     23: {
-        BOX_GUN: {
+        BOX_GUN: [
             (3021603, 0.60), # WhiteBlazer(+3)
             (3021701, 0.30), # AuraBlazer(+1)
             (3021602, 0.10)  # WhiteBlazer(+2)
-        }
+        ],
+
+        BOX_SHIELD: [
+            (3050404, 0.15), # TowershieldGUN(+1)
+            (3050407, 0.15), # TowershieldTG(+1)
+            (3050401, 0.15), # TowershieldTD(+1)
+            (3050408, 0.10), # TowershieldTG(+2)
+            (3050402, 0.10), # TowershieldTD(+2)
+            (3050405, 0.10), # TowershieldGUN(+2)
+            (3050406, 0.05), # TowershieldGUN(+3)
+            (3050303, 0.04), # HeavyshieldTD(+3)
+            (3050403, 0.04), # TowershieldTD(+3)
+            (3050309, 0.04), # HeavyshieldTG(+3)
+            (3050306, 0.04), # HeavyshieldGUN(+3)
+            (3050409, 0.04)  # TowershieldTG(+3)
+        ]
     },
 
     # [Lv60]Escape-From-MECA
     24: {
-        BOX_GUN: {
+        BOX_GUN: [
             (3021701, 0.60), # AuraBlazer(+1)
             (3021603, 0.40)  # WhiteBlazer(+3)
-        }
+        ],
+
+        BOX_SHIELD: [
+            (3050402, 0.20), # TowershieldTD(+2)
+            (3050405, 0.20), # TowershieldGUN(+2)
+            (3050408, 0.20), # TowershieldTG(+2)
+            (3050401, 0.08), # TowershieldTD(+1)
+            (3050403, 0.06), # TowershieldTD(+3)
+            (3050404, 0.07), # TowershieldGUN(+1)
+            (3050406, 0.06), # TowershieldGUN(+3)
+            (3050407, 0.07), # TowershieldTG(+1)
+            (3050409, 0.06)  # TowershieldTG(+3)
+        ]
     },
 
     # [Lv63]MeraMountin
     25: {
-        BOX_GUN: {
+        BOX_GUN: [
             (3021701, 0.40), # AuraBlazer(+1)
             (3021702, 0.30), # AuraBlazer(+2)
             (3021603, 0.15), # WhiteBlazer(+3)
             (3021801, 0.15)  # HeavyLaunch(+1)
-        }
+        ],
+
+        BOX_SHIELD: [
+            (3050403, 0.20), # TowershieldTD(+3)
+            (3050406, 0.20), # TowershieldGUN(+3)
+            (3050409, 0.20), # TowershieldTG(+3)
+            (3050402, 0.10), # TowershieldTD(+2)
+            (3050405, 0.10), # TowershieldGUN(+2)
+            (3050408, 0.10), # TowershieldTG(+2)
+            (3050501, 0.04), # ScutumTD(+1)
+            (3050504, 0.03), # ScutumGUN(+1)
+            (3050507, 0.03)  # ScutumTG(+1)
+        ]
     },
 
     # [Lv66]MeraMountin2
     26: {
-        BOX_GUN: {
+        BOX_GUN: [
             (3021702, 0.40), # AuraBlazer(+2)
             (3021801, 0.30), # HeavyLaunch(+1)
             (3021701, 0.15), # AuraBlazer(+1)
             (3021703, 0.15)  # AuraBlazer(+3)
-        }
+        ],
+
+        BOX_SHIELD: [
+            (3050501, 0.20), # ScutumTD(+1)
+            (3050504, 0.20), # ScutumGUN(+1)
+            (3050507, 0.20), # ScutumTG(+1)
+            (3050403, 0.10), # TowershieldTD(+3)
+            (3050406, 0.10), # TowershieldGUN(+3)
+            (3050409, 0.10), # TowershieldTG(+3)
+            (3050502, 0.04), # ScutumTD(+2)
+            (3050505, 0.03), # ScutumGUN(+2)
+            (3050508, 0.03)  # ScutumTG(+2)
+        ]
     },
 
     # [Lv68]MeraMountin3
     27: {
-        BOX_GUN: {
+        BOX_GUN: [
             (3021801, 0.60), # HeavyLaunch(+1)
             (3021702, 0.40)  # AuraBlazer(+2)
-        }
+        ],
+
+        BOX_SHIELD: [
+            (3050501, 0.20), # ScutumTD(+1)
+            (3050501, 0.20), # ScutumGUN(+1)
+            (3050501, 0.20), # ScutumTG(+1)
+            (3050501, 0.10), # ScutumTD(+2)
+            (3050501, 0.10), # ScutumGUN(+2)
+            (3050501, 0.10), # ScutumTG(+2)
+            (3050501, 0.04), # TowershieldTD(+3)
+            (3050501, 0.03), # TowershieldGUN(+3)
+            (3050501, 0.03)  # TowershieldTG(+3)
+        ]
     },
 
     # [Lv70]MeraMountin4
     28: {
-        BOX_GUN: {
+        BOX_GUN: [
             (3021801, 0.60), # HeavyLaunch(+1)
             (3021702, 0.40)  # AuraBlazer(+2)
-        }
+        ],
+
+        BOX_SHIELD: [
+            (3050502, 0.20),  # ScutumTD(+2)
+            (3050505, 0.20),  # ScutumGUN(+2)
+            (3050508, 0.20),  # ScutumTG(+2)
+            (3050501, 0.14),  # ScutumTD(+1)
+            (3050504, 0.13),  # ScutumGUN(+1)
+            (3050507, 0.13)   # ScutumTG(+1)
+        ]
     },
 
     # [Lv08]The-Fallen(Elite)
     29: {
-        BOX_GUN: {
+        BOX_GUN: [
             (3021202, 0.40), # smartGun(+2)
             (3021103, 0.30), # smartGun(+2)
             (3021102, 0.20), # smartGun(+2)
             (3021201, 0.10)  # smartGun(+2)
-        }
+        ]
     },
 
     # [Lv18]Lava-Field(Elite)
     30: {
-        BOX_GUN: {
+        BOX_GUN: [
             (3021202, 0.60),  # smartGun(+2)
             (3021301, 0.30),  # FableShooter(+1)
             (3021203, 0.10)   # smartGun(+3)
-        }
+        ],
+
+        BOX_SHIELD: [
+            (3051103, 0.20),  # AegisTD(+3)
+            (3051106, 0.20),  # AegisGUN(+3)
+            (3051109, 0.20),  # AegisTG(+3)
+            (3051102, 0.10),  # AegisTD(+2)
+            (3051105, 0.10),  # AegisGUN(+2)
+            (3051108, 0.10),  # AegisTG(+2)
+            (3051101, 0.04),  # AegisTD(+1)
+            (3051104, 0.03),  # AegisGUN(+1)
+            (3051107, 0.03)   # AegisTG(+1)
+        ]
     },
 
     # [Lv28]The-Pirate(Elite)
     31: {
-        BOX_GUN: {
+        BOX_GUN: [
             (3021402, 0.40),  # PaletteGun(+2)
             (3021303, 0.30),  # FableShooter(+3)
             (3021302, 0.20),  # FableShooter(+2)
             (3021401, 0.10)   # PaletteGun(+1)
-        }
+        ],
+
+        BOX_SHIELD: [
+            (3051103, 0.10),  # AegisTD(+3)
+            (3050106, 0.10),  # HonorshieldGUN(+3)
+            (3050109, 0.10),  # HonorshieldTG(+3)
+            (3050103, 0.10),  # HonorshieldTD(+3)
+            (3051109, 0.10),  # AegisTG(+3)
+            (3051106, 0.10),  # AegisGUN(+3)
+            (3050102, 0.09),  # HonorshieldTD(+2)
+            (3050105, 0.08),  # HonorshieldGUN(+2)
+            (3050108, 0.08),  # HonorshieldTG(+2)
+            (3050101, 0.05),  # HonorshieldTD(+1)
+            (3050107, 0.05),  # HonorshieldTG(+1)
+            (3050104, 0.05)   # HonorshieldGUN(+1)
+        ]
     },
 
     # [Lv38]Evil-Port(Elite)
     32: {
-        BOX_GUN: {
+        BOX_GUN: [
             (3021402, 0.60),  # PaletteGun(+2)
             (3021501, 0.30),  # LightningGun(+1)
             (3021403, 0.10)   # PaletteGun(+3)
-        }
+        ],
+
+        BOX_SHIELD: [
+            (3050103, 0.10),  # HonorshieldTD(+3)
+            (3050206, 0.10),  # BucklerShldGUN(+3)
+            (3050209, 0.10),  # BucklerShldTG(+3)
+            (3050203, 0.10),  # BucklerShldTD(+3)
+            (3050109, 0.10),  # HonorshieldTG(+3)
+            (3050106, 0.10),  # HonorshieldGUN(+3)
+            (3050202, 0.09),  # BucklerShldTD(+2)
+            (3050205, 0.08),  # BucklerShldGUN(+2)
+            (3050208, 0.08),  # BucklerShldTG(+2)
+            (3050201, 0.05),  # BucklerShldTD(+1)
+            (3050207, 0.05),  # BucklerShldTG(+1)
+            (3050204, 0.05)   # BucklerShldGUN(+1)
+        ]
     },
 
     # [Lv48]Bloodway(Elite)
     33: {
-        BOX_GUN: {
+        BOX_GUN: [
             (3021602, 0.40),  # WhiteBlazer(+2)
             (3021503, 0.30),  # LightningGun(+3)
             (3021502, 0.20),  # LightningGun(+2)
             (3021601, 0.10)   # WhiteBlazer(+1)
-        }
+        ],
+
+        BOX_SHIELD: [
+            (3050203, 0.10),  # BucklerShldTD(+3)
+            (3050306, 0.10),  # HeavyshieldGUN(+3)
+            (3050309, 0.10),  # HeavyshieldTG(+3)
+            (3050303, 0.10),  # HeavyshieldTD(+3)
+            (3050209, 0.10),  # BucklerShldTG(+3)
+            (3050206, 0.10),  # BucklerShldGUN(+3)
+            (3050302, 0.09),  # HeavyshieldTD(+2)
+            (3050305, 0.08),  # HeavyshieldGUN(+2)
+            (3050308, 0.08),  # HeavyshieldTG(+2)
+            (3050301, 0.05),  # HeavyshieldTD(+1)
+            (3050307, 0.05),  # HeavyshieldTG(+1)
+            (3050304, 0.05)   # HeavyshieldGUN(+1)
+        ]
     }
 }
