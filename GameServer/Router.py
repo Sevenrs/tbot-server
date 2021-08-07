@@ -97,7 +97,7 @@ def route(socket, packet, server, client, connection_handler):
         '792b': Room.exit_shop,
 
         # Controller: Game
-        '6f2b': Game.player_death,
+        '6f2b': Game.player_death_rpc,
         '3a2b': Game.monster_kill,
         '3c2b': Game.use_item,
         '3e2b': Game.load_finish,
