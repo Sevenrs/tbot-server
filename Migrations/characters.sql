@@ -19,35 +19,37 @@ USE `bout`;
 
 -- Dumping structure for table bout.characters
 CREATE TABLE IF NOT EXISTS `characters` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) NOT NULL DEFAULT 0,
-  `name` varchar(12) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `position` int(11) NOT NULL DEFAULT 0,
-  `type` int(11) NOT NULL DEFAULT 1,
-  `experience` int(11) NOT NULL DEFAULT 0,
-  `level` int(11) NOT NULL DEFAULT 1,
-  `rank_exp` int(11) NOT NULL DEFAULT 0,
-  `rank` int(11) NOT NULL DEFAULT 0,
-  `health` int(11) NOT NULL DEFAULT 1000,
-  `luck` int(11) NOT NULL DEFAULT 0,
-  `speed` int(11) NOT NULL DEFAULT 1000,
-  `att_min` int(11) NOT NULL DEFAULT 50,
-  `att_max` int(11) NOT NULL DEFAULT 55,
-  `att_trans_min` int(11) NOT NULL DEFAULT 110,
-  `att_trans_max` int(11) NOT NULL DEFAULT 125,
-  `att_critical` int(11) NOT NULL DEFAULT 0,
-  `att_evade` int(11) NOT NULL DEFAULT 0,
-  `att_ranged` int(11) NOT NULL DEFAULT 1000,
-  `trans_special` int(11) NOT NULL DEFAULT 0,
-  `trans_guage` int(11) NOT NULL DEFAULT 1000,
-  `trans_def` int(11) NOT NULL DEFAULT 0,
-  `trans_att` int(11) NOT NULL DEFAULT 0,
-  `trans_speed` int(11) NOT NULL DEFAULT 0,
-  `currency_botstract` int(11) NOT NULL DEFAULT 0,
-  `currency_gigas` int(11) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+	`user_id` INT(11) NOT NULL DEFAULT '0',
+	`name` VARCHAR(12) NOT NULL COLLATE 'utf8mb4_unicode_ci',
+	`position` INT(11) NOT NULL DEFAULT '0',
+	`type` INT(11) NOT NULL DEFAULT '1',
+	`experience` INT(11) NOT NULL DEFAULT '0',
+	`level` INT(11) NOT NULL DEFAULT '1',
+	`rank_exp` INT(11) NOT NULL DEFAULT '0',
+	`rank` INT(11) NOT NULL DEFAULT '0',
+	`health` INT(11) NOT NULL DEFAULT '7840',
+	`luck` INT(11) NOT NULL DEFAULT '0',
+	`speed` INT(11) NOT NULL DEFAULT '1000',
+	`att_min` INT(11) NOT NULL DEFAULT '448',
+	`att_max` INT(11) NOT NULL DEFAULT '627',
+	`att_trans_min` INT(11) NOT NULL DEFAULT '896',
+	`att_trans_max` INT(11) NOT NULL DEFAULT '1254',
+	`att_critical` INT(11) NOT NULL DEFAULT '0',
+	`att_evade` INT(11) NOT NULL DEFAULT '0',
+	`att_ranged` INT(11) NOT NULL DEFAULT '1000',
+	`trans_special` INT(11) NOT NULL DEFAULT '0',
+	`trans_guage` INT(11) NOT NULL DEFAULT '1000',
+	`trans_def` INT(11) NOT NULL DEFAULT '0',
+	`trans_att` INT(11) NOT NULL DEFAULT '1000',
+	`trans_speed` INT(11) NOT NULL DEFAULT '0',
+	`currency_botstract` INT(11) NOT NULL DEFAULT '0',
+	`currency_gigas` INT(11) NOT NULL DEFAULT '0',
+	PRIMARY KEY (`id`) USING BTREE,
+	UNIQUE INDEX `name` (`name`) USING BTREE
+)
+COLLATE='utf8mb4_unicode_ci' ENGINE=InnoDB;
+
 
 -- Dumping data for table bout.characters: ~0 rows (approximately)
 /*!40000 ALTER TABLE `characters` DISABLE KEYS */;
