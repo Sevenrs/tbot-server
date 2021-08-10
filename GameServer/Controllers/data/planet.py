@@ -518,31 +518,36 @@ PLANET_BOXES = {
     #[Lv01]Training Camp
     0: [
         (BOX_GUN, 0.50),
-        (BOX_EF, 0.50)
+        (BOX_EF, 0.50),
+        (BOX_MINI_BOT, 0.50)
     ],
 
     # [Lv03]Base Camp
     1: [
         (BOX_GUN, 0.15),
-        (BOX_EF, 0.15)
+        (BOX_EF, 0.15),
+        (BOX_MINI_BOT, 0.50)
     ],
 
     # [Lv06]Camp-Spike
     2: [
         (BOX_GUN, 0.15),
-        (BOX_EF, 0.15)
+        (BOX_EF, 0.15),
+        (BOX_MINI_BOT, 0.15)
     ],
 
     # [Lv08]Camp-Spike2
     3: [
         (BOX_GUN, 0.15),
-        (BOX_EF, 0.15)
+        (BOX_EF, 0.15),
+        (BOX_MINI_BOT, 0.15)
     ],
 
     # [Lv10]Planet-Alderan
     4: [
         (BOX_GUN, 0.15),
-        (BOX_EF, 0.15)
+        (BOX_EF, 0.15),
+        (BOX_MINI_BOT, 0.15)
     ],
 
     # [Lv13]Alderan-Entrance
@@ -550,7 +555,8 @@ PLANET_BOXES = {
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
         (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15)
+        (BOX_SHOULDER, 0.15),
+        (BOX_MINI_BOT, 0.15)
     ],
 
     # [Lv16]Mine-Alderan
@@ -558,7 +564,8 @@ PLANET_BOXES = {
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
         (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15)
+        (BOX_SHOULDER, 0.15),
+        (BOX_MINI_BOT, 0.15)
     ],
 
     # [Lv18]Mine-Alderan2
@@ -566,7 +573,8 @@ PLANET_BOXES = {
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
         (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15)
+        (BOX_SHOULDER, 0.15),
+        (BOX_MINI_BOT, 0.15)
     ],
 
     # [Lv20]Mine-Blaster
@@ -574,7 +582,8 @@ PLANET_BOXES = {
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
         (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15)
+        (BOX_SHOULDER, 0.15),
+        (BOX_MINI_BOT, 0.15)
     ],
 
     # [Lv23]Lava-Sea1
@@ -582,7 +591,8 @@ PLANET_BOXES = {
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
         (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15)
+        (BOX_SHOULDER, 0.15),
+        (BOX_MINI_BOT, 0.15)
     ],
 
     # [Lv26]Lava-Sea2
@@ -590,7 +600,8 @@ PLANET_BOXES = {
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
         (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15)
+        (BOX_SHOULDER, 0.15),
+        (BOX_MINI_BOT, 0.15)
     ],
 
     # [Lv28]Lava-Sea3
@@ -598,7 +609,8 @@ PLANET_BOXES = {
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
         (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15)
+        (BOX_SHOULDER, 0.15),
+        (BOX_MINI_BOT, 0.15)
     ],
 
     # [Lv30]Acurin-Ruins1
@@ -606,7 +618,8 @@ PLANET_BOXES = {
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
         (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15)
+        (BOX_SHOULDER, 0.15),
+        (BOX_MINI_BOT, 0.15)
     ],
 
     # [Lv33]Acurin-Ruins2
@@ -614,7 +627,8 @@ PLANET_BOXES = {
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
         (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15)
+        (BOX_SHOULDER, 0.15),
+        (BOX_MINI_BOT, 0.15)
     ],
 
     # [Lv36]Planet-Acurin
@@ -622,7 +636,8 @@ PLANET_BOXES = {
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
         (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15)
+        (BOX_SHOULDER, 0.15),
+        (BOX_MINI_BOT, 0.15)
     ],
 
     # [Lv38]Planet-Acurin2
@@ -630,7 +645,8 @@ PLANET_BOXES = {
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
         (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15)
+        (BOX_SHOULDER, 0.15),
+        (BOX_MINI_BOT, 0.15)
     ],
 
     # [Lv40]Port-Acurin
@@ -638,7 +654,8 @@ PLANET_BOXES = {
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
         (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15)
+        (BOX_SHOULDER, 0.15),
+        (BOX_MINI_BOT, 0.15)
     ],
 
     # [Lv43]Escape-Acurin
@@ -646,7 +663,8 @@ PLANET_BOXES = {
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
         (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15)
+        (BOX_SHOULDER, 0.15),
+        (BOX_MINI_BOT, 0.15)
     ],
 
     # [Lv46]Planet-MECA
@@ -654,7 +672,8 @@ PLANET_BOXES = {
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
         (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15)
+        (BOX_SHOULDER, 0.15),
+        (BOX_MINI_BOT, 0.15)
     ],
 
     # [Lv48]Planet-MECA2
@@ -662,7 +681,8 @@ PLANET_BOXES = {
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
         (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15)
+        (BOX_SHOULDER, 0.15),
+        (BOX_MINI_BOT, 0.15)
     ],
 
     # [Lv50]Hidden-Archive
@@ -670,7 +690,8 @@ PLANET_BOXES = {
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
         (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15)
+        (BOX_SHOULDER, 0.15),
+        (BOX_MINI_BOT, 0.15)
     ],
 
     # [Lv53]Secret-passage
@@ -678,7 +699,8 @@ PLANET_BOXES = {
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
         (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15)
+        (BOX_SHOULDER, 0.15),
+        (BOX_MINI_BOT, 0.15)
     ],
 
     # [Lv56]Destroy-all
@@ -686,7 +708,8 @@ PLANET_BOXES = {
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
         (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15)
+        (BOX_SHOULDER, 0.15),
+        (BOX_MINI_BOT, 0.15)
     ],
 
     # [Lv58]Destroy-all2
@@ -694,7 +717,8 @@ PLANET_BOXES = {
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
         (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15)
+        (BOX_SHOULDER, 0.15),
+        (BOX_MINI_BOT, 0.15)
     ],
 
     # [Lv60]Escape-From-MECA
@@ -702,7 +726,8 @@ PLANET_BOXES = {
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
         (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15)
+        (BOX_SHOULDER, 0.15),
+        (BOX_MINI_BOT, 0.15)
     ],
 
     # [Lv63]MeraMountin
@@ -710,7 +735,8 @@ PLANET_BOXES = {
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
         (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15)
+        (BOX_SHOULDER, 0.15),
+        (BOX_MINI_BOT, 0.15)
     ],
 
     # [Lv66]MeraMountin2
@@ -718,7 +744,8 @@ PLANET_BOXES = {
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
         (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15)
+        (BOX_SHOULDER, 0.15),
+        (BOX_MINI_BOT, 0.15)
     ],
 
     # [Lv68]MeraMountin3
@@ -726,7 +753,8 @@ PLANET_BOXES = {
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
         (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15)
+        (BOX_SHOULDER, 0.15),
+        (BOX_MINI_BOT, 0.15)
     ],
 
     # [Lv70]MeraMountin4
@@ -734,13 +762,15 @@ PLANET_BOXES = {
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
         (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15)
+        (BOX_SHOULDER, 0.15),
+        (BOX_MINI_BOT, 0.15)
     ],
 
     # [Lv08]The-Fallen(Elite)
     29: [
         (BOX_GUN, 0.15),
-        (BOX_EF, 0.15)
+        (BOX_EF, 0.15),
+        (BOX_MINI_BOT, 0.15)
     ],
 
     # [Lv18]Lava-Field(Elite)
@@ -748,7 +778,8 @@ PLANET_BOXES = {
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
         (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15)
+        (BOX_SHOULDER, 0.15),
+        (BOX_MINI_BOT, 0.15)
     ],
 
     # [Lv28]The-Pirate(Elite)
@@ -756,7 +787,8 @@ PLANET_BOXES = {
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
         (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15)
+        (BOX_SHOULDER, 0.15),
+        (BOX_MINI_BOT, 0.15)
     ],
 
     # [Lv38]Evil-Port(Elite)
@@ -764,7 +796,8 @@ PLANET_BOXES = {
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
         (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15)
+        (BOX_SHOULDER, 0.15),
+        (BOX_MINI_BOT, 0.15)
     ],
 
     # [Lv48]Bloodway(Elite)
@@ -772,7 +805,8 @@ PLANET_BOXES = {
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
         (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15)
+        (BOX_SHOULDER, 0.15),
+        (BOX_MINI_BOT, 0.15)
     ]
 }
 
@@ -790,6 +824,15 @@ PLANET_DROPS = {
             (3031101, 0.33), # S-TornadoCRT(+1)
             (3031102, 0.33), # S-TornadoMIS(+1)
             (3031103, 0.33)  # S-TornadoBST(+1)
+        ],
+
+        BOX_MINI_BOT: [
+            (3011101, 0.20), # BipadCRT(+1)
+            (3011102, 0.20), # BipadMIS(+1)
+            (3011103, 0.20), # BipadBST(+1)
+            (3011104, 0.14), # BipadCRT(+2)
+            (3011105, 0.13), # BipadMIS(+2)
+            (3011106, 0.13)  # BipadBST(+2)
         ]
     },
 
@@ -805,6 +848,18 @@ PLANET_DROPS = {
             (3031101, 0.33), # S-TornadoCRT(+1)
             (3031102, 0.33), # S-TornadoMIS(+1)
             (3031103, 0.33)  # S-TornadoBST(+1)
+        ],
+
+        BOX_MINI_BOT: [
+            (3011101, 0.15), # BipadCRT(+1)
+            (3011102, 0.15), # BipadMIS(+1)
+            (3011103, 0.15), # BipadBST(+1)
+            (3011104, 0.15), # BipadCRT(+2)
+            (3011105, 0.15), # BipadMIS(+2)
+            (3011106, 0.15), # BipadBST(+2)
+            (3011107, 0.04), # BipadCRT(+3)
+            (3011108, 0.03), # BipadMIS(+3)
+            (3011109, 0.03)  # BipadBST(+3)
         ]
     },
 
@@ -827,6 +882,21 @@ PLANET_DROPS = {
             (3031107, 0.04), # S-TornadoCRT(+3)
             (3031108, 0.03), # S-TornadoMIS(+3)
             (3031109, 0.03)  # S-TornadoBST(+3)
+        ],
+
+        BOX_MINI_BOT: [
+            (3011107, 0.10),    # BipadCRT(+3)
+            (3011104, 0.10),    # BipadCRT(+2)
+            (3011105, 0.10),    # BipadMIS(+2)
+            (3011106, 0.10),    # BipadBST(+2)
+            (3011109, 0.10),    # BipadBST(+3)
+            (3011108, 0.10),    # BipadMIS(+3)
+            (3011202, 0.075),   # BisliderMIS(+1)
+            (3011201, 0.065),   # BisliderCRT(+1)
+            (3011101, 0.065),   # BipadCRT(+1)
+            (3011103, 0.065),   # BipadBST(+1)
+            (3011102, 0.065),   # BipadMIS(+1)
+            (3011203, 0.065)    # BisliderBST(+1)
         ]
     },
 
@@ -849,6 +919,18 @@ PLANET_DROPS = {
             (3031107, 0.065), # S-TornadoCRT(+3)
             (3031108, 0.065), # S-TornadoMIS(+3)
             (3031109, 0.065)  # S-TornadoBST(+3)
+        ],
+
+        BOX_MINI_BOT: [
+            (3011107, 0.20), # BipadCRT(+3)
+            (3011108, 0.20), # BipadMIS(+3)
+            (3011109, 0.20), # BipadBST(+3)
+            (3011104, 0.075), # BipadCRT(+2)
+            (3011105, 0.065), # BipadMIS(+2)
+            (3011106, 0.065), # BipadBST(+2)
+            (3011201, 0.065), # BisliderCRT(+1)
+            (3011202, 0.065), # BisliderMIS(+1)
+            (3011203, 0.065)  # BisliderBST(+1)
         ]
     },
 
@@ -874,7 +956,22 @@ PLANET_DROPS = {
              (3031103, 0.065), # S-TornadoBST(+1)
              (3031102, 0.065), # S-TornadoMIS(+1)
              (3031203, 0.065)  # BlueCloudBST(+1)
-         ]
+         ],
+
+        BOX_MINI_BOT: [
+            (3011201, 0.125), # BisliderCRT(+1)
+            (3011203, 0.125), # BisliderBST(+1)
+            (3011202, 0.125), # BisliderMIS(+1)
+            (3011107, 0.10),  # BipadCRT(+3)
+            (3011108, 0.10),  # BipadMIS(+3)
+            (3011109, 0.10),  # BipadBST(+3)
+            (3011205, 0.0625),# BisliderMIS(+2)
+            (3011204, 0.0625),# BisliderCRT(+2)
+            (3011104, 0.05),  # BipadCRT(+2)
+            (3011106, 0.05),  # BipadBST(+2)
+            (3011105, 0.05),  # BipadMIS(+2)
+            (3011206, 0.05)   # BisliderBST(+2)
+        ]
     },
 
     # [Lv13]Alderan-Entrance
@@ -908,6 +1005,18 @@ PLANET_DROPS = {
             (3060101, 0.33), # ShoulderGrdTD(+1)
             (3060104, 0.33), # ShoulderGrdGUN(+1)
             (3060107, 0.33)  # ShoulderGrdTG(+1)
+        ],
+
+        BOX_MINI_BOT: [
+            (3011201, 0.15), # BisliderCRT(+1)
+            (3011202, 0.15), # BisliderMIS(+1)
+            (3011203, 0.15), # BisliderBST(+1)
+            (3011204, 0.15), # BisliderCRT(+2)
+            (3011205, 0.15), # BisliderMIS(+2)
+            (3011206, 0.15), # BisliderBST(+2)
+            (3011207, 0.04), # BisliderCRT(+3)
+            (3011208, 0.03), # BisliderMIS(+3)
+            (3011209, 0.03)  # BisliderBST(+3)
         ]
     },
 
@@ -951,6 +1060,21 @@ PLANET_DROPS = {
             (3060102, 0.14), # ShoulderGrdTD(+2)
             (3060105, 0.13), # ShoulderGrdGUN(+2)
             (3060108, 0.13)  # ShoulderGrdTG(+2)
+        ],
+
+        BOX_MINI_BOT: [
+            (3011207, 0.10),    # BisliderCRT(+3)
+            (3011204, 0.10),    # BisliderCRT(+2)
+            (3011205, 0.10),    # BisliderMIS(+2)
+            (3011206, 0.10),    # BisliderBST(+2)
+            (3011209, 0.10),    # BisliderBST(+3)
+            (3011208, 0.10),    # BisliderMIS(+3)
+            (3011302, 0.075),   # TrilbiteMIS(+1)
+            (3011301, 0.065),   # TrilbiteCRT(+1)
+            (3011201, 0.065),   # BisliderCRT(+1)
+            (3011203, 0.065),   # BisliderBST(+1)
+            (3011202, 0.065),   # BisliderMIS(+1)
+            (3011303, 0.065)    # TrilbiteBST(+1)
         ]
     },
 
@@ -996,6 +1120,18 @@ PLANET_DROPS = {
             (3060103, 0.04), # ShoulderGrdTD(+3)
             (3060106, 0.03), # ShoulderGrdGUN(+3)
             (3060109, 0.03)  # ShoulderGrdTG(+3)
+        ],
+
+        BOX_MINI_BOT: [
+            (3011207, 0.20),    # BisliderCRT(+3)
+            (3011208, 0.20),    # BisliderMIS(+3)
+            (3011209, 0.20),    # BisliderBST(+3)
+            (3011204, 0.075),   # BisliderCRT(+2)
+            (3011205, 0.065),   # BisliderMIS(+2)
+            (3011206, 0.065),   # BisliderBST(+2)
+            (3011301, 0.065),   # TrilbiteCRT(+1)
+            (3011302, 0.065),   # TrilbiteMIS(+1)
+            (3011303, 0.065)    # TrilbiteBST(+1)
         ]
     },
 
@@ -1043,6 +1179,21 @@ PLANET_DROPS = {
             (3060106, 0.06), # ShoulderGrdGUN(+3)
             (3060107, 0.07), # ShoulderGrdTG(+1)
             (3060109, 0.06)  # ShoulderGrdTG(+3)
+        ],
+
+        BOX_MINI_BOT: [
+            (3011301, 0.125), # TrilbiteCRT(+1)
+            (3011303, 0.125), # TrilbiteBST(+1)
+            (3011302, 0.125), # TrilbiteMIS(+1)
+            (3011207, 0.10),  # BisliderCRT(+3)
+            (3011208, 0.10),  # BisliderMIS(+3)
+            (3011209, 0.10),  # BisliderBST(+3)
+            (3011305, 0.0625),# TrilbiteMIS(+2)
+            (3011304, 0.0625),# TrilbiteCRT(+2)
+            (3011204, 0.05),  # BisliderCRT(+2)
+            (3011206, 0.05),  # BisliderBST(+2)
+            (3011205, 0.05),  # BisliderMIS(+2)
+            (3011306, 0.05)   # TrilbiteBST(+2)
         ]
     },
 
@@ -1089,6 +1240,18 @@ PLANET_DROPS = {
             (3060201, 0.04), # HeavyShldrTD(+1)
             (3060204, 0.03), # HeavyShldrGUN(+1)
             (3060207, 0.03)  # HeavyShldrTG(+1)
+        ],
+
+        BOX_MINI_BOT: [
+            (3011301, 0.15), # TrilbiteCRT(+1)
+            (3011302, 0.15), # TrilbiteMIS(+1)
+            (3011303, 0.15), # TrilbiteBST(+1)
+            (3011304, 0.15), # TrilbiteCRT(+2)
+            (3011305, 0.15), # TrilbiteMIS(+2)
+            (3011306, 0.15), # TrilbiteBST(+2)
+            (3011307, 0.04), # TrilbiteCRT(+3)
+            (3011308, 0.03), # TrilbiteMIS(+3)
+            (3011309, 0.03)  # TrilbiteBST(+3)
         ]
     },
 
@@ -1138,6 +1301,21 @@ PLANET_DROPS = {
             (3060202, 0.04), # HeavyShldrTD(+2)
             (3060205, 0.03), # HeavyShldrGUN(+2)
             (3060208, 0.03)  # HeavyShldrTG(+2)
+        ],
+
+        BOX_MINI_BOT: [
+            (3011307, 0.10),    # TrilbiteCRT(+3)
+            (3011304, 0.10),    # TrilbiteCRT(+2)
+            (3011305, 0.10),    # TrilbiteMIS(+2)
+            (3011306, 0.10),    # TrilbiteBST(+2)
+            (3011309, 0.10),    # TrilbiteBST(+3)
+            (3011308, 0.10),    # TrilbiteMIS(+3)
+            (3011402, 0.075),   # MinisatMIS(+1)
+            (3011401, 0.065),   # MinisatCRT(+1)
+            (3011301, 0.065),   # TrilbiteCRT(+1)
+            (3011303, 0.065),   # TrilbiteBST(+1)
+            (3011302, 0.065),   # TrilbiteMIS(+1)
+            (3011403, 0.065)    # MinisatBST(+1)
         ]
     },
 
@@ -1190,6 +1368,18 @@ PLANET_DROPS = {
             (3060109, 0.04), # ShoulderGrdTG(+3)
             (3060106, 0.04), # ShoulderGrdGUN(+3)
             (3060209, 0.04)  # HeavyShldrTG(+3)
+        ],
+
+        BOX_MINI_BOT: [
+            (3011307, 0.20),    # TrilbiteCRT(+3)
+            (3011308, 0.20),    # TrilbiteMIS(+3)
+            (3011309, 0.20),    # TrilbiteBST(+3)
+            (3011304, 0.075),   # TrilbiteCRT(+2)
+            (3011305, 0.065),   # TrilbiteMIS(+2)
+            (3011306, 0.065),   # TrilbiteBST(+2)
+            (3011401, 0.065),   # MinisatCRT(+1)
+            (3011402, 0.065),   # MinisatMIS(+1)
+            (3011403, 0.065)    # MinisatBST(+1)
         ]
     },
 
@@ -1239,6 +1429,21 @@ PLANET_DROPS = {
             (3060206, 0.06), # HeavyShldrGUN(+3)
             (3060207, 0.07), # HeavyShldrTG(+1)
             (3060209, 0.06)  # HeavyShldrTG(+3)
+        ],
+
+        BOX_MINI_BOT: [
+            (3011401, 0.125), # MinisatCRT(+1)
+            (3011403, 0.125), # MinisatBST(+1)
+            (3011402, 0.125), # MinisatMIS(+1)
+            (3011307, 0.10),  # TrilbiteCRT(+3)
+            (3011308, 0.10),  # TrilbiteMIS(+3)
+            (3011309, 0.10),  # TrilbiteBST(+3)
+            (3011405, 0.0625),# MinisatMIS(+2)
+            (3011404, 0.0625),# MinisatCRT(+2)
+            (3011304, 0.05),  # TrilbiteCRT(+2)
+            (3011306, 0.05),  # TrilbiteBST(+2)
+            (3011305, 0.05),  # TrilbiteMIS(+2)
+            (3011406, 0.05)   # MinisatBST(+2)
         ]
     },
 
@@ -1286,6 +1491,18 @@ PLANET_DROPS = {
             (3060304, 0.03), # SoftShldrGUN(+1)
             (3060307, 0.03)  # SoftShldrTG(+1)
         ],
+
+        BOX_MINI_BOT: [
+            (3011401, 0.15), # MinisatCRT(+1)
+            (3011402, 0.15), # MinisatMIS(+1)
+            (3011403, 0.15), # MinisatBST(+1)
+            (3011404, 0.15), # MinisatCRT(+2)
+            (3011405, 0.15), # MinisatMIS(+2)
+            (3011406, 0.15), # MinisatBST(+2)
+            (3011407, 0.04), # MinisatCRT(+3)
+            (3011408, 0.03), # MinisatMIS(+3)
+            (3011409, 0.03)  # MinisatBST(+3)
+        ]
     },
 
     # [Lv36]Planet-Acurin
@@ -1335,6 +1552,21 @@ PLANET_DROPS = {
             (3060305, 0.03), # SoftShldrGUN(+2)
             (3060308, 0.03)  # SoftShldrTG(+2)
         ],
+
+        BOX_MINI_BOT: [
+            (3011407, 0.10),    # MinisatCRT(+3)
+            (3011404, 0.10),    # MinisatCRT(+2)
+            (3011405, 0.10),    # MinisatMIS(+2)
+            (3011406, 0.10),    # MinisatBST(+2)
+            (3011409, 0.10),    # MinisatBST(+3)
+            (3011408, 0.10),    # MinisatMIS(+3)
+            (3011502, 0.075),   # BabytankMIS(+1)
+            (3011501, 0.065),   # BabytankCRT(+1)
+            (3011401, 0.065),   # MinisatCRT(+1)
+            (3011403, 0.065),   # MinisatBST(+1)
+            (3011402, 0.065),   # MinisatMIS(+1)
+            (3011503, 0.065)    # BabytankBST(+1)
+        ]
     },
 
     # [Lv38]Planet-Acurin2
@@ -1385,6 +1617,18 @@ PLANET_DROPS = {
             (3060209, 0.04), # HeavyShldrTG(+3)
             (3060206, 0.04), # HeavyShldrGUN(+3)
             (3060309, 0.04)  # SoftShldrTG(+3)
+        ],
+
+        BOX_MINI_BOT: [
+            (3011407, 0.20),    # MinisatCRT(+3)
+            (3011408, 0.20),    # MinisatMIS(+3)
+            (3011409, 0.20),    # MinisatBST(+3)
+            (3011404, 0.075),   # MinisatCRT(+2)
+            (3011405, 0.065),   # MinisatMIS(+2)
+            (3011406, 0.065),   # MinisatBST(+2)
+            (3011501, 0.065),   # BabytankCRT(+1)
+            (3011502, 0.065),   # BabytankMIS(+1)
+            (3011503, 0.065)    # BabytankBST(+1)
         ]
     },
 
@@ -1432,6 +1676,21 @@ PLANET_DROPS = {
             (3060306, 0.06), # SoftShldrGUN(+3)
             (3060307, 0.07), # SoftShldrTG(+1)
             (3060309, 0.06)  # SoftShldrTG(+3)
+        ],
+
+        BOX_MINI_BOT: [
+            (3011501, 0.125), # BabytankCRT(+1)
+            (3011503, 0.125), # BabytankBST(+1)
+            (3011502, 0.125), # BabytankMIS(+1)
+            (3011407, 0.10),  # MinisatCRT(+3)
+            (3011408, 0.10),  # MinisatMIS(+3)
+            (3011409, 0.10),  # MinisatBST(+3)
+            (3011505, 0.0625),# BabytankMIS(+2)
+            (3011504, 0.0625),# BabytankCRT(+2)
+            (3011404, 0.05),  # MinisatCRT(+2)
+            (3011406, 0.05),  # MinisatBST(+2)
+            (3011405, 0.05),  # MinisatMIS(+2)
+            (3011506, 0.05)   # BabytankBST(+2)
         ]
     },
 
@@ -1478,6 +1737,18 @@ PLANET_DROPS = {
             (3060401, 0.04), # BlockShldrTD(+1)
             (3060404, 0.03), # BlockShldrGUN(+1)
             (3060407, 0.03)  # BlockShldrTG(+1)
+        ],
+
+        BOX_MINI_BOT: [
+            (3011501, 0.15), # BabytankCRT(+1)
+            (3011502, 0.15), # BabytankMIS(+1)
+            (3011503, 0.15), # BabytankBST(+1)
+            (3011504, 0.15), # BabytankCRT(+2)
+            (3011505, 0.15), # BabytankMIS(+2)
+            (3011506, 0.15), # BabytankBST(+2)
+            (3011507, 0.04), # BabytankCRT(+3)
+            (3011508, 0.03), # BabytankMIS(+3)
+            (3011509, 0.03)  # BabytankBST(+3)
         ]
     },
 
@@ -1527,6 +1798,21 @@ PLANET_DROPS = {
             (3060402, 0.04),  # BlockShldrTD(+2)
             (3060405, 0.03),  # BlockShldrGUN(+2)
             (3060408, 0.03)   # BlockShldrTG(+2)
+        ],
+
+        BOX_MINI_BOT: [
+            (3011507, 0.10),    # BabytankCRT(+3)
+            (3011504, 0.10),    # BabytankCRT(+2)
+            (3011505, 0.10),    # BabytankMIS(+2)
+            (3011506, 0.10),    # BabytankBST(+2)
+            (3011509, 0.10),    # BabytankBST(+3)
+            (3011508, 0.10),    # BabytankMIS(+3)
+            (3011602, 0.075),   # BeholderMIS(+1)
+            (3011601, 0.065),   # BeholderCRT(+1)
+            (3011501, 0.065),   # BabytankCRT(+1)
+            (3011503, 0.065),   # BabytankBST(+1)
+            (3011502, 0.065),   # BabytankMIS(+1)
+            (3011603, 0.065)    # BeholderBST(+1)
         ]
     },
 
@@ -1579,6 +1865,18 @@ PLANET_DROPS = {
             (3060309, 0.04), # SoftShldrTG(+3)
             (3060306, 0.04), # SoftShldrGUN(+3)
             (3060409, 0.04)  # BlockShldrTG(+3)
+        ],
+
+        BOX_MINI_BOT: [
+            (3011507, 0.20),    # BabytankCRT(+3)
+            (3011508, 0.20),    # BabytankMIS(+3)
+            (3011509, 0.20),    # BabytankBST(+3)
+            (3011504, 0.075),   # BabytankCRT(+2)
+            (3011505, 0.065),   # BabytankMIS(+2)
+            (3011506, 0.065),   # BabytankBST(+2)
+            (3011601, 0.065),   # BeholderCRT(+1)
+            (3011602, 0.065),   # BeholderMIS(+1)
+            (3011603, 0.065)    # BeholderBST(+1)
         ]
     },
 
@@ -1628,6 +1926,21 @@ PLANET_DROPS = {
             (3060406, 0.06), # BlockShldrGUN(+3)
             (3060407, 0.07), # BlockShldrTG(+1)
             (3060409, 0.06)  # BlockShldrTG(+3)
+        ],
+
+        BOX_MINI_BOT: [
+            (3011601, 0.125),   # BeholderCRT(+1)
+            (3011603, 0.125),   # BeholderBST(+1)
+            (3011602, 0.125),   # BeholderMIS(+1)
+            (3011507, 0.10),    # BabytankCRT(+3)
+            (3011508, 0.10),    # BabytankMIS(+3)
+            (3011509, 0.10),    # BabytankBST(+3)
+            (3011605, 0.0625),  # BeholderMIS(+2)
+            (3011604, 0.0625),  # BeholderCRT(+2)
+            (3011504, 0.05),    # BabytankCRT(+2)
+            (3011506, 0.05),    # BabytankBST(+2)
+            (3011505, 0.05),    # BabytankMIS(+2)
+            (3011606, 0.05)     # BeholderBST(+2)
         ]
     },
 
@@ -1674,6 +1987,18 @@ PLANET_DROPS = {
             (3060501, 0.04), # Spec-LightTD(+1)
             (3060504, 0.03), # Spec-LightGUN(+1)
             (3060507, 0.03)  # Spec-LightTG(+1)
+        ],
+
+        BOX_MINI_BOT: [
+            (3011601, 0.15), # BeholderCRT(+1)
+            (3011602, 0.15), # BeholderMIS(+1)
+            (3011603, 0.15), # BeholderBST(+1)
+            (3011604, 0.15), # BeholderCRT(+2)
+            (3011605, 0.15), # BeholderMIS(+2)
+            (3011606, 0.15), # BeholderBST(+2)
+            (3011607, 0.04), # BeholderCRT(+3)
+            (3011608, 0.03), # BeholderMIS(+3)
+            (3011609, 0.03)  # BeholderBST(+3)
         ]
     },
 
@@ -1723,6 +2048,21 @@ PLANET_DROPS = {
             (3060502, 0.04), # Spec-LightTD(+2)
             (3060505, 0.03), # Spec-LightGUN(+2)
             (3060508, 0.03)  # Spec-LightTG(+2)
+        ],
+
+        BOX_MINI_BOT: [
+            (3011607, 0.10),    # BeholderCRT(+3)
+            (3011604, 0.10),    # BeholderCRT(+2)
+            (3011605, 0.10),    # BeholderMIS(+2)
+            (3011606, 0.10),    # BeholderBST(+2)
+            (3011609, 0.10),    # BeholderBST(+3)
+            (3011608, 0.10),    # BeholderMIS(+3)
+            (3011702, 0.075),   # LittleroidMIS(+1)
+            (3011701, 0.065),   # LittleroidCRT(+1)
+            (3011601, 0.065),   # BeholderCRT(+1)
+            (3011603, 0.065),   # BeholderBST(+1)
+            (3011602, 0.065),   # BeholderMIS(+1)
+            (3011703, 0.065)    # LittleroidBST(+1)
         ]
     },
 
@@ -1774,6 +2114,18 @@ PLANET_DROPS = {
             (3060409, 0.04), # BlockShldrTG(+3)
             (3060406, 0.04), # BlockShldrGUN(+3)
             (3060509, 0.04)  # Spec-LightTG(+3)
+        ],
+
+        BOX_MINI_BOT: [
+            (3011607, 0.20),    # BeholderCRT(+3)
+            (3011608, 0.20),    # BeholderMIS(+3)
+            (3011609, 0.20),    # BeholderBST(+3)
+            (3011604, 0.075),   # BeholderCRT(+2)
+            (3011605, 0.065),   # BeholderMIS(+2)
+            (3011606, 0.065),   # BeholderBST(+2)
+            (3011701, 0.065),   # LittleroidCRT(+1)
+            (3011702, 0.065),   # LittleroidMIS(+1)
+            (3011703, 0.065)    # LittleroidBST(+1)
         ]
     },
 
@@ -1821,6 +2173,21 @@ PLANET_DROPS = {
             (3060506, 0.06), # Spec-LightGUN(+3)
             (3060507, 0.07), # Spec-LightTG(+1)
             (3060509, 0.06)  # Spec-LightTG(+3)
+        ],
+
+        BOX_MINI_BOT: [
+            (3011701, 0.125),   # LittleroidCRT(+1)
+            (3011703, 0.125),   # LittleroidBST(+1)
+            (3011702, 0.125),   # LittleroidMIS(+1)
+            (3011607, 0.10),    # BeholderCRT(+3)
+            (3011608, 0.10),    # BeholderMIS(+3)
+            (3011609, 0.10),    # BeholderBST(+3)
+            (3011705, 0.0625),  # LittleroidMIS(+2)
+            (3011704, 0.0625),  # LittleroidCRT(+2)
+            (3011604, 0.05),    # BeholderCRT(+2)
+            (3011606, 0.05),    # BeholderBST(+2)
+            (3011605, 0.05),    # BeholderMIS(+2)
+            (3011706, 0.05)     # LittleroidBST(+2)
         ]
     },
 
@@ -1867,6 +2234,18 @@ PLANET_DROPS = {
             (3060601, 0.04), # ShldrBladeTD(+1)
             (3060604, 0.03), # ShldrBladeGUN(+1)
             (3060607, 0.03)  # ShldrBladeTG(+1)
+        ],
+
+        BOX_MINI_BOT: [
+            (3011701, 0.15), # LittleroidCRT(+1)
+            (3011702, 0.15), # LittleroidMIS(+1)
+            (3011703, 0.15), # LittleroidBST(+1)
+            (3011704, 0.15), # LittleroidCRT(+2)
+            (3011705, 0.15), # LittleroidMIS(+2)
+            (3011706, 0.15), # LittleroidBST(+2)
+            (3011707, 0.04), # LittleroidCRT(+3)
+            (3011708, 0.03), # LittleroidMIS(+3)
+            (3011709, 0.03)  # LittleroidBST(+3)
         ]
     },
 
@@ -1913,6 +2292,18 @@ PLANET_DROPS = {
             (3060602, 0.04), # ShldrBladeTD(+2)
             (3060605, 0.03), # ShldrBladeGUN(+2)
             (3060608, 0.03)  # ShldrBladeTG(+2)
+        ],
+
+        BOX_MINI_BOT: [
+            (3011704, 0.15),    # LittleroidCRT(+2)
+            (3011705, 0.15),    # LittleroidMIS(+2)
+            (3011706, 0.15),    # LittleroidBST(+2)
+            (3011707, 0.15),    # LittleroidCRT(+3)
+            (3011708, 0.15),    # LittleroidMIS(+3)
+            (3011709, 0.15),    # LittleroidBST(+3)
+            (3011701, 0.04),    # LittleroidCRT(+1)
+            (3011702, 0.03),    # LittleroidMIS(+1)
+            (3011703, 0.03)     # LittleroidBST(+1)
         ]
     },
 
@@ -1954,6 +2345,15 @@ PLANET_DROPS = {
             (3060503, 0.04), # Spec-LightTD(+3)
             (3060506, 0.03), # Spec-LightGUN(+3)
             (3060509, 0.03)  # Spec-LightTG(+3)
+        ],
+
+        BOX_MINI_BOT: [
+            (3011707, 0.20),    # LittleroidCRT(+3)
+            (3011708, 0.20),    # LittleroidMIS(+3)
+            (3011709, 0.20),    # LittleroidBST(+3)
+            (3011704, 0.14),    # LittleroidCRT(+2)
+            (3011705, 0.13),    # LittleroidMIS(+2)
+            (3011706, 0.13)     # LittleroidBST(+2)
         ]
     },
 
@@ -1989,6 +2389,15 @@ PLANET_DROPS = {
             (3060601, 0.14),  # ShldrBladeTD(+1)
             (3060604, 0.13),  # ShldrBladeGUN(+1)
             (3060607, 0.13)   # ShldrBladeTG(+1)
+        ],
+
+        BOX_MINI_BOT: [
+            (3011707, 0.20),    # LittleroidCRT(+3)
+            (3011708, 0.20),    # LittleroidMIS(+3)
+            (3011709, 0.20),    # LittleroidBST(+3)
+            (3011704, 0.14),    # LittleroidCRT(+2)
+            (3011705, 0.13),    # LittleroidMIS(+2)
+            (3011706, 0.13)     # LittleroidBST(+2)
         ]
     },
 
@@ -2011,6 +2420,18 @@ PLANET_DROPS = {
             (3031104, 0.04),   # S-TornadoCRT(+2)
             (3031105, 0.03),   # S-TornadoMIS(+2)
             (3031106, 0.03)    # S-TornadoBST(+2)
+        ],
+
+        BOX_MINI_BOT: [
+            (3011104, 0.20),    # BipadCRT(+3)
+            (3011105, 0.20),    # BipadMIS(+3)
+            (3011106, 0.20),    # BipadBST(+3)
+            (3011201, 0.20),    # BipadCRT(+2)
+            (3011202, 0.20),    # BipadMIS(+2)
+            (3011203, 0.20),    # BipadBST(+2)
+            (3011107, 0.04),    # BisliderCRT(+1)
+            (3011108, 0.03),    # BisliderMIS(+1)
+            (3011109, 0.03)     # BisliderBST(+1)
         ]
     },
 
@@ -2056,6 +2477,18 @@ PLANET_DROPS = {
             (3060101, 0.04),  # ShoulderGrdTD(+1)
             (3060104, 0.03),  # ShoulderGrdGUN(+1)
             (3060107, 0.03)   # ShoulderGrdTG(+1)
+        ],
+
+        BOX_MINI_BOT: [
+            (3011204, 0.20),    # BisliderCRT(+2)
+            (3011205, 0.20),    # BisliderMIS(+2)
+            (3011206, 0.20),    # BisliderBST(+2)
+            (3011301, 0.20),    # TrilbiteCRT(+1)
+            (3011302, 0.20),    # TrilbiteMIS(+1)
+            (3011303, 0.20),    # TrilbiteBST(+1)
+            (3011207, 0.04),    # BisliderCRT(+3)
+            (3011208, 0.03),    # BisliderMIS(+3)
+            (3011209, 0.03)     # BisliderBST(+3)
         ]
     },
 
@@ -2108,6 +2541,18 @@ PLANET_DROPS = {
             (3060201, 0.05),  # HeavyShldrTD(+1)
             (3060207, 0.05),  # HeavyShldrTG(+1)
             (3060204, 0.05)   # HeavyShldrGUN(+1)
+        ],
+
+        BOX_MINI_BOT: [
+            (3011304, 0.20),    # TrilbiteCRT(+2)
+            (3011305, 0.20),    # TrilbiteMIS(+2)
+            (3011306, 0.20),    # TrilbiteBST(+2)
+            (3011401, 0.20),    # MinisatCRT(+1)
+            (3011402, 0.20),    # MinisatMIS(+1)
+            (3011403, 0.20),    # MinisatBST(+1)
+            (3011307, 0.04),    # TrilbiteCRT(+3)
+            (3011308, 0.03),    # TrilbiteMIS(+3)
+            (3011309, 0.03)     # TrilbiteBST(+3)
         ]
     },
 
@@ -2159,6 +2604,18 @@ PLANET_DROPS = {
             (3060301, 0.05),  # SoftShldrTD(+1)
             (3060307, 0.05),  # SoftShldrTG(+1)
             (3060304, 0.05)   # SoftShldrGUN(+1)
+        ],
+
+        BOX_MINI_BOT: [
+            (3011404, 0.20),    # MinisatCRT(+2)
+            (3011405, 0.20),    # MinisatMIS(+2)
+            (3011406, 0.20),    # MinisatBST(+2)
+            (3011501, 0.20),    # BabytankCRT(+1)
+            (3011502, 0.20),    # BabytankMIS(+1)
+            (3011503, 0.20),    # BabytankBST(+1)
+            (3011407, 0.04),    # MinisatCRT(+3)
+            (3011408, 0.03),    # MinisatMIS(+3)
+            (3011409, 0.03)     # MinisatBST(+3)
         ]
     },
 
@@ -2211,6 +2668,18 @@ PLANET_DROPS = {
             (3060401, 0.05),  # BlockShldrTD(+1)
             (3060407, 0.05),  # BlockShldrTG(+1)
             (3060404, 0.05)   # BlockShldrGUN(+1)
+        ],
+
+        BOX_MINI_BOT: [
+            (3011504, 0.20),    # BabytankCRT(+2)
+            (3011505, 0.20),    # BabytankMIS(+2)
+            (3011506, 0.20),    # BabytankBST(+2)
+            (3011601, 0.20),    # BeholderCRT(+1)
+            (3011602, 0.20),    # BeholderMIS(+1)
+            (3011603, 0.20),    # BeholderBST(+1)
+            (3011507, 0.04),    # BabytankCRT(+3)
+            (3011508, 0.03),    # BabytankMIS(+3)
+            (3011509, 0.03)     # BabytankBST(+3)
         ]
     }
 }
