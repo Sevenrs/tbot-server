@@ -549,168 +549,192 @@ PLANET_BOXES = {
     5: [
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15)
+        (BOX_EF, 0.15),
+        (BOX_SHOULDER, 0.15)
     ],
 
     # [Lv16]Mine-Alderan
     6: [
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15)
+        (BOX_EF, 0.15),
+        (BOX_SHOULDER, 0.15)
     ],
 
     # [Lv18]Mine-Alderan2
     7: [
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15)
+        (BOX_EF, 0.15),
+        (BOX_SHOULDER, 0.15)
     ],
 
     # [Lv20]Mine-Blaster
     8: [
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15)
+        (BOX_EF, 0.15),
+        (BOX_SHOULDER, 0.15)
     ],
 
     # [Lv23]Lava-Sea1
     9: [
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15)
+        (BOX_EF, 0.15),
+        (BOX_SHOULDER, 0.15)
     ],
 
     # [Lv26]Lava-Sea2
     10: [
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15)
+        (BOX_EF, 0.15),
+        (BOX_SHOULDER, 0.15)
     ],
 
     # [Lv28]Lava-Sea3
     11: [
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15)
+        (BOX_EF, 0.15),
+        (BOX_SHOULDER, 0.15)
     ],
 
     # [Lv30]Acurin-Ruins1
     12: [
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15)
+        (BOX_EF, 0.15),
+        (BOX_SHOULDER, 0.15)
     ],
 
     # [Lv33]Acurin-Ruins2
     13: [
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15)
+        (BOX_EF, 0.15),
+        (BOX_SHOULDER, 0.15)
     ],
 
     # [Lv36]Planet-Acurin
     14: [
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15)
+        (BOX_EF, 0.15),
+        (BOX_SHOULDER, 0.15)
     ],
 
     # [Lv38]Planet-Acurin2
     15: [
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15)
+        (BOX_EF, 0.15),
+        (BOX_SHOULDER, 0.15)
     ],
 
     # [Lv40]Port-Acurin
     16: [
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15)
+        (BOX_EF, 0.15),
+        (BOX_SHOULDER, 0.15)
     ],
 
     # [Lv43]Escape-Acurin
     17: [
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15)
+        (BOX_EF, 0.15),
+        (BOX_SHOULDER, 0.15)
     ],
 
     # [Lv46]Planet-MECA
     18: [
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15)
+        (BOX_EF, 0.15),
+        (BOX_SHOULDER, 0.15)
     ],
 
     # [Lv48]Planet-MECA2
     19: [
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15)
+        (BOX_EF, 0.15),
+        (BOX_SHOULDER, 0.15)
     ],
 
     # [Lv50]Hidden-Archive
     20: [
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15)
+        (BOX_EF, 0.15),
+        (BOX_SHOULDER, 0.15)
     ],
 
     # [Lv53]Secret-passage
     21: [
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15)
+        (BOX_EF, 0.15),
+        (BOX_SHOULDER, 0.15)
     ],
 
     # [Lv56]Destroy-all
     22: [
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15)
+        (BOX_EF, 0.15),
+        (BOX_SHOULDER, 0.15)
     ],
 
     # [Lv58]Destroy-all2
     23: [
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15)
+        (BOX_EF, 0.15),
+        (BOX_SHOULDER, 0.15)
     ],
 
     # [Lv60]Escape-From-MECA
     24: [
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15)
+        (BOX_EF, 0.15),
+        (BOX_SHOULDER, 0.15)
     ],
 
     # [Lv63]MeraMountin
     25: [
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15)
+        (BOX_EF, 0.15),
+        (BOX_SHOULDER, 0.15)
     ],
 
     # [Lv66]MeraMountin2
     26: [
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15)
+        (BOX_EF, 0.15),
+        (BOX_SHOULDER, 0.15)
     ],
 
     # [Lv68]MeraMountin3
     27: [
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15)
+        (BOX_EF, 0.15),
+        (BOX_SHOULDER, 0.15)
     ],
 
     # [Lv70]MeraMountin4
     28: [
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15)
+        (BOX_EF, 0.15),
+        (BOX_SHOULDER, 0.15)
     ],
 
     # [Lv08]The-Fallen(Elite)
@@ -723,28 +747,32 @@ PLANET_BOXES = {
     30: [
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15)
+        (BOX_EF, 0.15),
+        (BOX_SHOULDER, 0.15)
     ],
 
     # [Lv28]The-Pirate(Elite)
     31: [
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15)
+        (BOX_EF, 0.15),
+        (BOX_SHOULDER, 0.15)
     ],
 
     # [Lv38]Evil-Port(Elite)
     32: [
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15)
+        (BOX_EF, 0.15),
+        (BOX_SHOULDER, 0.15)
     ],
 
     # [Lv48]Bloodway(Elite)
     33: [
         (BOX_GUN, 0.15),
         (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15)
+        (BOX_EF, 0.15),
+        (BOX_SHOULDER, 0.15)
     ]
 }
 
@@ -874,6 +902,12 @@ PLANET_DROPS = {
             (3031104, 0.04),  # S-TornadoCRT(+2)
             (3031105, 0.03),  # S-TornadoMIS(+2)
             (3031106, 0.03)   # S-TornadoBST(+2)
+        ],
+
+        BOX_SHOULDER: [
+            (3060101, 0.33), # ShoulderGrdTD(+1)
+            (3060104, 0.33), # ShoulderGrdGUN(+1)
+            (3060107, 0.33)  # ShoulderGrdTG(+1)
         ]
     },
 
@@ -908,6 +942,15 @@ PLANET_DROPS = {
             (3031109, 0.05),    # S-TornadoBST(+3)
             (3031108, 0.05),    # S-TornadoMIS(+3)
             (3031209, 0.05)     # BlueCloudBST(+3)
+        ],
+
+        BOX_SHOULDER: [
+            (3060101, 0.20), # ShoulderGrdTD(+1)
+            (3060104, 0.20), # ShoulderGrdGUN(+1)
+            (3060107, 0.20), # ShoulderGrdTG(+1)
+            (3060102, 0.14), # ShoulderGrdTD(+2)
+            (3060105, 0.13), # ShoulderGrdGUN(+2)
+            (3060108, 0.13)  # ShoulderGrdTG(+2)
         ]
     },
 
@@ -941,6 +984,18 @@ PLANET_DROPS = {
             (3031207, 0.065), # BlueCloudCRT(+3)
             (3031208, 0.065), # BlueCloudMIS(+3)
             (3031209, 0.065)  # BlueCloudBST(+3)
+        ],
+
+        BOX_SHOULDER: [
+            (3060101, 0.20), # ShoulderGrdTD(+1)
+            (3060104, 0.20), # ShoulderGrdGUN(+1)
+            (3060107, 0.20), # ShoulderGrdTG(+1)
+            (3060102, 0.10), # ShoulderGrdTD(+2)
+            (3060105, 0.10), # ShoulderGrdGUN(+2)
+            (3060108, 0.10), # ShoulderGrdTG(+2)
+            (3060103, 0.04), # ShoulderGrdTD(+3)
+            (3060106, 0.03), # ShoulderGrdGUN(+3)
+            (3060109, 0.03)  # ShoulderGrdTG(+3)
         ]
     },
 
@@ -976,6 +1031,18 @@ PLANET_DROPS = {
             (3031203, 0.065),  # BlueCloudBST(+1)
             (3031202, 0.065),  # BlueCloudMIS(+1)
             (3031303, 0.065)   # CirclerBST(+1)
+        ],
+
+        BOX_SHOULDER: [
+            (3060102, 0.20), # ShoulderGrdTD(+2)
+            (3060105, 0.20), # ShoulderGrdGUN(+2)
+            (3060108, 0.20), # ShoulderGrdTG(+2)
+            (3060101, 0.08), # ShoulderGrdTD(+1)
+            (3060103, 0.06), # ShoulderGrdTD(+3)
+            (3060104, 0.07), # ShoulderGrdGUN(+1)
+            (3060106, 0.06), # ShoulderGrdGUN(+3)
+            (3060107, 0.07), # ShoulderGrdTG(+1)
+            (3060109, 0.06)  # ShoulderGrdTG(+3)
         ]
     },
 
@@ -1010,6 +1077,18 @@ PLANET_DROPS = {
             (3031204, 0.04), # BlueCloudCRT(+2)
             (3031205, 0.03), # BlueCloudMIS(+2)
             (3031206, 0.03)  # BlueCloudBST(+2)
+        ],
+
+        BOX_SHOULDER: [
+            (3060103, 0.20), # ShoulderGrdTD(+3)
+            (3060106, 0.20), # ShoulderGrdGUN(+3)
+            (3060109, 0.20), # ShoulderGrdTG(+3)
+            (3060102, 0.10), # ShoulderGrdTD(+2)
+            (3060105, 0.10), # ShoulderGrdGUN(+2)
+            (3060108, 0.10), # ShoulderGrdTG(+2)
+            (3060201, 0.04), # HeavyShldrTD(+1)
+            (3060204, 0.03), # HeavyShldrGUN(+1)
+            (3060207, 0.03)  # HeavyShldrTG(+1)
         ]
     },
 
@@ -1047,6 +1126,18 @@ PLANET_DROPS = {
             (3031209, 0.05),    # BlueCloudBST(+3)
             (3031208, 0.05),    # BlueCloudMIS(+3)
             (3031309, 0.05)     # CirclerBST(+3)
+        ],
+
+        BOX_SHOULDER: [
+            (3060201, 0.20), # HeavyShldrTD(+1)
+            (3060204, 0.20), # HeavyShldrGUN(+1)
+            (3060207, 0.20), # HeavyShldrTG(+1)
+            (3060103, 0.10), # ShoulderGrdTD(+3)
+            (3060106, 0.10), # ShoulderGrdGUN(+3)
+            (3060109, 0.10), # ShoulderGrdTG(+3)
+            (3060202, 0.04), # HeavyShldrTD(+2)
+            (3060205, 0.03), # HeavyShldrGUN(+2)
+            (3060208, 0.03)  # HeavyShldrTG(+2)
         ]
     },
 
@@ -1084,6 +1175,21 @@ PLANET_DROPS = {
             (3031307, 0.075), # CirclerCRT(+3)
             (3031308, 0.075), # CirclerMIS(+3)
             (3031309, 0.075)  # CirclerBST(+3)
+        ],
+
+        BOX_SHOULDER: [
+            (3060204, 0.15), # HeavyShldrGUN(+1)
+            (3060207, 0.15), # HeavyShldrTG(+1)
+            (3060201, 0.15), # HeavyShldrTD(+1)
+            (3060208, 0.10), # HeavyShldrTG(+2)
+            (3060202, 0.10), # HeavyShldrTD(+2)
+            (3060205, 0.10), # HeavyShldrGUN(+2)
+            (3060206, 0.05), # HeavyShldrGUN(+3)
+            (3060103, 0.04), # ShoulderGrdTD(+3)
+            (3060203, 0.04), # HeavyShldrTD(+3)
+            (3060109, 0.04), # ShoulderGrdTG(+3)
+            (3060106, 0.04), # ShoulderGrdGUN(+3)
+            (3060209, 0.04)  # HeavyShldrTG(+3)
         ]
     },
 
@@ -1121,6 +1227,18 @@ PLANET_DROPS = {
             (3031303, 0.065), # CirclerBST(+1)
             (3031302, 0.065), # CirclerMIS(+1)
             (3031403, 0.065)  # T-BeaconBST(+1)
+        ],
+
+        BOX_SHOULDER: [
+            (3060202, 0.20), # HeavyShldrTD(+2)
+            (3060205, 0.20), # HeavyShldrGUN(+2)
+            (3060208, 0.20), # HeavyShldrTG(+2)
+            (3060201, 0.08), # HeavyShldrTD(+1)
+            (3060203, 0.06), # HeavyShldrTD(+3)
+            (3060204, 0.07), # HeavyShldrGUN(+1)
+            (3060206, 0.06), # HeavyShldrGUN(+3)
+            (3060207, 0.07), # HeavyShldrTG(+1)
+            (3060209, 0.06)  # HeavyShldrTG(+3)
         ]
     },
 
@@ -1155,7 +1273,19 @@ PLANET_DROPS = {
             (3031304, 0.04), # CirclerCRT(+2)
             (3031305, 0.03), # CirclerMIS(+2)
             (3031306, 0.03)  # CirclerBST(+2)
-        ]
+        ],
+
+        BOX_SHOULDER: [
+            (3060203, 0.20), # HeavyShldrTD(+3)
+            (3060206, 0.20), # HeavyShldrGUN(+3)
+            (3060209, 0.20), # HeavyShldrTG(+3)
+            (3060202, 0.10), # HeavyShldrTD(+2)
+            (3060205, 0.10), # HeavyShldrGUN(+2)
+            (3060208, 0.10), # HeavyShldrTG(+2)
+            (3060301, 0.04), # SoftShldrTD(+1)
+            (3060304, 0.03), # SoftShldrGUN(+1)
+            (3060307, 0.03)  # SoftShldrTG(+1)
+        ],
     },
 
     # [Lv36]Planet-Acurin
@@ -1192,7 +1322,19 @@ PLANET_DROPS = {
             (3031309, 0.05),    # CirclerBST(+3)
             (3031308, 0.05),    # CirclerMIS(+3)
             (3031409, 0.05)     # T-BeaconBST(+3)
-        ]
+        ],
+
+        BOX_SHOULDER: [
+            (3060301, 0.20), # SoftShldrTD(+1)
+            (3060304, 0.20), # SoftShldrGUN(+1)
+            (3060307, 0.20), # SoftShldrTG(+1)
+            (3060203, 0.10), # HeavyShldrTD(+3)
+            (3060206, 0.10), # HeavyShldrGUN(+3)
+            (3060209, 0.10), # HeavyShldrTG(+3)
+            (3060302, 0.04), # SoftShldrTD(+2)
+            (3060305, 0.03), # SoftShldrGUN(+2)
+            (3060308, 0.03)  # SoftShldrTG(+2)
+        ],
     },
 
     # [Lv38]Planet-Acurin2
@@ -1228,6 +1370,21 @@ PLANET_DROPS = {
             (3031407, 0.075),   # T-BeaconCRT(+3)
             (3031408, 0.075),   # T-BeaconMIS(+3)
             (3031409, 0.075)    # T-BeaconBST(+3)
+        ],
+
+        BOX_SHOULDER: [
+            (3060304, 0.15), # SoftShldrGUN(+1)
+            (3060307, 0.15), # SoftShldrTG(+1)
+            (3060301, 0.15), # SoftShldrTD(+1)
+            (3060308, 0.10), # SoftShldrTG(+2)
+            (3060302, 0.10), # SoftShldrTD(+2)
+            (3060305, 0.10), # SoftShldrGUN(+2)
+            (3060306, 0.05), # SoftShldrGUN(+3)
+            (3060203, 0.04), # HeavyShldrTD(+3)
+            (3060303, 0.04), # SoftShldrTD(+3)
+            (3060209, 0.04), # HeavyShldrTG(+3)
+            (3060206, 0.04), # HeavyShldrGUN(+3)
+            (3060309, 0.04)  # SoftShldrTG(+3)
         ]
     },
 
@@ -1263,6 +1420,18 @@ PLANET_DROPS = {
             (3031403, 0.065),   # T-BeaconBST(+1)
             (3031402, 0.065),   # T-BeaconMIS(+1)
             (3031503, 0.065)    # SoundEnergyBST(+1)
+        ],
+
+        BOX_SHOULDER: [
+            (3060302, 0.20), # SoftShldrTD(+2)
+            (3060305, 0.20), # SoftShldrGUN(+2)
+            (3060308, 0.20), # SoftShldrTG(+2)
+            (3060301, 0.08), # SoftShldrTD(+1)
+            (3060303, 0.06), # SoftShldrTD(+3)
+            (3060304, 0.07), # SoftShldrGUN(+1)
+            (3060306, 0.06), # SoftShldrGUN(+3)
+            (3060307, 0.07), # SoftShldrTG(+1)
+            (3060309, 0.06)  # SoftShldrTG(+3)
         ]
     },
 
@@ -1297,6 +1466,18 @@ PLANET_DROPS = {
             (3031404, 0.04),  # T-BeaconCRT(+2)
             (3031405, 0.03),  # T-BeaconMIS(+2)
             (3031406, 0.03)   # T-BeaconBST(+2)
+        ],
+
+        BOX_SHOULDER: [
+            (3060303, 0.20), # SoftShldrTD(+3)
+            (3060306, 0.20), # SoftShldrGUN(+3)
+            (3060309, 0.20), # SoftShldrTG(+3)
+            (3060302, 0.10), # SoftShldrTD(+2)
+            (3060305, 0.10), # SoftShldrGUN(+2)
+            (3060308, 0.10), # SoftShldrTG(+2)
+            (3060401, 0.04), # BlockShldrTD(+1)
+            (3060404, 0.03), # BlockShldrGUN(+1)
+            (3060407, 0.03)  # BlockShldrTG(+1)
         ]
     },
 
@@ -1334,6 +1515,18 @@ PLANET_DROPS = {
             (3031409, 0.05),    # T-BeaconBST(+3)
             (3031408, 0.05),    # T-BeaconMIS(+3)
             (3031509, 0.05)     # SoundEnergyBST(+3)
+        ],
+
+        BOX_SHOULDER: [
+            (3060401, 0.20),  # BlockShldrTD(+1)
+            (3060404, 0.20),  # BlockShldrGUN(+1)
+            (3060407, 0.20),  # BlockShldrTG(+1)
+            (3060303, 0.10),  # SoftShldrTD(+3)
+            (3060306, 0.10),  # SoftShldrGUN(+3)
+            (3060309, 0.10),  # SoftShldrTG(+3)
+            (3060402, 0.04),  # BlockShldrTD(+2)
+            (3060405, 0.03),  # BlockShldrGUN(+2)
+            (3060408, 0.03)   # BlockShldrTG(+2)
         ]
     },
 
@@ -1371,6 +1564,21 @@ PLANET_DROPS = {
             (3031507, 0.075),  # SoundEnergyCRT(+3)
             (3031508, 0.075),  # SoundEnergyMIS(+3)
             (3031509, 0.075)   # SoundEnergyBST(+3)
+        ],
+
+        BOX_SHOULDER: [
+            (3060404, 0.15), # BlockShldrGUN(+1)
+            (3060407, 0.15), # BlockShldrTG(+1)
+            (3060401, 0.15), # BlockShldrTD(+1)
+            (3060408, 0.10), # BlockShldrTG(+2)
+            (3060402, 0.10), # BlockShldrTD(+2)
+            (3060405, 0.10), # BlockShldrGUN(+2)
+            (3060406, 0.05), # BlockShldrGUN(+3)
+            (3060303, 0.04), # SoftShldrTD(+3)
+            (3060403, 0.04), # BlockShldrTD(+3)
+            (3060309, 0.04), # SoftShldrTG(+3)
+            (3060306, 0.04), # SoftShldrGUN(+3)
+            (3060409, 0.04)  # BlockShldrTG(+3)
         ]
     },
 
@@ -1408,6 +1616,18 @@ PLANET_DROPS = {
             (3031503, 0.065),   # SoundEnergyBST(+1)
             (3031502, 0.065),   # SoundEnergyMIS(+1)
             (3031603, 0.065)    # SparkBST(+1)
+        ],
+
+        BOX_SHOULDER: [
+            (3060402, 0.20), # BlockShldrTD(+2)
+            (3060405, 0.20), # BlockShldrGUN(+2)
+            (3060408, 0.20), # BlockShldrTG(+2)
+            (3060401, 0.08), # BlockShldrTD(+1)
+            (3060403, 0.06), # BlockShldrTD(+3)
+            (3060404, 0.07), # BlockShldrGUN(+1)
+            (3060406, 0.06), # BlockShldrGUN(+3)
+            (3060407, 0.07), # BlockShldrTG(+1)
+            (3060409, 0.06)  # BlockShldrTG(+3)
         ]
     },
 
@@ -1442,6 +1662,18 @@ PLANET_DROPS = {
             (3031504, 0.04),  # SoundEnergyCRT(+2)
             (3031505, 0.03),  # SoundEnergyMIS(+2)
             (3031506, 0.03)   # SoundEnergyBST(+2)
+        ],
+
+        BOX_SHOULDER: [
+            (3060403, 0.20), # BlockShldrTD(+3)
+            (3060406, 0.20), # BlockShldrGUN(+3)
+            (3060409, 0.20), # BlockShldrTG(+3)
+            (3060402, 0.10), # BlockShldrTD(+2)
+            (3060405, 0.10), # BlockShldrGUN(+2)
+            (3060408, 0.10), # BlockShldrTG(+2)
+            (3060501, 0.04), # Spec-LightTD(+1)
+            (3060504, 0.03), # Spec-LightGUN(+1)
+            (3060507, 0.03)  # Spec-LightTG(+1)
         ]
     },
 
@@ -1479,6 +1711,18 @@ PLANET_DROPS = {
             (3031509, 0.05),    # SoundEnergyBST(+3)
             (3031508, 0.05),    # SoundEnergyMIS(+3)
             (3031609, 0.05)     # SparkBST(+3)
+        ],
+
+        BOX_SHOULDER: [
+            (3060501, 0.20), # Spec-LightTD(+1)
+            (3060504, 0.20), # Spec-LightGUN(+1)
+            (3060507, 0.20), # Spec-LightTG(+1)
+            (3060403, 0.10), # BlockShldrTD(+3)
+            (3060406, 0.10), # BlockShldrGUN(+3)
+            (3060409, 0.10), # BlockShldrTG(+3)
+            (3060502, 0.04), # Spec-LightTD(+2)
+            (3060505, 0.03), # Spec-LightGUN(+2)
+            (3060508, 0.03)  # Spec-LightTG(+2)
         ]
     },
 
@@ -1515,6 +1759,21 @@ PLANET_DROPS = {
             (3031607, 0.075),   # SparkCRT(+3)
             (3031608, 0.075),   # SparkMIS(+3)
             (3031609, 0.075)    # SparkBST(+3)
+        ],
+
+        BOX_SHOULDER: [
+            (3060504, 0.15), # Spec-LightGUN(+1)
+            (3060507, 0.15), # Spec-LightTG(+1)
+            (3060501, 0.15), # Spec-LightTD(+1)
+            (3060508, 0.10), # Spec-LightTG(+2)
+            (3060502, 0.10), # Spec-LightTD(+2)
+            (3060505, 0.10), # Spec-LightGUN(+2)
+            (3060506, 0.05), # Spec-LightGUN(+3)
+            (3060403, 0.04), # BlockShldrTD(+3)
+            (3060503, 0.04), # Spec-LightTD(+3)
+            (3060409, 0.04), # BlockShldrTG(+3)
+            (3060406, 0.04), # BlockShldrGUN(+3)
+            (3060509, 0.04)  # Spec-LightTG(+3)
         ]
     },
 
@@ -1550,6 +1809,18 @@ PLANET_DROPS = {
             (3031603, 0.065),   # SparkBST(+1)
             (3031602, 0.065),   # SparkMIS(+1)
             (3031703, 0.065)    # CrimsonfieldBST(+1)
+        ],
+
+        BOX_SHOULDER: [
+            (3060502, 0.20), # Spec-LightTD(+2)
+            (3060505, 0.20), # Spec-LightGUN(+2)
+            (3060508, 0.20), # Spec-LightTG(+2)
+            (3060501, 0.08), # Spec-LightTD(+1)
+            (3060503, 0.06), # Spec-LightTD(+3)
+            (3060504, 0.07), # Spec-LightGUN(+1)
+            (3060506, 0.06), # Spec-LightGUN(+3)
+            (3060507, 0.07), # Spec-LightTG(+1)
+            (3060509, 0.06)  # Spec-LightTG(+3)
         ]
     },
 
@@ -1584,6 +1855,18 @@ PLANET_DROPS = {
             (3031604, 0.04),  # SparkCRT(+2)
             (3031605, 0.03),  # SparkMIS(+2)
             (3031606, 0.03)   # SparkBST(+2)
+        ],
+
+        BOX_SHOULDER: [
+            (3060503, 0.20), # Spec-LightTD(+3)
+            (3060506, 0.20), # Spec-LightGUN(+3)
+            (3060509, 0.20), # Spec-LightTG(+3)
+            (3060502, 0.10), # Spec-LightTD(+2)
+            (3060505, 0.10), # Spec-LightGUN(+2)
+            (3060508, 0.10), # Spec-LightTG(+2)
+            (3060601, 0.04), # ShldrBladeTD(+1)
+            (3060604, 0.03), # ShldrBladeGUN(+1)
+            (3060607, 0.03)  # ShldrBladeTG(+1)
         ]
     },
 
@@ -1618,6 +1901,18 @@ PLANET_DROPS = {
             (3031607, 0.04),  # SparkCRT(+3)
             (3031608, 0.03),  # SparkMIS(+3)
             (3031609, 0.03)   # SparkBST(+3)
+        ],
+
+        BOX_SHOULDER: [
+            (3060601, 0.20), # ShldrBladeTD(+1)
+            (3060604, 0.20), # ShldrBladeGUN(+1)
+            (3060607, 0.20), # ShldrBladeTG(+1)
+            (3060503, 0.10), # Spec-LightTD(+3)
+            (3060506, 0.10), # Spec-LightGUN(+3)
+            (3060509, 0.10), # Spec-LightTG(+3)
+            (3060602, 0.04), # ShldrBladeTD(+2)
+            (3060605, 0.03), # ShldrBladeGUN(+2)
+            (3060608, 0.03)  # ShldrBladeTG(+2)
         ]
     },
 
@@ -1647,6 +1942,18 @@ PLANET_DROPS = {
             (3031701, 0.14),  # CrimsonfieldCRT(+1)
             (3031702, 0.13),  # CrimsonfieldMIS(+1)
             (3031703, 0.13)   # CrimsonfieldBST(+1)
+        ],
+
+        BOX_SHOULDER: [
+            (3060601, 0.20), # ShldrBladeTD(+1)
+            (3060604, 0.20), # ShldrBladeGUN(+1)
+            (3060607, 0.20), # ShldrBladeTG(+1)
+            (3060602, 0.10), # ShldrBladeTD(+2)
+            (3060605, 0.10), # ShldrBladeGUN(+2)
+            (3060608, 0.10), # ShldrBladeTG(+2)
+            (3060503, 0.04), # Spec-LightTD(+3)
+            (3060506, 0.03), # Spec-LightGUN(+3)
+            (3060509, 0.03)  # Spec-LightTG(+3)
         ]
     },
 
@@ -1673,6 +1980,15 @@ PLANET_DROPS = {
             (3031701, 0.14),  # CrimsonfieldCRT(+1)
             (3031702, 0.13),  # CrimsonfieldMIS(+1)
             (3031703, 0.13)   # CrimsonfieldBST(+1)
+        ],
+
+        BOX_SHOULDER: [
+            (3060602, 0.20),  # ShldrBladeTD(+2)
+            (3060605, 0.20),  # ShldrBladeGUN(+2)
+            (3060608, 0.20),  # ShldrBladeTG(+2)
+            (3060601, 0.14),  # ShldrBladeTD(+1)
+            (3060604, 0.13),  # ShldrBladeGUN(+1)
+            (3060607, 0.13)   # ShldrBladeTG(+1)
         ]
     },
 
@@ -1728,6 +2044,18 @@ PLANET_DROPS = {
             (3031204, 0.09),  # BlueCloudCRT(+2)
             (3031205, 0.08),  # BlueCloudMIS(+2)
             (3031206, 0.08)   # BlueCloudBST(+2)
+        ],
+
+        BOX_SHOULDER: [
+            (3060103, 0.20),  # ShoulderGrdTD(+3)
+            (3060106, 0.20),  # ShoulderGrdGUN(+3)
+            (3060109, 0.20),  # ShoulderGrdTG(+3)
+            (3060102, 0.10),  # ShoulderGrdTD(+2)
+            (3060105, 0.10),  # ShoulderGrdGUN(+2)
+            (3060108, 0.10),  # ShoulderGrdTG(+2)
+            (3060101, 0.04),  # ShoulderGrdTD(+1)
+            (3060104, 0.03),  # ShoulderGrdGUN(+1)
+            (3060107, 0.03)   # ShoulderGrdTG(+1)
         ]
     },
 
@@ -1765,6 +2093,21 @@ PLANET_DROPS = {
             (3031304, 0.09),   # CirclerCRT(+3)
             (3031305, 0.08),   # CirclerMIS(+3)
             (3031306, 0.08)    # CirclerBST(+3)
+        ],
+
+        BOX_SHOULDER: [
+            (3060103, 0.10),  # ShoulderGrdTD(+3)
+            (3060206, 0.10),  # HeavyShldrGUN(+3)
+            (3060209, 0.10),  # HeavyShldrTG(+3)
+            (3060203, 0.10),  # HeavyShldrTD(+3)
+            (3060109, 0.10),  # ShoulderGrdTG(+3)
+            (3060106, 0.10),  # ShoulderGrdGUN(+3)
+            (3060202, 0.09),  # HeavyShldrTD(+2)
+            (3060205, 0.08),  # HeavyShldrGUN(+2)
+            (3060208, 0.08),  # HeavyShldrTG(+2)
+            (3060201, 0.05),  # HeavyShldrTD(+1)
+            (3060207, 0.05),  # HeavyShldrTG(+1)
+            (3060204, 0.05)   # HeavyShldrGUN(+1)
         ]
     },
 
@@ -1801,6 +2144,21 @@ PLANET_DROPS = {
             (3031404, 0.09),    # T-BeaconCRT(+2)
             (3031405, 0.08),    # T-BeaconMIS(+2)
             (3031406, 0.08)     # T-BeaconBST(+2)
+        ],
+
+        BOX_SHOULDER: [
+            (3060203, 0.10),  # HeavyShldrTD(+3)
+            (3060306, 0.10),  # SoftShldrGUN(+3)
+            (3060309, 0.10),  # SoftShldrTG(+3)
+            (3060303, 0.10),  # SoftShldrTD(+3)
+            (3060209, 0.10),  # HeavyShldrTG(+3)
+            (3060206, 0.10),  # HeavyShldrGUN(+3)
+            (3060302, 0.09),  # SoftShldrTD(+2)
+            (3060305, 0.08),  # SoftShldrGUN(+2)
+            (3060308, 0.08),  # SoftShldrTG(+2)
+            (3060301, 0.05),  # SoftShldrTD(+1)
+            (3060307, 0.05),  # SoftShldrTG(+1)
+            (3060304, 0.05)   # SoftShldrGUN(+1)
         ]
     },
 
@@ -1838,6 +2196,21 @@ PLANET_DROPS = {
             (3031504, 0.09),  # SoundEnergyCRT(+2)
             (3031505, 0.08),  # SoundEnergyMIS(+2)
             (3031506, 0.08)   # SoundEnergyBST(+2)
+        ],
+
+        BOX_SHOULDER: [
+            (3060303, 0.10),  # SoftShldrTD(+3)
+            (3060406, 0.10),  # BlockShldrGUN(+3)
+            (3060409, 0.10),  # BlockShldrTG(+3)
+            (3060403, 0.10),  # BlockShldrTD(+3)
+            (3060309, 0.10),  # SoftShldrTG(+3)
+            (3060306, 0.10),  # SoftShldrGUN(+3)
+            (3060402, 0.09),  # BlockShldrTD(+2)
+            (3060405, 0.08),  # BlockShldrGUN(+2)
+            (3060408, 0.08),  # BlockShldrTG(+2)
+            (3060401, 0.05),  # BlockShldrTD(+1)
+            (3060407, 0.05),  # BlockShldrTG(+1)
+            (3060404, 0.05)   # BlockShldrGUN(+1)
         ]
     }
 }
