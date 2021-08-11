@@ -203,6 +203,16 @@ def use_item(**_args):
                     # No match? Try again with a higher chance
                     last_chance += chance
 
+        # Mutate the item ID to be of our bot type if the item type is either a HEAD, BODY or ARM
+        if item_type in [BOX_HEAD, BOX_BODY, BOX_ARMS]:
+
+            # Create a list of the item ID and append the character type to it
+            new_item_id = list(str(item_id))
+            new_item_id[1] = str(_args['client']['character']['type'])
+
+            # Convert the item ID back to an integer
+            item_id = int("".join(new_item_id))
+
         # Find item in the database
         _args['mysql'].execute(
             '''SELECT `id`, `item_id`, `buyable`, `gold_price`, `cash_price`, `part_type`, `duration` FROM `game_items` WHERE `item_id` = %s''',
