@@ -9,7 +9,7 @@ from GameServer.Controllers.data.exp import *
 from GameServer.Controllers.data.planet import PLANET_MAP_TABLE, PLANET_BOXES, PLANET_BOX_MOBS, PLANET_DROPS,\
     PLANET_ASSISTS
 from GameServer.Controllers.Room import get_room, get_slot, get_list, get_list_page_by_room_id, reset, remove_slot
-from GameServer.Controllers.Character import get_items, add_item, get_available_inventory_slot
+from GameServer.Controllers.Character import get_items, add_item, get_available_inventory_slot, remove_expired_items
 from GameServer.Controllers import Lobby
 import MySQL.Interface as MySQL
 import random
@@ -414,6 +414,22 @@ def post_game_transaction(_args, room, status):
         # Calculate new gigas currency
         character['currency_gigas'] = character['currency_gigas'] + addition_gigas
 
+        # Decrease the amount of games left for the items the current character is wearing
+        wearing = get_items(_args, character['id'], 'wearing')
+        in_statement = ''
+
+        # Construct IN statement
+        for idx in wearing['items']:
+            if wearing['items'][idx]['character_item_id'] is not None:
+                in_statement+= '{}, '.format(wearing['items'][idx]['character_item_id'])
+
+        # Remove one remaining game from the total amount of remaining games, if applicable.
+        _args['mysql'].execute("""UPDATE `character_items` SET `remaining_games` = (`remaining_games` - 1) WHERE `id`
+                               IN ({0}) AND `remaining_games` IS NOT NULL""".format(in_statement[:-2]))
+
+        # Remove expired items from our character and the game itself
+        remove_expired_items(_args, character['id'])
+
         information[key] = {
             'addition_experience': addition_experience,
             'addition_gigas': addition_gigas,
@@ -477,8 +493,9 @@ def game_stats(_args, room, status):
                              + information[str(i + 1)]['wearing_items']['specifications']['effect_health'], 2, 'little')
 
     # Attack points
-    for _ in range(8):
-        room_results.AppendInteger(4, 2, 'little')
+    for i in range(8):
+        room_results.AppendInteger(0 if str(i + 1) not in information else room['slots'][str(i + 1)]['monster_kills'] * 128,
+                                   2, 'little')
 
     # unknown
     for _ in range(4):
@@ -505,14 +522,15 @@ def game_stats(_args, room, status):
     for _ in range(8):
         room_results.AppendInteger(0, 2, 'little')
 
-    # Player ranking and ranking experience
-    for _ in range(8):
-        # Ranking
-        room_results.AppendInteger(2, 4, 'little')
-        room_results.AppendBytes(bytearray([0x00]))
+    room_results.AppendBytes(bytearray([0x00, 0x00, 0x00, 0x00, 0x00]))
 
-        # Ranking experience
-        room_results.AppendInteger(5, 4, 'little')
+    # Player ranking and ranking experience
+    for i in range(0, 8):
+        room_results.AppendInteger(0 if str(i + 1) not in information else room['slots'][str(i + 1)]['client']['character']['rank_exp'], 4, 'little')
+        room_results.AppendInteger(0 if str(i + 1) not in information else room['slots'][str(i + 1)]['client']['character']['rank'], 4, 'little')
+
+        for _ in range(37):
+            room_results.AppendBytes(bytearray([0x00]))
 
 
     for key, slot in room['slots'].items():
@@ -529,7 +547,7 @@ def game_stats(_args, room, status):
         packet.AppendInteger(result_information['gold'], 4, 'little')
 
         # New level
-        packet.AppendInteger(70, 2, 'little')
+        packet.AppendInteger(result_information['level'], 2, 'little')
 
         # New experience
         packet.AppendInteger(result_information['experience'], 4, 'little')

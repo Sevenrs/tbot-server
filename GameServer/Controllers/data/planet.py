@@ -517,398 +517,398 @@ PLANET_BOXES = {
 
     #[Lv01]Training Camp
     0: [
-        (BOX_GUN, 0.50),
-        (BOX_EF, 0.50),
-        (BOX_MINI_BOT, 0.50),
-        (BOX_HEAD, 0.50),
-        (BOX_BODY, 0.50),
-        (BOX_ARMS, 0.50)
+        (BOX_GUN, 0.12),
+        (BOX_EF, 0.12),
+        (BOX_MINI_BOT, 0.12),
+        (BOX_HEAD, 0.12),
+        (BOX_BODY, 0.12),
+        (BOX_ARMS, 0.12)
     ],
 
     # [Lv03]Base Camp
     1: [
-        (BOX_GUN, 0.15),
-        (BOX_EF, 0.15),
-        (BOX_MINI_BOT, 0.15),
-        (BOX_HEAD, 0.15),
-        (BOX_BODY, 0.15),
-        (BOX_ARMS, 0.15)
+        (BOX_GUN, 0.04),
+        (BOX_EF, 0.04),
+        (BOX_MINI_BOT, 0.04),
+        (BOX_HEAD, 0.04),
+        (BOX_BODY, 0.04),
+        (BOX_ARMS, 0.04)
     ],
 
     # [Lv06]Camp-Spike
     2: [
-        (BOX_GUN, 0.15),
-        (BOX_EF, 0.15),
-        (BOX_MINI_BOT, 0.15),
-        (BOX_HEAD, 0.15),
-        (BOX_BODY, 0.15),
-        (BOX_ARMS, 0.15)
+        (BOX_GUN, 0.04),
+        (BOX_EF, 0.04),
+        (BOX_MINI_BOT, 0.04),
+        (BOX_HEAD, 0.04),
+        (BOX_BODY, 0.04),
+        (BOX_ARMS, 0.04)
     ],
 
     # [Lv08]Camp-Spike2
     3: [
-        (BOX_GUN, 0.15),
-        (BOX_EF, 0.15),
-        (BOX_MINI_BOT, 0.15),
-        (BOX_HEAD, 0.15),
-        (BOX_BODY, 0.15),
-        (BOX_ARMS, 0.15)
+        (BOX_GUN, 0.04),
+        (BOX_EF, 0.04),
+        (BOX_MINI_BOT, 0.04),
+        (BOX_HEAD, 0.04),
+        (BOX_BODY, 0.04),
+        (BOX_ARMS, 0.04)
     ],
 
     # [Lv10]Planet-Alderan
     4: [
-        (BOX_GUN, 0.15),
-        (BOX_EF, 0.15),
-        (BOX_MINI_BOT, 0.15),
-        (BOX_HEAD, 0.15),
-        (BOX_BODY, 0.15),
-        (BOX_ARMS, 0.15)
+        (BOX_GUN, 0.04),
+        (BOX_EF, 0.04),
+        (BOX_MINI_BOT, 0.04),
+        (BOX_HEAD, 0.04),
+        (BOX_BODY, 0.04),
+        (BOX_ARMS, 0.04)
     ],
 
     # [Lv13]Alderan-Entrance
     5: [
-        (BOX_GUN, 0.15),
-        (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15),
-        (BOX_MINI_BOT, 0.15),
-        (BOX_HEAD, 0.15),
-        (BOX_BODY, 0.15),
-        (BOX_ARMS, 0.15)
+        (BOX_GUN, 0.018),
+        (BOX_SHIELD, 0.018),
+        (BOX_EF, 0.018),
+        (BOX_SHOULDER, 0.018),
+        (BOX_MINI_BOT, 0.018),
+        (BOX_HEAD, 0.018),
+        (BOX_BODY, 0.018),
+        (BOX_ARMS, 0.018)
     ],
 
     # [Lv16]Mine-Alderan
     6: [
-        (BOX_GUN, 0.15),
-        (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15),
-        (BOX_MINI_BOT, 0.15),
-        (BOX_HEAD, 0.15),
-        (BOX_BODY, 0.15),
-        (BOX_ARMS, 0.15)
+        (BOX_GUN, 0.018),
+        (BOX_SHIELD, 0.018),
+        (BOX_EF, 0.018),
+        (BOX_SHOULDER, 0.018),
+        (BOX_MINI_BOT, 0.018),
+        (BOX_HEAD, 0.018),
+        (BOX_BODY, 0.018),
+        (BOX_ARMS, 0.018)
     ],
 
     # [Lv18]Mine-Alderan2
     7: [
-        (BOX_GUN, 0.15),
-        (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15),
-        (BOX_MINI_BOT, 0.15),
-        (BOX_HEAD, 0.15),
-        (BOX_BODY, 0.15),
-        (BOX_ARMS, 0.15)
+        (BOX_GUN, 0.018),
+        (BOX_SHIELD, 0.018),
+        (BOX_EF, 0.018),
+        (BOX_SHOULDER, 0.018),
+        (BOX_MINI_BOT, 0.018),
+        (BOX_HEAD, 0.018),
+        (BOX_BODY, 0.018),
+        (BOX_ARMS, 0.018)
     ],
 
     # [Lv20]Mine-Blaster
     8: [
-        (BOX_GUN, 0.15),
-        (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15),
-        (BOX_MINI_BOT, 0.15),
-        (BOX_HEAD, 0.15),
-        (BOX_BODY, 0.15),
-        (BOX_ARMS, 0.15)
+        (BOX_GUN, 0.018),
+        (BOX_SHIELD, 0.018),
+        (BOX_EF, 0.018),
+        (BOX_SHOULDER, 0.018),
+        (BOX_MINI_BOT, 0.018),
+        (BOX_HEAD, 0.018),
+        (BOX_BODY, 0.018),
+        (BOX_ARMS, 0.018)
     ],
 
     # [Lv23]Lava-Sea1
     9: [
-        (BOX_GUN, 0.15),
-        (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15),
-        (BOX_MINI_BOT, 0.15),
-        (BOX_HEAD, 0.15),
-        (BOX_BODY, 0.15),
-        (BOX_ARMS, 0.15)
+        (BOX_GUN, 0.018),
+        (BOX_SHIELD, 0.018),
+        (BOX_EF, 0.018),
+        (BOX_SHOULDER, 0.018),
+        (BOX_MINI_BOT, 0.018),
+        (BOX_HEAD, 0.018),
+        (BOX_BODY, 0.018),
+        (BOX_ARMS, 0.018)
     ],
 
     # [Lv26]Lava-Sea2
     10: [
-        (BOX_GUN, 0.15),
-        (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15),
-        (BOX_MINI_BOT, 0.15),
-        (BOX_HEAD, 0.15),
-        (BOX_BODY, 0.15),
-        (BOX_ARMS, 0.15)
+        (BOX_GUN, 0.018),
+        (BOX_SHIELD, 0.018),
+        (BOX_EF, 0.018),
+        (BOX_SHOULDER, 0.018),
+        (BOX_MINI_BOT, 0.018),
+        (BOX_HEAD, 0.018),
+        (BOX_BODY, 0.018),
+        (BOX_ARMS, 0.018)
     ],
 
     # [Lv28]Lava-Sea3
     11: [
-        (BOX_GUN, 0.15),
-        (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15),
-        (BOX_MINI_BOT, 0.15),
-        (BOX_HEAD, 0.15),
-        (BOX_BODY, 0.15),
-        (BOX_ARMS, 0.15)
+        (BOX_GUN, 0.018),
+        (BOX_SHIELD, 0.018),
+        (BOX_EF, 0.018),
+        (BOX_SHOULDER, 0.018),
+        (BOX_MINI_BOT, 0.018),
+        (BOX_HEAD, 0.018),
+        (BOX_BODY, 0.018),
+        (BOX_ARMS, 0.018)
     ],
 
     # [Lv30]Acurin-Ruins1
     12: [
-        (BOX_GUN, 0.15),
-        (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15),
-        (BOX_MINI_BOT, 0.15),
-        (BOX_HEAD, 0.15),
-        (BOX_BODY, 0.15),
-        (BOX_ARMS, 0.15)
+        (BOX_GUN, 0.018),
+        (BOX_SHIELD, 0.018),
+        (BOX_EF, 0.018),
+        (BOX_SHOULDER, 0.018),
+        (BOX_MINI_BOT, 0.018),
+        (BOX_HEAD, 0.018),
+        (BOX_BODY, 0.018),
+        (BOX_ARMS, 0.018)
     ],
 
     # [Lv33]Acurin-Ruins2
     13: [
-        (BOX_GUN, 0.15),
-        (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15),
-        (BOX_MINI_BOT, 0.15),
-        (BOX_HEAD, 0.15),
-        (BOX_BODY, 0.15),
-        (BOX_ARMS, 0.15)
+        (BOX_GUN, 0.018),
+        (BOX_SHIELD, 0.018),
+        (BOX_EF, 0.018),
+        (BOX_SHOULDER, 0.018),
+        (BOX_MINI_BOT, 0.018),
+        (BOX_HEAD, 0.018),
+        (BOX_BODY, 0.018),
+        (BOX_ARMS, 0.018)
     ],
 
     # [Lv36]Planet-Acurin
     14: [
-        (BOX_GUN, 0.15),
-        (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15),
-        (BOX_MINI_BOT, 0.15),
-        (BOX_HEAD, 0.15),
-        (BOX_BODY, 0.15),
-        (BOX_ARMS, 0.15)
+        (BOX_GUN, 0.018),
+        (BOX_SHIELD, 0.018),
+        (BOX_EF, 0.018),
+        (BOX_SHOULDER, 0.018),
+        (BOX_MINI_BOT, 0.018),
+        (BOX_HEAD, 0.018),
+        (BOX_BODY, 0.018),
+        (BOX_ARMS, 0.018)
     ],
 
     # [Lv38]Planet-Acurin2
     15: [
-        (BOX_GUN, 0.15),
-        (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15),
-        (BOX_MINI_BOT, 0.15),
-        (BOX_HEAD, 0.15),
-        (BOX_BODY, 0.15),
-        (BOX_ARMS, 0.15)
+        (BOX_GUN, 0.018),
+        (BOX_SHIELD, 0.018),
+        (BOX_EF, 0.018),
+        (BOX_SHOULDER, 0.018),
+        (BOX_MINI_BOT, 0.018),
+        (BOX_HEAD, 0.018),
+        (BOX_BODY, 0.018),
+        (BOX_ARMS, 0.018)
     ],
 
     # [Lv40]Port-Acurin
     16: [
-        (BOX_GUN, 0.15),
-        (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15),
-        (BOX_MINI_BOT, 0.15),
-        (BOX_HEAD, 0.15),
-        (BOX_BODY, 0.15),
-        (BOX_ARMS, 0.15)
+        (BOX_GUN, 0.018),
+        (BOX_SHIELD, 0.018),
+        (BOX_EF, 0.018),
+        (BOX_SHOULDER, 0.018),
+        (BOX_MINI_BOT, 0.018),
+        (BOX_HEAD, 0.018),
+        (BOX_BODY, 0.018),
+        (BOX_ARMS, 0.018)
     ],
 
     # [Lv43]Escape-Acurin
     17: [
-        (BOX_GUN, 0.15),
-        (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15),
-        (BOX_MINI_BOT, 0.15),
-        (BOX_HEAD, 0.15),
-        (BOX_BODY, 0.15),
-        (BOX_ARMS, 0.15)
+        (BOX_GUN, 0.018),
+        (BOX_SHIELD, 0.018),
+        (BOX_EF, 0.018),
+        (BOX_SHOULDER, 0.018),
+        (BOX_MINI_BOT, 0.018),
+        (BOX_HEAD, 0.018),
+        (BOX_BODY, 0.018),
+        (BOX_ARMS, 0.018)
     ],
 
     # [Lv46]Planet-MECA
     18: [
-        (BOX_GUN, 0.15),
-        (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15),
-        (BOX_MINI_BOT, 0.15),
-        (BOX_HEAD, 0.15),
-        (BOX_BODY, 0.15),
-        (BOX_ARMS, 0.15)
+        (BOX_GUN, 0.018),
+        (BOX_SHIELD, 0.018),
+        (BOX_EF, 0.018),
+        (BOX_SHOULDER, 0.018),
+        (BOX_MINI_BOT, 0.018),
+        (BOX_HEAD, 0.018),
+        (BOX_BODY, 0.018),
+        (BOX_ARMS, 0.018)
     ],
 
     # [Lv48]Planet-MECA2
     19: [
-        (BOX_GUN, 0.15),
-        (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15),
-        (BOX_MINI_BOT, 0.15),
-        (BOX_HEAD, 0.15),
-        (BOX_BODY, 0.15),
-        (BOX_ARMS, 0.15)
+        (BOX_GUN, 0.018),
+        (BOX_SHIELD, 0.018),
+        (BOX_EF, 0.018),
+        (BOX_SHOULDER, 0.018),
+        (BOX_MINI_BOT, 0.018),
+        (BOX_HEAD, 0.018),
+        (BOX_BODY, 0.018),
+        (BOX_ARMS, 0.018)
     ],
 
     # [Lv50]Hidden-Archive
     20: [
-        (BOX_GUN, 0.15),
-        (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15),
-        (BOX_MINI_BOT, 0.15),
-        (BOX_HEAD, 0.15),
-        (BOX_BODY, 0.15),
-        (BOX_ARMS, 0.15)
+        (BOX_GUN, 0.018),
+        (BOX_SHIELD, 0.018),
+        (BOX_EF, 0.018),
+        (BOX_SHOULDER, 0.018),
+        (BOX_MINI_BOT, 0.018),
+        (BOX_HEAD, 0.018),
+        (BOX_BODY, 0.018),
+        (BOX_ARMS, 0.018)
     ],
 
     # [Lv53]Secret-passage
     21: [
-        (BOX_GUN, 0.15),
-        (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15),
-        (BOX_MINI_BOT, 0.15),
-        (BOX_HEAD, 0.15),
-        (BOX_BODY, 0.15),
-        (BOX_ARMS, 0.15)
+        (BOX_GUN, 0.018),
+        (BOX_SHIELD, 0.018),
+        (BOX_EF, 0.018),
+        (BOX_SHOULDER, 0.018),
+        (BOX_MINI_BOT, 0.018),
+        (BOX_HEAD, 0.018),
+        (BOX_BODY, 0.018),
+        (BOX_ARMS, 0.018)
     ],
 
     # [Lv56]Destroy-all
     22: [
-        (BOX_GUN, 0.15),
-        (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15),
-        (BOX_MINI_BOT, 0.15),
-        (BOX_HEAD, 0.15),
-        (BOX_BODY, 0.15),
-        (BOX_ARMS, 0.15)
+        (BOX_GUN, 0.018),
+        (BOX_SHIELD, 0.018),
+        (BOX_EF, 0.018),
+        (BOX_SHOULDER, 0.018),
+        (BOX_MINI_BOT, 0.018),
+        (BOX_HEAD, 0.018),
+        (BOX_BODY, 0.018),
+        (BOX_ARMS, 0.018)
     ],
 
     # [Lv58]Destroy-all2
     23: [
-        (BOX_GUN, 0.15),
-        (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15),
-        (BOX_MINI_BOT, 0.15),
-        (BOX_HEAD, 0.15),
-        (BOX_BODY, 0.15),
-        (BOX_ARMS, 0.15)
+        (BOX_GUN, 0.018),
+        (BOX_SHIELD, 0.018),
+        (BOX_EF, 0.018),
+        (BOX_SHOULDER, 0.018),
+        (BOX_MINI_BOT, 0.018),
+        (BOX_HEAD, 0.018),
+        (BOX_BODY, 0.018),
+        (BOX_ARMS, 0.018)
     ],
 
     # [Lv60]Escape-From-MECA
     24: [
-        (BOX_GUN, 0.15),
-        (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15),
-        (BOX_MINI_BOT, 0.15),
-        (BOX_HEAD, 0.15),
-        (BOX_BODY, 0.15),
-        (BOX_ARMS, 0.15)
+        (BOX_GUN, 0.018),
+        (BOX_SHIELD, 0.018),
+        (BOX_EF, 0.018),
+        (BOX_SHOULDER, 0.018),
+        (BOX_MINI_BOT, 0.018),
+        (BOX_HEAD, 0.018),
+        (BOX_BODY, 0.018),
+        (BOX_ARMS, 0.018)
     ],
 
     # [Lv63]MeraMountin
     25: [
-        (BOX_GUN, 0.15),
-        (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15),
-        (BOX_MINI_BOT, 0.15),
-        (BOX_HEAD, 0.15),
-        (BOX_BODY, 0.15),
-        (BOX_ARMS, 0.15)
+        (BOX_GUN, 0.018),
+        (BOX_SHIELD, 0.018),
+        (BOX_EF, 0.018),
+        (BOX_SHOULDER, 0.018),
+        (BOX_MINI_BOT, 0.018),
+        (BOX_HEAD, 0.018),
+        (BOX_BODY, 0.018),
+        (BOX_ARMS, 0.018)
     ],
 
     # [Lv66]MeraMountin2
     26: [
-        (BOX_GUN, 0.15),
-        (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15),
-        (BOX_MINI_BOT, 0.15),
-        (BOX_HEAD, 0.15),
-        (BOX_BODY, 0.15),
-        (BOX_ARMS, 0.15)
+        (BOX_GUN, 0.018),
+        (BOX_SHIELD, 0.018),
+        (BOX_EF, 0.018),
+        (BOX_SHOULDER, 0.018),
+        (BOX_MINI_BOT, 0.018),
+        (BOX_HEAD, 0.018),
+        (BOX_BODY, 0.018),
+        (BOX_ARMS, 0.018)
     ],
 
     # [Lv68]MeraMountin3
     27: [
-        (BOX_GUN, 0.15),
-        (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15),
-        (BOX_MINI_BOT, 0.15),
-        (BOX_HEAD, 0.15),
-        (BOX_BODY, 0.15),
-        (BOX_ARMS, 0.15)
+        (BOX_GUN, 0.018),
+        (BOX_SHIELD, 0.018),
+        (BOX_EF, 0.018),
+        (BOX_SHOULDER, 0.018),
+        (BOX_MINI_BOT, 0.018),
+        (BOX_HEAD, 0.018),
+        (BOX_BODY, 0.018),
+        (BOX_ARMS, 0.018)
     ],
 
     # [Lv70]MeraMountin4
     28: [
-        (BOX_GUN, 0.15),
-        (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15),
-        (BOX_MINI_BOT, 0.15),
-        (BOX_HEAD, 0.15),
-        (BOX_BODY, 0.15),
-        (BOX_ARMS, 0.15)
+        (BOX_GUN, 0.018),
+        (BOX_SHIELD, 0.018),
+        (BOX_EF, 0.018),
+        (BOX_SHOULDER, 0.018),
+        (BOX_MINI_BOT, 0.018),
+        (BOX_HEAD, 0.018),
+        (BOX_BODY, 0.018),
+        (BOX_ARMS, 0.018)
     ],
 
     # [Lv08]The-Fallen(Elite)
     29: [
-        (BOX_GUN, 0.15),
-        (BOX_EF, 0.15),
-        (BOX_MINI_BOT, 0.15),
-        (BOX_HEAD, 0.15),
-        (BOX_BODY, 0.15),
-        (BOX_ARMS, 0.15)
+        (BOX_GUN, 0.04),
+        (BOX_EF, 0.04),
+        (BOX_MINI_BOT, 0.04),
+        (BOX_HEAD, 0.04),
+        (BOX_BODY, 0.04),
+        (BOX_ARMS, 0.04)
     ],
 
     # [Lv18]Lava-Field(Elite)
     30: [
-        (BOX_GUN, 0.15),
-        (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15),
-        (BOX_MINI_BOT, 0.15),
-        (BOX_HEAD, 0.15),
-        (BOX_BODY, 0.15),
-        (BOX_ARMS, 0.15)
+        (BOX_GUN, 0.018),
+        (BOX_SHIELD, 0.018),
+        (BOX_EF, 0.018),
+        (BOX_SHOULDER, 0.018),
+        (BOX_MINI_BOT, 0.018),
+        (BOX_HEAD, 0.018),
+        (BOX_BODY, 0.018),
+        (BOX_ARMS, 0.018)
     ],
 
     # [Lv28]The-Pirate(Elite)
     31: [
-        (BOX_GUN, 0.15),
-        (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15),
-        (BOX_MINI_BOT, 0.15),
-        (BOX_HEAD, 0.15),
-        (BOX_BODY, 0.15),
-        (BOX_ARMS, 0.15)
+        (BOX_GUN, 0.018),
+        (BOX_SHIELD, 0.018),
+        (BOX_EF, 0.018),
+        (BOX_SHOULDER, 0.018),
+        (BOX_MINI_BOT, 0.018),
+        (BOX_HEAD, 0.018),
+        (BOX_BODY, 0.018),
+        (BOX_ARMS, 0.018)
     ],
 
     # [Lv38]Evil-Port(Elite)
     32: [
-        (BOX_GUN, 0.15),
-        (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15),
-        (BOX_MINI_BOT, 0.15),
-        (BOX_HEAD, 0.15),
-        (BOX_BODY, 0.15),
-        (BOX_ARMS, 0.15)
+        (BOX_GUN, 0.018),
+        (BOX_SHIELD, 0.018),
+        (BOX_EF, 0.018),
+        (BOX_SHOULDER, 0.018),
+        (BOX_MINI_BOT, 0.018),
+        (BOX_HEAD, 0.018),
+        (BOX_BODY, 0.018),
+        (BOX_ARMS, 0.018)
     ],
 
     # [Lv48]Bloodway(Elite)
     33: [
-        (BOX_GUN, 0.15),
-        (BOX_SHIELD, 0.15),
-        (BOX_EF, 0.15),
-        (BOX_SHOULDER, 0.15),
-        (BOX_MINI_BOT, 0.15),
-        (BOX_HEAD, 0.15),
-        (BOX_BODY, 0.15),
-        (BOX_ARMS, 0.15)
+        (BOX_GUN, 0.018),
+        (BOX_SHIELD, 0.018),
+        (BOX_EF, 0.018),
+        (BOX_SHOULDER, 0.018),
+        (BOX_MINI_BOT, 0.018),
+        (BOX_HEAD, 0.018),
+        (BOX_BODY, 0.018),
+        (BOX_ARMS, 0.018)
     ]
 }
 
