@@ -98,6 +98,7 @@ def route(socket, packet, server, client, connection_handler):
 
         # Controller: Game
         '6f2b': Game.player_death_rpc,
+        '362b': Game.use_field_pack,
         '3a2b': Game.monster_kill,
         '3c2b': Game.use_item,
         '3e2b': Game.load_finish,

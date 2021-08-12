@@ -234,6 +234,82 @@ def use_item(**_args):
         pickup.AppendInteger(get_slot(_args, room) - 1, 2, 'little')
         _args['socket'].send(pickup.packet)
 
+'''
+This method allows players to use their field packs
+'''
+def use_field_pack(**_args):
+
+    # Get room and check if we are in a room
+    room = get_room(_args)
+    if not room:
+        return
+
+    # Get our slot number
+    room_slot = get_slot(_args, room)
+
+    # Get wearing field pack
+    wearing = get_items(_args, _args['client']['character']['id'], 'wearing')
+    for idx in wearing['items']:
+        if wearing['items'][idx]['type'] == 'field_pack':
+
+            # Check if the item ID is a field pack. If not, drop the packet
+            field_packs = [
+                4030100,
+                4030101,
+                4030102,
+                4030103,
+                4030200,
+                4030201,
+                4030202,
+                4030203,
+                4030204,
+                4030301,
+                4030302,
+                4030303,
+                4030401
+            ]
+
+            if wearing['items'][idx]['id'] not in field_packs:
+                return
+
+            # Check if we are dealing with a rebirth pack
+            if wearing['items'][idx]['id'] in [4030100, 4030101, 4030102, 4030103]:
+
+                # Mark all players as alive
+                for key, slot in room['slots'].items():
+                    slot['dead'] = False
+
+                # Construct rebirth packet and broadcast it to the room
+                rebirth = PacketWrite()
+                rebirth.AddHeader([0x3A, 0x27])
+                rebirth.AppendInteger(room_slot - 1, 1, 'little')
+                rebirth.AppendBytes([0x00, 0x01, 0x00])
+                _args['connection_handler'].SendRoomAll(room['id'], rebirth.packet)
+
+            # Subtract one from the duration. Ensure that the number never becomes lower than 0.
+            wearing['items'][idx]['duration'] = wearing['items'][idx]['duration'] - 1
+            if wearing['items'][idx]['duration'] < 0:
+                wearing['items'][idx]['duration'] = 0
+
+            # Construct and send health packet
+            update_pack_times = PacketWrite()
+            update_pack_times.AddHeader([0x1D, 0x2F])
+            update_pack_times.AppendBytes([0x01, 0x00])
+
+            # Append item duration to the packet
+            for i in range(11, 17):
+                item = wearing['items'][list(wearing['items'].keys())[i]]
+                update_pack_times.AppendInteger(item['id'], 4, 'little')
+                update_pack_times.AppendInteger(item['duration'], 4, 'little')
+                update_pack_times.AppendInteger(item['duration_type'], 1, 'little')
+
+            _args['socket'].send(update_pack_times.packet)
+
+            # Subtract one from the remaining_times column for the item
+            _args['mysql'].execute("""UPDATE `character_items` SET `remaining_times` = (`remaining_times` - 1) 
+                WHERE `id` = %s AND `remaining_times` > 0""", [wearing['items'][idx]['character_item_id']])
+            break
+
 
 '''
 This method will handle player deaths.
@@ -424,8 +500,9 @@ def post_game_transaction(_args, room, status):
                 in_statement+= '{}, '.format(wearing['items'][idx]['character_item_id'])
 
         # Remove one remaining game from the total amount of remaining games, if applicable.
-        _args['mysql'].execute("""UPDATE `character_items` SET `remaining_games` = (`remaining_games` - 1) WHERE `id`
-                               IN ({0}) AND `remaining_games` IS NOT NULL""".format(in_statement[:-2]))
+        if len(in_statement) > 0:
+            _args['mysql'].execute("""UPDATE `character_items` SET `remaining_games` = (`remaining_games` - 1) WHERE `id`
+                                   IN ({0}) AND `remaining_games` IS NOT NULL""".format(in_statement[:-2]))
 
         # Remove expired items from our character and the game itself
         remove_expired_items(_args, character['id'])
