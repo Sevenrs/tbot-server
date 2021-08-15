@@ -87,6 +87,7 @@ def route(socket, packet, server, client, connection_handler):
         # Controller: Room
         '062b': Room.join_room,
         '092b': Room.create,
+        '0e2b': Room.quick_join,
         '0b2b': Room.start_game,
         '392b': Room.set_status,
         '402b': Room.kick_player,

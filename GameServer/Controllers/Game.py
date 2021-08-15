@@ -78,7 +78,7 @@ def monster_kill(**_args):
         (CANISTER_BOMB, 0.02),
         (CANISTER_TRANS_UP, 0.01),
         (CANISTER_AMMO, 0.01),
-        (CHEST_GOLD, 0.015)
+        (CHEST_GOLD, 0.005)
     ]
 
     # If the monster is a mob from which to drop boxes from, append the boxes array
@@ -285,6 +285,13 @@ def use_field_pack(**_args):
                 rebirth.AppendInteger(room_slot - 1, 1, 'little')
                 rebirth.AppendBytes([0x00, 0x01, 0x00])
                 _args['connection_handler'].SendRoomAll(room['id'], rebirth.packet)
+
+                # Construct an acknowledge message that indicates that the rebirth pack was used
+                message = Lobby.ChatMessage(target=None,
+                                            message='{0} has used their revival pack'.format(_args['client']['character']['name']),
+                                            color=2,
+                                            return_packet=True)
+                _args['connection_handler'].SendRoomAll(room['id'], message)
 
             # Subtract one from the duration. Ensure that the number never becomes lower than 0.
             wearing['items'][idx]['duration'] = wearing['items'][idx]['duration'] - 1
@@ -539,8 +546,12 @@ invoked in this method
 '''
 def game_stats(_args, room, status):
 
-    # To give players the chance to obtain items such as drops, we will be waiting six seconds.
-    time.sleep(6)
+    # To give players the chance to obtain items such as drops, we will be waiting a few seconds.
+    time.sleep(6.5)
+
+    # If the room ID no longer represents our room, stop.
+    if str(room['id']) not in _args['server'].rooms or room is not _args['server'].rooms[str(room['id'])]:
+        return
 
     # Perform post game transaction and obtain its results
     information = post_game_transaction(_args, room, status)
@@ -652,7 +663,11 @@ def game_stats(_args, room, status):
         room['slots'][key]['client']['socket'].send(packet.packet)
 
     # We must now send the packet to go back to room after 6 seconds
-    time.sleep(6)
+    time.sleep(6.5)
+
+    # If the room ID no longer represents our room, stop.
+    if str(room['id']) not in _args['server'].rooms or room is not _args['server'].rooms[str(room['id'])]:
+        return
 
     # Reset room status and broadcast room status to lobby
     reset(room)

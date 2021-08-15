@@ -20,8 +20,8 @@ class Handler:
         self.server = server
         
     def GetClients(self):
-        
-        ''' Initialize result '''
+
+        """ Initialize result """
         result = []
         
         for client in self.server.clients:
@@ -34,6 +34,22 @@ class Handler:
             result.append(client)
             
         return result
+
+    """
+    Method:         get_lobby_clients
+    Description:    This will retrieve all clients that are not in a room
+    """
+    def get_lobby_clients(self):
+
+        # Retrieve all connected clients
+        clients = self.GetClients()
+
+        # Remove clients that are in a room
+        for client in clients:
+            if 'room' in client:
+                clients.remove(client)
+
+        return clients
         
     """
     Method:         GetCharacterClient(string CharacterName)

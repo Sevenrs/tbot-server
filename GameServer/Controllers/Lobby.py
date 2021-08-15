@@ -12,7 +12,7 @@ import os
 """
 This method will send a chat message to a specific target client
 """
-def ChatMessage(target, message, color):
+def ChatMessage(target, message, color, return_packet=False):
     chat = PacketWrite()
     chat.AddHeader(bytearray([0x1A, 0x27]))
     chat.AppendBytes(bytearray([0x00, 0x00, 0x00, 0x00]))
@@ -20,6 +20,12 @@ def ChatMessage(target, message, color):
     chat.AppendBytes(bytearray([0x00]))
     chat.AppendString(message)
     chat.AppendBytes(bytearray([0x00, 0x00, 0x00, 0x00, 0x00]))
+
+    # If we want to use the chat packet itself, return the packet to the stack
+    if return_packet:
+        return chat.packet
+
+    # Otherwise, send the packet to the intended target
     target['socket'].send(chat.packet)
         
 """
@@ -30,9 +36,7 @@ def Chat(**_args):
     chat_message = "[{0}] {1}".format(_args['client']['character']['name'], message[message.find(']') + 2:])
     chat_type = _args['packet'].GetByte(4)
 
-    # temporary, just for testing
     command_msg = message[message.find(']') + 2:]
-    print(command_msg[0:11] + 'a')
     if command_msg[0:11] == '@changeslot':
 
         # Drop invalid ranges
@@ -55,7 +59,17 @@ def Chat(**_args):
     if int(chat_type) == 5:
         Guild.Chat(_args, message)
     else:
-        for client in _args['server'].clients:
+
+        # Retrieve all clients that are currently not in a room, but are connected.
+        clients = _args['connection_handler'].get_lobby_clients()
+
+        # Depending on the position of the player, we need a different scope of clients
+        # If the player a staff member, retrieve all clients
+        if _args['client']['character']['position'] != 0:
+            clients = _args['server'].clients
+
+        # Send the message to the right clients
+        for client in clients:
             ChatMessage(client, chat_message, _args['client']['character']['position'])
 
 def Whisper(**_args):
@@ -67,7 +81,7 @@ def Whisper(**_args):
     
     """
     We should never trust the client (users can fake their username without the server ever knowing).
-    And so, we should let the server recontruct the message.
+    And so, we should let the server reconstruct the message.
     This method will work, as long we keep the same structure the client expects.
     """
     client_message  = _args['packet'].ReadString()
@@ -117,16 +131,28 @@ def examine_player(**_args):
     if character is None:
         return  _args['socket'].send(bytearray([0x2B, 0x2F, 0x02, 0x00, 0x00, 0x33]))
 
+    # Attempt to retrieve the client by the username
+    remote_client = _args['connection_handler'].GetCharacterClient(username)
+
+    # Define room and room ID this character is in. Default to nothing.
+    room, room_id = None, 0
+
+    # If the remote client has been found and is in a room, retrieve room information
+    if remote_client is not None and 'room' in remote_client:
+        room = _args['server'].rooms[str(remote_client['room'])]
+        room_id = (room['client_id'] + 1) - (1500 if room['game_type'] == 4 else 0)
+
     # Retrieve wearing items
     wearing_items = get_items(_args, character['id'], 'wearing')
 
     # Create examination packet
     examination = PacketWrite()
     examination.AddHeader(bytearray([0x27, 0x2F]))
-    examination.AppendInteger(character['experience'], 4, 'little')
+    examination.AppendInteger(0 if character['name'] != _args['client']['character']['name']
+                              else character['experience'], 4, 'little')
 
     examination.AppendInteger(character['level'], 2, 'little')  # Character level
-    examination.AppendInteger(0, 2, 'little')                   # room, todo: get character instance if exists
+    examination.AppendInteger(room_id, 2, 'little')             # Room ID
 
     # Send character parts and gear
     for i in range(0, 11):
@@ -138,11 +164,10 @@ def examine_player(**_args):
         item = wearing_items['items'][list(wearing_items['items'].keys())[i]]
         examination.AppendInteger(item['id'], 4, 'little')
 
-    examination.AppendInteger(0, 1, 'little')                   # if in a room, it is 2, todo: get character instance if exists
-
-    examination.AppendInteger(character['type'], 1, 'little')   # Character type
-    examination.AppendBytes([0x01, 0x00])                       # Request status
-    examination.AppendString(character['name'], 15)             # Character name
+    examination.AppendInteger(0 if room is None else 1, 1, 'little')    # In-room status
+    examination.AppendInteger(character['type'], 1, 'little')           # Character type
+    examination.AppendBytes([0x01, 0x00])                               # Request status
+    examination.AppendString(character['name'], 15)                     # Character name
 
     # Send examination packet to the client
     _args['socket'].send(examination.packet)
@@ -153,29 +178,45 @@ This method will load the lobby
 """
 def GetLobby(**_args):
     lobby_packet = PacketWrite()
-    
+
     # Packet header
     lobby_packet.AddHeader(bytearray([0xF2, 0x2E]))
     lobby_packet.AppendBytes([0x01, 0x00])
-    
+
     # Amount of players
     clients = _args['connection_handler'].GetClients()
     lobby_packet.AppendInteger(len(clients), 2, 'little')
-    
+
     for client in clients:
         lobby_packet.AppendString(client['character']['name'], 15)
         lobby_packet.AppendInteger(client['character']['type'], 1)
         lobby_packet.AppendBytes([0x01])
-        
+
     lobby_packet.AppendBytes([0x02, 0x01, 0x00, 0x00, 0x00, 0x00])
     _args['socket'].send(lobby_packet.packet)
-    
+
+    # For each player that is in a room, send an additional status packet
+    for client in clients:
+
+        # If the client is not in a room, do not send the additional status packet
+        if 'room' not in client:
+            continue
+
+        # Construct status packet and send it to our own socket
+        status = PacketWrite()
+        status.AddHeader([0x27, 0x27])
+        status.AppendBytes([0x01, 0x00])
+        status.AppendString(client['character']['name'], 15)
+        status.AppendInteger(3, 1, 'little')
+        status.AppendInteger(0, 1, 'little')
+        _args['socket'].send(status.packet)
+
     # Load friends
     Friend.RetrieveFriends(_args, _args['client'])
-    
+
     # Get guild membership
     Guild.GetGuild(_args, _args['client'], True)
-    
+
     # If this is the first time that this client has requested the lobby, notify all their friends
     if _args['client']['new']:
 

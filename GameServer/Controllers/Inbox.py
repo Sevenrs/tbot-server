@@ -99,7 +99,7 @@ def RequestMessage(**_args):
     # Find the message in the database
     _args['mysql'].execute("""SELECT IFNULL(c.`name`, '( deleted )') AS `sender`, i.`message` FROM inbox i
         LEFT JOIN `characters` c ON c.`id` = i.`sender_character_id`
-        WHERE i.`receiver_character_id` = %s ORDER BY i.`id` ASC LIMIT 1 OFFSET %s""", [
+        WHERE i.`receiver_character_id` = %s ORDER BY i.`id` DESC LIMIT 1 OFFSET %s""", [
             _args['client']['character']['id'],
             (message_index - 1)
     ])

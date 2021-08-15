@@ -64,9 +64,6 @@ def get_list(_args, mode=2, page=0, local=True):
         for client in _args['server'].clients:
 
             # Check if the client is not in a room and if the client is able to see this change at all
-            print(client['lobby_data'])
-            print(client['lobby_data'] == {'mode': mode, 'page': page})
-            print({'mode': mode, 'page': page})
             if 'room' not in client and client['lobby_data'] == {'mode': mode, 'page': page}:
                 try:
                     client['socket'].send(result.packet)
@@ -227,6 +224,9 @@ def add_slot(_args, room_id, client, broadcast=False):
             'relay_ids':        []
         }
 
+        # Update player status to be in room
+        _args['connection_handler'].UpdatePlayerStatus(client, 0)
+
     # Tell all the sockets about the player and tell our client about the room
     if broadcast:
 
@@ -320,6 +320,10 @@ def remove_slot(_args, room_id, client, reason=1):
             # Remove the room from the client so the client is no longer in the room
             client.pop('room')
 
+            # If the reason is not equal to 6 (forced to log out), update the player status to not be in a room
+            if reason != 6:
+                _args['connection_handler'].UpdatePlayerStatus(client, 1)
+
             # Remove peer information as we most likely need to assign new information later
             if 'p2p_host' in client:
                 client.pop('p2p_host')
@@ -339,34 +343,32 @@ def remove_slot(_args, room_id, client, reason=1):
     else:
         sync_state(_args, room)
 
-
 """
-This method will create a new room
+This method will create a new room by creating a new room instance and having it in the room container
 """
-
 def create(**_args):
 
     # Check if our current client is already in a room
     if 'room' in _args['client']:
         return
 
-    print(_args['packet'].data)
+    # Retrieve all information from the packet
+    name        = _args['packet'].ReadStringByRange(0, 27)
+    password    = _args['packet'].ReadStringByRange(27, 38)
+    game_type   = _args['packet'].GetByte(39)
+    time        = _args['packet'].GetByte(41)
 
-    # Get parameters from the incoming packet
-    room_name = _args['packet'].ReadStringByRange(0, 27)
-    room_password = _args['packet'].ReadStringByRange(27, 38)
-    room_gametype = _args['packet'].GetByte(39)
-    room_time = _args['packet'].GetByte(41)
-    room_ids = get_available_room_number(_args, room_gametype)
+    # Retrieve available room number
+    room_ids = get_available_room_number(_args, game_type)
 
     # Store room in the room container
     room = {
         'slots':                {},
         'closed_slots':         [],
-        'name':                 room_name,
-        'password':             room_password,
-        'game_type':            room_gametype,
-        'time':                 room_time,
+        'name':                 name,
+        'password':             password,
+        'game_type':            game_type,
+        'time':                 time,
         'id':                   room_ids['slot'],
         'client_id':            room_ids['client_id'],
         'master':               _args['client'],
@@ -388,16 +390,57 @@ def create(**_args):
     # Add ourselves to slots
     add_slot(_args, room_ids['slot'], _args['client'])
 
+    # Send room information to our own client
     room = PacketWrite()
     room.AddHeader(bytearray([0xEE, 0x2E]))
     room.AppendBytes(bytearray([0x01, 0x00]))
     room.AppendInteger(room_ids['client_id'] + 1, 2, 'little')
 
-    ip_addr = _args['socket'].getpeername()[0].split('.')
-    for number in ip_addr:
+    local_address = _args['socket'].getpeername()[0].split('.')
+    for number in local_address:
         room.AppendInteger(int(number))
 
     _args['socket'].send(room.packet)
+
+'''
+This method will handle quick join requests
+'''
+def quick_join(**_args):
+
+    # Check if our current client is already in a room
+    if 'room' in _args['client']:
+        return
+
+    # Retrieve mode from our client
+    mode = _args['client']['lobby_data']['mode']
+
+    # Calculate room range based on the mode
+    start_range = mode * 600
+
+    # Attempt to join 600 rooms for the mode we are currently in
+    for i in range(start_range, (start_range + 600)):
+
+        # If a room was not found, skip the iteration
+        if not str(i) in _args['server'].rooms:
+            continue
+
+        # Retrieve the room from the room container
+        room = _args['server'].rooms[str(i)]
+
+        # If the room is full, has a password or has started, skip the iteration
+        if (len(room['slots']) + len(room['closed_slots'])) >= 8 or len(room['password']) > 0 or room['status'] != 0:
+            continue
+
+        # If we have passed all the checks, we can join the room
+        add_slot(_args, room['id'], _args['client'], True)
+        sync_state(_args, room)
+        return
+
+    # If we have no results, create our own room instead
+    create_room = PacketWrite()
+    create_room.AddHeader([0x28, 0x2F])
+    create_room.AppendBytes([0x00, 0x3A])
+    _args['socket'].send(create_room.packet)
 
 """
 This method will set the level for the room
