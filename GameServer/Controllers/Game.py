@@ -66,7 +66,7 @@ def monster_kill(**_args):
     monster_id  = _args['packet'].GetByte(0)
     who         = _args['packet'].GetByte(4)
 
-    # If the mob is an assistant, multiply the canister chance by a factor of 1.75
+    # If the mob is an assistant, multiply the canister chance by a factor of 50
     assistant_multiplication = 50.0 if room['level'] in PLANET_ASSISTS \
                                        and monster_id in PLANET_ASSISTS[room['level']] else 1.0
 
@@ -78,7 +78,7 @@ def monster_kill(**_args):
         (CANISTER_BOMB, 0.02),
         (CANISTER_TRANS_UP, 0.01),
         (CANISTER_AMMO, 0.01),
-        (CHEST_GOLD, 0.005)
+        (CHEST_GOLD, 0.010)
     ]
 
     # If the monster is a mob from which to drop boxes from, append the boxes array
@@ -384,15 +384,15 @@ def game_end_rpc(**_args):
         death.AppendBytes(bytes=bytearray([0x00, 0x00, 0x00, 0x00, 0x00]))
         _args['connection_handler'].SendRoomAll(room['id'], death.packet)
 
-        # Update the score board if we are playing DeathMatch and if the player is not killed by nobody
-        if room['game_type'] == 4 and who != 65535 and str(who + 1) in room['slots']:
+        # Update the score board if we are playing DeathMatch
+        if room['game_type'] == 4 and (str(who + 1) in room['slots'] or who == 65535):
 
             # Update the score board
             update = PacketWrite()
             update.AddHeader([0x5B, 0x2F])
             update.AppendBytes(bytes=bytearray([0x01, 0x00]))
-            update.AppendInteger(integer=(int(room_slot) - 1), length=2, byteorder='little')
-            update.AppendInteger(integer=who, length=2, byteorder='little')
+            update.AppendInteger(integer=(int(room_slot) - 1), length=2, byteorder='little')    # Victim
+            update.AppendInteger(integer=who, length=2, byteorder='little')                     # Killer
             _args['connection_handler'].SendRoomAll(room['id'], update.packet)
 
         # Do not end game based on the deaths of players if the game type is DeathMatch
@@ -480,7 +480,12 @@ def post_game_transaction(_args, room, status):
                               / (1.00 if abs(PLANET_MAP_TABLE[room['level']][2] - character['level']) < 10 else 4.00)) \
                                     if room['level'] in PLANET_MAP_TABLE.keys() and status == 1 else 0
 
-        addition_gigas = 420 if status == 1 else 0
+        ''' Calculate the amount of gigas to award to the player. If the level difference is too large, the amount of reduced.
+            The base reward is equal to 1250 which a rate is applied on top of.'''
+        mv      = (PLANET_MAP_TABLE[room['level']][2] + 1) * 2
+        rate    = min(15.0, max(0.1, 1.0 + (float(mv - character['level']) / 10.0)))
+        reward  = int(1250 * rate / (1.00 if abs(PLANET_MAP_TABLE[room['level']][2] - character['level']) < 10 else 4.00))
+        addition_gigas = reward if status == 1 else 0
 
         # Check if we have leveled up
         level_up = character['experience'] + addition_experience >= EXP_TABLE[character['level'] + 1]
