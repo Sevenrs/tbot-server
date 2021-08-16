@@ -79,11 +79,15 @@ This method determines who is relayed and who is not
 If a client is relay, their relay ID is pushed to the relay ID container
 '''
 def check_connection(**_args):
+    print('check_connection called')
     for i in range(0, 8):
         start = (17 * i) + 8
 
         connected       = int(_args['packet'].ReadInteger(start + 2, 1, 'little'))
         character_name  = _args['packet'].ReadStringByRange(start + 2, (start + 17))
+
+        print(connected)
+        print(character_name)
 
         if connected == 0 and len(character_name) > 0:
             room = _args['client']['game_server'].rooms[str(_args['client']['game_client']['room'])]
@@ -104,6 +108,7 @@ def check_connection(**_args):
 This method removes a relay ID from the requesting client's relay ID container
 '''
 def remove_connection(**_args):
+    print('remove_connection called')
     character_name  = _args['packet'].ReadStringByRange(2, 17)
 
     # Find our own room
@@ -120,6 +125,8 @@ def remove_connection(**_args):
             if client['id'] in room_slot['relay_ids']:
                 room_slot['relay_ids'].remove(client['id'])
 
+            print(room_slot['relay_ids'])
+
     # It is possible that the connection was closed by the remote client causing the ID to be removed from
     # the state and not from the room, making the above snippet not work. This will loop through all IDs in the
     # entire room and check if we should remove them
@@ -129,6 +136,8 @@ def remove_connection(**_args):
             for id in ids:
                 if id not in _args['client']['server'].ids:
                     ids.remove(id)
+
+            print(ids)
 
 ''' Check if we have a client assigned after 10 seconds. If not, disconnect (time out)'''
 def check_state(client):
