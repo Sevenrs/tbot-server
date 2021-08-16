@@ -98,6 +98,8 @@ def check_connection(**_args):
                     if client['id'] not in room_slot['relay_ids']:
                         room_slot['relay_ids'].append(client['id'])
 
+                    print(room_slot['relay_ids'])
+
 '''
 This method removes a relay ID from the requesting client's relay ID container
 '''

@@ -8,9 +8,9 @@ from GameServer.Controllers.data.drops import *
 from GameServer.Controllers.data.exp import *
 from GameServer.Controllers.data.planet import PLANET_MAP_TABLE, PLANET_BOXES, PLANET_BOX_MOBS, PLANET_DROPS,\
     PLANET_ASSISTS
-from GameServer.Controllers.Room import get_room, get_slot, get_list, get_list_page_by_room_id, reset, remove_slot
 from GameServer.Controllers.Character import get_items, add_item, get_available_inventory_slot, remove_expired_items
 from GameServer.Controllers import Lobby
+from GameServer.Controllers import Room
 import MySQL.Interface as MySQL
 import random
 import time
@@ -27,12 +27,12 @@ If a client has not loaded the map, the ready packet will not be sent yet
 def load_finish(**_args):
 
     # Get room and check if we are in one
-    room = get_room(_args)
+    room = Room.get_room(_args)
     if not room:
         return
 
     # Get slot and update loading status
-    room['slots'][str(get_slot(_args, room))]['loaded'] = True
+    room['slots'][str(Room.get_slot(_args, room))]['loaded'] = True
 
     # Check if the other slots have loaded
     for slot in room['slots']:
@@ -58,7 +58,7 @@ of the monster being killed.
 def monster_kill(**_args):
 
     # If the client is not in a room or is not its master, drop the packet
-    room = get_room(_args)
+    room = Room.get_room(_args)
     if not room:
         return
 
@@ -125,7 +125,7 @@ This method will handle picking up items which were dropped from monsters
 def use_item(**_args):
 
     # If the client is not in a room, drop the packet
-    room = get_room(_args)
+    room = Room.get_room(_args)
     if not room:
         return
 
@@ -146,7 +146,7 @@ def use_item(**_args):
     # Broadcast the use canister packet to the room
     use_canister = PacketWrite()
     use_canister.AddHeader(bytearray([0x23, 0x2F]))
-    use_canister.AppendInteger(get_slot(_args, room) - 1, 2, 'little')
+    use_canister.AppendInteger(Room.get_slot(_args, room) - 1, 2, 'little')
     use_canister.AppendInteger(item_index, 1, 'little')
     use_canister.AppendInteger(item_type, 4, 'little')
     _args['connection_handler'].SendRoomAll(room['id'], use_canister.packet)
@@ -231,7 +231,7 @@ def use_item(**_args):
         pickup.AppendBytes(bytes=[0x01, 0x00])
         pickup.AppendInteger(item_id, 4, 'little')
         pickup.AppendInteger(0, 4, 'little')
-        pickup.AppendInteger(get_slot(_args, room) - 1, 2, 'little')
+        pickup.AppendInteger(Room.get_slot(_args, room) - 1, 2, 'little')
         _args['socket'].send(pickup.packet)
 
 '''
@@ -240,12 +240,12 @@ This method allows players to use their field packs
 def use_field_pack(**_args):
 
     # Get room and check if we are in a room
-    room = get_room(_args)
+    room = Room.get_room(_args)
     if not room:
         return
 
     # Get our slot number
-    room_slot = get_slot(_args, room)
+    room_slot = Room.get_slot(_args, room)
 
     # Get wearing field pack
     wearing = get_items(_args, _args['client']['character']['id'], 'wearing')
@@ -324,7 +324,7 @@ This method will handle player deaths.
 def player_death_rpc(**_args):
 
     # If the client is not in a room, drop the packet
-    room = get_room(_args)
+    room = Room.get_room(_args)
     if not room:
         return
 
@@ -338,7 +338,7 @@ It works by reading the slot number and broadcasting that the player is dead to 
 def player_death(_args, room):
 
     # Get slot number from the room
-    room_slot = get_slot(_args, room)
+    room_slot = Room.get_slot(_args, room)
 
     # Do not kill the player if the player is already dead
     if room['slots'][str(room_slot)]['dead']:
@@ -362,7 +362,7 @@ called manually in the game code.
 def game_end_rpc(**_args):
 
     # If the client is not in a room or is not its master, drop the packet
-    room = get_room(_args)
+    room = Room.get_room(_args)
     if not room:
         return
 
@@ -370,7 +370,7 @@ def game_end_rpc(**_args):
     if room['game_type'] == 0 or room['game_type'] == 4:
 
         # Get slot number from the room
-        room_slot = get_slot(_args, room)
+        room_slot = Room.get_slot(_args, room)
         room['slots'][str(room_slot)]['dead'] = True
 
         # Retrieve who killed the player
@@ -471,21 +471,30 @@ def post_game_transaction(_args, room, status):
         # Retrieve character object belonging to this player
         character = slot['client']['character']
 
-        ''' Calculate the amount of experience to award to the player. If the player's level has a difference of at least 10,
-            the experience is divided by four. Otherwise, the experience is not mutated. 
-            
-            If there is an experience modifier present, it will be applied on top of the base experience.
-            Finally, if the player has lost the game, no experience will be awarded at all. '''
-        addition_experience = int(PLANET_MAP_TABLE[room['level']][0][room['difficulty']] * room['experience_modifier'] \
-                              / (1.00 if abs(PLANET_MAP_TABLE[room['level']][2] - character['level']) < 10 else 4.00)) \
-                                    if room['level'] in PLANET_MAP_TABLE.keys() and status == 1 else 0
+        # Default experience addition and giga addition values
+        addition_experience, addition_gigas, addition_rank_experience = 0, 0, 0
 
-        ''' Calculate the amount of gigas to award to the player. If the level difference is too large, the amount of reduced.
-            The base reward is equal to 1250 which a rate is applied on top of.'''
-        mv      = (PLANET_MAP_TABLE[room['level']][2] + 1) * 2
-        rate    = min(15.0, max(0.1, 1.0 + (float(mv - character['level']) / 10.0)))
-        reward  = int(1250 * rate / (1.00 if abs(PLANET_MAP_TABLE[room['level']][2] - character['level']) < 10 else 4.00))
-        addition_gigas = reward if status == 1 else 0
+        ''' Calculate experience and giga gains for planet mode'''
+        if room['game_type'] == 2:
+
+            ''' Calculate the amount of experience to award to the player. If the player's level has a difference of at least 10,
+                the experience is divided by four. Otherwise, the experience is not mutated. 
+                
+                If there is an experience modifier present, it will be applied on top of the base experience.
+                Finally, if the player has lost the game, no experience will be awarded at all. '''
+            addition_experience = int(PLANET_MAP_TABLE[room['level']][0][room['difficulty']] * room['experience_modifier'] \
+                                  / (1.00 if abs(PLANET_MAP_TABLE[room['level']][2] - character['level']) < 10 else 4.00)) \
+                                        if room['level'] in PLANET_MAP_TABLE.keys() and status == 1 else 0
+
+            ''' Calculate the amount of gigas to award to the player. If the level difference is too large, the amount of reduced.
+                The base reward is equal to 1250 which a rate is applied on top of.'''
+            mv      = (PLANET_MAP_TABLE[room['level']][2] + 1) * 2
+            rate    = min(15.0, max(0.1, 1.0 + (float(mv - character['level']) / 10.0)))
+            reward  = int(1250 * rate / (1.00 if abs(PLANET_MAP_TABLE[room['level']][2] - character['level']) < 10 else 4.00))
+            addition_gigas = reward if status == 1 else 0
+
+        elif room['game_type'] == 4:
+            addition_rank_experience = 0
 
         # Check if we have leveled up
         level_up = character['experience'] + addition_experience >= EXP_TABLE[character['level'] + 1]
@@ -498,6 +507,12 @@ def post_game_transaction(_args, room, status):
 
             # Update only our experience
             character['experience'] = character['experience'] + addition_experience
+
+        # Increase the rank experience and then check if we can rank up
+        character['rank_exp'] += addition_rank_experience
+        rank_up = character['rank_exp'] + addition_rank_experience >= RANK_EXP_TABLE[character['rank']]
+        if rank_up:
+            character['rank'] += 1
 
         # Calculate new gigas currency
         character['currency_gigas'] = character['currency_gigas'] + addition_gigas
@@ -521,6 +536,7 @@ def post_game_transaction(_args, room, status):
 
         information[key] = {
             'addition_experience': addition_experience,
+            'addition_rank_experience': addition_rank_experience,
             'addition_gigas': addition_gigas,
             'experience': character['experience'],
             'gold': character['currency_gigas'],
@@ -532,11 +548,19 @@ def post_game_transaction(_args, room, status):
 
         # Update character with the new values
         _args['mysql'].execute(
-            """UPDATE `characters` SET `experience` = %s, `currency_gigas` = %s, `level` = %s WHERE `id` = %s""",
+            """UPDATE `characters` SET
+                                        `experience` = %s,
+                                        `currency_gigas` = %s,
+                                        `level` = %s,
+                                        `rank` = %s,
+                                        `rank_exp` = %s
+                                    WHERE `id` = %s""",
             [
                 character['experience'],
                 character['currency_gigas'],
                 character['level'],
+                character['rank'],
+                character['rank_exp'],
                 slot['client']['character']['id']
             ])
 
@@ -622,8 +646,16 @@ def game_stats(_args, room, status):
         room_results.AppendInteger(0 if str(i + 1) not in information else room['slots'][str(i + 1)]['client']['character']['rank_exp'], 4, 'little')
         room_results.AppendInteger(0 if str(i + 1) not in information else room['slots'][str(i + 1)]['client']['character']['rank'], 4, 'little')
 
-        for _ in range(37):
-            room_results.AppendBytes(bytearray([0x00]))
+        # Rank points
+        room_results.AppendInteger(0, 4, 'little')
+
+        # Kill points
+        room_results.AppendInteger(0, 4, 'little')
+
+        # Experience bonus
+        for b in range(37):
+            #room_results.AppendBytes(bytearray([0x00]))
+            room_results.AppendInteger(0, 4, 'little')
 
 
     for key, slot in room['slots'].items():
@@ -675,10 +707,10 @@ def game_stats(_args, room, status):
         return
 
     # Reset room status and broadcast room status to lobby
-    reset(room)
+    Room.reset(room)
     room['status'] = 0
-    get_list(_args, mode=0 if room['game_type'] in [0, 1] else room['game_type'] - 1,
-             page=get_list_page_by_room_id(room['id'], room['game_type']), local=False)
+    Room.get_list(_args, mode=0 if room['game_type'] in [0, 1] else room['game_type'] - 1,
+             page=Room.get_list_page_by_room_id(room['id'], room['game_type']), local=False)
 
     game_exit = PacketWrite()
     game_exit.AddHeader(bytearray([0x2A, 0x2F]))
@@ -718,7 +750,7 @@ This method will parse chat commands
 def chat_command(**_args):
 
     # Check if we are in a room, if not drop the packet
-    room = get_room(_args)
+    room = Room.get_room(_args)
     if not room:
         return
 
@@ -730,7 +762,7 @@ def chat_command(**_args):
 
         # Handle exit requests
         if command == 'exit':
-            remove_slot(_args, _args['client']['room'], _args['client'])
+            Room.remove_slot(_args, _args['client']['room'], _args['client'])
 
         # Handle suicide requests
         elif command == 'suicide':
@@ -769,7 +801,7 @@ def chat_command(**_args):
             # Attempt to find the player we are trying to kick from the room
             for key, slot in slots:
                 if slot['client']['character']['name'] == who:
-                    remove_slot(_args, room['id'], slot['client'], 2)
+                    Room.remove_slot(_args, room['id'], slot['client'], 2)
                     return
 
             # If we have passed the loop with no result, the player was not found

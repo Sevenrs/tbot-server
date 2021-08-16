@@ -6,6 +6,7 @@ __version__ = "1.0"
 from Packet.Write import Write as PacketWrite
 from GameServer.Controllers import Character, Guild, Lobby
 from GameServer.Controllers.data.planet import PLANET_MAP_TABLE
+from GameServer.Controllers.Game import game_end
 import math, os, time, datetime
 from random import randrange
 
@@ -799,23 +800,31 @@ def sync_state(_args, room):
             status.AppendInteger(room['slots'][str(i)]['team'] if str(i) in room['slots'] else 0, 2, 'little')
             _args['connection_handler'].SendRoomAll(room['id'], status.packet)
 
-    # If the room status is equal to 3 (started) and the game has not loaded yet, check all clients' loaded state again
-    elif room['status'] == 3 and not room['game_loaded']:
+    # If the room status is equal to 3 (started)
+    elif room['status'] == 3:
 
-        ''' Check every slot's loaded status. If they've all started then send the ready packet to the room.
-            No reason to wait for other clients that may not exist anymore. '''
-        for slot in room['slots']:
-            if not room['slots'][slot]['loaded']:
-                return
+        # the game has not loaded yet, check all clients' loaded state again
+        if not room['game_loaded']:
 
-        # Update the loaded state to True
-        room['game_loaded'] = True
+            ''' Check every slot's loaded status. If they've all started then send the ready packet to the room.
+                       No reason to wait for other clients that may not exist anymore. '''
+            for slot in room['slots']:
+                if not room['slots'][slot]['loaded']:
+                    return
 
-        # Send the ready packet to all sockets in the room
-        ready = PacketWrite()
-        ready.AddHeader(bytearray([0x24, 0x2F]))
-        ready.AppendBytes(bytearray([0x00]))
-        _args['connection_handler'].SendRoomAll(room['id'], ready.packet)
+            # Update the loaded state to True
+            room['game_loaded'] = True
+
+            # Send the ready packet to all sockets in the room
+            ready = PacketWrite()
+            ready.AddHeader(bytearray([0x24, 0x2F]))
+            ready.AppendBytes(bytearray([0x00]))
+            _args['connection_handler'].SendRoomAll(room['id'], ready.packet)
+
+        # If we are playing DeathMatch and there are less than 2 players in the room, end the game
+        if room['game_type'] == 4 and len(room['slots']) < 2:
+            game_end(_args=_args, room=room, status=2)
+
 
 
 '''
