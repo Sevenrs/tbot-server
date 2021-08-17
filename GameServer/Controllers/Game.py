@@ -371,10 +371,18 @@ def game_end_rpc(**_args):
 
         # Get slot number from the room
         room_slot = Room.get_slot(_args, room)
-        room['slots'][str(room_slot)]['dead'] = True
+
+        # Update death status (unless we're playing DeathMatch) and increment death count
+        if room['game_type'] != 4:
+            room['slots'][str(room_slot)]['dead'] = True
+        room['slots'][str(room_slot)]['deaths'] += 1
 
         # Retrieve who killed the player
         who = int(_args['packet'].ReadInteger(5, 2, 'little'))
+
+        # If the player is in the room, increment their kill count by one
+        if str(who + 1) in room['slots'] and who != 65535:
+            room['slots'][str(who + 1)]['player_kills'] += 1
 
         # Tell room about the death of the player
         death = PacketWrite()
@@ -494,7 +502,7 @@ def post_game_transaction(_args, room, status):
             addition_gigas = reward if status == 1 else 0
 
         elif room['game_type'] == 4:
-            addition_rank_experience = 0
+            addition_rank_experience = int(slot['player_kills'] * 2.5)
 
         # Check if we have leveled up
         level_up = character['experience'] + addition_experience >= EXP_TABLE[character['level'] + 1]
@@ -510,9 +518,20 @@ def post_game_transaction(_args, room, status):
 
         # Increase the rank experience and then check if we can rank up
         character['rank_exp'] += addition_rank_experience
-        rank_up = character['rank_exp'] + addition_rank_experience >= RANK_EXP_TABLE[character['rank']]
+
+        # Only rank if if our rank is equal or smaller than 42 and if our experience exceeds or equals that of the next rank
+        new_rank = 0
+
+        # Find our next rank based on the amount of experience we have.
+        # Do not change the rank if the rank is greater than 43 (max rank)
+        for rank in RANK_EXP_TABLE:
+            if character['rank_exp'] >= RANK_EXP_TABLE[rank] and rank <= 43:
+                new_rank = rank
+
+        # Change our current rank to the new rank if it's greater than our current rank
+        rank_up = new_rank > character['rank']
         if rank_up:
-            character['rank'] += 1
+            character['rank'] = new_rank
 
         # Calculate new gigas currency
         character['currency_gigas'] = character['currency_gigas'] + addition_gigas
@@ -647,15 +666,34 @@ def game_stats(_args, room, status):
         room_results.AppendInteger(0 if str(i + 1) not in information else room['slots'][str(i + 1)]['client']['character']['rank'], 4, 'little')
 
         # Rank points
-        room_results.AppendInteger(0, 4, 'little')
+        room_results.AppendInteger(0 if str(i + 1) not in information else information[str(i + 1)]['addition_rank_experience'], 4, 'little')
 
         # Kill points
         room_results.AppendInteger(0, 4, 'little')
 
         # Experience bonus
-        for b in range(37):
-            #room_results.AppendBytes(bytearray([0x00]))
-            room_results.AppendInteger(0, 4, 'little')
+        room_results.AppendInteger(0, 4, 'little')
+
+        # Unknown, possibly leveled up
+        room_results.AppendInteger(0, 4, 'little')
+
+        # Cash point
+        room_results.AppendInteger(0, 4, 'little')
+
+        # Rank experience points
+        room_results.AppendInteger(0 if str(i + 1) not in information else information[str(i + 1)]['addition_rank_experience'], 4, 'little')
+
+        # Kills
+        room_results.AppendInteger(0 if str(i + 1) not in information else room['slots'][str(i + 1)]['player_kills'], 4, 'little')
+
+        # Deaths
+        room_results.AppendInteger(0 if str(i + 1) not in information else room['slots'][str(i + 1)]['deaths'], 4, 'little')
+
+        # Attack points
+        room_results.AppendInteger(0 if str(i + 1) not in information else room['slots'][str(i + 1)]['player_kills'] * 128, 4, 'little')
+
+        # Unknown, possibly padding
+        room_results.AppendBytes(bytearray([0x00]))
 
 
     for key, slot in room['slots'].items():
@@ -742,7 +780,7 @@ def countdown_timer(_args, room):
     # If polling stopped while the game is not over, the game has ran out of time.
     # Also check if there are actually any players in the room
     if len(room['slots']) > 0 and not room['game_over']:
-        game_end(_args=_args, room=room, status=2)
+        game_end(_args=_args, room=room, status=2 if room['game_type'] != 4 else 3)
 
 '''
 This method will parse chat commands

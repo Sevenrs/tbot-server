@@ -6,6 +6,9 @@ __version__ = "1.0"
 from Packet.Write import Write as PacketWrite
 from GameServer.Controllers import Character, Guild, Lobby
 from GameServer.Controllers.data.planet import PLANET_MAP_TABLE
+from GameServer.Controllers.data.deathmatch import DEATHMATCH_MAP_TABLE
+from GameServer.Controllers.data.battle import BATTLE_MAP_TABLE
+from GameServer.Controllers.data.military import MILITARY_MAP_TABLE
 from GameServer.Controllers.Game import game_end
 import math, os, time, datetime
 from random import randrange
@@ -222,6 +225,7 @@ def add_slot(_args, room_id, client, broadcast=False):
             'in_shop':          False,
             'monster_kills':    0,
             'player_kills':     0,
+            'deaths':           0,
             'relay_ids':        []
         }
 
@@ -373,6 +377,15 @@ def create(**_args):
     # Retrieve available room number
     room_ids = get_available_room_number(_args, game_type)
 
+    # Retrieve our map table based on the game type
+    maps = {
+        0: BATTLE_MAP_TABLE,
+        1: BATTLE_MAP_TABLE, # Team Battle
+        2: PLANET_MAP_TABLE,
+        3: MILITARY_MAP_TABLE,
+        4: DEATHMATCH_MAP_TABLE
+    }.get(game_type, PLANET_MAP_TABLE)
+
     # Store room in the room container
     room = {
         'slots':                {},
@@ -391,7 +404,8 @@ def create(**_args):
         'drops':                {},
         'game_over':            False,
         'game_loaded':          False,
-        'experience_modifier':  1.0
+        'experience_modifier':  1.0,
+        'maps': maps
     }
 
     # Pass the room to the server room container and notify any client that may see this change in the lobby
@@ -474,7 +488,7 @@ def set_level(**_args):
     selected_level = int(_args['packet'].GetByte(2))
 
     # Check if the selected level is in our map table
-    if selected_level not in PLANET_MAP_TABLE.keys():
+    if selected_level not in room['maps']:
         selected_level = 0
 
         # Create error packet for the room master to tell them that their request has been denied
@@ -628,34 +642,33 @@ def start_game(**_args):
     # If the game mode is not equal to planet, determine if we should randomize the map or not
     map = room['level']
     if room['game_type'] != 2:
-        map = int(map) - 1 if map > 0 else randrange(1, 8)
+        map = int(map) - 1 if map > 0 else randrange(0, len(room['maps']) - 1)
 
-    # Construct a start packet for each player in the room
-    for slot in room['slots']:
-        start = PacketWrite()
-        start.AddHeader(bytearray([0xF3, 0x2E]))
+    # Construct start packet and send to entire room
+    start = PacketWrite()
+    start.AddHeader(bytearray([0xF3, 0x2E]))
 
-        # Finish start packet and broadcast to room
-        start.AppendBytes(bytearray([0x01, 0x00]))
-        start.AppendInteger(room['client_id'] + 1, 2, 'little')
-        start.AppendInteger(map, 2, 'little')
-        start.AppendInteger(room['game_type'], 1)
+    # Finish start packet and broadcast to room
+    start.AppendBytes(bytearray([0x01, 0x00]))
+    start.AppendInteger(room['client_id'] + 1, 2, 'little')
+    start.AppendInteger(map, 2, 'little')
+    start.AppendInteger(room['game_type'], 1)
 
-        start.AppendInteger(0, 2, 'little')  # Start X
-        start.AppendInteger(0, 2, 'little')  # Start Z
-        start.AppendBytes([0x00])  # Start direction
+    start.AppendInteger(0, 2, 'little')  # Start X
+    start.AppendInteger(0, 2, 'little')  # Start Z
+    start.AppendBytes([0x00])  # Start direction
 
-        # Calculate special transformation
-        special_transformation = randrange(5)
-        start.AppendInteger(special_transformation, 1, 'little')
-        start.AppendBytes([0x00])  # Event boss
+    # Calculate special transformation
+    special_transformation = randrange(5)
+    start.AppendInteger(special_transformation, 1, 'little')
+    start.AppendBytes([0x00])  # Event boss
 
-        for _ in range(2):
-            start.AppendBytes(bytearray([0x00, 0x00]))
+    for _ in range(2):
+        start.AppendBytes(bytearray([0x00, 0x00]))
 
-        # Send to individual client
-        room['slots'][slot]['client']['socket'].send(start.packet)
-        room['slots'][slot]['client']['socket'].send(bytearray([0x28, 0x27, 0x02, 0x00, 0x01, 0x00]))
+    # Send start packet to entire room
+    _args['connection_handler'].SendRoomAll(_args['client']['room'], start.packet)
+    _args['connection_handler'].SendRoomAll(_args['client']['room'], bytearray([0x28, 0x27, 0x02, 0x00, 0x01, 0x00]))
 
     # Determine whether or not it is weekend. Based on that result, a 1.5x experience buff will be enabled
     # Additionally, this will only be in effect in planet gameplay
@@ -690,6 +703,7 @@ def reset(room):
         slot['dead']            = False
         slot['monster_kills']   = 0
         slot['player_kills']    = 0
+        slot['deaths']          = 0
 
 '''
 This method allows room masters to kick players out of their rooms
@@ -823,7 +837,7 @@ def sync_state(_args, room):
 
         # If we are playing DeathMatch and there are less than 2 players in the room, end the game
         if room['game_type'] == 4 and len(room['slots']) < 2:
-            game_end(_args=_args, room=room, status=2)
+            game_end(_args=_args, room=room, status=3)
 
 
 
