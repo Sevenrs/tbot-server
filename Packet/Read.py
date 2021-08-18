@@ -68,7 +68,7 @@ class Read:
     def ReadString(self, skip = 0):
 
         # Initialize result
-        result = ""
+        bytes = bytearray()
         
         # Skip specific amount of bytes, if specified
         if skip > 0:
@@ -86,11 +86,11 @@ class Read:
             if int(byte) == 0:
                 break
 
-            # Add ASCII character to the result
-            result += chr(byte)
+            # Add byte to result
+            bytes.append(byte)
             self.position = self.position + 1
 
-        return result
+        return bytes.decode('utf-8')
 
     def ReadStringByRange(self, start=0, end=1):
         result = ""
