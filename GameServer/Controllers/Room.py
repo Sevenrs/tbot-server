@@ -368,8 +368,6 @@ def create(**_args):
     if 'room' in _args['client']:
         return
 
-    print(_args['packet'].data)
-
     # Retrieve all information from the packet
     name        = _args['packet'].ReadStringByRange(0, 27)
     password    = _args['packet'].ReadStringByRange(27, 38)

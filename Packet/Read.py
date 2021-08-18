@@ -93,7 +93,7 @@ class Read:
         return bytes.decode('windows-1252')
 
     def ReadStringByRange(self, start=0, end=1):
-        result = ""
+        bytes = bytearray()
 
         if self.length < end:
             raise Exception("Attempted to read packet string by range {} to {}, but the length is only {}".format(start, end, self.length))
@@ -102,8 +102,8 @@ class Read:
             if self.data[i] == 0x00:
                 continue
 
-            result += chr(self.data[i])
-        return result
+            bytes.append(self.data[i])
+        return bytes.decode('windows-1252')
 
     """
     This method will skip null bytes and jump to the first position that does not have a null byte
