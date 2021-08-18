@@ -64,7 +64,7 @@ class Write:
         
             # Initialize the resulting byte array and extend the array with ASCII encoded text
             result = bytearray()
-            result.extend(string.encode('utf-8'))
+            result.extend(string.encode('windows-1252'))
             
             # If the length of the string is larger than the provided string, fix the length and print a warning
             if length < len(string) and length != 0:

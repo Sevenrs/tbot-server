@@ -90,7 +90,7 @@ class Read:
             bytes.append(byte)
             self.position = self.position + 1
 
-        return bytes.decode('utf-8')
+        return bytes.decode('windows-1252')
 
     def ReadStringByRange(self, start=0, end=1):
         result = ""
