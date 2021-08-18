@@ -90,7 +90,7 @@ class Read:
             bytes.append(byte)
             self.position = self.position + 1
 
-        return bytes.decode('windows-1252')
+        return bytes.decode('windows-1252', errors='replace')
 
     def ReadStringByRange(self, start=0, end=1):
         bytes = bytearray()
@@ -103,7 +103,7 @@ class Read:
                 continue
 
             bytes.append(self.data[i])
-        return bytes.decode('windows-1252')
+        return bytes.decode('windows-1252', errors='replace')
 
     """
     This method will skip null bytes and jump to the first position that does not have a null byte
