@@ -738,6 +738,9 @@ def kick_player(**_args):
     if str(slot +1) in room['slots']:
         remove_slot(_args=_args, room_id=room['id'], client=room['slots'][str(slot + 1)]['client'], reason=2)
 
+'''
+This method allows users to exit a room
+'''
 def exit_room(**_args):
 
     # Check if we are in a room
@@ -746,7 +749,15 @@ def exit_room(**_args):
 
     remove_slot(_args, _args['client']['room'], _args['client'])
 
+'''
+This method allows players to join rooms
+'''
 def join_room(**_args):
+
+    # If we are in a room, drop the packet
+    room = get_room(_args)
+    if room:
+        return
 
     # Read information from join packet
     room_client_id  = int(_args['packet'].ReadInteger(1, 2, 'little')) - 1
