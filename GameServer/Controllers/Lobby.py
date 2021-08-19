@@ -75,7 +75,8 @@ def Chat(**_args):
         # Depending on the position of the player, we need a different scope of clients
         # If the player a staff member, retrieve all clients
         if _args['client']['character']['position'] != 0:
-            clients = _args['connection_handler'].GetClients()
+            #clients = _args['connection_handler'].GetClients()
+            clients = _args['server'].clients
 
             # temporary
             f = open("client_log.txt", "a")
