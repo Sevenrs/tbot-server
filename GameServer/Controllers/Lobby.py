@@ -34,7 +34,7 @@ def ChatMessage(target, message, color, return_packet=False):
         print(e)
 
         f = open("chat_errors.txt", "a")
-        f.write(e)
+        f.write(str(e))
         f.close()
 """
 This method will handle chat requests
