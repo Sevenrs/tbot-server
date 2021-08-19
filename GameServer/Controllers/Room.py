@@ -226,6 +226,7 @@ def add_slot(_args, room_id, client, broadcast=False):
             'monster_kills':    0,
             'player_kills':     0,
             'deaths':           0,
+            'points':           0,
             'relay_ids':        []
         }
 
@@ -704,6 +705,7 @@ def reset(room):
         slot['monster_kills']   = 0
         slot['player_kills']    = 0
         slot['deaths']          = 0
+        slot['points']          = 0
 
 '''
 This method allows room masters to kick players out of their rooms

@@ -116,7 +116,7 @@ def monster_kill(**_args):
     _args['connection_handler'].SendRoomAll(room['id'], death.packet)
 
     # Count up the amount of mobs the slot has killed
-    if str(who +1) in room['slots'] and who != 65535:
+    if str(who +1) in room['slots'] and who != 65535 and room['game_over'] == False:
         room['slots'][str(who + 1)]['monster_kills'] += 1
 
 '''
@@ -354,6 +354,21 @@ def player_death(_args, room):
     death.AppendInteger(integer=(int(room_slot) - 1), length=2, byteorder='little')
     _args['connection_handler'].SendRoomAll(room['id'], death.packet)
 
+'''
+This method will update the score with the score sent from the client
+'''
+def set_score(**_args):
+
+    # Check if we are in a room and get our room slot
+    room = Room.get_room(_args)
+    if not room:
+        return
+
+    room_slot = Room.get_slot(_args, room)
+
+    # Retrieve score from the packet and set the score
+    score = int(_args['packet'].ReadInteger(0, 2, 'big'))
+    room['slots'][str(room_slot)]['points'] = score
 
 '''
 This method will handle the game end RPC. This acts as a caller for game_end through a packet instead of being
@@ -366,11 +381,14 @@ def game_end_rpc(**_args):
     if not room:
         return
 
+    # Get our slot number from the room
+    room_slot = Room.get_slot(_args, room)
+
+    # Determine the status of the end result
+    status = 0 if _args['packet'].id == '3b2b' else 1
+
     # Player vs Player or DeathMatch
     if room['game_type'] == 0 or room['game_type'] == 4:
-
-        # Get slot number from the room
-        room_slot = Room.get_slot(_args, room)
 
         # Update death status (unless we're playing DeathMatch) and increment death count
         if room['game_type'] != 4:
@@ -417,9 +435,6 @@ def game_end_rpc(**_args):
 
     # Planet Mode
     elif room['game_type'] == 2:
-
-        # Determine the status of the end result
-        status = 0 if _args['packet'].id == '3b2b' else 1
 
         # If the status is equal to 0, we must check if all players in the room are actually dead
         # If one player is not dead, drop the packet
@@ -560,9 +575,10 @@ def post_game_transaction(_args, room, status):
             'experience': character['experience'],
             'gold': character['currency_gigas'],
             'wearing_items': get_items(_args, character['id'], 'wearing'),
-            'won': True,
+            'won': status == 1,
             'leveled_up': level_up,
-            'level': character['level']
+            'level': character['level'],
+            'points': slot['points']
         }
 
         # Update character with the new values
@@ -630,12 +646,11 @@ def game_stats(_args, room, status):
 
     # Attack points
     for i in range(8):
-        room_results.AppendInteger(0 if str(i + 1) not in information else room['slots'][str(i + 1)]['monster_kills'] * 128,
-                                   2, 'little')
+        room_results.AppendInteger(0 if str(i + 1) not in information else int(room['slots'][str(i + 1)]['points'] / 1.5), 2, 'little')
 
     # unknown
-    for _ in range(4):
-        room_results.AppendInteger(0, 4, 'little')
+    for _ in range(8):
+        room_results.AppendInteger(0, 2, 'little')
 
     # Player kills
     for _ in range(8):
@@ -643,12 +658,11 @@ def game_stats(_args, room, status):
 
     # Monster kills
     for i in range(8):
-        room_results.AppendInteger(0 if str(i + 1) not in information else room['slots'][str(i + 1)]['monster_kills'],
-                                   2, 'little')
+        room_results.AppendInteger(0 if str(i + 1) not in information else room['slots'][str(i + 1)]['monster_kills'], 2, 'little')
 
-    # MVPs shown
-    room_results.AppendInteger(0, 2, 'little')
-    room_results.AppendInteger(0, 2, 'little')
+    # MVPs
+    room_results.AppendInteger(1 if len(room['slots']) >= 2 else 0, 2, 'little')    # MVP
+    room_results.AppendInteger(1 if len(room['slots']) >= 3 else 0, 2, 'little')    # Boss/Base killer number 1
 
     # Cash item experience
     for _ in range(8):
@@ -658,7 +672,7 @@ def game_stats(_args, room, status):
     for _ in range(8):
         room_results.AppendInteger(0, 2, 'little')
 
-    room_results.AppendBytes(bytearray([0x00, 0x00, 0x00, 0x00, 0x00]))
+    room_results.AppendBytes(bytearray([0x00, 0x00, 0x00, 0x00, 0x00])) # Unknown
 
     # Player ranking and ranking experience
     for i in range(0, 8):
@@ -674,7 +688,7 @@ def game_stats(_args, room, status):
         # Experience bonus
         room_results.AppendInteger(0, 4, 'little')
 
-        # Unknown, possibly leveled up
+        # Unknown
         room_results.AppendInteger(0, 4, 'little')
 
         # Cash point
@@ -690,9 +704,9 @@ def game_stats(_args, room, status):
         room_results.AppendInteger(0 if str(i + 1) not in information else room['slots'][str(i + 1)]['deaths'], 4, 'little')
 
         # Attack points
-        room_results.AppendInteger(0 if str(i + 1) not in information else room['slots'][str(i + 1)]['player_kills'] * 128, 4, 'little')
+        room_results.AppendInteger(0 if str(i + 1) not in information else room['slots'][str(i + 1)]['points'], 4, 'little')
 
-        # Unknown, possibly padding
+        # Leveled up
         room_results.AppendBytes(bytearray([0x00]))
 
 
@@ -801,6 +815,22 @@ def chat_command(**_args):
         # Handle exit requests
         if command == 'exit':
             Room.remove_slot(_args, _args['client']['room'], _args['client'])
+
+        # Force win command, only available to staff members
+        elif command == 'win' and _args['client']['character']['position'] == 1:
+            game_end(_args=_args, room=room, status=1)
+
+        # Force lose command, only available to staff members
+        elif command == 'lose' and _args['client']['character']['position'] == 1:
+            game_end(_args=_args, room=room, status=0)
+
+        # Force time over command, only available to staff members
+        elif command == 'timeover' and _args['client']['character']['position'] == 1:
+            game_end(_args=_args, room=room, status=2)
+
+        # Force time over command (deathmatch variant), only available to staff members
+        elif command == 'timeoverdm' and _args['client']['character']['position'] == 1:
+            game_end(_args=_args, room=room, status=3)
 
         # Handle suicide requests
         elif command == 'suicide':

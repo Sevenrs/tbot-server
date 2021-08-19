@@ -105,7 +105,8 @@ def route(socket, packet, server, client, connection_handler):
         '3e2b': Game.load_finish,
         '3b2b': Game.game_end_rpc,  # Game lost
         '462b': Game.game_end_rpc,  # Game won
-        'a627': Game.chat_command
+        'a627': Game.chat_command,
+        'a628': Game.set_score
 
     }.get(packet.id, unknown)(**locals())
 
