@@ -51,6 +51,10 @@ def load_finish(**_args):
     # Start new countdown timer thread
     _thread.start_new_thread(countdown_timer, (_args, room,))
 
+    # Start new incremental canister thread, but only for Battle and Team Battle mode
+    if room['game_type'] in [0, 1]:
+        _thread.start_new_thread(incremental_canister_drops, (_args, room,))
+
 '''
 This method will handle monster deaths and broadcasts an acknowledgement to the room
 of the monster being killed.
@@ -136,7 +140,7 @@ def use_item(**_args):
     # Check if the drop is valid. If it is not, change the item type to 0 so nothing happens.
     if item_index not in room['drops'] or room['drops'][item_index]['used'] == True \
              or room['drops'][item_index]['type'] != item_type:
-         item_type = 0
+        item_type = 0
 
     # Mark the drop as used before further processing of the packet
     # but only if the item index is actually registered
@@ -797,6 +801,63 @@ def countdown_timer(_args, room):
         game_end(_args=_args, room=room, status=2 if room['game_type'] != 4 else 3)
 
 '''
+This method is responsible for dropping canisters per set interval to give players canisters
+in DeathMatch and Battle mode. This method uses long polling due to having no ability to mutate the thread's state
+once it has been started.
+'''
+def incremental_canister_drops(_args, room):
+    while True:
+
+        # Wait a predefined amount of time and check if the game has ended every second
+        for _ in range(30):
+            if len(room['slots']) == 0 or room['game_over']:
+                return
+            time.sleep(1)
+
+        # Valid drops with their respective chances
+        possible_drops = [
+            CANISTER_HEALTH,
+            CANISTER_STUN,
+            CANISTER_TRANS_UP,
+            CANISTER_AMMO
+        ]
+
+        # Construct the drop result
+        drops = []
+        for drop in possible_drops:
+            random_count = random.randrange(1, 3)
+            for _ in range(random_count):
+                drops.append(drop)
+
+        # Do a shuffle to this drop result
+        random.shuffle(drops)
+
+        canisters = []
+        for idx, drop in enumerate(drops):
+            if room['drop_index'] < 256:
+
+                # Construct drop data
+                data = bytearray()
+                data.extend(idx.to_bytes(2, 'little'))
+                data.extend([room['drop_index'], drop])
+
+                # Append drop data to the canisters
+                canisters.append(data)
+                room['drops'][room['drop_index']] = {'type': drop, 'used': False}
+                room['drop_index'] += 1
+
+        # Create drop bytes for the drop packet
+        drop_bytes = b''.join(canisters)
+
+        # Construct drop packet and send it to the room
+        drop = PacketWrite()
+        drop.AddHeader([0x2B, 0x27])
+        drop.AppendInteger(len(canisters), length=2, byteorder='little')
+        drop.AppendBytes(drop_bytes)
+        _args['connection_handler'].SendRoomAll(room['id'], drop.packet)
+
+
+'''
 This method will parse chat commands
 '''
 def chat_command(**_args):
@@ -825,11 +886,11 @@ def chat_command(**_args):
             game_end(_args=_args, room=room, status=0)
 
         # Force time over command, only available to staff members
-        elif command == 'timeover' and _args['client']['character']['position'] == 1:
+        elif command == 'timeout' and _args['client']['character']['position'] == 1:
             game_end(_args=_args, room=room, status=2)
 
         # Force time over command (deathmatch variant), only available to staff members
-        elif command == 'timeoverdm' and _args['client']['character']['position'] == 1:
+        elif command == 'timeoutdm' and _args['client']['character']['position'] == 1:
             game_end(_args=_args, room=room, status=3)
 
         # Handle suicide requests
