@@ -27,12 +27,12 @@ def ChatMessage(target, message, color, return_packet=False):
 
     # Otherwise, send the packet to the intended target
     try:
-        raise Exception('test')
         target['socket'].send(chat.packet)
     except Exception as e:
         print(target['socket'])
         print(e)
 
+        # temporary
         f = open("chat_errors.txt", "a")
         f.write(str(e) + "\n")
         f.write(str(target['socket']) + "\n")
@@ -76,6 +76,11 @@ def Chat(**_args):
         # If the player a staff member, retrieve all clients
         if _args['client']['character']['position'] != 0:
             clients = _args['connection_handler'].GetClients()
+
+            # temporary
+            f = open("client_log.txt", "a")
+            f.write(str(_args['server'].clients) + "\n")
+            f.close()
 
         # Send the message to the right clients
         for client in clients:
