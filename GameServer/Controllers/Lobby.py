@@ -71,6 +71,7 @@ def Chat(**_args):
         # If the player a staff member, retrieve all clients
         if _args['client']['character']['position'] != 0:
             clients = _args['connection_handler'].GetClients()
+            print(_args['server'].clients)
 
         # Send the message to the right clients
         for client in clients:
