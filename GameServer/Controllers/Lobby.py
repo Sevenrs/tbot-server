@@ -26,7 +26,11 @@ def ChatMessage(target, message, color, return_packet=False):
         return chat.packet
 
     # Otherwise, send the packet to the intended target
-    target['socket'].send(chat.packet)
+    try:
+        target['socket'].send(chat.packet)
+    except Exception as e:
+        print(target['socket'])
+        print(e)
         
 """
 This method will handle chat requests
@@ -66,7 +70,7 @@ def Chat(**_args):
         # Depending on the position of the player, we need a different scope of clients
         # If the player a staff member, retrieve all clients
         if _args['client']['character']['position'] != 0:
-            clients = _args['server'].clients
+            clients = _args['connection_handler'].GetClients()
 
         # Send the message to the right clients
         for client in clients:
