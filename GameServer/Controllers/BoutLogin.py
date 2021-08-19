@@ -13,6 +13,10 @@ This method will send the new client its unique ID
 """
 def id_request(**_args):
 
+    # # If our client is already registered, drop the packet
+    if _args['client'] in _args['server'].clients:
+        return
+
     # Read account name from packet
     account = _args['packet'].ReadString()
 
@@ -150,7 +154,7 @@ def create_character(**_args):
     
     # Check if there's already a character connected to this account
     _args['mysql'].execute('SELECT `id` FROM `characters` WHERE `user_id` = %s', [user['id']])
-    if _args['mysql'].rowcount > 2:
+    if _args['mysql'].rowcount > 1:
         raise Exception('User attempted to create a character while already having the maximum amount of allowed characters')
     
     # Check the character type is between 1 and 3
@@ -161,12 +165,18 @@ def create_character(**_args):
     packet = PacketWrite()
     packet.AddHeader(bytearray([0xE2, 0x2E]))
     
-    # Check if the name has been taken
+    # Check if the name has been taken. If so, send error and close connection.
     _args['mysql'].execute('SELECT `id` FROM `characters` WHERE `name` = %s', [character_name])
     if _args['mysql'].rowcount > 0:
         packet.AppendBytes(character_create_name_taken)
+        _args['socket'].send(packet.packet)
+        return _args['connection_handler'].CloseConnection(_args['client'])
+
+    # Check if the name is valid. If not, send error and close connection.
     elif not re.match('^[a-zA-Z0-9]+$', character_name) or len(character_name) < 4 or len(character_name) > 13:
         packet.AppendBytes(character_create_name_error)
+        _args['socket'].send(packet.packet)
+        return _args['connection_handler'].CloseConnection(_args['client'])
     else:
         packet.AppendBytes(character_create_success)
         
@@ -178,9 +188,9 @@ def create_character(**_args):
         character_id = _args['mysql'].lastrowid
         _args['mysql'].execute('INSERT INTO `character_wearing` (`character_id`) VALUES (%s)', [character_id])
         _args['mysql'].execute('INSERT INTO `inventory` (`character_id`) VALUES (%s)', [character_id])
-    
-    # Send the result with the status code to the client
-    _args['socket'].send(packet.packet)
+
+        # Send success status to the client
+        _args['socket'].send(packet.packet)
 
 """
 This method will handle exit server requests

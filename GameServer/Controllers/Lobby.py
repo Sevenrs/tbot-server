@@ -11,6 +11,7 @@ import os
     
 """
 This method will send a chat message to a specific target client
+If the return_packet boolean is True, the packet is not sent but returned to the stack
 """
 def ChatMessage(target, message, color, return_packet=False):
     chat = PacketWrite()
@@ -29,14 +30,7 @@ def ChatMessage(target, message, color, return_packet=False):
     try:
         target['socket'].send(chat.packet)
     except Exception as e:
-        print(target['socket'])
-        print(e)
-
-        # temporary
-        f = open("chat_errors.txt", "a")
-        f.write(str(e) + "\n")
-        f.write(str(target['socket']) + "\n")
-        f.close()
+        pass
 """
 This method will handle chat requests
 """
@@ -49,7 +43,7 @@ def Chat(**_args):
     if command_msg[0:11] == '@changeslot':
 
         # Drop invalid ranges
-        if int(command_msg[12]) < 1 or int(command_msg[12]) > 3:
+        if int(command_msg[12]) < 1 or int(command_msg[12]) > 2:
             return
 
         _args['mysql'].execute('UPDATE `users` SET `active_bot_slot` = (%s - 1) WHERE `username` = %s', [
@@ -75,13 +69,7 @@ def Chat(**_args):
         # Depending on the position of the player, we need a different scope of clients
         # If the player a staff member, retrieve all clients
         if _args['client']['character']['position'] != 0:
-            #clients = _args['connection_handler'].GetClients()
-            clients = _args['server'].clients
-
-            # temporary
-            f = open("client_log.txt", "a")
-            f.write(str(_args['server'].clients) + "\n")
-            f.close()
+            clients = _args['connection_handler'].GetClients()
 
         # Send the message to the right clients
         for client in clients:

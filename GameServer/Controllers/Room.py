@@ -406,7 +406,8 @@ def create(**_args):
         'game_over':            False,
         'game_loaded':          False,
         'experience_modifier':  1.0,
-        'maps': maps
+        'maps':                 maps,
+        'killed_mobs':          []
     }
 
     # Pass the room to the server room container and notify any client that may see this change in the lobby
@@ -694,6 +695,7 @@ def reset(room):
     room['drop_index']  = 1
     room['game_over']   = False
     room['game_loaded'] = False
+    room['killed_mobs'] = []
 
     # Reset player status
     for slot in room['slots']:

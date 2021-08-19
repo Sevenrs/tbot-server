@@ -69,6 +69,7 @@ def monster_kill(**_args):
     # Read monster ID from the packet
     monster_id  = _args['packet'].GetByte(0)
     who         = _args['packet'].GetByte(4)
+    pushed      = _args['packet'].GetByte(6)
 
     # If the mob is an assistant, multiply the canister chance by a factor of 50
     assistant_multiplication = 50.0 if room['level'] in PLANET_ASSISTS \
@@ -82,28 +83,31 @@ def monster_kill(**_args):
         (CANISTER_BOMB, 0.02),
         (CANISTER_TRANS_UP, 0.01),
         (CANISTER_AMMO, 0.01),
-        (CHEST_GOLD, 0.010)
+        (CHEST_GOLD, 0.007)
     ]
 
     # If the monster is a mob from which to drop boxes from, append the boxes array
-    if room['level'] in PLANET_BOXES and monster_id in PLANET_BOX_MOBS[room['level']]:
+    if room['level'] in PLANET_BOXES and monster_id in PLANET_BOX_MOBS[room['level']] and room['game_type'] == 2:
         drops += PLANET_BOXES[room['level']]
 
     # Calculate whether or not we should drop an item based on chance
+    # But only if the monster ID is not in the array of killed mobs and if the game is still going
+    # Lastly, we shouldn't drop anything if the monster has been pushed
     monster_drops = []
-    for drop, chance in drops:
+    if monster_id not in room['killed_mobs'] and not room['game_over'] and pushed == 0:
+        for drop, chance in drops:
 
-        ''' If the monster ID is equal to the last monster ID in the list, we've killed a boss.
-            We need to ensure that Rebirth is always dropped '''
-        if room['level'] in PLANET_BOXES and drop == CANISTER_REBIRTH and \
-                monster_id == PLANET_BOX_MOBS[room['level']][len(PLANET_BOX_MOBS[room['level']]) - 1]:
-            chance = 1.00
+            ''' If the monster ID is equal to the last monster ID in the list, we've killed a boss.
+                We need to ensure that Rebirth is always dropped '''
+            if room['level'] in PLANET_BOXES and drop == CANISTER_REBIRTH and \
+                    monster_id == PLANET_BOX_MOBS[room['level']][len(PLANET_BOX_MOBS[room['level']]) - 1]:
+                chance = 1.00
 
-        # If applicable, apply the assistant multiplication except if the drop type is greater or equal to CHEST_GOLD(18)
-        if random.random() < (chance * (assistant_multiplication if drop < BOX_ARMS else 1.0)) and room['drop_index'] < 256:
-            monster_drops.append(bytes([room['drop_index'], drop, 0, 0, 0]))
-            room['drops'][room['drop_index']] = {'type': drop, 'used': False}
-            room['drop_index'] += 1
+            # If applicable, apply the assistant multiplication except if the drop type is greater or equal to CHEST_GOLD(18)
+            if random.random() < (chance * (assistant_multiplication if drop < BOX_ARMS else 1.0)) and room['drop_index'] < 256:
+                monster_drops.append(bytes([room['drop_index'], drop, 0, 0, 0]))
+                room['drops'][room['drop_index']] = {'type': drop, 'used': False}
+                room['drop_index'] += 1
     drop_bytes = b''.join(monster_drops)
 
     # Create death response
@@ -119,9 +123,14 @@ def monster_kill(**_args):
     # Broadcast the response to all sockets in the room
     _args['connection_handler'].SendRoomAll(room['id'], death.packet)
 
-    # Count up the amount of mobs the slot has killed
-    if str(who +1) in room['slots'] and who != 65535 and room['game_over'] == False:
+    # Count up the amount of mobs the slot has killed, but only if the slot is in the room and the mob isn't already registered as dead
+    if str(who +1) in room['slots'] and who != 65535 \
+            and monster_id not in room['killed_mobs'] and room['game_over'] == False:
         room['slots'][str(who + 1)]['monster_kills'] += 1
+
+    # Add the monster to the killed mob array, but only if we're in planet mode
+    if room['game_type'] == 2:
+        room['killed_mobs'].append(monster_id)
 
 '''
 This method will handle picking up items which were dropped from monsters

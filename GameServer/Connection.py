@@ -97,7 +97,7 @@ class Handler:
     def UpdatePlayerStatus(self, client, status=1):
 
         # Construct status packet, we can only do this if we have a character connected to our connection however
-        if 'character' in client and client in self.server.clients:
+        if 'character' in client and client['character'] is not None and client in self.server.clients:
             notification = PacketWrite()
             notification.AddHeader(bytearray([0x27, 0x27]))
             notification.AppendBytes(bytearray([0x01, 0x00]))
@@ -109,8 +109,8 @@ class Handler:
             for connection in self.GetClients():
                 try:
                     connection['socket'].send(notification.packet)
-                except BrokenPipeError:
-                    self.CloseConnection(connection)
+                except Exception:
+                    pass
             
         # If the status is equal to 0, we'll have to close the socket and dispose of the client
         if status == 2:
