@@ -342,6 +342,11 @@ def player_death_rpc(**_args):
     if not room:
         return
 
+    # If the game mode is not equal to 2, drop the packet and send a message to the client
+    if room['game_type'] != 2:
+        Lobby.ChatMessage(_args['client'], 'You can only use the suicide button in planet mode', 2)
+        return
+
     # Kill player
     player_death(_args, room)
 
@@ -390,7 +395,7 @@ called manually in the game code.
 '''
 def game_end_rpc(**_args):
 
-    # If the client is not in a room or is not its master, drop the packet
+    # If the client is not in a room, drop the packet
     room = Room.get_room(_args)
     if not room:
         return
@@ -409,14 +414,15 @@ def game_end_rpc(**_args):
             slot = room['slots'][str(room_slot)]
             slot['dead'] = True
 
-        # Increment death kill
-        room['slots'][str(room_slot)]['deaths'] += 1
+        # Increment death kill, but only if the game hasn't ended
+        if not room['game_over']:
+            room['slots'][str(room_slot)]['deaths'] += 1
 
         # Retrieve who killed the player
         who = int(_args['packet'].ReadInteger(5, 2, 'little'))
 
-        # If the player is in the room, increment their kill count by one
-        if str(who + 1) in room['slots'] and who != 65535:
+        # If the player is in the room and the game hasn't ended, increment their kill count by one
+        if str(who + 1) in room['slots'] and who != 65535 and not room['game_over']:
             room['slots'][str(who + 1)]['player_kills'] += 1
 
         # Tell room about the death of the player
@@ -427,8 +433,8 @@ def game_end_rpc(**_args):
         death.AppendBytes(bytes=bytearray([0x00, 0x00, 0x00, 0x00, 0x00]))
         _args['connection_handler'].SendRoomAll(room['id'], death.packet)
 
-        # Update the score board if we are playing DeathMatch
-        if room['game_type'] == 4 and (str(who + 1) in room['slots'] or who == 65535):
+        # Update the score board if we are playing DeathMatch and if the game hasn't ended yet
+        if room['game_type'] == 4 and (str(who + 1) in room['slots'] or who == 65535) and not room['game_over']:
 
             # Update the score board
             update = PacketWrite()
@@ -448,10 +454,14 @@ def game_end_rpc(**_args):
             if not room['slots'][slot]['dead']:
                 alive.append(slot)
 
-        # Check if the length of the alive array is equal to 1. If so, the game has ended.
-        # The player in the alive array should be the winner.
-        if len(alive) == 1:
-            room['slots'][alive[0]]['won'] = True
+        # Check if the length of the alive array is equal to or less than 1. If so, the game has ended.
+        # The player in the alive array (if any) should be the winner.
+        if len(alive) < 2:
+
+            # It is possible for this length to be equal to 0. If so, nobody has won the game.
+            # If the length is equal to 1, the last alive player will be the winner
+            if len(alive) == 1:
+                room['slots'][alive[0]]['won'] = True
 
             # End the game
             game_end(_args=_args, room=room)
