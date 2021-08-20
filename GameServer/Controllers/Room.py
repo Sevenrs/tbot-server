@@ -219,6 +219,7 @@ def add_slot(_args, room_id, client, broadcast=False):
             'client':           client,
             'loaded':           False,
             'dead':             False,
+            'won':              False,
             'ready':            False,
             'shop':             False,
             'team':             0,
@@ -704,6 +705,7 @@ def reset(room):
         slot['in_shop']         = False
         slot['loaded']          = False
         slot['dead']            = False
+        slot['won']             = False
         slot['monster_kills']   = 0
         slot['player_kills']    = 0
         slot['deaths']          = 0
@@ -850,9 +852,13 @@ def sync_state(_args, room):
             ready.AppendBytes(bytearray([0x00]))
             _args['connection_handler'].SendRoomAll(room['id'], ready.packet)
 
-        # If we are playing DeathMatch and there are less than 2 players in the room, end the game
-        if room['game_type'] == 4 and len(room['slots']) < 2:
-            game_end(_args=_args, room=room, status=3)
+        # If we are playing DeathMatch, Battle or Team Battle and there are less than 2 players in the room, end the game
+        if room['game_type'] in [0, 1, 4] and len(room['slots']) < 2:
+
+            # If the game type is DeathMatch, the status should be TimeOver else it should be Win
+            status = 3 if room['game_type'] == 4 else 1
+
+            game_end(_args=_args, room=room, status=status)
 
 
 

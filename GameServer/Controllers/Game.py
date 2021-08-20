@@ -48,8 +48,9 @@ def load_finish(**_args):
     ready.AppendBytes(bytearray([0x00]))
     _args['connection_handler'].SendRoomAll(_args['client']['room'], ready.packet)
 
-    # Start new countdown timer thread
-    _thread.start_new_thread(countdown_timer, (_args, room,))
+    # Start new countdown timer thread, but only for Planet and DeathMatch modes
+    if room['game_type'] in [2, 4]:
+        _thread.start_new_thread(countdown_timer, (_args, room,))
 
     # Start new incremental canister thread, but only for Battle and Team Battle mode
     if room['game_type'] in [0, 1]:
@@ -403,9 +404,12 @@ def game_end_rpc(**_args):
     # Player vs Player or DeathMatch
     if room['game_type'] == 0 or room['game_type'] == 4:
 
-        # Update death status (unless we're playing DeathMatch) and increment death count
+        # Update death status (unless we're playing DeathMatch)
         if room['game_type'] != 4:
-            room['slots'][str(room_slot)]['dead'] = True
+            slot = room['slots'][str(room_slot)]
+            slot['dead'] = True
+
+        # Increment death kill
         room['slots'][str(room_slot)]['deaths'] += 1
 
         # Retrieve who killed the player
@@ -438,31 +442,41 @@ def game_end_rpc(**_args):
         if room['game_type'] == 4:
             return
 
-        # Check if everyone is dead
+        # Check if there is at least one player still alive. The player that is alive, wins the game.
+        alive = []
         for slot in room['slots']:
             if not room['slots'][slot]['dead']:
-                return
+                alive.append(slot)
 
-        # If everyone is dead, end the game
-        game_end(_args=_args, room=room)
+        # Check if the length of the alive array is equal to 1. If so, the game has ended.
+        # The player in the alive array should be the winner.
+        if len(alive) == 1:
+            room['slots'][alive[0]]['won'] = True
+
+            # End the game
+            game_end(_args=_args, room=room)
 
     # Planet Mode
     elif room['game_type'] == 2:
 
-        # If the status is equal to 0, we must check if all players in the room are actually dead
-        # If one player is not dead, drop the packet
+        # Check if all players are actually dead. If not, drop the packet
         if status == 0:
             for slot in room['slots']:
                 if not room['slots'][slot]['dead']:
                     return
 
+        # If the room level is not in the map table we must change the status to 0 (lost)
+        if room['level'] not in room['maps']:
+            status = 0
+
+        # End the game
         game_end(_args=_args, room=room, status=status)
 
 '''
-This method will send the correct packed to indicate what the game end result is to the room or specified client.
+This method will send the correct packet to indicate what the game end result is to the room or specified client.
 After this, it will start a new thread that will run the post-game transaction and show the game stats to the clients.
 '''
-def game_end(_args, room, status=0):
+def game_end(_args, room, status=None):
 
     # If the game is already over, there is not anything to do.
     if room['game_over']:
@@ -471,24 +485,43 @@ def game_end(_args, room, status=0):
     # The game is over. This is to avoid multiple calls to this method and to stop polling threads.
     room['game_over'] = True
 
-    # If the room mode is equal to Planet and if the map is not defined in our data, we must assume the game has been lost
-    if room['level'] not in PLANET_MAP_TABLE.keys():
-        status = 0
+    # If we already know the status for all players beforehand, we can send the packet based on that
+    if status is not None:
 
-    # Create game result packet and send it to all the room clients
-    result = PacketWrite()
-    result.AddHeader(bytes=bytearray([0x2A, 0x27]))
-    result.AppendInteger(status, 2, 'little')
-    _args['connection_handler'].SendRoomAll(room['id'], result.packet)
+        # Create game result packet and send it to all the room clients
+        result = PacketWrite()
+        result.AddHeader(bytes=bytearray([0x2A, 0x27]))
+        result.AppendInteger(status, 2, 'little')
+        _args['connection_handler'].SendRoomAll(room['id'], result.packet)
+
+        # If the status is equal to 1, then everyone has won. Set the won status of every player in the room to True
+        if status == 1:
+            for slot in room['slots']:
+                room['slots'][slot]['won'] = True
+
+    # Otherwise we must loop through every player in the game to determine their status
+    else:
+
+        for slot in room['slots']:
+            status = 1 if room['slots'][slot]['won'] else 0
+
+            # Create result packet and send to this player
+            result = PacketWrite()
+            result.AddHeader([0x2A, 0x27])
+            result.AppendInteger(status, 2, 'little')
+            try:
+                room['slots'][slot]['client']['socket'].send(result.packet)
+            except Exception:
+                pass
 
     # Start new thread for the game statistics
-    _thread.start_new_thread(game_stats, (_args, room, status,))
+    _thread.start_new_thread(game_stats, (_args, room,))
 
 '''
 This method will update all characters in the room with their new results (if applicable)
 Additionally, this method will return the results of the transaction in the form of a dictionary
 '''
-def post_game_transaction(_args, room, status):
+def post_game_transaction(_args, room):
 
     """
     Because we are not in the main thread, the database connection is not available to this method.
@@ -520,16 +553,16 @@ def post_game_transaction(_args, room, status):
                 Finally, if the player has lost the game, no experience will be awarded at all. '''
             addition_experience = int(PLANET_MAP_TABLE[room['level']][0][room['difficulty']] * room['experience_modifier'] \
                                   / (1.00 if abs(PLANET_MAP_TABLE[room['level']][2] - character['level']) < 10 else 4.00)) \
-                                        if room['level'] in PLANET_MAP_TABLE.keys() and status == 1 else 0
+                                        if room['level'] in PLANET_MAP_TABLE.keys() and slot['won'] else 0
 
             ''' Calculate the amount of gigas to award to the player. If the level difference is too large, the amount of reduced.
                 The base reward is equal to 1250 which a rate is applied on top of.'''
             mv      = (PLANET_MAP_TABLE[room['level']][2] + 1) * 2
             rate    = min(15.0, max(0.1, 1.0 + (float(mv - character['level']) / 10.0)))
             reward  = int(1250 * rate / (1.00 if abs(PLANET_MAP_TABLE[room['level']][2] - character['level']) < 10 else 4.00))
-            addition_gigas = reward if status == 1 else 0
+            addition_gigas = reward if slot['won'] else 0
 
-        elif room['game_type'] == 4:
+        elif room['game_type'] in [0, 4]:
             addition_rank_experience = int(slot['player_kills'] * 2.5)
 
         # Check if we have leveled up
@@ -588,7 +621,7 @@ def post_game_transaction(_args, room, status):
             'experience': character['experience'],
             'gold': character['currency_gigas'],
             'wearing_items': get_items(_args, character['id'], 'wearing'),
-            'won': status == 1,
+            'won': slot['won'],
             'leveled_up': level_up,
             'level': character['level'],
             'points': slot['points']
@@ -621,7 +654,7 @@ def post_game_transaction(_args, room, status):
 This method will show the game statistics and the result of the post game transaction which is also
 invoked in this method
 '''
-def game_stats(_args, room, status):
+def game_stats(_args, room):
 
     # To give players the chance to obtain items such as drops, we will be waiting a few seconds.
     time.sleep(6.5)
@@ -631,7 +664,7 @@ def game_stats(_args, room, status):
         return
 
     # Perform post game transaction and obtain its results
-    information = post_game_transaction(_args, room, status)
+    information = post_game_transaction(_args, room)
 
     # Construct room-wide information
     room_results = PacketWrite()
