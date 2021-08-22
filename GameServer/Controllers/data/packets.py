@@ -49,7 +49,7 @@ PACKET_READ = {
 
     '062b': ('PACKET_ROOM_JOIN',                Room.join_room,             True),
     '092b': ('PACKET_ROOM_CREATE',              Room.create,                False),
-    '0e2b': ('PACKET_ROOM_QUICK_JOIN',          Room.quick_join,            False),
+    '0e2b': ('PACKET_ROOM_QUICK_JOIN',          Room.quick_join,            True),
     '0b2b': ('PACKET_ROOM_START_GAME',          Room.start_game,            False),
     '392b': ('PACKET_ROOM_UPDATE_SLOT_STATUS',  Room.set_status,            False),
     '402b': ('PACKET_ROOM_KICK_PLAYER',         Room.kick_player,           False),
