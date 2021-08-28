@@ -2,6 +2,7 @@ import socket
 import _thread
 from relay_tcp_server import router, connection
 from Packet.Read import Read as PacketRead
+import traceback
 
 class RelayTCPServer:
 
@@ -49,8 +50,11 @@ class RelayTCPClient:
                 router.route(self.__dict__, packet)
             except Exception as e:
 
+                traceback_str = ''.join(traceback.format_tb(e.__traceback__))
+
                 f = open("relay.log", "a")
-                f.write(str(e) + "\n\n")
+                f.write(str(e) + "\n")
+                f.write(traceback_str + "\n")
                 f.close()
 
                 connection.close_connection(self.__dict__)
