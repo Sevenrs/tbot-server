@@ -133,17 +133,16 @@ def remove_connection(**_args):
     slot_nr     = get_slot({'client': _args['client']['game_client']}, room)
     room_slot   = room['slots'][str(slot_nr)]
 
-    # Remove relay ID from the room
-    try:
-        for client in _args['client']['server'].clients:
-            if client['game_client']['character']['name'] == character_name:
+    # Remove relay ID from the room.
+    # Because the client container can change, create a copy of it at that moment
+    for client in _args['client']['server'].clients.copy():
+        if client['game_client']['character']['name'] == character_name:
 
-                # It is possible this is invoked before the client sent the check_connection packet so we must check
-                # if the id is actually in relay_ids
-                if client['id'] in room_slot['relay_ids']:
-                    room_slot['relay_ids'].remove(client['id'])
-    except Exception as e:
-        print(e)
+            # It is possible this is invoked before the client sent the check_connection packet so we must check
+            # if the id is actually in relay_ids
+            if client['id'] in room_slot['relay_ids']:
+                print(client['id'])
+                room_slot['relay_ids'].remove(client['id'])
 
     # It is possible that the connection was closed by the remote client causing the ID to be removed from
     # the state and not from the room, making the above snippet not work. This will loop through all IDs in the
@@ -153,6 +152,7 @@ def remove_connection(**_args):
             ids = room['slots'][str(i + 1)]['relay_ids']
             for id in ids:
                 if id not in _args['client']['server'].ids:
+                    print("safedelete: ", id)
                     ids.remove(id)
 
 ''' Check if we have a client assigned after 10 seconds. If not, disconnect (time out)'''
