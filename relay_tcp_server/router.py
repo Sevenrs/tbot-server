@@ -121,6 +121,8 @@ This method removes a relay ID from the requesting client's relay ID container
 '''
 def remove_connection(**_args):
 
+    return
+
     # If our game client doesn't have a room, drop the packet
     if 'room' not in _args['client']['game_client']:
         return
