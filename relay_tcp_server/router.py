@@ -134,21 +134,22 @@ def remove_connection(**_args):
     room_slot   = room['slots'][str(slot_nr)]
 
     # Attempt to remove the relay ID from the room
-    for client in _args['client']['server'].clients:
+    try:
+        for client in _args['client']['server'].clients:
 
-        # Check if the client is not None and if the game_client is also not None
-        if client is not None and client['game_client'] is not None:
+            # Check if the client is not None and if the game_client is also not None
+            if client is not None and client['game_client'] is not None:
 
-            # Check if the character name is equal to the name we received
-            if client['game_client']['character']['name'] == character_name:
+                # Check if the character name is equal to the name we received
+                if client['game_client']['character']['name'] == character_name:
 
-                # Check if the ID is in the array before attempting to remove it
-                if client['id'] in room_slot['relay_ids']:
-                    print('removing!')
-                    room_slot['relay_ids'].remove(client['id'])
+                    print('client was found')
 
-        else:
-            print('None detected!')
+                    # Check if the ID is in the array before attempting to remove it
+                    if client['id'] in room_slot['relay_ids']:
+                        room_slot['relay_ids'].remove(client['id'])
+    except Exception as e:
+        print('Failed to remove a relay ID from the room because: ', str(e))
 
     # It is possible that the connection was closed by the remote client causing the ID to be removed from
     # the state and not from the room, making the above snippet not work. This will loop through all IDs in the
