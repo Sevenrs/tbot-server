@@ -11,7 +11,7 @@ from GameServer.Controllers.data.packets import PACKET_READ, PACKET_NAME, PACKET
 
 """
 This method will link the incoming packet to the right controller
-Similarly in backends seen in websites
+Similar to backends seen in websites
 """
 
 def route(socket, packet, server, client, connection_handler):
@@ -34,8 +34,7 @@ def route(socket, packet, server, client, connection_handler):
     if packet.id in PACKET_READ:
 
         received_packet = PACKET_READ[packet.id]
-        if received_packet[PACKET_NAME] != 'PACKET_PONG':
-            print("[GameServer] Parsing packet :: {0}".format(received_packet[PACKET_NAME]))
+        print("[GameServer] Parsing packet :: {0}".format(received_packet[PACKET_NAME]))
 
         # If we need a MySQL connection, create one
         if received_packet[PACKET_MYSQL_REQUIRED]:

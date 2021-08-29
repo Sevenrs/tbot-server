@@ -48,14 +48,6 @@ class RelayTCPClient:
             try:
                 packet = PacketRead(self.socket)
                 router.route(self.__dict__, packet)
-            except Exception as e:
-
-                traceback_str = ''.join(traceback.format_tb(e.__traceback__))
-
-                f = open("relay.log", "a")
-                f.write(str(e) + "\n")
-                f.write(traceback_str + "\n")
-                f.close()
-
+            except Exception:
                 connection.close_connection(self.__dict__)
                 break

@@ -2,6 +2,7 @@ from Packet.Write import Write as PacketWrite
 from GameServer.Controllers.Room import get_slot
 import _thread, time, socket
 import MySQL.Interface as MySQL
+from relay_tcp_server import connection
 
 def route(client, packet):
 
@@ -92,24 +93,11 @@ def check_connection(**_args):
     # Reset relay IDs to an empty array, we're starting off clean
     room_slot['relay_ids'] = []
 
-    print(room_slot['relay_ids'])
-
     for i in range(0, 8):
         start = (17 * i) + 8
 
         connected       = int(_args['packet'].ReadInteger(start + 2, 1, 'little'))
         character_name  = _args['packet'].ReadStringByRange(start + 2, (start + 17))
-
-        print("{0}:: who: {1}, connected: {2}".format(
-            _args['client']['game_client']['character']['name'],
-            character_name,
-            connected
-        ))
-
-        print(_args['packet'].data)
-
-        print(character_name)
-        print(connected)
 
         if connected == 0 and len(character_name) > 0:
 
@@ -159,8 +147,11 @@ def remove_connection(**_args):
 def check_state(client):
     time.sleep(10)
 
+    print("Checking relay client state")
+
     # Check if we have a game_client assigned to our client
     if 'game_client' not in client:
-        print('check_state timeout')
-        client['socket'].shutdown(socket.SHUT_RDWR)
-        client['socket'].close()
+        print("Closing relay connection")
+        return connection.close_connection(client)
+
+    print("Relay client state is OK")
