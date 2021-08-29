@@ -30,7 +30,7 @@ def id_request(**_args):
     connection = MySQL.GetConnection()
     cursor = connection.cursor(dictionary=True)
     cursor.execute(
-        'SELECT `id` FROM `users` WHERE `username` = %s AND `banned` = 0 AND `last_ip` = %s',[
+        'SELECT `id` FROM `users` WHERE `username` = %s AND `banned` = 0 AND `last_ip` = %s', [
             account, _args['client']['socket'].getpeername()[0]
         ]
     )
@@ -48,13 +48,6 @@ def id_request(**_args):
             account
         ))
 
-    # It is possible that the duplication check in the game server does not find all relay clients
-    # This is because it is possible to have relay clients without a game client.
-    # Disconnect any relay client that is connected with our account to stop the existence of multiple instances
-    for client in _args['client']['server'].clients:
-        if client['account'] == account:
-            connection_handler.close_connection(client)
-
     # Retrieve first available ID
     id = 0
     for i in range(65535):
@@ -71,6 +64,13 @@ def id_request(**_args):
 
     # Add the client to our client container
     _args['client']['server'].clients.append(_args['client'])
+
+    # It is possible that the duplication check in the game server does not find all relay clients
+    # This is because it is possible to have relay clients without a game client.
+    # Disconnect any relay client that is connected with our account to stop the existence of multiple instances
+    for client in _args['client']['server'].clients:
+        if client['account'] == account and client is not _args['client']:
+            connection_handler.close_connection(client)
 
     # Send response to client
     result = PacketWrite()
