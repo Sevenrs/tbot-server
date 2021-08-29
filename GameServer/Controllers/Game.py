@@ -425,16 +425,18 @@ def game_end_rpc(**_args):
         if str(who + 1) in room['slots'] and who != 65535 and not room['game_over']:
             room['slots'][str(who + 1)]['player_kills'] += 1
 
-        # Tell room about the death of the player
-        death = PacketWrite()
-        death.AddHeader([0x22, 0x2F])
-        death.AppendBytes(bytes=bytearray([0x01, 0x00]))
-        death.AppendInteger(integer=(int(room_slot) - 1), length=2, byteorder='little')
-        death.AppendBytes(bytes=bytearray([0x00, 0x00, 0x00, 0x00, 0x00]))
-        _args['connection_handler'].SendRoomAll(room['id'], death.packet)
+        # Tell room about the death of the player.
+        # This packet only works in Battle Mode and should not be used in DeathMatch
+        if room['game_type'] == 0:
+            death = PacketWrite()
+            death.AddHeader([0x22, 0x2F])
+            death.AppendBytes(bytes=bytearray([0x01, 0x00]))
+            death.AppendInteger(integer=(int(room_slot) - 1), length=2, byteorder='little')
+            death.AppendBytes(bytes=bytearray([0x00, 0x00, 0x00, 0x00, 0x00]))
+            _args['connection_handler'].SendRoomAll(room['id'], death.packet)
 
-        # Update the score board if we are playing DeathMatch and if the game hasn't ended yet
-        if room['game_type'] == 4 and (str(who + 1) in room['slots'] or who == 65535) and not room['game_over']:
+        # Kill the player and update the score board if we are playing DeathMatch
+        elif room['game_type'] == 4 and (str(who + 1) in room['slots'] or who == 65535):
 
             # Update the score board
             update = PacketWrite()
