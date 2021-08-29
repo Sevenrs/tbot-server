@@ -2,7 +2,7 @@ from Packet.Write import Write as PacketWrite
 from GameServer.Controllers.Room import get_slot
 import _thread, time, socket
 import MySQL.Interface as MySQL
-from relay_tcp_server import connection
+from relay_tcp_server import connection as connection_handler
 
 def route(client, packet):
 
@@ -47,6 +47,13 @@ def id_request(**_args):
             _args['client']['socket'].getpeername()[0],
             account
         ))
+
+    # It is possible that the duplication check in the game server does not find all relay clients
+    # This is because it is possible to have relay clients without a game client.
+    # Disconnect any relay client that is connected with our account to stop the existence of multiple instances
+    for client in _args['client']['server'].clients:
+        if client['account'] == account:
+            connection_handler.close_connection(client)
 
     # Retrieve first available ID
     id = 0
@@ -152,6 +159,6 @@ def check_state(client):
     # Check if we have a game_client assigned to our client
     if 'game_client' not in client:
         print("Closing relay connection")
-        return connection.close_connection(client)
+        return connection_handler.close_connection(client)
 
     print("Relay client state is OK")
