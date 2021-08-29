@@ -121,8 +121,6 @@ This method removes a relay ID from the requesting client's relay ID container
 '''
 def remove_connection(**_args):
 
-    return
-
     # If our game client doesn't have a room, drop the packet
     if 'room' not in _args['client']['game_client']:
         return
@@ -136,13 +134,13 @@ def remove_connection(**_args):
     room_slot   = room['slots'][str(slot_nr)]
 
     # Remove relay ID from the room
-    for client in _args['client']['server'].clients:
-        if client['game_client']['character']['name'] == character_name:
-
-            # It is possible this is invoked before the client sent the check_connection packet so we must check
-            # if the id is actually in relay_ids
-            if client['id'] in room_slot['relay_ids']:
-                room_slot['relay_ids'].remove(client['id'])
+    # for client in _args['client']['server'].clients:
+    #     if client['game_client']['character']['name'] == character_name:
+    #
+    #         # It is possible this is invoked before the client sent the check_connection packet so we must check
+    #         # if the id is actually in relay_ids
+    #         if client['id'] in room_slot['relay_ids']:
+    #             room_slot['relay_ids'].remove(client['id'])
 
     # It is possible that the connection was closed by the remote client causing the ID to be removed from
     # the state and not from the room, making the above snippet not work. This will loop through all IDs in the
