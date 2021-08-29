@@ -100,6 +100,17 @@ def check_connection(**_args):
         connected       = int(_args['packet'].ReadInteger(start + 2, 1, 'little'))
         character_name  = _args['packet'].ReadStringByRange(start + 2, (start + 17))
 
+        print("{0}:: who: {1}, connected: {2}".format(
+            _args['client']['game_client']['character']['name'],
+            character_name,
+            connected
+        ))
+
+        print(_args['packet'].data)
+
+        print(character_name)
+        print(connected)
+
         if connected == 0 and len(character_name) > 0:
 
             # Add relay ID of the player that is not connected
