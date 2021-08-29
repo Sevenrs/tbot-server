@@ -79,6 +79,21 @@ This method determines who is relayed and who is not
 If a client is relay, their relay ID is pushed to the relay ID container
 '''
 def check_connection(**_args):
+
+    # If our game client doesn't have a room, drop the packet
+    if 'room' not in _args['client']['game_client']:
+        return
+
+    # Find our room, slot number and slot instance
+    room        = _args['client']['game_server'].rooms[str(_args['client']['game_client']['room'])]
+    slot_nr     = get_slot({'client': _args['client']['game_client']}, room)
+    room_slot   = room['slots'][str(slot_nr)]
+
+    # Reset relay IDs to an empty array, we're starting off clean
+    room_slot['relay_ids'] = []
+
+    print(room_slot['relay_ids'])
+
     for i in range(0, 8):
         start = (17 * i) + 8
 
@@ -86,11 +101,6 @@ def check_connection(**_args):
         character_name  = _args['packet'].ReadStringByRange(start + 2, (start + 17))
 
         if connected == 0 and len(character_name) > 0:
-            room = _args['client']['game_server'].rooms[str(_args['client']['game_client']['room'])]
-
-            # Find our slot
-            slot_nr = get_slot({'client': _args['client']['game_client']}, room)
-            room_slot = room['slots'][str(slot_nr)]
 
             # Add relay ID of the player that is not connected
             for client in _args['client']['server'].clients:
@@ -102,16 +112,22 @@ def check_connection(**_args):
 This method removes a relay ID from the requesting client's relay ID container
 '''
 def remove_connection(**_args):
+
+    # If our game client doesn't have a room, drop the packet
+    if 'room' not in _args['client']['game_client']:
+        return
+
+    # Read character name
     character_name  = _args['packet'].ReadStringByRange(2, 17)
 
-    # Find our own room
-    room = _args['client']['game_server'].rooms[str(_args['client']['game_client']['room'])]
+    # Find our own room, slot number and slot instance
+    room        = _args['client']['game_server'].rooms[str(_args['client']['game_client']['room'])]
+    slot_nr     = get_slot({'client': _args['client']['game_client']}, room)
+    room_slot   = room['slots'][str(slot_nr)]
 
     # Remove relay ID from the room
     for client in _args['client']['server'].clients:
         if client['game_client']['character']['name'] == character_name:
-            slot_nr = get_slot({'client': _args['client']['game_client']}, room)
-            room_slot = room['slots'][str(slot_nr)]
 
             # It is possible this is invoked before the client sent the check_connection packet so we must check
             # if the id is actually in relay_ids
@@ -134,5 +150,6 @@ def check_state(client):
 
     # Check if we have a game_client assigned to our client
     if 'game_client' not in client:
+        print('check_state timeout')
         client['socket'].shutdown(socket.SHUT_RDWR)
         client['socket'].close()
