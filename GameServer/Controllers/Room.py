@@ -231,6 +231,9 @@ def add_slot(_args, room_id, client, broadcast=False):
             'relay_ids':        []
         }
 
+        # Set room id for current client to indicate that our client is in a room
+        _args['client']['room'] = room['id']
+
         # Update player status to be in room
         _args['connection_handler'].UpdatePlayerStatus(client, 0)
 
@@ -293,9 +296,6 @@ def add_slot(_args, room_id, client, broadcast=False):
         join.AddHeader([0x29, 0x27])
         construct_room_players(_args, join, character, available_slot, client, room)
         _args['connection_handler'].SendRoomAll(room['id'], join.packet)
-
-     # Set room id for current client to indicate that our client is in a room
-    _args['client']['room'] = room['id']
 
     # Send a message to the client about the commands they can use
     Lobby.ChatMessage(_args['client'], 'There are commands available. Type @help for a list of commands.', 2)

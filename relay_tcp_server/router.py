@@ -69,9 +69,7 @@ def id_request(**_args):
     # This is because it is possible to have relay clients without a game client.
     # Disconnect any relay client that is connected with our account to stop the existence of multiple instances
     for client in _args['client']['server'].clients:
-        print(client['account'])
         if client['account'] == account and client is not _args['client']:
-            print('{0} == {1}'.format(account, client['account']))
             connection_handler.close_connection(client)
 
     # Send response to client
@@ -86,7 +84,7 @@ def id_request(**_args):
 
 '''
 This method determines who is relayed and who is not
-If a client is relay, their relay ID is pushed to the relay ID container
+If a client is relayed, their relay ID is pushed to the relay ID container
 '''
 def check_connection(**_args):
 
@@ -102,19 +100,36 @@ def check_connection(**_args):
     # Reset relay IDs to an empty array, we're starting off clean
     room_slot['relay_ids'] = []
 
+    # Loop through all possible players
     for i in range(0, 8):
+
+        # Dynamically calculate the index of data we need to read
         start = (17 * i) + 8
 
+        # Read if the remote player is connected and their character name
         connected       = int(_args['packet'].ReadInteger(start + 2, 1, 'little'))
         character_name  = _args['packet'].ReadStringByRange(start + 2, (start + 17))
 
+        # If their character name exists and if they're not connected, we should add their ID to the relay ID array.
         if connected == 0 and len(character_name) > 0:
 
-            # Add relay ID of the player that is not connected
-            for client in _args['client']['server'].clients:
-                if client['game_client']['character']['name'] == character_name:
-                    if client['id'] not in room_slot['relay_ids']:
-                        room_slot['relay_ids'].append(client['id'])
+            # Attempt to find their client and add their relay ID to our container
+            try:
+
+                # Attempt to retrieve the remote client by looping through all clients.
+                for client in _args['client']['server'].clients:
+
+                    # Check if the game_client is not None to ensure it exists
+                    if 'game_client' in client and client['game_client'] is not None:
+
+                        # Check if this is the client we are looking for by comparing the character name
+                        if client['game_client']['character']['name'] == character_name:
+
+                            # If the remote client ID is not already in the relay ID array, append the ID to the array.
+                            if client['id'] not in room_slot['relay_ids']:
+                                room_slot['relay_ids'].append(client['id'])
+            except Exception as e:
+                print('Failed to add a relay ID to the container because: {0}. It is likely the remote client no longer exists'.format(str(e)))
 
 '''
 This method removes a relay ID from the requesting client's relay ID container
@@ -138,39 +153,31 @@ def remove_connection(**_args):
         for client in _args['client']['server'].clients:
 
             # Check if the client is not None and if the game_client is also not None
-            if client is not None and client['game_client'] is not None:
+            if client is not None and 'game_client' in client and client['game_client'] is not None:
 
                 # Check if the character name is equal to the name we received
                 if client['game_client']['character']['name'] == character_name:
-
-                    print('client was found')
 
                     # Check if the ID is in the array before attempting to remove it
                     if client['id'] in room_slot['relay_ids']:
                         room_slot['relay_ids'].remove(client['id'])
     except Exception as e:
-        print('Failed to remove a relay ID from the room because: ', str(e))
+        print('Failed to remove a relay ID from the room because: {0}. It is likely that the remote client no longer exists.'.format(str(e)))
 
     # It is possible that the connection was closed by the remote client causing the ID to be removed from
     # the state and not from the room, making the above snippet not work. This will loop through all IDs in the
-    # entire room and check if we should remove them
+    # entire room and check if we should remove them based on their existence in the server ID container.
     for i in range(0, 8):
         if str(i + 1) in room['slots']:
             ids = room['slots'][str(i + 1)]['relay_ids']
             for id in ids:
                 if id not in _args['client']['server'].ids:
-                    print("safedelete: ", id)
                     ids.remove(id)
 
 ''' Check if we have a client assigned after 10 seconds. If not, disconnect (time out)'''
 def check_state(client):
     time.sleep(10)
 
-    print("Checking relay client state")
-
     # Check if we have a game_client assigned to our client
     if 'game_client' not in client:
-        print("Closing relay connection")
         return connection_handler.close_connection(client)
-
-    print("Relay client state is OK")
