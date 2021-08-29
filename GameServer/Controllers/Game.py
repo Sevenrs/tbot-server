@@ -425,8 +425,7 @@ def game_end_rpc(**_args):
         if str(who + 1) in room['slots'] and who != 65535 and not room['game_over']:
             room['slots'][str(who + 1)]['player_kills'] += 1
 
-        # Tell room about the death of the player.
-        # This packet only works in Battle Mode and should not be used in DeathMatch
+        # Tell the room about the death of the player for Battle mode
         if room['game_type'] == 0:
             death = PacketWrite()
             death.AddHeader([0x22, 0x2F])
