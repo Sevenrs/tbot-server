@@ -48,6 +48,7 @@ class RelayTCPClient:
             try:
                 packet = PacketRead(self.socket)
                 router.route(self.__dict__, packet)
-            except Exception:
+            except Exception e:
+                print(e)
                 connection.close_connection(self.__dict__)
                 break
