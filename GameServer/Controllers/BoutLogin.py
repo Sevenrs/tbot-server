@@ -58,9 +58,9 @@ def id_request(**_args):
     _args['client']['last_ping']    = datetime.datetime.now()
 
     # Disconnect all connected sessions with this account name (to stop two or more clients with the same account)
-    for session in _args['connection_handler'].GetClients():
-        if session['account'] == account and session['socket'] is not _args['socket']:
-            _args['connection_handler'].UpdatePlayerStatus(session, 2)
+    # for session in _args['connection_handler'].GetClients():
+    #     if session['account'] == account and session['socket'] is not _args['socket']:
+    #         _args['connection_handler'].UpdatePlayerStatus(session, 2)
 
     # Find our relay client and connect it with this client
     for client in _args['server'].relay_server.clients:
