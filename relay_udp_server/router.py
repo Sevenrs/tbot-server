@@ -41,6 +41,8 @@ def relay_action(**_args):
     # Read relay client ID
     relay_id = int.from_bytes(_args['packet'].data[:2], byteorder='little')
 
+    print(_args['packet'].data)
+
     # Unknown, presumably checks of some kind
     unk1 = int.from_bytes(_args['packet'].data[10:2], byteorder='little')
     unk2 = int.from_bytes(_args['packet'].data[12:2], byteorder='little')
@@ -52,7 +54,7 @@ def relay_action(**_args):
     action.AppendBytes(bytes=_args['packet'].data)
 
     # Construct final packet needed
-    answer = action.data[12:(12 + _args['packet'].length - 8)]
+    answer = action.data[12:(12 + _args['packet'].length)]
 
     # Retrieve our relay client to find the room we are in
     for client in _args['client']['server'].relay.clients:
