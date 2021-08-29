@@ -68,11 +68,11 @@ def id_request(**_args):
     # It is possible that the duplication check in the game server does not find all relay clients
     # This is because it is possible to have relay clients without a game client.
     # Disconnect any relay client that is connected with our account to stop the existence of multiple instances
-    for client in _args['client']['server'].clients:
-        print(client['account'])
-        if client['account'] == account and client is not _args['client']:
-            print('{0} == {1}'.format(account, client['account']))
-            connection_handler.close_connection(client)
+    # for client in _args['client']['server'].clients:
+    #     print(client['account'])
+    #     if client['account'] == account and client is not _args['client']:
+    #         print('{0} == {1}'.format(account, client['account']))
+    #         connection_handler.close_connection(client)
 
     # Send response to client
     result = PacketWrite()
