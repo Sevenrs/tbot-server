@@ -333,6 +333,7 @@ def remove_slot(_args, room_id, client, reason=1):
                     exit.AppendBytes([0x00])
                 exit.AppendBytes([0x00])
 
+            print('c')
             _args['connection_handler'].SendRoomAll(room['id'], exit.packet)
 
             # Remove the room from the client so the client is no longer in the room
@@ -343,10 +344,12 @@ def remove_slot(_args, room_id, client, reason=1):
                 _args['connection_handler'].UpdatePlayerStatus(client, 1)
 
             # Remove peer information as we most likely need to assign new information later
+            print('b')
             if 'p2p_host' in client:
                 client.pop('p2p_host')
 
             # Ensure the relay ID of this client is removed from the relay ID array of everyone else in the room
+            print('a')
             relay_id = client['relay_client']['id']
             for k, s in room['slots'].items():
                 if relay_id in s['relay_ids']:

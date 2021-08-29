@@ -122,9 +122,9 @@ class Handler:
         if client in self.server.clients:
 
             # If the client is in a room, attempt to remove it
-            # if 'room' in client:
-            #     remove_slot(_args={'server': self.server, 'connection_handler': self}, room_id=client['room'],
-            #                 client=client, reason=6)
+            if 'room' in client:
+                remove_slot(_args={'server': self.server, 'connection_handler': self}, room_id=client['room'],
+                            client=client, reason=6)
 
             self.server.clients.remove(client)
             self.server.client_ids.remove(client['id'])
