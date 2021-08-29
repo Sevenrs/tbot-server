@@ -134,9 +134,8 @@ def remove_connection(**_args):
     room_slot   = room['slots'][str(slot_nr)]
 
     # Remove relay ID from the room.
-    # Because the client container can change, create a copy of it at that moment
-    for client in _args['client']['server'].clients.copy():
-        if client['game_client']['character']['name'] == character_name:
+    for client in _args['client']['server'].clients:
+        if client is not None and client['game_client']['character']['name'] == character_name:
 
             # It is possible this is invoked before the client sent the check_connection packet so we must check
             # if the id is actually in relay_ids
