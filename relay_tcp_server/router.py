@@ -41,8 +41,15 @@ def id_request(**_args):
     # Before checking, close the SQL connection
     connection.close()
 
+    # Create response packet
+    result = PacketWrite()
+    result.AddHeader(bytes=[0x1A, 0xA4])
+
     # Check if the user exists. If it does not, throw an exception which closes the connection
     if user is None:
+        result.AppendBytes([0x00])
+        result.AppendInteger(50, 1, 'little') # Incorrect authentication
+        _args['client']['socket'].send(result.packet)
         raise Exception('IP address {0} is not authorized to sign in with account {1}'.format(
             _args['client']['socket'].getpeername()[0],
             account
@@ -73,8 +80,6 @@ def id_request(**_args):
             connection_handler.close_connection(client)
 
     # Send response to client
-    result = PacketWrite()
-    result.AddHeader(bytes=[0x1A, 0xA4])
     result.AppendBytes([0x01, 0x00])
     result.AppendBytes([id & 0xFF, id >> 8 & 0xFF])
     _args['client']['socket'].send(result.packet)

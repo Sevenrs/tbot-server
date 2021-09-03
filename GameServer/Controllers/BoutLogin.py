@@ -5,6 +5,7 @@ __version__ = "1.0"
 
 from Packet.Write import Write as PacketWrite
 from GameServer.Controllers import Character, Shop
+from GameServer.Controllers.data.client import CLIENT_VERSION
 import MySQL.Interface as MySQL
 import re, time, _thread, datetime
 
@@ -13,12 +14,18 @@ This method will send the new client its unique ID
 """
 def id_request(**_args):
 
-    # # If our client is already registered, drop the packet
+    # If our client is already registered, drop the packet
     if _args['client'] in _args['server'].clients:
         return
 
     # Read account name from packet
-    account = _args['packet'].ReadString()
+    account         = _args['packet'].ReadString()
+    client_version  = _args['packet'].ReadString()
+
+    # Create error packet, in the event we require it
+    error = PacketWrite()
+    error.AddHeader(bytearray([0xE2, 0x2E]))
+    error.AppendBytes([0x00])
 
     # Get user from the database
     _args['mysql'].execute(
@@ -32,7 +39,13 @@ def id_request(**_args):
     user = _args['mysql'].fetchone()
     if user is None:
         raise Exception('Invalid user given in the ID request')
-    
+
+    ''' If the client version is incorrect, we must send an error message and disconnect the client. '''
+    if client_version != CLIENT_VERSION:
+        error.AppendInteger(14, 1, 'little') # Client version error
+        _args['socket'].send(error.packet)
+        raise Exception('Invalid client version')
+
     # Get available ID
     id = 0
     for i in range(65535):
@@ -76,6 +89,8 @@ def id_request(**_args):
     ''' If we have no relay client, then something is wrong. We must have a relay client.
             In this case, close our own connection. '''
     if 'relay_client' not in _args['client']:
+        error.AppendInteger(4, 1, 'little') # Protocol error
+        _args['socket'].send(error.packet)
         return _args['connection_handler'].CloseConnection(_args['client'])
 
     # Construct ID request response and send it to the client

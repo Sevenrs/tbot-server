@@ -8,6 +8,7 @@ from GameServer.Controllers.data.drops import *
 from GameServer.Controllers.data.exp import *
 from GameServer.Controllers.data.planet import PLANET_MAP_TABLE, PLANET_BOXES, PLANET_BOX_MOBS, PLANET_DROPS,\
     PLANET_ASSISTS
+from GameServer.Controllers.data.client import CLIENT_FILE_HASHES
 from GameServer.Controllers.Character import get_items, add_item, get_available_inventory_slot, remove_expired_items
 from GameServer.Controllers import Lobby
 from GameServer.Controllers import Room
@@ -31,12 +32,19 @@ def load_finish(**_args):
     if not room:
         return
 
+    # Get slot
+    slot = Room.get_slot(_args, room)
+
+    # Check if file validation passed. If not, disconnect client now.
+    if not room['slots'][str(slot)]['file_validation_passed']:
+        return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
+
     # Get slot and update loading status
-    room['slots'][str(Room.get_slot(_args, room))]['loaded'] = True
+    room['slots'][str(slot)]['loaded'] = True
 
     # Check if the other slots have loaded
-    for slot in room['slots']:
-        if not room['slots'][slot]['loaded']:
+    for _slot in room['slots']:
+        if not room['slots'][_slot]['loaded']:
             return
 
     # Mark the room's game as loaded
@@ -388,6 +396,31 @@ def set_score(**_args):
     # Retrieve score from the packet and set the score
     score = int(_args['packet'].ReadInteger(0, 2, 'big'))
     room['slots'][str(room_slot)]['points'] = score
+
+'''
+This method will receive the file hashes of every important file of the game and compare its hashes against what
+we have. If any hash is not matching, we disconnect the client.
+'''
+def file_validation(**_args):
+
+    # Check if we are in a room and obtain our slot
+    room = Room.get_room(_args)
+    if not room:
+        return
+
+    room_slot = Room.get_slot(_args, room)
+
+    for hash in CLIENT_FILE_HASHES:
+
+        # Read hash received from the client
+        client_hash = _args['packet'].ReadString()
+
+        # Compare hash. If they don't match, we disconnect the client.
+        if client_hash != hash:
+            return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
+
+    # If we have passed validation, update our validation state to True (passed)
+    room['slots'][str(room_slot)]['file_validation_passed'] = True
 
 '''
 This method will handle the game end RPC. This acts as a caller for game_end through a packet instead of being

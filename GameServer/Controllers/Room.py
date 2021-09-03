@@ -216,19 +216,20 @@ def add_slot(_args, room_id, client, broadcast=False):
     # Append to slots if the available slot is greater than 0
     if available_slot > 0:
         room['slots'][str(available_slot)] = {
-            'client':           client,
-            'loaded':           False,
-            'dead':             False,
-            'won':              False,
-            'ready':            False,
-            'shop':             False,
-            'team':             0,
-            'in_shop':          False,
-            'monster_kills':    0,
-            'player_kills':     0,
-            'deaths':           0,
-            'points':           0,
-            'relay_ids':        []
+            'client':                   client,
+            'loaded':                   False,
+            'dead':                     False,
+            'won':                      False,
+            'ready':                    False,
+            'shop':                     False,
+            'team':                     0,
+            'in_shop':                  False,
+            'file_validation_passed':   False,
+            'monster_kills':            0,
+            'player_kills':             0,
+            'deaths':                   0,
+            'points':                   0,
+            'relay_ids':                []
         }
 
         # Set room id for current client to indicate that our client is in a room
@@ -701,15 +702,16 @@ def reset(room):
     # Reset player status
     for slot in room['slots']:
         slot = room['slots'][slot]
-        slot['ready']           = 0
-        slot['in_shop']         = False
-        slot['loaded']          = False
-        slot['dead']            = False
-        slot['won']             = False
-        slot['monster_kills']   = 0
-        slot['player_kills']    = 0
-        slot['deaths']          = 0
-        slot['points']          = 0
+        slot['ready']                   = 0
+        slot['in_shop']                 = False
+        slot['loaded']                  = False
+        slot['dead']                    = False
+        slot['won']                     = False
+        slot['file_validation_passed']  = False
+        slot['monster_kills']           = 0
+        slot['player_kills']            = 0
+        slot['deaths']                  = 0
+        slot['points']                  = 0
 
 '''
 This method allows room masters to kick players out of their rooms
