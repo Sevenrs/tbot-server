@@ -63,6 +63,10 @@ def relay_action(**_args):
             game_client = client['game_client']
             game_server = client['game_server']
 
+            # If the game_client is not in a room, don't do anything.
+            if 'room' not in game_client:
+                return
+
             # Retrieve room and slot number
             room    = game_server.rooms[str(game_client['room'])]
             slot    = room['slots'][str(get_slot({'client': game_client}, room))]
