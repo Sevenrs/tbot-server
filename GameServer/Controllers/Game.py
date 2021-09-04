@@ -64,6 +64,14 @@ def load_finish(**_args):
     if room['game_type'] in [0, 1]:
         _thread.start_new_thread(incremental_canister_drops, (_args, room,))
 
+    # If the game is deathmatch, send a story message
+    if room['game_type'] == 4:
+        message = Lobby.ChatMessage(target=None,
+                                    message='DeathMatch! The player with the most kills wins!',
+                                    color=3,
+                                    return_packet=True)
+        _args['connection_handler'].SendRoomAll(room['id'], message)
+
 '''
 This method will handle monster deaths and broadcasts an acknowledgement to the room
 of the monster being killed.
@@ -106,11 +114,20 @@ def monster_kill(**_args):
     if monster_id not in room['killed_mobs'] and not room['game_over'] and pushed == 0:
         for drop, chance in drops:
 
-            ''' If the monster ID is equal to the last monster ID in the list, we've killed a boss.
-                We need to ensure that Rebirth is always dropped '''
-            if room['level'] in PLANET_BOXES and drop == CANISTER_REBIRTH and \
-                    monster_id == PLANET_BOX_MOBS[room['level']][len(PLANET_BOX_MOBS[room['level']]) - 1]:
-                chance = 1.00
+            ''' If the monster ID is equal to the boss, we'll have to change the drop chances '''
+            if room['level'] in PLANET_BOXES and monster_id == PLANET_BOX_MOBS[room['level']][len(PLANET_BOX_MOBS[room['level']]) - 1]:
+
+                # If the drop is not a canister, increase chance by 5x
+                if drop >= BOX_ARMS:
+                    chance = chance * 5
+                else:
+
+                    # Otherwise, the chance should be 0. We do not want to drop canisters.
+                    chance = 0.00
+
+                    # Except if the drop is a rebirth then the chance should always be 100%
+                    if drop == CANISTER_REBIRTH:
+                        chance = 1.00
 
             # If applicable, apply the assistant multiplication except if the drop type is greater or equal to CHEST_GOLD(18)
             if random.random() < (chance * (assistant_multiplication if drop < BOX_ARMS else 1.0)) and room['drop_index'] < 256:
@@ -460,6 +477,15 @@ def game_end_rpc(**_args):
 
         # Tell the room about the death of the player for Battle mode
         if room['game_type'] == 0:
+
+            # Array with possible drops from players
+            drops = [
+                OIL_BLUE,
+                OIL_PINK,
+                OIL_ORANGE,
+                OIL_YELLOW
+            ]
+
             death = PacketWrite()
             death.AddHeader([0x22, 0x2F])
             death.AppendBytes(bytes=bytearray([0x01, 0x00]))
