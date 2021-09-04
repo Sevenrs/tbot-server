@@ -77,7 +77,6 @@ def id_request(**_args):
     # Disconnect any relay client that is connected with our account to stop the existence of multiple instances
     for client in _args['client']['server'].clients:
         if client['account'] == account and client is not _args['client']:
-            print("motherfucker had multiple relay clients")
             connection_handler.close_connection(client)
 
     # Send response to client
@@ -186,5 +185,4 @@ def check_state(client):
 
     # Check if we have a game_client assigned to our client
     if 'game_client' not in client:
-        print("motherfucker did not have a client assigned")
         return connection_handler.close_connection(client)

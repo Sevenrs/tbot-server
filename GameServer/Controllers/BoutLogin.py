@@ -231,7 +231,6 @@ def ping(_args):
 
         # If the amount of seconds between now and the last ping exceeds 10, disconnect the client
         if (datetime.datetime.now() - _args['client']['last_ping']).total_seconds() >= 15:
-            print("motherfucker has HORRIBLE internet")
             return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
 
         # Send ping packet and wait 3 seconds
