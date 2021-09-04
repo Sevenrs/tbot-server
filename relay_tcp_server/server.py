@@ -49,6 +49,7 @@ class RelayTCPClient:
                 packet = PacketRead(self.socket)
                 router.route(self.__dict__, packet)
             except Exception as e:
+                print("mother actual fucker")
                 print(e)
                 connection.close_connection(self.__dict__)
                 break

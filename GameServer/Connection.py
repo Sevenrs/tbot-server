@@ -138,4 +138,5 @@ class Handler:
 
             # If we have a relay client, close its connection as well
             if 'relay_client' in client:
+                print("motherfucker got disconnected from CloseConnection")
                 relay_connection.close_connection(client['relay_client'])
