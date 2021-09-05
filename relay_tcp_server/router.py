@@ -117,6 +117,9 @@ def check_connection(**_args):
         connected       = int(_args['packet'].ReadInteger(start + 2, 1, 'little'))
         character_name  = _args['packet'].ReadStringByRange(start + 2, (start + 17))
 
+        if len(character_name) > 0:
+            print("Character name: {0}, connected: {1}".format(character_name, connected))
+
         # If their character name exists and if they're not connected, we should add their ID to the relay ID array.
         if connected == 0 and len(character_name) > 0:
 
