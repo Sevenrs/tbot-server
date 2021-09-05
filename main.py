@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 __author__ = "Icseon"
-__copyright__ = "Copyright (C) 2020 Icseon"
-__version__ = "1.0"
-# This file is the entry point for Bout server
+__copyright__ = "Copyright (C) 2020 - 2021 Icseon"
+__version__ = "1.1"
+# This file is the entry point for the T-Bot Rewritten server
 
 import _thread
 import threading
@@ -17,7 +17,7 @@ from relay_udp_server   import server as relay_udp_server
 This method will start all services
 """
 def main():
-    print('[Bout Galaxy]: Server version:', __version__)
+    print('[T-Bot Rewritten]: Server version:', __version__)
 
     '''
     Create a new instance of the relay TCP server
@@ -35,11 +35,12 @@ def main():
     # Start the Channel Server
     _thread.start_new_thread(ChannelServer.Socket, (11010,))
 
-    # Start the RoomHost Server
-    _thread.start_new_thread(RoomHostServer.Socket, (11011, game_server,))
+    # Start the RoomHostServer
+    room_host_server = RoomHostServer.Socket(11011, game_server)
+    _thread.start_new_thread(room_host_server.listen, ())
 
-    # Start the relay UDP server and inherit the state of the relay TCP server
-    _thread.start_new_thread(relay_udp_server.RelayUDPServer, (11013, relay_tcp,))
+    # Start the relay UDP server and inherit the state of the relay TCP server as well as the RoomHostServer
+    _thread.start_new_thread(relay_udp_server.RelayUDPServer, (11013, relay_tcp, room_host_server,))
 
     # Use the main thread as the login server
     LoginServer.Socket(11000)

@@ -76,10 +76,12 @@ def relay_action(**_args):
             for id in relay_ids:
                 for client_id in _args['client']['server'].relay.clients:
 
-                    # Check if the id matches and if the client has peer information assigned to it
-                    # It is possible the client adds themselves to the id list before having peer information.
-                    if client_id['id'] == id and 'peer_info' in client_id:
-                        _args['client']['server'].socket.sendto(answer, (client_id['peer_info']['ip'],
-                                                                         client_id['peer_info']['port']))
+                    # Check if the id matches and if the client's game_client has p2p information assigned to it
+                    # It is possible the client adds themselves to the id list before having p2p information.
+                    if client_id['id'] == id and 'p2p_host' in client_id['game_client']:
+
+                        # Retrieve peer host information and forward packet
+                        p2p_host = client_id['game_client']['p2p_host']
+                        _args['client']['server'].room.socket.sendto(answer, (p2p_host['ip'], p2p_host['port']))
                         break
             break

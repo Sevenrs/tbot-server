@@ -5,10 +5,11 @@ from Packet.ReadDatagram import ReadDatagram as ReadDatagram
 
 class RelayUDPServer:
 
-    def __init__(self, port, relay_tcp_server):
+    def __init__(self, port, relay_tcp_server, room_host_server):
         self.port   = port
         self.name   = 'RelayUDPServer'
         self.relay  = relay_tcp_server
+        self.room   = room_host_server
         self.socket = None
 
         self.listen()

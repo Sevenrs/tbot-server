@@ -14,11 +14,9 @@ class Socket:
     RoomHost contructor
     """
     def __init__(self, port, game_server):
-        self.port = port
-        self.game_server = game_server
-
-        # Start the server
-        self.listen()
+        self.port           = port
+        self.game_server    = game_server
+        self.socket         = None
 
     """
     This method will listen for new connections
@@ -29,6 +27,7 @@ class Socket:
             # Create Datagram server socket to act as as channel server
             server = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
             server.bind(('0.0.0.0', self.port))
+            self.socket = server
             
             print('[RoomHostServer]: Started on port', self.port)
             
