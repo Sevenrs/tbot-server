@@ -6,6 +6,8 @@ from relay_tcp_server import connection as connection_handler
 
 def route(client, packet):
 
+    print("PROCESSING PACKET ID: {0}".format(packet.id))
+
     packets = {
         '32a0': id_request,
         '36a0': check_connection,
