@@ -434,6 +434,7 @@ def file_validation(**_args):
 
         # Compare hash. If they don't match, we disconnect the client.
         if client_hash != hash:
+            print("Invalid file hash. Expected: {0}, Got: {1}".format(hash, client_hash))
             return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
 
     # If we have passed validation, update our validation state to True (passed)

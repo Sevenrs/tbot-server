@@ -1,4 +1,4 @@
-CLIENT_VERSION = '1.0.1.8'
+CLIENT_VERSION = '1.0.1.9'
 
 CLIENT_FILE_HASHES = [
     '923433565355ad4c1f3124f9ab76368d', # script/dungeon/dungeon.bin
@@ -12,7 +12,7 @@ CLIENT_FILE_HASHES = [
     '294ffb419bc4f040b216e83126ddc1c1', # script/ftinfo.sys
     '08feee1758b99f5e11f44ac482f8703d', # script/item.bin
     '2ec6c31b40c1bb640c0a2a46ae7de2d0', # script/mercinfo.bin
-    '1346c4617e194b779fbdc8b35dee3652', # script/shop.bin
+    'ed91671822993e33455dc089fe35d475', # script/shop.bin
     '21dc21b33f653046b91e393d76f59fcc', # script/skillpk.bin
     'b19d22b003ca6c9928799e81ba01efa1', # script/slangs.bin
     '9b3df120192bc345c6979027a617495f', # script/string.bin
