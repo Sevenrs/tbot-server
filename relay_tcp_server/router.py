@@ -192,5 +192,5 @@ def keep_alive(_args):
         time.sleep(10)
 
         # If the last ping was too long ago, disconnect the client
-        if (datetime.datetime.now() - _args['client']['last_ping']).total_seconds() >= 30:
+        if (datetime.datetime.now() - _args['client']['last_ping']).total_seconds() >= 90:
             return connection_handler.close_connection(_args['client'])

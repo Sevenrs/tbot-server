@@ -97,6 +97,6 @@ def relay_action(**_args):
 
                         # Retrieve peer host information and forward packet
                         p2p_host = client_id['game_client']['p2p_host']
-                        #_args['client']['server'].room.socket.sendto(answer, (p2p_host['ip'], p2p_host['port']))
+                        _args['client']['server'].room.socket.sendto(answer, (p2p_host['ip'], p2p_host['port']))
                         break
             break
