@@ -136,6 +136,6 @@ class Handler:
             except Exception:
                 pass
 
-            # If we have a relay client, close its connection as well
+            # If we have a relay client, remove the game_client from it
             if 'relay_client' in client:
-                relay_connection.close_connection(client['relay_client'])
+                del client['relay_client']['game_client']

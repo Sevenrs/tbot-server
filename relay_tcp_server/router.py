@@ -1,12 +1,10 @@
 from Packet.Write import Write as PacketWrite
 from GameServer.Controllers.Room import get_slot
-import _thread, time, socket
+import _thread, time, socket, datetime
 import MySQL.Interface as MySQL
 from relay_tcp_server import connection as connection_handler
 
 def route(client, packet):
-
-    print("PROCESSING PACKET ID: {0}".format(packet.id))
 
     packets = {
         '32a0': id_request,
@@ -68,8 +66,9 @@ def id_request(**_args):
         break
 
     # Fill our client object with relevant information
-    _args['client']['account']  = account
-    _args['client']['id']       = id
+    _args['client']['account']      = account
+    _args['client']['id']           = id
+    _args['client']['last_ping']    = datetime.datetime.now()
 
     # Add the client to our client container
     _args['client']['server'].clients.append(_args['client'])
@@ -86,8 +85,8 @@ def id_request(**_args):
     result.AppendBytes([id & 0xFF, id >> 8 & 0xFF])
     _args['client']['socket'].send(result.packet)
 
-    # After 10 seconds, we should check if we have a game client assigned
-    _thread.start_new_thread(check_state, (_args['client'],))
+    # Start keep-alive thread
+    _thread.start_new_thread(keep_alive, (_args,))
 
 '''
 This method determines who is relayed and who is not
@@ -184,10 +183,14 @@ def remove_connection(**_args):
                 if id not in _args['client']['server'].ids:
                     ids.remove(id)
 
-''' Check if we have a client assigned after 10 seconds. If not, disconnect (time out)'''
-def check_state(client):
-    time.sleep(10)
+''' Check if our last ping timestamp is recent enough. If not, disconnect our client. '''
+def keep_alive(_args):
 
-    # Check if we have a game_client assigned to our client
-    if 'game_client' not in client:
-        return connection_handler.close_connection(client)
+    while _args['client'] in _args['client']['server'].clients:
+
+        # Wait 10 seconds before checking
+        time.sleep(10)
+
+        # If the last ping was too long ago, disconnect the client
+        if (datetime.datetime.now() - _args['client']['last_ping']).total_seconds() >= 30:
+            return connection_handler.close_connection(_args['client'])

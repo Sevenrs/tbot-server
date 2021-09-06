@@ -1,9 +1,11 @@
 from Packet.Write import Write as PacketWrite
 from GameServer.Controllers.Room import get_slot
+import datetime
 
 def route(client, packet):
 
     packets = {
+        '34a0': ping,
         '35a0': add_peer_info,
         '38a0': relay_action
     }.get(packet.id, unknown)(**locals())
@@ -12,6 +14,19 @@ def route(client, packet):
 def unknown(**_args):
     print("[{0}]: Unknown packet: <0x{1}[len={3}]::{2}>".format(_args['client']['server'].name, _args['packet'].id,
                                                                 _args['packet'].data, len(_args['packet'].data)))
+
+def ping(**_args):
+
+    # Read relay client ID
+    relay_id = int.from_bytes(_args['packet'].data[:2], byteorder='little')
+
+    # Retrieve our relay client and update the last_ping timestamp with now
+    for client in _args['client']['server'].relay.clients:
+
+        # If the client ID matches the relay ID we received (and the UDP remote address is equal to the client
+        # then we can update the timestamp
+        if client['id'] == relay_id and client['socket'].getpeername()[0] == _args['client']['address'][0]:
+            client['last_ping'] = datetime.datetime.now()
 
 ''' Add peer information to the state of the relay TCP client so we can access that information later'''
 def add_peer_info(**_args):
