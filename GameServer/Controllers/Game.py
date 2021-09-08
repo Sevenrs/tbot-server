@@ -441,6 +441,72 @@ def file_validation(**_args):
     room['slots'][str(room_slot)]['file_validation_passed'] = True
 
 '''
+This method will link clients through relay when the clients indicate that they are not connected with each-other.
+It works by adding an array of clients to a container and looping through that array to figure out who to connect to who.
+'''
+def network_state(**_args):
+
+    # Get the room we are currently in and check if we are in a room at all.
+    room = Room.get_room(_args)
+    if not room:
+        return
+
+    # Read request ID from the packet. The request ID is the aforementioned container's unique identifier.
+    request_id = int(_args['packet'].ReadInteger(7, 2, 'little'))
+
+    # Create the container of unlinked clients if such container was not previously created.
+    # These containers will be cleaned up once the room is reset
+    if request_id not in room['network_state_requests']:
+        room['network_state_requests'][request_id] = []
+
+    # Insert our own client in the container.
+    if _args['client'] not in room['network_state_requests'][request_id]:
+        room['network_state_requests'][request_id].append(_args['client'])
+
+        # Loop through every client in the container and link them.
+        for client in room['network_state_requests'][request_id]:
+
+            ''' Find the room instance for the client we are processing.
+            # Even though we have obtained the room before, we need to do this again because the state could
+            # have changed since the creation of the container. '''
+            client_room = Room.get_room({'client': client, 'server': _args['server']})
+
+            # Check if the current client is actually in a room to begin with
+            # If not, skip the iteration and remove the client from the container.
+            if not client_room:
+                room['network_state_requests'][request_id].remove(client)
+                continue
+
+            # Retrieve the slot number and slot instance for the client
+            slot_number = Room.get_slot({'client': client}, client_room)
+            slot = room['slots'][str(slot_number)]
+
+            try:
+
+                # Retrieve all clients inside of the request container
+                for remote_client in room['network_state_requests'][request_id]:
+
+                    '''
+                        Make sure the following cases are true:
+                        1.  The client is actually remote and not the client we are processing.
+                        2.  The remote client is connected to the relay server
+                        3.  The remote client is in the same room of the client we are processing
+
+                        If any of these cases are false, skip the iteration.
+                    '''
+                    if remote_client is client \
+                            or 'relay_client' not in remote_client \
+                            or Room.get_room({'client': remote_client, 'server': _args['server']}) is not client_room:
+                        continue
+
+                    # Add the remote client's relay ID to the relay container of the client we are processing.
+                    if remote_client['relay_client']['id'] not in slot['relay_ids']:
+                        slot['relay_ids'].append(remote_client['relay_client']['id'])
+
+            except Exception as e:
+                print('Failed to link connections because {0}'.format(str(e)))
+
+'''
 This method will handle the game end RPC. This acts as a caller for game_end through a packet instead of being
 called manually in the game code.
 '''
