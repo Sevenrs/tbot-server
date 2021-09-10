@@ -410,7 +410,8 @@ def create(**_args):
         'experience_modifier':  1.0,
         'maps':                 maps,
         'killed_mobs':          [],
-        'network_state_requests': {}
+        'network_state_requests': {},
+        'start_time':             None
     }
 
     # Pass the room to the server room container and notify any client that may see this change in the lobby
@@ -685,6 +686,7 @@ def start_game(**_args):
 
     # Set room status
     room['status'] = 3
+    room['start_time'] = datetime.datetime.now()
     get_list(_args, mode=0 if room['game_type'] in [0, 1] else room['game_type'] - 1,
              page=get_list_page_by_room_id(room['id'], room['game_type']), local=False)
 
@@ -700,6 +702,7 @@ def reset(room):
     room['game_loaded']             = False
     room['killed_mobs']             = []
     room['network_state_requests']  = {}
+    room['start_time']              = None
 
     # Reset player status
     for slot in room['slots']:

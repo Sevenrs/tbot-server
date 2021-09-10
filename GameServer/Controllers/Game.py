@@ -13,9 +13,7 @@ from GameServer.Controllers.Character import get_items, add_item, get_available_
 from GameServer.Controllers import Lobby
 from GameServer.Controllers import Room
 import MySQL.Interface as MySQL
-import random
-import time
-import _thread
+import random, time, datetime, _thread
 
 """
 This controller is responsible for handling all game related actions
@@ -107,6 +105,9 @@ def monster_kill(**_args):
     if room['level'] in PLANET_BOXES and monster_id in PLANET_BOX_MOBS[room['level']] and room['game_type'] == 2:
         drops += PLANET_BOXES[room['level']]
 
+    # Randomly shuffle the drops to randomize drop order
+    random.shuffle(drops)
+
     # Calculate whether or not we should drop an item based on chance
     # But only if the monster ID is not in the array of killed mobs and if the game is still going
     # Lastly, we shouldn't drop anything if the monster has been pushed
@@ -136,13 +137,15 @@ def monster_kill(**_args):
                 room['drop_index'] += 1
     drop_bytes = b''.join(monster_drops)
 
+    # Randomly generate drop direction
+    direction = random.randrange(0, 6)
+
     # Create death response
     death = PacketWrite()
     death.AddHeader(bytes=bytearray([0x25, 0x2F]))
     death.AppendBytes(bytes=bytearray([0x01, 0x00]))
     death.AppendInteger(integer=monster_id, length=2, byteorder='little')
-
-    death.AppendBytes([0x01, 0x00])
+    death.AppendInteger(direction, 2, 'little')
     death.AppendInteger(len(monster_drops), length=2, byteorder='little')
     death.AppendBytes(drop_bytes)
 
@@ -194,6 +197,25 @@ def use_item(**_args):
     if item_type == CANISTER_REBIRTH:
         for key, slot in room['slots'].items():
             slot['dead'] = False
+
+    # If the item is OIL, process oil pickup
+    if item_type in [OIL_YELLOW, OIL_ORANGE, OIL_BLUE, OIL_PINK]:
+
+        # Container for the amount of oil a player receives per type
+        OIL_AWARDS = {
+            OIL_YELLOW: 5,
+            OIL_ORANGE: 15,
+            OIL_BLUE: 20,
+            OIL_PINK: 30
+        }
+
+        # Retrieve award amount and update the character
+        award = OIL_AWARDS[item_type]
+        _args['client']['character']['currency_botstract'] += award
+        _args['mysql'].execute("""UPDATE `characters` SET `currency_botstract` = (`currency_botstract` + %s) WHERE `id` = %s""", [
+            award,
+            _args['client']['character']['id']
+        ])
 
     # If the item type is equal or exceeds 18, process a box pickup
     if item_type >= 18:
@@ -553,11 +575,44 @@ def game_end_rpc(**_args):
                 OIL_YELLOW
             ]
 
+            # Since we want the possibility for drops to occur more than once, we'll need to randomly generate
+            # the amount we want
+            _drops = []
+            for drop in drops:
+                for _ in range(random.randrange(0, 3)):
+                    _drops.append(drop)
+
+            # If the chance exceeds the randomized value, add a gold drop
+            if random.random() < 0.10:
+                _drops.append(CHEST_GOLD)
+
+            # Randomly shuffle the drop order
+            random.shuffle(_drops)
+
+            # Construct drop result
+            result = []
+            for idx, drop in enumerate(_drops):
+                if room['drop_index'] < 256:
+
+                    # Create and append drop data to the result and modify room state to register the drop
+                    result.append(bytes([room['drop_index'], drop, 0, 0, 0]))
+                    room['drops'][room['drop_index']] = {'type': drop, 'used': False}
+                    room['drop_index'] += 1
+
+            # Create drop bytes for the drop packet
+            drop_bytes = b''.join(result)
+
+            # Randomly generate drop direction
+            direction = random.randrange(0, 6)
+
+            # Construct player death response to include aforementioned drops
             death = PacketWrite()
             death.AddHeader([0x22, 0x2F])
             death.AppendBytes(bytes=bytearray([0x01, 0x00]))
             death.AppendInteger(integer=(int(room_slot) - 1), length=2, byteorder='little')
-            death.AppendBytes(bytes=bytearray([0x00, 0x00, 0x00, 0x00, 0x00]))
+            death.AppendInteger(direction, 2, 'little')
+            death.AppendInteger(len(result), length=2, byteorder='little')
+            death.AppendBytes(drop_bytes)
             _args['connection_handler'].SendRoomAll(room['id'], death.packet)
 
         # Kill the player and update the score board if we are playing DeathMatch
@@ -692,15 +747,31 @@ def post_game_transaction(_args, room):
                                   / (1.00 if abs(PLANET_MAP_TABLE[room['level']][2] - character['level']) < 10 else 4.00)) \
                                         if room['level'] in PLANET_MAP_TABLE.keys() and slot['won'] else 0
 
-            ''' Calculate the amount of gigas to award to the player. If the level difference is too large, the amount of reduced.
+            ''' Calculate the amount of gigas to award to the player. If the level difference is too large, the amount is reduced.
                 The base reward is equal to 1250 which a rate is applied on top of.'''
             mv      = (PLANET_MAP_TABLE[room['level']][2] + 1) * 2
             rate    = min(15.0, max(0.1, 1.0 + (float(mv - character['level']) / 10.0)))
             reward  = int(1250 * rate / (1.00 if abs(PLANET_MAP_TABLE[room['level']][2] - character['level']) < 10 else 4.00))
             addition_gigas = reward if slot['won'] else 0
 
-        elif room['game_type'] in [0, 4]:
+        # If the game mode is DeathMatch, calculate the rank addition
+        elif room['game_type'] == 4:
             addition_rank_experience = int(slot['player_kills'] * 2.5)
+
+        # If the game mode is Battle or team Battle, calculate the experience and currency gains
+        elif room['game_type'] in [0, 1]:
+
+            ''' Calculate multiplier for the experience (and also gigas, eventually) based on the room's start time.
+                The maximum multiplayer should be 60 (1 minute)'''
+            experience_multiplier = max(1, min((datetime.datetime.now() - room['start_time']).total_seconds(), 60))
+
+            ''' Calculate the amount of experience to award based on both the experience multiplier and the amount 
+                of players that this player has killed. Eventually, base gigas off of that as well.
+                
+                We'll also want to randomize the experience multiplier with another multiplier (uniform)
+                to randomize the outcome as well. '''
+            addition_experience = int(slot['player_kills'] * (experience_multiplier * random.uniform(1.0, 1.3)))
+            addition_gigas      = addition_experience * random.randrange(13, 16)
 
         # Check if we have leveled up
         level_up = character['experience'] + addition_experience >= EXP_TABLE[character['level'] + 1]
@@ -757,12 +828,18 @@ def post_game_transaction(_args, room):
             'addition_gigas': addition_gigas,
             'experience': character['experience'],
             'gold': character['currency_gigas'],
+            'oil': character['currency_botstract'],
             'wearing_items': get_items(_args, character['id'], 'wearing'),
             'won': slot['won'],
             'leveled_up': level_up,
             'level': character['level'],
             'points': slot['points']
         }
+
+        # In case the room game type is either Battle or Team Battle, we'll have to display experience as rank experience
+        # This is because the client uses the rank experience result screen for Battle too, instead of the traditional one.
+        if room['game_type'] in [0, 1]:
+            information[key]['addition_rank_experience'] = information[key]['addition_experience']
 
         # Update character with the new values
         _args['mysql'].execute(
@@ -913,7 +990,7 @@ def game_stats(_args, room):
         packet.AppendInteger(result_information['experience'], 4, 'little')
 
         # New oil amount
-        packet.AppendInteger(0, 4, 'little')
+        packet.AppendInteger(result_information['oil'], 4, 'little')
         packet.AppendBytes(bytearray([0x00, 0x00, 0x00, 0x00]))
 
         # Remaining time for wearing items
