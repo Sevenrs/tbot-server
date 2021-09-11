@@ -9,6 +9,7 @@ from GameServer.Controllers.data.planet import PLANET_MAP_TABLE
 from GameServer.Controllers.data.deathmatch import DEATHMATCH_MAP_TABLE
 from GameServer.Controllers.data.battle import BATTLE_MAP_TABLE
 from GameServer.Controllers.data.military import MILITARY_MAP_TABLE
+from GameServer.Controllers.data.game import *
 from GameServer.Controllers.Game import game_end
 import math, os, time, datetime
 from random import randrange
@@ -142,8 +143,15 @@ def construct_room_players(_args, packet, character, slot_num, client, room):
     for number in p2p_ip:
         packet.AppendInteger(int(number), 1)
 
-    for _ in range(10):
+    for _ in range(4):
         packet.AppendBytes(bytearray([0x00]))
+
+    # Team
+    team = room['slots'][str(slot_num)]['team']
+    packet.AppendBytes([0x74 if team == 1 else 0x78 if team == 2 else 0x00, 0x00])
+
+    for _ in range(4):
+            packet.AppendBytes(bytearray([0x00]))
 
     if room['master'] is client:
         packet.AppendBytes(bytearray([0x70]))
@@ -222,7 +230,8 @@ def add_slot(_args, room_id, client, broadcast=False):
             'won':                      False,
             'ready':                    False,
             'shop':                     False,
-            'team':                     0,
+            'team':                     (randrange(1, 3) if available_slot > 1 else 1)  # If the slot number is 1, the client needs to be red team no matter what.
+                                            if room['game_type'] in [1, 3] else 0, # If the game mode is either team Battle or Military, assign a team to the current slot
             'in_shop':                  False,
             'file_validation_passed':   False,
             'monster_kills':            0,
@@ -859,13 +868,30 @@ def sync_state(_args, room):
             ready.AppendBytes(bytearray([0x00]))
             _args['connection_handler'].SendRoomAll(room['id'], ready.packet)
 
-        # If we are playing DeathMatch, Battle or Team Battle and there are less than 2 players in the room, end the game
-        if room['game_type'] in [0, 1, 4] and len(room['slots']) < 2:
+        # If we are playing DeathMatch or Battle and there are less than 2 players in the room, end the game
+        if room['game_type'] in [MODE_BATTLE, MODE_DEATHMATCH] and len(room['slots']) < 2:
 
             # If the game type is DeathMatch, the status should be TimeOver else it should be Win
             status = 3 if room['game_type'] == 4 else 1
 
             game_end(_args=_args, room=room, status=status)
+
+        # If we are playing team battle or military, check if any of the teams have 0 players left
+        elif room['game_type'] in [MODE_TEAM_BATTLE, MODE_MILITARY]:
+
+            for team in [TEAM_RED, TEAM_BLUE]:
+
+                # Get amount of players in the team
+                players = 0
+                for slot in room['slots']:
+                    if room['slots'][slot]['team'] == team:
+                        players += 1
+
+                # If the player count is equal to 0, end the game
+                if players == 0:
+                    game_end(_args=_args, room=room, status=1)
+                    break
+
 
 
 

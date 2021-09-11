@@ -9,6 +9,7 @@ from GameServer.Controllers.data.exp import *
 from GameServer.Controllers.data.planet import PLANET_MAP_TABLE, PLANET_BOXES, PLANET_BOX_MOBS, PLANET_DROPS,\
     PLANET_ASSISTS
 from GameServer.Controllers.data.client import CLIENT_FILE_HASHES
+from GameServer.Controllers.data.game import *
 from GameServer.Controllers.Character import get_items, add_item, get_available_inventory_slot, remove_expired_items
 from GameServer.Controllers import Lobby
 from GameServer.Controllers import Room
@@ -55,15 +56,15 @@ def load_finish(**_args):
     _args['connection_handler'].SendRoomAll(_args['client']['room'], ready.packet)
 
     # Start new countdown timer thread, but only for Planet and DeathMatch modes
-    if room['game_type'] in [2, 4]:
+    if room['game_type'] in [MODE_PLANET, MODE_DEATHMATCH]:
         _thread.start_new_thread(countdown_timer, (_args, room,))
 
     # Start new incremental canister thread, but only for Battle and Team Battle mode
-    if room['game_type'] in [0, 1]:
+    if room['game_type'] in [MODE_BATTLE, MODE_TEAM_BATTLE]:
         _thread.start_new_thread(incremental_canister_drops, (_args, room,))
 
     # If the game is deathmatch, send a story message
-    if room['game_type'] == 4:
+    if room['game_type'] == MODE_DEATHMATCH:
         message = Lobby.ChatMessage(target=None,
                                     message='DeathMatch! The player with the most kills wins!',
                                     color=3,
@@ -92,7 +93,7 @@ def monster_kill(**_args):
 
     # Construct canister drops and drop chances
     drops = [
-        (CANISTER_HEALTH, 0.05),
+        (CANISTER_HEALTH, 0.02),
         (CANISTER_REBIRTH, 0.02),
         (CANISTER_STUN, 0.01),
         (CANISTER_BOMB, 0.02),
@@ -102,7 +103,7 @@ def monster_kill(**_args):
     ]
 
     # If the monster is a mob from which to drop boxes from, append the boxes array
-    if room['level'] in PLANET_BOXES and monster_id in PLANET_BOX_MOBS[room['level']] and room['game_type'] == 2:
+    if room['level'] in PLANET_BOXES and monster_id in PLANET_BOX_MOBS[room['level']] and room['game_type'] == MODE_PLANET:
         drops += PLANET_BOXES[room['level']]
 
     # Randomly shuffle the drops to randomize drop order
@@ -158,7 +159,7 @@ def monster_kill(**_args):
         room['slots'][str(who + 1)]['monster_kills'] += 1
 
     # Add the monster to the killed mob array, but only if we're in planet mode
-    if room['game_type'] == 2:
+    if room['game_type'] == MODE_PLANET:
         room['killed_mobs'].append(monster_id)
 
 '''
@@ -390,7 +391,7 @@ def player_death_rpc(**_args):
         return
 
     # If the game mode is not equal to 2, drop the packet and send a message to the client
-    if room['game_type'] != 2:
+    if room['game_type'] != MODE_PLANET:
         Lobby.ChatMessage(_args['client'], 'You can only use the suicide button in planet mode', 2)
         return
 
@@ -545,11 +546,11 @@ def game_end_rpc(**_args):
     # Determine the status of the end result
     status = 0 if _args['packet'].id == '3b2b' else 1
 
-    # Player vs Player or DeathMatch
-    if room['game_type'] == 0 or room['game_type'] == 4:
+    # Battle, team Battle or DeathMatch
+    if room['game_type'] in [MODE_BATTLE, MODE_TEAM_BATTLE, MODE_DEATHMATCH]:
 
         # Update death status (unless we're playing DeathMatch)
-        if room['game_type'] != 4:
+        if room['game_type'] != MODE_DEATHMATCH:
             slot = room['slots'][str(room_slot)]
             slot['dead'] = True
 
@@ -564,8 +565,8 @@ def game_end_rpc(**_args):
         if str(who + 1) in room['slots'] and who != 65535 and not room['game_over']:
             room['slots'][str(who + 1)]['player_kills'] += 1
 
-        # Tell the room about the death of the player for Battle mode
-        if room['game_type'] == 0:
+        # Tell the room about the death of the player for the Battle modes
+        if room['game_type'] in [MODE_BATTLE, MODE_TEAM_BATTLE]:
 
             # Array with possible drops from players
             drops = [
@@ -583,7 +584,7 @@ def game_end_rpc(**_args):
                     _drops.append(drop)
 
             # If the chance exceeds the randomized value, add a gold drop
-            if random.random() < 0.10:
+            if random.random() < 0.35:
                 _drops.append(CHEST_GOLD)
 
             # Randomly shuffle the drop order
@@ -616,7 +617,7 @@ def game_end_rpc(**_args):
             _args['connection_handler'].SendRoomAll(room['id'], death.packet)
 
         # Kill the player and update the score board if we are playing DeathMatch
-        elif room['game_type'] == 4 and (str(who + 1) in room['slots'] or who == 65535):
+        elif room['game_type'] == MODE_DEATHMATCH and (str(who + 1) in room['slots'] or who == 65535):
 
             # Update the score board
             update = PacketWrite()
@@ -626,30 +627,60 @@ def game_end_rpc(**_args):
             update.AppendInteger(integer=who, length=2, byteorder='little')                     # Killer
             _args['connection_handler'].SendRoomAll(room['id'], update.packet)
 
-        # Do not end game based on the deaths of players if the game type is DeathMatch
-        if room['game_type'] == 4:
-            return
+        # Death check for Battle
+        if room['game_type'] == MODE_BATTLE:
 
-        # Check if there is at least one player still alive. The player that is alive, wins the game.
-        alive = []
-        for slot in room['slots']:
-            if not room['slots'][slot]['dead']:
-                alive.append(slot)
+            # Check if there is at least one player still alive. The player that is alive, wins the game.
+            alive = []
+            for slot in room['slots']:
+                if not room['slots'][slot]['dead']:
+                    alive.append(slot)
 
-        # Check if the length of the alive array is equal to or less than 1. If so, the game has ended.
-        # The player in the alive array (if any) should be the winner.
-        if len(alive) < 2:
+            # Check if the length of the alive array is equal to or less than 1. If so, the game has ended.
+            # The player in the alive array (if any) should be the winner.
+            if len(alive) < 2:
 
-            # It is possible for this length to be equal to 0. If so, nobody has won the game.
-            # If the length is equal to 1, the last alive player will be the winner
-            if len(alive) == 1:
-                room['slots'][alive[0]]['won'] = True
+                # It is possible for this length to be equal to 0. If so, nobody has won the game.
+                # If the length is equal to 1, the last alive player will be the winner
+                if len(alive) == 1:
+                    room['slots'][alive[0]]['won'] = True
 
-            # End the game
-            game_end(_args=_args, room=room)
+                # End the game
+                game_end(_args=_args, room=room)
+
+        # Death check for team Battle
+        elif room['game_type'] == MODE_TEAM_BATTLE:
+
+            # Object containing the amount of alive players per team
+            teams = {
+                TEAM_RED:   {'alive': 0},
+                TEAM_BLUE:  {'alive': 0}
+            }
+
+            # Retrieve amount of alive players per team
+            for slot in room['slots']:
+                if not room['slots'][slot]['dead']:
+                    teams[room['slots'][slot]['team']]['alive'] +=1
+
+            # Check if any team has no alive players, make opposite team win
+            for team in teams:
+                if teams[team]['alive'] == 0:
+
+                    # Retrieve the opposite team
+                    opposite_team = TEAM_RED if team == TEAM_BLUE else TEAM_BLUE
+
+                    # Make all players in the opposite team win
+                    for slot in room['slots']:
+                        if room['slots'][slot]['team'] == opposite_team:
+                            room['slots'][slot]['won'] = True
+
+                    # End the game
+                    game_end(_args=_args, room=room)
+                    break
+
 
     # Planet Mode
-    elif room['game_type'] == 2:
+    elif room['game_type'] == MODE_PLANET:
 
         # Check if all players are actually dead. If not, drop the packet
         if status == 0:
@@ -736,7 +767,7 @@ def post_game_transaction(_args, room):
         addition_experience, addition_gigas, addition_rank_experience = 0, 0, 0
 
         ''' Calculate experience and giga gains for planet mode'''
-        if room['game_type'] == 2:
+        if room['game_type'] == MODE_PLANET:
 
             ''' Calculate the amount of experience to award to the player. If the player's level has a difference of at least 10,
                 the experience is divided by four. Otherwise, the experience is not mutated. 
@@ -755,11 +786,11 @@ def post_game_transaction(_args, room):
             addition_gigas = reward if slot['won'] else 0
 
         # If the game mode is DeathMatch, calculate the rank addition
-        elif room['game_type'] == 4:
+        elif room['game_type'] == MODE_DEATHMATCH:
             addition_rank_experience = int(slot['player_kills'] * 2.5)
 
         # If the game mode is Battle or team Battle, calculate the experience and currency gains
-        elif room['game_type'] in [0, 1]:
+        elif room['game_type'] in [MODE_BATTLE, MODE_TEAM_BATTLE]:
 
             ''' Calculate multiplier for the experience (and also gigas, eventually) based on the room's start time.
                 The maximum multiplayer should be 60 (1 minute)'''
@@ -838,7 +869,7 @@ def post_game_transaction(_args, room):
 
         # In case the room game type is either Battle or Team Battle, we'll have to display experience as rank experience
         # This is because the client uses the rank experience result screen for Battle too, instead of the traditional one.
-        if room['game_type'] in [0, 1]:
+        if room['game_type'] in [MODE_BATTLE, MODE_TEAM_BATTLE]:
             information[key]['addition_rank_experience'] = information[key]['addition_experience']
 
         # Update character with the new values
@@ -1021,7 +1052,7 @@ def game_stats(_args, room):
     # Reset room status and broadcast room status to lobby
     Room.reset(room)
     room['status'] = 0
-    Room.get_list(_args, mode=0 if room['game_type'] in [0, 1] else room['game_type'] - 1,
+    Room.get_list(_args, mode=0 if room['game_type'] in [MODE_BATTLE, MODE_TEAM_BATTLE] else room['game_type'] - 1,
              page=Room.get_list_page_by_room_id(room['id'], room['game_type']), local=False)
 
     game_exit = PacketWrite()
@@ -1042,7 +1073,7 @@ def countdown_timer(_args, room):
     minutes = 3 if room['time'] == 0 else 5
 
     # For planet gameplay, retrieve the amount of minutes from the map
-    if room['game_type'] == 2:
+    if room['game_type'] == MODE_PLANET:
         minutes = PLANET_MAP_TABLE[room['level']][1]
 
     # Wait a predefined amount of time and check whether the game ended every second
@@ -1054,7 +1085,7 @@ def countdown_timer(_args, room):
     # If polling stopped while the game is not over, the game has ran out of time.
     # Also check if there are actually any players in the room
     if len(room['slots']) > 0 and not room['game_over']:
-        game_end(_args=_args, room=room, status=2 if room['game_type'] != 4 else 3)
+        game_end(_args=_args, room=room, status=2 if room['game_type'] != MODE_DEATHMATCH else 3)
 
 '''
 This method is responsible for dropping canisters per set interval to give players canisters
@@ -1157,7 +1188,7 @@ def chat_command(**_args):
                 return
 
             # This command is only supposed to work in planet mode
-            if room['game_type'] == 2:
+            if room['game_type'] == MODE_PLANET:
                 result = player_death(_args, room)
                 if result is not False:
                     Lobby.ChatMessage(_args['client'], 'You have just killed your player', 2)
