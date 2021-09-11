@@ -21,7 +21,7 @@ USE `bout`;
 CREATE TABLE IF NOT EXISTS `characters` (
     `id` INT(11) NOT NULL AUTO_INCREMENT,
 	`user_id` INT(11) NOT NULL DEFAULT '0',
-	`name` VARCHAR(12) NOT NULL COLLATE 'utf8mb4_unicode_ci',
+	`name` VARCHAR(13) NOT NULL COLLATE 'utf8mb4_unicode_ci',
 	`position` INT(11) NOT NULL DEFAULT '0',
 	`type` INT(11) NOT NULL DEFAULT '1',
 	`experience` INT(11) NOT NULL DEFAULT '0',
