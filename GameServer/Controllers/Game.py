@@ -8,6 +8,7 @@ from GameServer.Controllers.data.drops import *
 from GameServer.Controllers.data.exp import *
 from GameServer.Controllers.data.planet import PLANET_MAP_TABLE, PLANET_BOXES, PLANET_BOX_MOBS, PLANET_DROPS,\
     PLANET_ASSISTS
+from GameServer.Controllers.data.military import MILITARY_BASE
 from GameServer.Controllers.data.client import CLIENT_FILE_HASHES
 from GameServer.Controllers.data.game import *
 from GameServer.Controllers.Character import get_items, add_item, get_available_inventory_slot, remove_expired_items
@@ -87,24 +88,41 @@ def monster_kill(**_args):
     who         = _args['packet'].GetByte(4)
     pushed      = _args['packet'].GetByte(6)
 
-    # If the mob is an assistant, multiply the canister chance by a factor of 50
-    assistant_multiplication = 50.0 if room['level'] in PLANET_ASSISTS \
-                                       and monster_id in PLANET_ASSISTS[room['level']] else 1.0
+    # Initialize assistant_multiplication variable that is used to increase drop chances
+    # when planet mode is being played and an assistant is being killed.
+    assistant_multiplication = 1.0
 
-    # Construct canister drops and drop chances
+    # Construct base canister drop table and drop chances.
     drops = [
-        (CANISTER_HEALTH, 0.02),
-        (CANISTER_REBIRTH, 0.02),
-        (CANISTER_STUN, 0.01),
-        (CANISTER_BOMB, 0.02),
+        (CANISTER_HEALTH,   0.02),
+        (CANISTER_STUN,     0.01),
         (CANISTER_TRANS_UP, 0.01),
-        (CANISTER_AMMO, 0.01),
-        (CHEST_GOLD, 0.007)
+        (CANISTER_AMMO,     0.01),
     ]
 
-    # If the monster is a mob from which to drop boxes from, append the boxes array
-    if room['level'] in PLANET_BOXES and monster_id in PLANET_BOX_MOBS[room['level']] and room['game_type'] == MODE_PLANET:
-        drops += PLANET_BOXES[room['level']]
+    # If we are playing planet mode, add additional drops such as rebirth and bombs.
+    # Additionally, we'll be adding box drops in case that possibility exists.
+    if room['game_type'] == MODE_PLANET:
+        drops+= [
+            (CANISTER_REBIRTH,  0.02),
+            (CANISTER_BOMB,     0.02),
+            (CHEST_GOLD,        0.007)
+        ]
+
+        # If the monster is a mob from which to drop boxes from, append the boxes array
+        if room['level'] in PLANET_BOXES and monster_id in PLANET_BOX_MOBS[room['level']]:
+            drops += PLANET_BOXES[room['level']]
+
+        # If the mob is an assistant, multiply the canister chance by a factor of 50
+        if room['level'] in PLANET_ASSISTS and monster_id in PLANET_ASSISTS[room['level']]:
+            assistant_multiplication = 50.0
+
+    # If we are playing military mode, add gold to the drop table with no chance to drop.
+    # We will only be making it a possible drop when a MILITARY_BASE has been killed.
+    elif room['game_type'] == MODE_MILITARY:
+        drops+= [
+            (CHEST_GOLD, 0.00)
+        ]
 
     # Randomly shuffle the drops to randomize drop order
     random.shuffle(drops)
@@ -116,8 +134,9 @@ def monster_kill(**_args):
     if monster_id not in room['killed_mobs'] and not room['game_over'] and pushed == 0:
         for drop, chance in drops:
 
-            ''' If the monster ID is equal to the boss, we'll have to change the drop chances '''
-            if room['level'] in PLANET_BOXES and monster_id == PLANET_BOX_MOBS[room['level']][len(PLANET_BOX_MOBS[room['level']]) - 1]:
+            ''' If the monster ID is equal to the boss, we'll have to change the drop chances, but only if we are in planet mode '''
+            if room['level'] in PLANET_BOXES and monster_id == PLANET_BOX_MOBS[room['level']][len(PLANET_BOX_MOBS[room['level']]) - 1] \
+                    and room['game_type'] == MODE_PLANET:
 
                 # If the drop is not a canister, increase chance by 5x
                 if drop >= BOX_ARMS:
@@ -131,6 +150,10 @@ def monster_kill(**_args):
                     if drop == CANISTER_REBIRTH:
                         chance = 1.00
 
+            # Ensure that a military base always drops gold
+            elif room['game_type'] == MODE_MILITARY and monster_id in MILITARY_BASE and drop == CHEST_GOLD:
+                chance = 1.00
+
             # If applicable, apply the assistant multiplication except if the drop type is greater or equal to CHEST_GOLD(18)
             if random.random() < (chance * (assistant_multiplication if drop < BOX_ARMS else 1.0)) and room['drop_index'] < 256:
                 monster_drops.append(bytes([room['drop_index'], drop, 0, 0, 0]))
@@ -141,7 +164,7 @@ def monster_kill(**_args):
     # Randomly generate drop direction
     direction = random.randrange(0, 6)
 
-    # Create death response
+    # Create monster death response
     death = PacketWrite()
     death.AddHeader(bytes=bytearray([0x25, 0x2F]))
     death.AppendBytes(bytes=bytearray([0x01, 0x00]))
@@ -158,8 +181,8 @@ def monster_kill(**_args):
             and monster_id not in room['killed_mobs'] and room['game_over'] == False:
         room['slots'][str(who + 1)]['monster_kills'] += 1
 
-    # Add the monster to the killed mob array, but only if we're in planet mode
-    if room['game_type'] == MODE_PLANET:
+    # Add the monster to the killed mob array, but only if we're in planet or military mode
+    if room['game_type'] == MODE_PLANET or (room['game_type'] == MODE_MILITARY and monster_id != MILITARY_BASE):
         room['killed_mobs'].append(monster_id)
 
 '''
@@ -546,11 +569,11 @@ def game_end_rpc(**_args):
     # Determine the status of the end result
     status = 0 if _args['packet'].id == '3b2b' else 1
 
-    # Battle, team Battle or DeathMatch
-    if room['game_type'] in [MODE_BATTLE, MODE_TEAM_BATTLE, MODE_DEATHMATCH]:
+    # Death handler for Battle, team Battle, DeathMatch and Military
+    if room['game_type'] != MODE_PLANET:
 
-        # Update death status (unless we're playing DeathMatch)
-        if room['game_type'] != MODE_DEATHMATCH:
+        # Update death status (unless we're playing DeathMatch or Military)
+        if room['game_type'] not in [MODE_DEATHMATCH, MODE_MILITARY]:
             slot = room['slots'][str(room_slot)]
             slot['dead'] = True
 
@@ -565,43 +588,48 @@ def game_end_rpc(**_args):
         if str(who + 1) in room['slots'] and who != 65535 and not room['game_over']:
             room['slots'][str(who + 1)]['player_kills'] += 1
 
-        # Tell the room about the death of the player for the Battle modes
-        if room['game_type'] in [MODE_BATTLE, MODE_TEAM_BATTLE]:
+        # Tell the room about the death of the player for the Battle modes and Military mode
+        if room['game_type'] in [MODE_BATTLE, MODE_TEAM_BATTLE, MODE_MILITARY]:
 
-            # Array with possible drops from players
-            drops = [
-                OIL_BLUE,
-                OIL_PINK,
-                OIL_ORANGE,
-                OIL_YELLOW
-            ]
+            # Default drop result and drop bytes used for player drops.
+            drop_result, drop_bytes = b'', []
 
-            # Since we want the possibility for drops to occur more than once, we'll need to randomly generate
-            # the amount we want
-            _drops = []
-            for drop in drops:
-                for _ in range(random.randrange(0, 3)):
-                    _drops.append(drop)
+            # We only want to have drops for the Battle modes. Military shouldn't drop anything
+            if room['game_type'] != MODE_MILITARY:
 
-            # If the chance exceeds the randomized value, add a gold drop
-            if random.random() < 0.35:
-                _drops.append(CHEST_GOLD)
+                # Array with possible drops from players
+                drops = [
+                    OIL_BLUE,
+                    OIL_PINK,
+                    OIL_ORANGE,
+                    OIL_YELLOW
+                ]
 
-            # Randomly shuffle the drop order
-            random.shuffle(_drops)
+                # Since we want the possibility for drops to occur more than once, we'll need to randomly generate
+                # the amount we want
+                _drops = []
+                for drop in drops:
+                    for _ in range(random.randrange(0, 3)):
+                        _drops.append(drop)
 
-            # Construct drop result
-            result = []
-            for idx, drop in enumerate(_drops):
-                if room['drop_index'] < 256:
+                # If the chance exceeds the randomized value, add a gold drop
+                if random.random() < 0.35:
+                    _drops.append(CHEST_GOLD)
 
-                    # Create and append drop data to the result and modify room state to register the drop
-                    result.append(bytes([room['drop_index'], drop, 0, 0, 0]))
-                    room['drops'][room['drop_index']] = {'type': drop, 'used': False}
-                    room['drop_index'] += 1
+                # Randomly shuffle the drop order
+                random.shuffle(_drops)
 
-            # Create drop bytes for the drop packet
-            drop_bytes = b''.join(result)
+                # Add drops to the drop result list
+                for idx, drop in enumerate(_drops):
+                    if room['drop_index'] < 256:
+
+                        # Create and append drop data to the result and modify room state to register the drop
+                        drop_result.append(bytes([room['drop_index'], drop, 0, 0, 0]))
+                        room['drops'][room['drop_index']] = {'type': drop, 'used': False}
+                        room['drop_index'] += 1
+
+                # Create drop bytes for the drop packet
+                drop_bytes = b''.join(drop_result)
 
             # Randomly generate drop direction
             direction = random.randrange(0, 6)
@@ -612,7 +640,7 @@ def game_end_rpc(**_args):
             death.AppendBytes(bytes=bytearray([0x01, 0x00]))
             death.AppendInteger(integer=(int(room_slot) - 1), length=2, byteorder='little')
             death.AppendInteger(direction, 2, 'little')
-            death.AppendInteger(len(result), length=2, byteorder='little')
+            death.AppendInteger(len(drop_result), length=2, byteorder='little')
             death.AppendBytes(drop_bytes)
             _args['connection_handler'].SendRoomAll(room['id'], death.packet)
 
@@ -678,6 +706,17 @@ def game_end_rpc(**_args):
                     game_end(_args=_args, room=room)
                     break
 
+        # Death check for Military
+        elif room['game_type'] == MODE_MILITARY:
+
+            # If at least one player hasn't died 5 (or more) times, then there's no need to do anything
+            for slot in room['slots']:
+                if room['slots'][slot]['deaths'] < 5:
+                    return
+
+            # If all players are really dead, end the game. There's no way to finish the game without at least one person.
+            game_end(_args=_args, room=room, status=0)
+
 
     # Planet Mode
     elif room['game_type'] == MODE_PLANET:
@@ -694,6 +733,36 @@ def game_end_rpc(**_args):
 
         # End the game
         game_end(_args=_args, room=room, status=status)
+
+'''
+This method will listen to the client to tell which team has won the match.
+Everyone in the winning team will be marked as a winner and the game will end.
+'''
+def military_win(**_args):
+
+    # If the client is not in a room, drop the packet
+    room = Room.get_room(_args)
+    if not room:
+        return
+
+    # Verify if the room is a Military room. If not, drop the packet.
+    if room['game_type'] is not MODE_MILITARY:
+        return
+
+    # Read winning team
+    winning_team = int(_args['packet'].ReadInteger(3, 2, 'little'))
+
+    # If the winning team from the client is not valid, drop the packet
+    if winning_team not in [TEAM_RED, TEAM_BLUE]:
+        return
+
+    # Ensure that everyone in the winning team is marked as a winner
+    for slot in room['slots']:
+        if room['slots'][slot]['team'] == winning_team:
+            room['slots'][slot]['won'] = True
+
+    # End the game
+    game_end(_args=_args, room=room)
 
 '''
 This method will send the correct packet to indicate what the game end result is to the room or specified client.
@@ -789,8 +858,8 @@ def post_game_transaction(_args, room):
         elif room['game_type'] == MODE_DEATHMATCH:
             addition_rank_experience = int(slot['player_kills'] * 2.5)
 
-        # If the game mode is Battle or team Battle, calculate the experience and currency gains
-        elif room['game_type'] in [MODE_BATTLE, MODE_TEAM_BATTLE]:
+        # If the game mode is Battle, team Battle or Military, calculate the experience and currency gains
+        elif room['game_type'] in [MODE_BATTLE, MODE_TEAM_BATTLE, MODE_MILITARY]:
 
             ''' Calculate multiplier for the experience (and also gigas, eventually) based on the room's start time.
                 The maximum multiplayer should be 60 (1 minute)'''
@@ -803,6 +872,10 @@ def post_game_transaction(_args, room):
                 to randomize the outcome as well. '''
             addition_experience = int(slot['player_kills'] * (experience_multiplier * random.uniform(1.0, 1.3)))
             addition_gigas      = addition_experience * random.randrange(13, 16)
+
+            ''' Calculate additional experience for Military mode'''
+            if room['game_type'] == MODE_MILITARY:
+                addition_experience += int(slot['monster_kills'] * (experience_multiplier * random.uniform(1.0, 1.3)))
 
         # Check if we have leveled up
         level_up = character['experience'] + addition_experience >= EXP_TABLE[character['level'] + 1]

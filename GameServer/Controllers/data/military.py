@@ -9,3 +9,5 @@ MILITARY_MAP_TABLE = {
     7,  # Stadium
     8   # Sky Base
 }
+
+MILITARY_BASE = [16, 17]
