@@ -592,7 +592,7 @@ def game_end_rpc(**_args):
         if room['game_type'] in [MODE_BATTLE, MODE_TEAM_BATTLE, MODE_MILITARY]:
 
             # Default drop result and drop bytes used for player drops.
-            drop_result, drop_bytes = b'', []
+            drop_result, drop_bytes = [], b''
 
             # We only want to have drops for the Battle modes. Military shouldn't drop anything
             if room['game_type'] != MODE_MILITARY:
