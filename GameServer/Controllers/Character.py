@@ -6,7 +6,17 @@ __version__ = "1.0"
 from Packet.Write import Write as PacketWrite
 from enum import Enum
 
-def get_items(_args, character_id, mode = 'wearing'):
+'''
+This method is responsible for obtaining items connected to an account or character.
+The supported modes are:
+
+    1. Wearing      - this will retrieve all items the character is currently wearing.
+    2. Inventory    - this will retrieve all items in a characters' inventory.
+    3. Stash        - this will retrieve all items in a specific stash number (1 to 5).
+    
+This will return an easy to use object where items can be easily read and managed.
+'''
+def get_items(_args, character_id, mode = 'wearing', stash_number=None):
 
     # List with the obtained items from the database
     items = []
@@ -73,10 +83,6 @@ def get_items(_args, character_id, mode = 'wearing'):
                                                         [character_id])
             wearing[item_type] = _args['mysql'].fetchone()
 
-            # For the body part, we may need to obtain the correct transformation pack
-            if item_type == 'trans_pack' and wearing['trans_pack']['item_id'] == 0 and wearing['body']['item_id'] != 0:
-                wearing['trans_pack']['item_id'] = get_body_transformation(int(str(wearing['body']['item_id'])[:-1]))
-
             item = {
                 "item_id":              wearing[item_type]['item_id'],
                 'remaining_hours':      wearing[item_type]['remaining_hours'],
@@ -95,9 +101,20 @@ def get_items(_args, character_id, mode = 'wearing'):
 
             items.append(item)
 
-    # Get and return inventory items
-    elif mode == 'inventory':
-        for i in range(1, 21):
+    # Get and return inventory or stash items
+    elif mode == 'inventory' or mode == 'stash':
+
+        # Default item range, where statement and SQL parameter to retrieve all items in the character's inventory.
+        item_range, where_statement, sql_parameter = 21, '`character_id` = %s', _args['client']['character']['id']
+
+        # If we are trying to obtain a stash, overwrite the item range and where statement
+        # We want to obtain the stash ordered by ID with an offset, because an account can have multiple stashes.
+        if mode == 'stash':
+            item_range = 11
+            where_statement = '`account_id` = %s ORDER BY `model`.`id` ASC LIMIT 1 OFFSET {0}'.format(stash_number - 1)
+            sql_parameter = _args['client']['account_id']
+
+        for i in range(1, item_range):
             _args['mysql'].execute("""SELECT    IFNULL(gitem.`item_id`, 0)                                      
                                                     AS `item_id`,
                                                 TIMESTAMPDIFF(HOUR, UTC_TIMESTAMP(), DATE_ADD(UTC_TIMESTAMP(), INTERVAL `remaining_seconds` SECOND))
@@ -113,13 +130,13 @@ def get_items(_args, character_id, mode = 'wearing'):
                                                 citem.`id`
                                                     AS `character_item_id`
 
-                                                FROM `inventory` inventory
+                                                FROM `{0}` model
                                                 LEFT JOIN `character_items` citem   
-                                                    ON  citem.`id` = inventory.`item_{0}`
+                                                    ON  citem.`id` = model.`item_{1}`
                                                 LEFT JOIN `game_items`      gitem  
                                                     ON  gitem.`id` = citem.`game_item`
-                                                WHERE `character_id` = %s""".format(i), [
-                                                    _args['client']['character']['id']])
+                                                WHERE {2}""".format(mode, i, where_statement), [
+                                                    sql_parameter])
 
             items.append(_args['mysql'].fetchone())
 
@@ -164,6 +181,7 @@ def get_items(_args, character_id, mode = 'wearing'):
 
 '''
 This method gets the first available inventory slot number
+This method also works for stashes/storages
 '''
 def get_available_inventory_slot(inventory):
     for item in inventory:
@@ -274,6 +292,13 @@ def remove_expired_items(_args, character_id):
         remove_item(_args, item['id'])
 
 '''
+This method will get the amount of storages/stashes an account has
+'''
+def get_storage_count(_args, account_id):
+    _args['mysql'].execute('SELECT `id` FROM `stash` WHERE `account_id` = %s', [account_id])
+    return _args['mysql'].rowcount
+
+'''
 This method constructs the bot data which can then be appended to a packet to send the character information sheet
 '''
 def construct_bot_data(_args, character):
@@ -373,9 +398,22 @@ def construct_bot_data(_args, character):
     for _ in range(30):
         bot.AppendBytes([0x00])
 
-    bot.AppendInteger(2, 1, 'little')
+    # Retrieve the amount of stashes we own and use that count to retrieve stash items
+    stash_count = get_storage_count(_args, _args['client']['account_id'])
+    bot.AppendInteger(stash_count, 1, 'little')
 
-    for _ in range(50):
+    # For every stash, send its items over the network
+    for i in range(1, (stash_count + 1)):
+
+        # Get stash items with the stash number supplied.
+        stash = get_items(_args, character['id'], 'stash', i)
+        for item in stash:
+            bot.AppendInteger(stash[item]['id'], 4, 'little')
+            bot.AppendInteger(stash[item]['duration'], 4, 'little')
+            bot.AppendInteger(stash[item]['duration_type'], 1, 'little')
+
+    # For the stashes we do not have, we'll want to send null items.
+    for _ in range((stash_count * 10) - 50):
         bot.AppendInteger(0, 4, 'little')
         bot.AppendInteger(0, 4, 'little')
         bot.AppendInteger(0, 1, 'little')
@@ -387,60 +425,3 @@ def construct_bot_data(_args, character):
     bot.AppendInteger(character['rank'], 4, 'little')
 
     return bot.data
-
-
-def get_body_transformation(body_item_id):
-
-    return 0
-
-    # body 0 should have trans 0e
-    if body_item_id == 0:
-        return 0
-
-    transformation_map = {
-
-        # Patch Items
-        112010: 870,
-        112020: 880,
-        112030: 890,
-        112040: 900,
-        112050: 910,
-        112060: 920,
-        112070: 930,
-        112080: 940,
-        112090: 950,
-        112100: 960,
-        112110: 970,
-        112140: 980,
-
-        # Surge Items
-        122010: 990,
-        122020: 220,
-        122030: 230,
-        122040: 240,
-        122050: 250,
-        122060: 260,
-        122070: 270,
-        122080: 280,
-        122090: 290,
-        122100: 300,
-        122110: 310,
-        122140: 320,
-
-        # Ram Items
-        132010: 330,
-        132020: 340,
-        132030: 350,
-        132040: 360,
-        132050: 370,
-        132060: 380,
-        132070: 390,
-        132080: 400,
-        132090: 410,
-        132100: 420,
-        132110: 430,
-        132130: 440,
-        132140: 450
-    }
-
-    return int("144{}0".format(str(transformation_map[body_item_id])))

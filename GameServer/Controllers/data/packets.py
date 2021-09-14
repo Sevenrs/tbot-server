@@ -36,6 +36,9 @@ PACKET_READ = {
     'fd2a': ('PACKET_SHOP_REMOVE_PART',         Shop.unwear_item,           True),
     '332b': ('PACKET_SHOP_REMOVE_ACCESSORY',    Shop.unwear_item,           True),
     '352b': ('PACKET_SHOP_REMOVE_PACK',         Shop.unwear_item,           True),
+    '672b': ('PACKET_SHOP_PURCHASE_STORAGE',    Shop.purchase_storage,      True),
+    '682b': ('PACKET_SHOP_STORAGE_INSERT',      Shop.storage_action,        True),
+    '692b': ('PACKET_SHOP_STORAGE_DRAW',        Shop.storage_action,        True),
 
     '552b': ('PACKET_GUILD_CREATE',             Guild.Create,                   True),
     '562b': ('PACKET_GUILD_APPLY',              Guild.SendGuildApplication,     True),

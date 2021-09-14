@@ -64,6 +64,7 @@ def id_request(**_args):
     # Update our socket to use this ID and assign the account to it as well
     _args['client']['id']           = id
     _args['client']['account']      = user['username']
+    _args['client']['account_id']   = user['id']
     _args['client']['account_data'] = {'bot_slot': user['active_bot_slot'], 'id': user['id']}
     _args['client']['character']    = None
     _args['client']['new']          = True

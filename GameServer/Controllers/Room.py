@@ -310,6 +310,9 @@ def add_slot(_args, room_id, client, broadcast=False):
     # Send a message to the client about the commands they can use
     Lobby.ChatMessage(_args['client'], 'There are commands available. Type @help for a list of commands.', 2)
 
+'''
+This method will remove a player from the room
+'''
 def remove_slot(_args, room_id, client, reason=1):
 
     # Find room
@@ -324,7 +327,7 @@ def remove_slot(_args, room_id, client, reason=1):
 
             # If we are the room master, re-assign the room master to the first available slot
             if slot['client'] is room['master']:
-                for k, s in room['slots'].items():
+                for k, s in sorted(room['slots'].items()):
                     room['master'] = s['client']
                     break
 
@@ -600,9 +603,15 @@ This method allows users to enter the shop. This will notify any other client in
 '''
 def enter_shop(**_args):
 
+    # Get room and check if we are actually in a room
     room = get_room(_args)
+    if not room:
+        return
+
+    # Retrieve our slot number
     slot = get_slot(_args, room)
 
+    # Construct enter shop packet
     result = PacketWrite()
     result.AddHeader(bytearray([0x60, 0x2F]))
     result.AppendBytes(bytearray([0x01, 0x00]))
@@ -610,14 +619,33 @@ def enter_shop(**_args):
     room['slots'][str(slot)]['in_shop'] = True
     _args['connection_handler'].SendRoomAll(_args['client']['room'], result.packet)
 
+    # If the slot is ready, change it to become unready and send a slot update
+    if room['slots'][str(slot)]['ready']:
+        room['slots'][str(slot)]['ready'] = False
+
+        # Construct slot update packet
+        status = PacketWrite()
+        status.AddHeader(bytearray([0x20, 0x2F]))
+        status.AppendInteger(slot - 1, 2, 'little')
+        status.AppendBytes(bytearray([0x00, 0x00, 0x00, 0x00]))
+        status.AppendInteger(room['slots'][str(slot)]['ready'], 2, 'little')
+        status.AppendInteger(room['slots'][str(slot)]['team'], 2, 'little')
+        _args['connection_handler'].SendRoomAll(_args['client']['room'], status.packet)
+
 '''
 This method allows users to exit the shop. This will notify all the other clients of the new character state as well
 '''
 def exit_shop(**_args):
 
+    # Get room and check if we are inside of a room
     room = get_room(_args)
+    if not room:
+        return
+
+    # Get our slot number
     slot = get_slot(_args, room)
 
+    # Construct exit shop packet
     result = PacketWrite()
     result.AddHeader(bytearray([0x61, 0x2F]))
     result.AppendBytes(bytearray([0x01, 0x00]))

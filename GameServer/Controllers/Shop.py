@@ -12,10 +12,7 @@ This method will obtain the amount of cash a specific account has
 def get_cash(_args):
 
     # Get amount of cash from the database
-    _args['mysql'].execute('SELECT `cash` FROM `users` WHERE `username` = %s', [
-        _args['client']['account']
-    ])
-
+    _args['mysql'].execute('SELECT `cash` FROM `users` WHERE `id` = %s', [_args['client']['account_id']])
     return _args['mysql'].fetchone()['cash']
 
 def sync_cash(_args):
@@ -382,3 +379,165 @@ def unwear_item_calculate_seconds(_args, wearing_item):
                     SET     `remaining_seconds` = TIMESTAMPDIFF(SECOND, UTC_TIMESTAMP(), `expiration_date`),
                             `expiration_date` = NULL
                 WHERE `id` = %s AND `used` IS NOT NULL""", [wearing_item])
+
+'''
+This method will check if the user has enough cash to purchase a new warehouse/stash and will create a new one.
+However, if the user has 5 stashes already, we will not be creating one.
+'''
+def purchase_storage(**_args):
+
+    # Retrieve storage from the database
+    _args['mysql'].execute('SELECT `cash_price` FROM `game_items` WHERE `item_id` = 5010300')
+    storage = _args['mysql'].fetchone()
+
+    # Retrieve the amount of stashes we own
+    storage_count = Character.get_storage_count(_args, _args['client']['account_id'])
+
+    # If the item was not found, send an item not found error.
+    # We should also send this if we already have 5 storages
+    if storage is None or storage_count >= 5:
+        return sync_inventory(_args, 'purchase', 66)
+
+    # Check if we have enough cash. Send an error if we do not have enough.
+    elif storage['cash_price'] > get_cash(_args):
+        return sync_inventory(_args, 'purchase', 65)
+
+    # Create new storage for our account
+    _args['mysql'].execute("""INSERT INTO `stash` (`account_id`) VALUES (%s)""", [ _args['client']['account_id']])
+
+    # Update the currency amount
+    _args['mysql'].execute('''UPDATE `users` SET `cash` = (`cash` - %s) WHERE `id` = %s''', [
+        storage['cash_price'],
+        _args['client']['account_id']
+    ])
+
+    # Send storage created packet
+    storage_created = PacketWrite()
+    storage_created.AddHeader([0x4C, 0x2F])
+    storage_created.AppendBytes([0x01, 0x00])
+    storage_created.AppendInteger((storage_count + 1), 2, 'little')
+    _args['socket'].send(storage_created.packet)
+
+'''
+This method will sync the server's storage(stash) state with the client so that the client is aware of which items
+are in the stash.
+'''
+def sync_storage(_args, storage_number):
+
+    # Construct packet
+    storage = PacketWrite()
+    storage.AddHeader([0x4D, 0x2F])
+    storage.AppendBytes([0x01, 0x00, 0x00, 0x00, 0x00])
+
+    # Send updated inventory to the client
+    inventory = Character.get_items(_args, _args['client']['character']['id'], 'inventory')
+    for item in inventory:
+        storage.AppendInteger(inventory[item]['id'], 4, 'little')
+        storage.AppendInteger(inventory[item]['duration'], 4, 'little')
+        storage.AppendInteger(inventory[item]['duration_type'], 1, 'little')
+
+    for _ in range(180):
+        storage.AppendBytes([0x00])
+
+    # Storage number we want to send the updated state for
+    storage.AppendInteger(storage_number - 1, 1, 'little')
+
+    # Retrieve the state by storage number and send the items in the storage to the client
+    storage_items = Character.get_items(_args, _args['client']['character']['id'], 'stash', storage_number)
+    for item in storage_items:
+        storage.AppendInteger(storage_items[item]['id'], 4, 'little')
+        storage.AppendInteger(storage_items[item]['duration'], 4, 'little')
+        storage.AppendInteger(storage_items[item]['duration_type'], 1, 'little')
+
+    # Send state to the client
+    _args['socket'].send(storage.packet)
+
+'''
+This method will move an item from source to target
+Depending on the packet header, there will be two seperate actions.
+
+These actions are as follows
+    1. Insert:  Move an item from the inventory to the storage/stash.
+    2. Draw:    Move an item from the storage/stash to the inventory.
+'''
+def storage_action(**_args):
+
+    # Read source slot and storage number from the packet
+    source_slot     = int(_args['packet'].ReadInteger(26, 1, 'little'))
+    storage_number  = int(_args['packet'].ReadInteger(27, 1, 'little')) + 1
+
+    # Get storage count so we can check if we actually own the storage we are trying to move to or move from.
+    storage_count = Character.get_storage_count(_args, _args['client']['account_id'])
+
+    # Drop the packet if we do not own the storage we are trying to move to or from.
+    if storage_number > storage_count:
+        return
+
+    # Construct result packet in case we need to send an error
+    result = PacketWrite()
+    result.AddHeader([0x4D, 0x2F])
+
+    # Determine action type based on packet ID. There are two actions, insert (add) and draw (remove).
+    action_type = 'insert' if _args['packet'].id == '682b' else 'draw'
+
+    # Get the target and an available slot within it. If the type is insert, the target will be the stash and the source will be the inventory.
+    # Else, the source is the stash and the target is the inventory.
+    target          = Character.get_items(_args, _args['client']['character']['id'], 'stash' if action_type == 'insert' else 'inventory', storage_number)
+    available_slot  = Character.get_available_inventory_slot(target)
+
+    # If we do not have an available slot in our target, send a slot error. This means that there is no slot for the item we wish to be moving.
+    if available_slot is None:
+        result.AppendBytes([0x00, 0x44]) # No available slot
+        return _args['socket'].send(result.packet)
+
+    # Get source and check if the slot is present in it. The source will be the inventory if the type is insert, else the source will be the storage/stash.
+    source = Character.get_items(_args, _args['client']['character']['id'], 'inventory' if action_type == 'insert' else 'stash', storage_number)
+    if source_slot not in source:
+        result.AppendBytes([0x00, 0x42]) # Item not found
+        return _args['socket'].send(result.packet)
+
+    # Retrieve target item from the source slot
+    item = source[source_slot]
+
+    # Move the item from the source to the target
+    _args['mysql'].execute('''  UPDATE `stash` stash INNER JOIN `inventory` inventory ON (inventory.`character_id` = %s)
+                                    SET stash.`item_{0}` = %s, inventory.`item_{1}` = %s
+                                WHERE stash.`id` = (
+                                    SELECT `id` FROM `stash` WHERE `account_id` = %s
+                                        ORDER BY `id` ASC LIMIT 1 OFFSET {2}
+                                )'''.format(
+
+        # This parameter will determine which slot to change in the storage itself.
+        # If the action type is insert, the target will be the storage/stash and the source will be the inventory.
+        #   Which means, the slot used here will be the available target slot
+
+        # Otherwise, the source is the storage/stash and the target will be the inventory.
+        #   Which means, the slot used here will be the slot the item comes from.
+        available_slot + 1 if action_type == 'insert' else source_slot + 1,
+
+        # This parameter will determine which slot to change in the inventory.
+        # If the action type is insert, the source will be inventory and the target will be the storage/stash
+        #   Which means, the slot used here will be the slot where the item comes from.
+
+        # Otherwise, the target will be the inventory
+        #   Which means that the item will come from the stash/storage and will be saved to the inventory.
+        (source_slot + 1) if action_type == 'insert' else available_slot + 1,
+
+
+        (storage_number - 1)    # Calculate offset, should start at 0
+    ), [
+        _args['client']['character']['id'],
+
+        # If the action type is insert, we must move the item to the stash. Otherwise, we must remove the item from
+        # the storage/stash.
+        item['character_item_id'] if action_type == 'insert' else 0,
+
+        # If the action type is insert, we must remove the item from the inventory. Otherwise, we must move the item
+        # to the inventory.
+        item['character_item_id'] if action_type == 'draw' else 0,
+
+        _args['client']['account_id']
+    ])
+
+    # Send the updated storage state to the client
+    return sync_storage(_args, storage_number)

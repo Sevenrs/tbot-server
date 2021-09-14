@@ -193,4 +193,5 @@ def keep_alive(_args):
 
         # If the last ping was too long ago, disconnect the client
         if (datetime.datetime.now() - _args['client']['last_ping']).total_seconds() >= 90:
+            print('relay ping timeout!')
             return connection_handler.close_connection(_args['client'])
