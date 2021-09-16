@@ -10,8 +10,8 @@ from GameServer.Controllers.data.deathmatch import DEATHMATCH_MAP_TABLE
 from GameServer.Controllers.data.battle import BATTLE_MAP_TABLE
 from GameServer.Controllers.data.military import MILITARY_MAP_TABLE
 from GameServer.Controllers.data.game import *
-from GameServer.Controllers.Game import game_end
-import math, os, time, datetime
+from GameServer.Controllers.Game import game_end, load_finish, load_finish_thread
+import math, os, time, datetime, _thread
 from random import randrange
 
 """
@@ -727,6 +727,9 @@ def start_game(**_args):
     get_list(_args, mode=0 if room['game_type'] in [0, 1] else room['game_type'] - 1,
              page=get_list_page_by_room_id(room['id'], room['game_type']), local=False)
 
+    # Start load_finish_thread to check clients' loaded status in the background without relying on the RPCs
+    _thread.start_new_thread(load_finish_thread, (_args, room,))
+
 '''
 This method will reset the room by making sure nobody is ready anymore, drops are set back at their standard
 values, etc.
@@ -887,14 +890,8 @@ def sync_state(_args, room):
                 if not room['slots'][slot]['loaded']:
                     return
 
-            # Update the loaded state to True
-            room['game_loaded'] = True
-
-            # Send the ready packet to all sockets in the room
-            ready = PacketWrite()
-            ready.AddHeader(bytearray([0x24, 0x2F]))
-            ready.AppendBytes(bytearray([0x00]))
-            _args['connection_handler'].SendRoomAll(room['id'], ready.packet)
+            # Start game if all clients have loaded
+            load_finish(_args, room)
 
         # If we are playing DeathMatch or Battle and there are less than 2 players in the room, end the game
         if room['game_type'] in [MODE_BATTLE, MODE_DEATHMATCH] and len(room['slots']) < 2:

@@ -66,7 +66,7 @@ PACKET_READ = {
     '362b': ('PACKET_GAME_USE_FIELD_PACK',      Game.use_field_pack,        True),
     '3a2b': ('PACKET_GAME_MONSTER_DEATH',       Game.monster_kill,          False),
     '3c2b': ('PACKET_GAME_USE_ITEM',            Game.use_item,              True),
-    '3e2b': ('PACKET_GAME_LOAD_FINISH',         Game.load_finish,           False),
+    '3e2b': ('PACKET_GAME_LOAD_FINISH',         Game.load_finish_rpc,       False),
     '3b2b': ('PACKET_GAME_LOSE',                Game.game_end_rpc,          True),
     '462b': ('PACKET_GAME_WIN',                 Game.game_end_rpc,          True),
     'a627': ('PACKET_GAME_CHAT_COMMAND',        Game.chat_command,          False),

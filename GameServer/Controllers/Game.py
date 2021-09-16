@@ -23,9 +23,9 @@ This controller is responsible for handling all game related actions
 
 '''
 This method will tell the room that the client has finished loading the map
-If a client has not loaded the map, the ready packet will not be sent yet
+If all clients have finished loading, the game will be started.
 '''
-def load_finish(**_args):
+def load_finish_rpc(**_args):
 
     # Get room and check if we are in one
     room = Room.get_room(_args)
@@ -47,6 +47,18 @@ def load_finish(**_args):
         if not room['slots'][_slot]['loaded']:
             return
 
+    # If all slots have loaded the level, call load_finish and let the clients play the game
+    load_finish(_args, room)
+
+'''
+This method will be called once all players have finished loading
+'''
+def load_finish(_args, room):
+
+    # If the game has already loaded, don't do anything
+    if room['game_loaded']:
+        return
+
     # Mark the room's game as loaded
     room['game_loaded'] = True
 
@@ -54,7 +66,7 @@ def load_finish(**_args):
     ready = PacketWrite()
     ready.AddHeader(bytearray([0x24, 0x2F]))
     ready.AppendBytes(bytearray([0x00]))
-    _args['connection_handler'].SendRoomAll(_args['client']['room'], ready.packet)
+    _args['connection_handler'].SendRoomAll(room['id'], ready.packet)
 
     # Start new countdown timer thread, but only for Planet and DeathMatch modes
     if room['game_type'] in [MODE_PLANET, MODE_DEATHMATCH]:
@@ -1216,6 +1228,33 @@ def incremental_canister_drops(_args, room):
         drop.AppendBytes(drop_bytes)
         _args['connection_handler'].SendRoomAll(room['id'], drop.packet)
 
+'''
+This thread will check clients' loading status in the background every second as a failsafe.
+Once all clients have loaded, the game will be started.
+'''
+def load_finish_thread(_args, room):
+
+    # Keep checking while the game hasn't loaded yet
+    while not room['game_loaded'] and len(room['slots']) > 0:
+
+        # Try every second
+        time.sleep(1)
+
+        # Loading check result, default to True.
+        # Set to False if one client hasn't finished loading.
+        loaded = True
+
+        # Check if all clients have finished loading
+        for slot in room['slots']:
+            if not room['slots'][slot]['loaded']:
+                loaded = False
+
+        # Skip current iteration if at least once client hasn't loaded
+        if not loaded:
+            continue
+
+        # Has everyone loaded the game? Start the game by calling load_finish
+        load_finish(_args, room)
 
 '''
 This method will parse chat commands
