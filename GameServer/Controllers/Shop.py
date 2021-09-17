@@ -541,3 +541,81 @@ def storage_action(**_args):
 
     # Send the updated storage state to the client
     return sync_storage(_args, storage_number)
+
+'''
+This method will allow users to combine their body, arm and head parts.
+'''
+def union_parts(**_args):
+
+    # Read coupon slot from packet
+    coupon_slot = int(_args['packet'].ReadInteger(3, 1, 'little'))
+
+    # Read item slots from packet
+    item_1_slot = int(_args['packet'].ReadInteger(4, 1, 'little'))
+    item_2_slot = int(_args['packet'].ReadInteger(5, 1, 'little'))
+    item_3_slot = int(_args['packet'].ReadInteger(6, 1, 'little'))
+
+    # Check against duplicates. It could be possible for a client to send the same slots for each item.
+    if len(set([item_1_slot, item_2_slot, item_3_slot])) != len([item_1_slot, item_2_slot, item_3_slot]):
+        return sync_inventory(_args, 'sell', 61)  # Request refused
+
+    # Retrieve the inventory of our character so we can validate if everything's correct
+    inventory = Character.get_items(_args, _args['client']['character']['id'], 'inventory')
+
+    # Check if the slot number for the coupon actually contains the union coupon
+    if coupon_slot not in inventory or inventory[coupon_slot]['id'] != 5041200:
+        return sync_inventory(_args, 'sell', 66) # Item not found
+
+    # Check if the first item is a valid item. It has to be either a body, arm or head (and must actually exist)
+    if item_1_slot not in inventory or inventory[item_1_slot]['type'] not in ['head', 'body', 'arms']:
+        return sync_inventory(_args, 'sell', 61) # Request refused
+
+    # Validate the remaining items. Compare them against the first item
+    for slot in [item_2_slot, item_3_slot]:
+
+        # Check if the item is really in the inventory
+        if slot not in inventory:
+            return sync_inventory(_args, 'sell', 66)  # Item not found
+
+        # Check if the item id is the same item id as the first item
+        elif inventory[slot]['id'] != inventory[item_1_slot]['id']:
+            return sync_inventory(_args, 'sell', 61)  # Request refused
+
+    # If the first item is already +5, the items can not be upgraded any more. At this point we are sure they're all equal.
+    if int(str(inventory[item_1_slot]['id'])[-1:]) >= 5:
+        return sync_inventory(_args, 'sell', 72)  # Item can not be upgraded anymore
+
+    # Delete secondary and third items
+    for slot in [item_2_slot, item_3_slot]:
+        Character.remove_item(_args, inventory[slot]['character_item_id'], slot)
+
+    # If the coupon has expired, remove it.
+    if inventory[coupon_slot]['duration'] == 1:
+        Character.remove_item(_args, inventory[coupon_slot]['character_item_id'], coupon_slot)
+    else:
+
+        # Otherwise, decrease remaining_times by one
+        _args['mysql'].execute('''UPDATE `character_items` SET `remaining_times` = (`remaining_times` - 1) WHERE `id` = %s''', [
+            inventory[coupon_slot]['character_item_id']
+        ])
+
+    # Find new item in the database. If the item does not exist, do not proceed.
+    _args['mysql'].execute('''SELECT `id` FROM `game_items` WHERE `item_id` = (%s + 1)''', [
+        inventory[item_1_slot]['id'],
+    ])
+    item = _args['mysql'].fetchone()
+
+    # If the new item does not exist, do not proceed.
+    if item is None:
+        return sync_inventory(_args, 'sell', 66)  # Item not found
+
+    # Upgrade first item
+    _args['mysql'].execute("""UPDATE `character_items` SET `game_item` = %s WHERE `id` = %s""", [
+        item['id'], inventory[item_1_slot]['character_item_id']])
+
+    # Send character information
+    result = PacketWrite()
+    result.AddHeader([0xE4, 0x2E])
+    result.AppendBytes([0x01, 0x00])
+    result.AppendBytes(Character.construct_bot_data(_args, _args['client']['character']))
+    _args['socket'].send(result.packet)
