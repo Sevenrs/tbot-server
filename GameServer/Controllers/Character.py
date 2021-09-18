@@ -16,7 +16,7 @@ The supported modes are:
     
 This will return an easy to use object where items can be easily read and managed.
 '''
-def get_items(_args, character_id, mode = 'wearing', stash_number=None):
+def get_items(_args, character_id, mode = 'wearing', external_id=None):
 
     # List with the obtained items from the database
     items = []
@@ -102,7 +102,7 @@ def get_items(_args, character_id, mode = 'wearing', stash_number=None):
             items.append(item)
 
     # Get and return inventory or stash items
-    elif mode == 'inventory' or mode == 'stash':
+    elif mode in ['inventory', 'stash', 'gifts']:
 
         # Default item range, where statement and SQL parameter to retrieve all items in the character's inventory.
         item_range, where_statement, sql_parameter = 21, '`character_id` = %s', _args['client']['character']['id']
@@ -110,9 +110,14 @@ def get_items(_args, character_id, mode = 'wearing', stash_number=None):
         # If we are trying to obtain a stash, overwrite the item range and where statement
         # We want to obtain the stash ordered by ID with an offset, because an account can have multiple stashes.
         if mode == 'stash':
-            item_range = 11
-            where_statement = '`account_id` = %s ORDER BY `model`.`id` ASC LIMIT 1 OFFSET {0}'.format(stash_number - 1)
-            sql_parameter = _args['client']['account_id']
+            item_range      = 11
+            where_statement = '`account_id` = %s ORDER BY `model`.`id` ASC LIMIT 1 OFFSET {0}'.format(external_id - 1)
+            sql_parameter   = _args['client']['account_id']
+
+        elif mode == 'gifts':
+            item_range      = 2
+            where_statement = 'model.`id` = %s'
+            sql_parameter   = external_id
 
         for i in range(1, item_range):
             _args['mysql'].execute("""SELECT    IFNULL(gitem.`item_id`, 0)                                      
@@ -193,7 +198,7 @@ def get_available_inventory_slot(inventory):
 '''
 This method inserts a new item into character_items and puts it in our inventory
 '''
-def add_item(_args, item, slot):
+def add_item(_args, item, slot, inventory_insert=True):
 
     # Standard values. The used parameter is set only if the duration of the item is greater than 0
     remaining_games, remaining_times, used = None, None, (0 if item['duration'] > 0 else None)
@@ -225,10 +230,13 @@ def add_item(_args, item, slot):
     character_item_id = _args['mysql'].lastrowid
 
     # Insert item into the inventory of our character
-    _args['mysql'].execute("""UPDATE `inventory` SET `item_{0}` = %s WHERE `character_id` = %s""".format(str(slot + 1)), [
-        character_item_id,
-        _args['client']['character']['id']
-    ])
+    if inventory_insert:
+        _args['mysql'].execute("""UPDATE `inventory` SET `item_{0}` = %s WHERE `character_id` = %s""".format(str(slot + 1)), [
+            character_item_id,
+            _args['client']['character']['id']
+        ])
+
+    return character_item_id
 
 '''
 This method removes an item from character_items and removes it from our inventory

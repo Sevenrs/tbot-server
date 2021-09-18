@@ -7,7 +7,6 @@ from Packet.Write import Write as PacketWrite
 
 """
 This file is responsible for handling all requests relating to the inbox functionality.
-This includes gifts, as well.
 """
 
 """

@@ -1,4 +1,4 @@
-from GameServer.Controllers import BoutLogin, Lobby, Shop, Guild, Friend, Inbox, Room, Character, Game
+from GameServer.Controllers import BoutLogin, Lobby, Shop, Guild, Friend, Inbox, Room, Character, Game, gifts
 
 PACKET_NAME             = 0
 PACKET_HANDLER          = 1
@@ -26,6 +26,10 @@ PACKET_READ = {
     '2a2b': ('PACKET_INBOX_VIEW',               Inbox.RequestMessage,       True),
     '2b2b': ('PACKET_INBOX_DELETE',             Inbox.DeleteMessage,        True),
 
+    '2d2b': ('PACKET_GIFTS_REQUEST',            gifts.get_gifts_rpc,        True),
+    '312b': ('PACKET_GIFT_RECEIVE',             gifts.receive_gift,         True),
+    '2e2b': ('PACKET_GIFT_SEND',                gifts.send_gift,            True),
+
     '512b': ('PACKET_SHOP_SYNC_CASH',           Shop.sync_cash_rpc,         True),
     '022b': ('PACKET_SHOP_PURCHASE_GOLD',       Shop.purchase_item,         True),
     '042b': ('PACKET_SHOP_PURCHASE_CASH',       Shop.purchase_item,         True),
@@ -36,6 +40,7 @@ PACKET_READ = {
     'fd2a': ('PACKET_SHOP_REMOVE_PART',         Shop.unwear_item,           True),
     '332b': ('PACKET_SHOP_REMOVE_ACCESSORY',    Shop.unwear_item,           True),
     '352b': ('PACKET_SHOP_REMOVE_PACK',         Shop.unwear_item,           True),
+    '662b': ('PACKET_SHOP_SEND_GIFT',           gifts.purchase_gift,        True),
     '672b': ('PACKET_SHOP_PURCHASE_STORAGE',    Shop.purchase_storage,      True),
     '682b': ('PACKET_SHOP_STORAGE_INSERT',      Shop.storage_action,        True),
     '692b': ('PACKET_SHOP_STORAGE_DRAW',        Shop.storage_action,        True),

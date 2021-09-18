@@ -1,0 +1,3 @@
+TYPE_ITEM   = 0
+TYPE_GOLD   = 1
+TYPE_OIL    = 2
