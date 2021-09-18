@@ -517,12 +517,12 @@ PLANET_BOXES = {
 
     #[Lv01]Training Camp
     0: [
-        (BOX_GUN, 0.12),
-        (BOX_EF, 0.12),
-        (BOX_MINI_BOT, 0.12),
-        (BOX_HEAD, 0.12),
-        (BOX_BODY, 0.12),
-        (BOX_ARMS, 0.12)
+        (BOX_GUN, 0.04),
+        (BOX_EF, 0.04),
+        (BOX_MINI_BOT, 0.04),
+        (BOX_HEAD, 0.04),
+        (BOX_BODY, 0.04),
+        (BOX_ARMS, 0.04)
     ],
 
     # [Lv03]Base Camp
