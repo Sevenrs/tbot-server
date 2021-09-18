@@ -405,10 +405,10 @@ def construct_bot_data(_args, character):
     bot.AppendInteger(stash_count, 1, 'little')
 
     # For every stash, send its items over the network
-    for i in range(1, (stash_count + 1)):
+    for i in range(0, stash_count):
 
         # Get stash items with the stash number supplied.
-        stash = get_items(_args, character['id'], 'stash', i)
+        stash = get_items(_args, character['id'], 'stash', (i + 1))
         for item in stash:
             bot.AppendInteger(stash[item]['id'], 4, 'little')
             bot.AppendInteger(stash[item]['duration'], 4, 'little')
