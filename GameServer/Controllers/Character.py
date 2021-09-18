@@ -303,6 +303,8 @@ This method constructs the bot data which can then be appended to a packet to se
 '''
 def construct_bot_data(_args, character):
 
+    print(character)
+
     bot = PacketWrite()
 
     # Before we obtain wearing items, remove any expired items that we may have

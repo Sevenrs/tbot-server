@@ -904,11 +904,9 @@ def post_game_transaction(_args, room):
         # Increase the rank experience and then check if we can rank up
         character['rank_exp'] += addition_rank_experience
 
-        # Only rank if if our rank is equal or smaller than 42 and if our experience exceeds or equals that of the next rank
-        new_rank = 0
-
         # Find our next rank based on the amount of experience we have.
         # Do not change the rank if the rank is greater than 43 (max rank)
+        new_rank = 0
         for rank in RANK_EXP_TABLE:
             if character['rank_exp'] >= RANK_EXP_TABLE[rank] and rank <= 43:
                 new_rank = rank
