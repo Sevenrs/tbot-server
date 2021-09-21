@@ -366,3 +366,16 @@ def purchase_gift(**_args):
     # Sync cash and inventory
     sync_cash(_args)
     sync_inventory(_args)
+
+'''
+Method:         gift_count()
+Description:    This method returns the amount of gifts our client has and returns it to the stack
+'''
+def gift_count(_args):
+
+    # Get number of gifts
+    _args['mysql'].execute('''SELECT `id` FROM `gifts` WHERE `receiver` = %s''', [
+        _args['client']['character']['id']
+    ])
+
+    return _args['mysql'].rowcount

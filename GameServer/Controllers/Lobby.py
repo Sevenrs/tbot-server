@@ -7,6 +7,8 @@ from Packet.Write import Write as PacketWrite
 from GameServer.Controllers import Guild, Friend, Room
 from GameServer.Controllers.Character import get_items
 from GameServer.Controllers.data.lobby import LOBBY_MSG
+from GameServer.Controllers.Inbox import unread_message_notification
+from GameServer.Controllers.gifts import gift_count
 import os
     
 """
@@ -217,6 +219,9 @@ def GetLobby(**_args):
     # Load friends
     Friend.RetrieveFriends(_args, _args['client'])
 
+    # Get guild membership
+    Guild.GetGuild(_args, _args['client'], True)
+
     # If this is the first time that this client has requested the lobby, notify all their friends
     if _args['client']['new']:
 
@@ -229,8 +234,9 @@ def GetLobby(**_args):
         # Update client status
         _args['client']['new'] = False
 
-    # Get guild membership
-    Guild.GetGuild(_args, _args['client'], True)
+    # Get amount of unread messages and gift count. Also send a message notification packet if we have to.
+    unread_messages, gifts = unread_message_notification(_args), gift_count(_args)
+    ChatMessage(_args['client'], "[Server] You have {0} unread message(s) and {1} gift(s)".format(unread_messages, gifts), 1)
 
 def RoomList(**_args):
 

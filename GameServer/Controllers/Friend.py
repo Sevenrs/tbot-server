@@ -146,8 +146,16 @@ Method:         PresenceNotification
 Description:    This method will notify a character's friend of their presence
 """
 def PresenceNotification(_args):
+
+    # Get our friends
     friends = GetFriends(_args, _args['client']['character']['id'])
+
     for friend in friends:
+
+        # Get remote client of friend and attempt to send a message
         client = _args['connection_handler'].GetCharacterClient(friend['name'])
         if client is not None:
-            Lobby.ChatMessage(client, "[Server] Your friend {0} has just logged in!".format(_args['client']['character']['name']), 3)
+            try:
+                Lobby.ChatMessage(client, "[Server] Your friend {0} has just logged in!".format(_args['client']['character']['name']), 1)
+            except Exception as e:
+                print('Could not send PresenceNotification to remote client because: ', str(e))

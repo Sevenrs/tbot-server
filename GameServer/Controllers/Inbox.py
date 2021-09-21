@@ -4,6 +4,7 @@ __copyright__ = "Copyright (C) 2020 Icseon"
 __version__ = "1.0" 
 
 from Packet.Write import Write as PacketWrite
+from GameServer.Controllers import Lobby
 
 """
 This file is responsible for handling all requests relating to the inbox functionality.
@@ -86,6 +87,25 @@ def SendMessage(**_args):
         
     _args['socket'].send(result.packet)
 
+    # If the remote player is online, send a notification to them
+    remote_client = _args['connection_handler'].GetCharacterClient(receiver)
+    if remote_client is not None:
+        try:
+
+            # Construct text notification and send to remote client
+            Lobby.ChatMessage(target=remote_client,
+                                        message='[Server] {0} has sent you a message'.format(_args['client']['character']['name']),
+                                        color=1)
+
+            # Construct and send notification packet
+            notification = PacketWrite()
+            notification.AddHeader([0x14, 0x2F])
+            notification.AppendBytes([0x01, 0x00])
+            remote_client['socket'].send(notification.packet)
+
+        except Exception as e:
+            print('[InboxController] Could not send message notification to remote client because: ', str(e))
+
 """
 Method:         RequestMessage
 Description:    This method will obtain a specific message and send it to the client
@@ -96,7 +116,7 @@ def RequestMessage(**_args):
     message_index = int(_args['packet'].GetByte(17))
     
     # Find the message in the database
-    _args['mysql'].execute("""SELECT IFNULL(c.`name`, '( deleted )') AS `sender`, i.`message` FROM inbox i
+    _args['mysql'].execute("""SELECT IFNULL(c.`name`, '( deleted )') AS `sender`, i.`message`, i.`id` FROM inbox i
         LEFT JOIN `characters` c ON c.`id` = i.`sender_character_id`
         WHERE i.`receiver_character_id` = %s ORDER BY i.`id` DESC LIMIT 1 OFFSET %s""", [
             _args['client']['character']['id'],
@@ -115,6 +135,12 @@ def RequestMessage(**_args):
     message.AppendString(result['sender'], 15)
     message.AppendString(result['message'], 98)
     _args['socket'].send(message.packet)
+
+    # Mark message as read
+    _args['mysql'].execute('''UPDATE `inbox` SET `read` = 1 WHERE `id` = %s''', [result['id']])
+
+    # Run the unread notification function to see if we need to show a notification for unread messages
+    unread_message_notification(_args)
 
 """
 Method:         DeleteMessage
@@ -135,3 +161,26 @@ def DeleteMessage(**_args):
     
     # Reload inbox
     GetInbox(_args)
+
+'''
+Method:         unread_message_notification
+Description:    If our client has at least one unread message, a flashing inbox icon will be shown for the client.
+                This method returns the number of unread messages to the stack.
+'''
+def unread_message_notification(_args):
+
+    # Get number of unread messages
+    _args['mysql'].execute('''SELECT `id` FROM `inbox` WHERE `receiver_character_id` = %s AND `read` = 0''', [
+        _args['client']['character']['id']
+    ])
+
+    # Retrieve amount of unread messages
+    unread_messages = _args['mysql'].rowcount
+
+    # Create notification packet
+    notification = PacketWrite()
+    notification.AddHeader([0x14, 0x2F])
+    notification.AppendBytes([0x01, 0x00] if unread_messages > 0 else [0x00, 0x00, 0x00, 0x00, 0x00, 0x00])
+    _args['socket'].send(notification.packet)
+
+    return unread_messages

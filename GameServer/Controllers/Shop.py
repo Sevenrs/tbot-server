@@ -6,7 +6,7 @@ __version__ = "1.0"
 from Packet.Write import Write as PacketWrite
 from GameServer.Controllers import Character
 from GameServer.Controllers.data.shop import ID_GUILD_EXTEND, ID_GOLD_BAR
-from GameServer.Controllers.Guild import FetchGuild
+from GameServer.Controllers import Guild
 
 '''
 This method will obtain the amount of cash a specific account has
@@ -137,7 +137,7 @@ def purchase_item(**_args):
     if item['item_id'] in ID_GUILD_EXTEND:
 
         # Obtain our guild
-        guild = FetchGuild(_args, _args['client']['character']['id'])
+        guild = Guild.FetchGuild(_args, _args['client']['character']['id'])
 
         # If the guild wasn't found or we are not the leader of it, send an error
         if guild is None or guild['is_leader'] == 0:
