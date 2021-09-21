@@ -102,7 +102,7 @@ class Handler:
             notification.AddHeader(bytearray([0x27, 0x27]))
             notification.AppendBytes(bytearray([0x01, 0x00]))
             notification.AppendString(client['character']['name'], 15)
-            notification.AppendBytes([0x03])
+            notification.AppendInteger(client['character']['type'], 1, 'little')
             notification.AppendInteger(status, 1, 'little')
 
             # Broadcast to all clients, if our target client has not been specified

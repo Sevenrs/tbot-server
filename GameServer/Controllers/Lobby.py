@@ -210,15 +210,12 @@ def GetLobby(**_args):
         status.AddHeader([0x27, 0x27])
         status.AppendBytes([0x01, 0x00])
         status.AppendString(client['character']['name'], 15)
-        status.AppendInteger(3, 1, 'little')
+        status.AppendInteger(client['character']['type'], 1, 'little')
         status.AppendInteger(0, 1, 'little')
         _args['socket'].send(status.packet)
 
     # Load friends
     Friend.RetrieveFriends(_args, _args['client'])
-
-    # Get guild membership
-    Guild.GetGuild(_args, _args['client'], True)
 
     # If this is the first time that this client has requested the lobby, notify all their friends
     if _args['client']['new']:
@@ -231,6 +228,9 @@ def GetLobby(**_args):
 
         # Update client status
         _args['client']['new'] = False
+
+    # Get guild membership
+    Guild.GetGuild(_args, _args['client'], True)
 
 def RoomList(**_args):
 

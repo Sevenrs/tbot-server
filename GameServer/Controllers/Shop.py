@@ -5,6 +5,8 @@ __version__ = "1.0"
 
 from Packet.Write import Write as PacketWrite
 from GameServer.Controllers import Character
+from GameServer.Controllers.data.shop import ID_GUILD_EXTEND, ID_GOLD_BAR
+from GameServer.Controllers.Guild import FetchGuild
 
 '''
 This method will obtain the amount of cash a specific account has
@@ -97,10 +99,6 @@ def purchase_item(**_args):
     _args['mysql'].execute('''SELECT `id`, `item_id`, `buyable`, `gold_price`, `cash_price`, `part_type`, `duration` FROM `game_items` WHERE `item_id` = %s''', [item_id])
     item = _args['mysql'].fetchone()
 
-    # Construct purchase result packet
-    result = PacketWrite()
-    result.AddHeader(bytearray([0xEA, 0x2E]))
-
     # Retrieve our inventory and check if we have a remaining slot available
     inventory       = Character.get_items(_args, _args['client']['character']['id'], 'inventory')
     available_slot  = Character.get_available_inventory_slot(inventory)
@@ -119,7 +117,9 @@ def purchase_item(**_args):
         return sync_inventory(_args, 'purchase', 66)
 
     # Define another error if we have no available inventory slot for this operation
-    if available_slot is None:
+    # but only if we aren't purchasing "GuildExtend"
+    if available_slot is None \
+            and item['item_id'] not in ID_GUILD_EXTEND:
         return sync_inventory(_args, 'purchase', 68)
 
     # Retrieve currency
@@ -133,6 +133,20 @@ def purchase_item(**_args):
     if currency < int(price):
         return sync_inventory(_args, 'purchase', 65)
 
+    # If we are purchasing guild extend, we'll have to validate we own a guild and that the guild is not too large (30 max)
+    if item['item_id'] in ID_GUILD_EXTEND:
+
+        # Obtain our guild
+        guild = FetchGuild(_args, _args['client']['character']['id'])
+
+        # If the guild wasn't found or we are not the leader of it, send an error
+        if guild is None or guild['is_leader'] == 0:
+            return sync_inventory(_args, 'purchase', 125) # Only guild masters can purchase the item
+
+        # If the guild member count is already equal or greater than 30, we can not increase it anymore
+        elif guild['max_members'] >= 30:
+            return sync_inventory(_args, 'purchase', 49)
+
     # Only update the local value if the type is equal to gold because we use that at other places
     if type_data['type'] == 'gold':
         _args['client']['character']['currency_gigas'] = _args['client']['character']['currency_gigas'] \
@@ -145,8 +159,18 @@ def purchase_item(**_args):
         type_data['db_info']['where']),
             [int(price), type_data['db_info']['is']])
 
-    # If there are no errors, proceed to create an instance of character_items and insert the item into our inventory
-    Character.add_item(_args, item, available_slot)
+    # Expand our guild if we are dealing with guild expansion
+    if item['item_id'] in ID_GUILD_EXTEND:
+
+        # Expand guild max member count by 5
+        _args['mysql'].execute('''UPDATE `guilds` SET `max_members` = (`max_members` + 5) WHERE `leader_character_id` = %s''', [
+            _args['client']['character']['id']
+        ])
+
+    else:
+
+        # If there are no errors, proceed to create an instance of character_items and insert the item into our inventory
+        Character.add_item(_args, item, available_slot)
 
     # Send packet to sync the inventory and currency state
     sync_inventory(_args, 'purchase' if type_data['type'] == 'gold' else 'purchase_cash')
@@ -177,7 +201,7 @@ def sell_item(**_args):
         return sync_inventory(_args, 'sell', 66)
 
     # Gold bars should give cash points
-    if item['item_id'] in [6000001, 6000002, 6000003]:
+    if item['item_id'] in ID_GOLD_BAR:
         _args['mysql'].execute("""UPDATE `users` SET `cash` = (`cash` + %s) WHERE `username` = %s""", [
             item['selling_price'] / 10,
             _args['client']['account']
