@@ -80,31 +80,32 @@ def SendMessage(**_args):
                 receiver,
                 message
             ])
+
+        # If the remote player is online, send a notification to them
+        remote_client = _args['connection_handler'].GetCharacterClient(receiver)
+        if remote_client is not None:
+            try:
+
+                # Construct text notification and send to remote client
+                Lobby.ChatMessage(target=remote_client,
+                                  message='[Server] {0} has sent you a message'.format(
+                                      _args['client']['character']['name']),
+                                  color=1)
+
+                # Construct and send notification packet
+                notification = PacketWrite()
+                notification.AddHeader([0x14, 0x2F])
+                notification.AppendBytes([0x01, 0x00])
+                remote_client['socket'].send(notification.packet)
+
+            except Exception as e:
+                print('[InboxController] Could not send message notification to remote client because: ', str(e))
             
         result.AppendBytes(bytearray([0x01, 0x00, 0x01, 0x00, 0x00]))
     except Exception as e:
         result.AppendBytes(bytearray([0x00, 0x33, 0x00, 0x00, 0x00]))
         
     _args['socket'].send(result.packet)
-
-    # If the remote player is online, send a notification to them
-    remote_client = _args['connection_handler'].GetCharacterClient(receiver)
-    if remote_client is not None:
-        try:
-
-            # Construct text notification and send to remote client
-            Lobby.ChatMessage(target=remote_client,
-                                        message='[Server] {0} has sent you a message'.format(_args['client']['character']['name']),
-                                        color=1)
-
-            # Construct and send notification packet
-            notification = PacketWrite()
-            notification.AddHeader([0x14, 0x2F])
-            notification.AppendBytes([0x01, 0x00])
-            remote_client['socket'].send(notification.packet)
-
-        except Exception as e:
-            print('[InboxController] Could not send message notification to remote client because: ', str(e))
 
 """
 Method:         RequestMessage

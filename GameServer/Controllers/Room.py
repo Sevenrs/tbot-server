@@ -801,6 +801,37 @@ def exit_room(**_args):
     remove_slot(_args, _args['client']['room'], _args['client'])
 
 '''
+This method allows the room master to change the room's password
+'''
+def change_password(**_args):
+
+    # Get room. Drop packet if we are not its master or if we are not in a room
+    room = get_room(_args, master=True)
+    if not room:
+        return
+
+    # Read the new password (and account name, which we won't be using)
+    account = _args['packet'].ReadString(2)
+    password = _args['packet'].ReadString()
+
+    # If the room does not have a password, drop the packet. Also drop the packet if the new password's length is 0.
+    if len(room['password']) == 0 or len(password) not in range(1, 11):
+        return
+
+    # Update room password
+    room['password'] = password
+
+    # Construct success packet and send to socket
+    result = PacketWrite()
+    result.AddHeader([0x38, 0x2F])
+    result.AppendBytes([0x01, 0x00])
+    result.AppendString(password, 10)
+
+    _args['socket'].send(result.packet)
+
+
+
+'''
 This method allows players to join rooms
 '''
 def join_room(**_args):
@@ -825,7 +856,7 @@ def join_room(**_args):
             join_result.AddHeader([0x28, 0x2F])
 
             # If the room has a password, check if the entered password is correct
-            if len(room['password']) > 0 and room['password'] != room_password:
+            if len(room['password']) > 0 and room['password'] != room_password and _args['client']['character']['position'] == 0:
                 join_result.AppendBytes([0x00, 0x3E])
                 return _args['client']['socket'].send(join_result.packet)
 

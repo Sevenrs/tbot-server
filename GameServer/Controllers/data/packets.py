@@ -63,6 +63,7 @@ PACKET_READ = {
     '392b': ('PACKET_ROOM_UPDATE_SLOT_STATUS',  Room.set_status,            False),
     '402b': ('PACKET_ROOM_KICK_PLAYER',         Room.kick_player,           False),
     '422b': ('PACKET_ROOM_EXIT',                Room.exit_room,             False),
+    '522b': ('PACKET_ROOM_CHANGE_PASSWORD',     Room.change_password,       False),
     '652b': ('PACKET_ROOM_SET_LEVEL',           Room.set_level,             False),
     '7a2b': ('PACKET_ROOM_SET_DIFFICULTY',      Room.set_difficulty,        False),
     '782b': ('PACKET_ROOM_ENTER_SHOP',          Room.enter_shop,            False),
