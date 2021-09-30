@@ -45,6 +45,7 @@ PACKET_READ = {
     '682b': ('PACKET_SHOP_STORAGE_INSERT',      Shop.storage_action,        True),
     '692b': ('PACKET_SHOP_STORAGE_DRAW',        Shop.storage_action,        True),
     '702b': ('PACKET_SHOP_UNION_PARTS',         Shop.union_parts,           True),
+    '722b': ('PACKET_SHOP_CHANGE_RACE',         Shop.change_race,           True),
 
     '552b': ('PACKET_GUILD_CREATE',             Guild.Create,                   True),
     '562b': ('PACKET_GUILD_APPLY',              Guild.SendGuildApplication,     True),

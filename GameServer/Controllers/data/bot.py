@@ -1,0 +1,3 @@
+TYPE_PATCH  = 1
+TYPE_SURGE  = 2
+TYPE_RAM    = 3

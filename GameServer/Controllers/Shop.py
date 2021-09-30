@@ -5,7 +5,8 @@ __version__ = "1.0"
 
 from Packet.Write import Write as PacketWrite
 from GameServer.Controllers import Character
-from GameServer.Controllers.data.shop import ID_GUILD_EXTEND, ID_GOLD_BAR
+from GameServer.Controllers.data.shop import ID_GUILD_EXTEND, ID_GOLD_BAR, ID_CHANGE_RACE
+from GameServer.Controllers.data.bot import *
 from GameServer.Controllers import Guild
 
 '''
@@ -263,12 +264,15 @@ def wear_item(**_args):
     item = inventory[slot]
 
     # Retrieve item from the database
-    _args['mysql'].execute('''SELECT `id`, `level`, `part_type` FROM `game_items` WHERE `item_id` = %s''', [
+    _args['mysql'].execute('''SELECT `id`, `level`, `part_type`, `bot_type` FROM `game_items` WHERE `item_id` = %s''', [
         item['id']])
     game_item = _args['mysql'].fetchone()
 
     # Check if the item was found. If it wasn't, send the "This item does not exist" error
-    if game_item is None or game_item['part_type'] == 0:
+    # The part type is also validated here to ensure people do not wear parts they can't wear
+    # Lastly, a check is done to see if the bot type is compatible with the part that is being worn.
+    if game_item is None or game_item['part_type'] == 0 \
+            or (game_item['part_type'] in [1, 2, 3] and game_item['bot_type'] != _args['client']['character']['type']):
         result.AppendBytes([0x00, 0x42])
         return _args['client']['socket'].send(result.packet)
 
@@ -609,20 +613,6 @@ def union_parts(**_args):
     if int(str(inventory[item_1_slot]['id'])[-1:]) >= 5:
         return sync_inventory(_args, 'sell', 72)  # Item can not be upgraded anymore
 
-    # Delete secondary and third items
-    for slot in [item_2_slot, item_3_slot]:
-        Character.remove_item(_args, inventory[slot]['character_item_id'], slot)
-
-    # If the coupon has expired, remove it.
-    if inventory[coupon_slot]['duration'] == 1:
-        Character.remove_item(_args, inventory[coupon_slot]['character_item_id'], coupon_slot)
-    else:
-
-        # Otherwise, decrease remaining_times by one
-        _args['mysql'].execute('''UPDATE `character_items` SET `remaining_times` = (`remaining_times` - 1) WHERE `id` = %s''', [
-            inventory[coupon_slot]['character_item_id']
-        ])
-
     # Find new item in the database. If the item does not exist, do not proceed.
     _args['mysql'].execute('''SELECT `id` FROM `game_items` WHERE `item_id` = (%s + 1)''', [
         inventory[item_1_slot]['id'],
@@ -632,6 +622,22 @@ def union_parts(**_args):
     # If the new item does not exist, do not proceed.
     if item is None:
         return sync_inventory(_args, 'sell', 66)  # Item not found
+
+    # If the coupon has expired, remove it.
+    if inventory[coupon_slot]['duration'] == 1:
+        Character.remove_item(_args, inventory[coupon_slot]['character_item_id'], coupon_slot)
+    else:
+
+        # Otherwise, decrease remaining_times by one
+        _args['mysql'].execute(
+            '''UPDATE `character_items` SET `remaining_times` = (`remaining_times` - 1) WHERE `id` = %s''', [
+                inventory[coupon_slot]['character_item_id']
+            ]
+        )
+
+    # Delete secondary and third items
+    for slot in [item_2_slot, item_3_slot]:
+        Character.remove_item(_args, inventory[slot]['character_item_id'], slot)
 
     # Upgrade first item
     _args['mysql'].execute("""UPDATE `character_items` SET `game_item` = %s WHERE `id` = %s""", [
@@ -643,3 +649,122 @@ def union_parts(**_args):
     result.AppendBytes([0x01, 0x00])
     result.AppendBytes(Character.construct_bot_data(_args, _args['client']['character']))
     _args['socket'].send(result.packet)
+
+'''
+This method will allow users to change their Bot's Race if they own the transformation coupon
+'''
+def change_race(**_args):
+
+    # Read new bot type from packet
+    new_type = int(_args['packet'].ReadInteger(3, 1, 'little'))
+
+    # Check if the new bot type is valid and check if the new bot type does not equal our own
+    if new_type not in [TYPE_PATCH, TYPE_SURGE, TYPE_RAM] or new_type == _args['client']['character']['type']:
+        return sync_inventory(_args, 'sell', 61)  # Request refused
+
+    # Retrieve the user's inventory and wearing items
+    inventory   = Character.get_items(_args, _args['client']['character']['id'], 'inventory')
+    wearing     = Character.get_items(_args, _args['client']['character']['id'], 'wearing')
+
+    # Attempt to find the first instance of the transformation coupon in the user's inventory
+    item_coupon, coupon_slot = None, None
+    for idx, item in enumerate(inventory):
+        if inventory[item]['id'] == ID_CHANGE_RACE:
+            item_coupon = inventory[item]
+            coupon_slot = idx
+            break
+
+    # If the coupon hasn't been found, refuse to process the request.
+    if item_coupon is None:
+        return sync_inventory(_args, 'sell', 61)  # Request refused
+
+    # Container with update statements to execute after part validation.
+    # We wish to update the part's race type only after we've ensured that they are available for the other type
+    part_updates = []
+
+    for i in range(3):
+
+        # Retrieve the item from the wearing array
+        item = wearing['items'][i]
+
+        # There is no need to validate the item if its id is equal to 0
+        if item['id'] == 0:
+            continue
+
+        # Construct new item id with the new_type in mind
+        new_id = int(str(item['id'])[:1] + str(new_type) + str(item['id'])[2:])
+
+        # Retrieve new item from the database, check if it exists and fetch the new item
+        _args['mysql'].execute('''SELECT `id` FROM `game_items` WHERE `item_id` = %s''', [new_id])
+        new_item = _args['mysql'].fetchone()
+
+        # If the new item does not exist, refuse the request
+        if new_item is None:
+            return sync_inventory(_args, 'sell', 61)  # Request refused
+
+        # If the item was found, add it to the part update array
+        part_updates.append({'character_item_id': item['character_item_id'], 'new_id': new_item['id']})
+
+    # Perform the item updates so that they are compatible with the new bot type
+    for update in part_updates:
+        _args['mysql'].execute('''UPDATE `character_items` SET `game_item` = %s WHERE `id` = %s''', [
+            update['new_id'],
+            update['character_item_id']
+        ])
+
+    # Change our bot type to the new type
+    _args['client']['character']['type'] = new_type
+    _args['mysql'].execute('''UPDATE `characters` SET `type` = %s WHERE `id` = %s''', [
+        new_type,
+        _args['client']['character']['id']
+    ])
+
+    # If the coupon has expired, remove it.
+    if item_coupon['duration'] == 1:
+        Character.remove_item(_args, item_coupon['character_item_id'], coupon_slot)
+    else:
+
+        # Otherwise, decrease remaining_times by one
+        _args['mysql'].execute(
+            '''UPDATE `character_items` SET `remaining_times` = (`remaining_times` - 1) WHERE `id` = %s''', [
+                item_coupon['character_item_id']
+            ]
+        )
+
+    # Construct and send type changed packet
+    type_changed = PacketWrite()
+    type_changed.AddHeader([0x57, 0x2F])
+    type_changed.AppendBytes([0x01, 0x00])
+    type_changed.AppendInteger(new_type, 1, 'little')
+
+    for _ in range(6):
+        type_changed.AppendBytes([0x00])
+
+    # Retrieve and send inventory
+    inventory = Character.get_items(_args, _args['client']['character']['id'], 'inventory')
+    for item in inventory:
+        type_changed.AppendInteger(inventory[item]['id'], 4, 'little')
+        type_changed.AppendInteger(inventory[item]['duration'], 4, 'little')
+        type_changed.AppendInteger(inventory[item]['duration_type'], 1, 'little')
+
+    # Padding between inventory and wearing items
+    for _ in range(180):
+        type_changed.AppendBytes([0x00])
+
+    # Retrieve and send wearing head, body and arms
+    wearing_items = Character.get_items(_args, _args['client']['character']['id'], 'wearing')
+    for i in range(0, 3):
+        item = wearing_items['items'][list(wearing_items['items'].keys())[i]]
+        type_changed.AppendInteger(item['id'], 4, 'little')
+        type_changed.AppendInteger(item['duration'], 4, 'little')
+        type_changed.AppendInteger(item['duration_type'], 1, 'little')
+
+    # Send type changed packet to the client
+    _args['socket'].send(type_changed.packet)
+
+    # Send item equip packet so that the character's statistics will be synced
+    sync_stats = PacketWrite()
+    sync_stats.AddHeader([0xE4, 0x2E])
+    sync_stats.AppendBytes([0x01, 0x00])
+    sync_stats.AppendBytes(Character.construct_bot_data(_args, _args['client']['character']))
+    _args['socket'].send(sync_stats.packet)
