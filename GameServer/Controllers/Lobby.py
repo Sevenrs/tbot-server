@@ -4,7 +4,7 @@ __copyright__ = "Copyright (C) 2020 Icseon"
 __version__ = "1.0"
 
 from Packet.Write import Write as PacketWrite
-from GameServer.Controllers import Guild, Friend, Room
+from GameServer.Controllers import Guild, Friend, Room, block
 from GameServer.Controllers.Character import get_items
 from GameServer.Controllers.data.lobby import LOBBY_MSG
 from GameServer.Controllers.Inbox import unread_message_notification
@@ -222,8 +222,11 @@ def GetLobby(**_args):
     # Get guild membership
     Guild.GetGuild(_args, _args['client'], True)
 
-    # If this is the first time that this client has requested the lobby, notify all their friends
+    # If this is the first time that this client has requested the lobby, notify all their friends and retrieve the block list
     if _args['client']['new']:
+
+        # Retrieve block list
+        block.get_blocks(_args)
 
         # Notify all friends
         Friend.PresenceNotification(_args)

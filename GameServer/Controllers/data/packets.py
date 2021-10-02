@@ -1,4 +1,4 @@
-from GameServer.Controllers import BoutLogin, Lobby, Shop, Guild, Friend, Inbox, Room, Character, Game, gifts
+from GameServer.Controllers import BoutLogin, Lobby, Shop, Guild, Friend, Inbox, Room, Character, Game, gifts, block
 
 PACKET_NAME             = 0
 PACKET_HANDLER          = 1
@@ -56,6 +56,9 @@ PACKET_READ = {
     '5d2b': ('PACKET_GUILD_LEAVE',              Guild.LeaveGuild,               True),
     '592b': ('PACKET_GUILD_EXPEL_MEMBER',       Guild.ExpelGuildMember,         True),
     '732b': ('PACKET_GUILD_UPDATE_NOTICE',      Guild.UpdateGuildNotice,        True),
+
+    '6b2b': ('PACKET_BLOCK_USER',               block.block_user,               True),
+    '6c2b': ('PACKET_UNBLOCK_USER',             block.unblock_user,             True),
 
     '062b': ('PACKET_ROOM_JOIN',                Room.join_room,             True),
     '092b': ('PACKET_ROOM_CREATE',              Room.create,                False),
