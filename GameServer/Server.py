@@ -5,7 +5,7 @@ __version__ = "1.0"
 
 import socket
 import _thread
-from . import Client, Connection
+from . import Client, Connection, session
 
 class Socket:
 
@@ -23,6 +23,9 @@ class Socket:
 
         # Room container
         self.rooms = {}
+
+        # Session container
+        self.sessions = []
 
         # Access to the relay server
         self.relay_server = relay_tcp_server
@@ -44,12 +47,15 @@ class Socket:
                 # Create new instance of the connection handler
                 connection_handler = Connection.Handler(self)
 
+                # Create new instance of the session handler
+                session_handler = session.Session(self)
+
                 # Listen for new connections
                 while True:
                     
                     # Accept the new client and handle the connection in a separate thread
                     client, address = server.accept()
-                    _thread.start_new_thread(Client.Client, (client, address, self, connection_handler,))
+                    _thread.start_new_thread(Client.Client, (client, address, self, connection_handler, session_handler,))
                     
                 # Ensure the socket is freed once the application exits
                 server.close()

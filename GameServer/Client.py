@@ -11,11 +11,12 @@ class Client:
     """
     GameServer client constructor
     """
-    def __init__(self, socket, addr, server, connection_handler):
+    def __init__(self, socket, addr, server, connection_handler, session_handler):
         self.socket             = socket
         self.address            = addr
         self.server             = server
         self.connection_handler = connection_handler
+        self.session_handler    = session_handler
         
         " Create new client dictionary "
         self.client = {
@@ -36,7 +37,7 @@ class Client:
         while True:
             try:
                 packet = PacketRead(self.socket)
-                Router.route(self.socket, packet, self.server, self.client, self.connection_handler)
+                Router.route(self.socket, packet, self.server, self.client, self.connection_handler, self.session_handler)
             except Exception as e:
                 print(e)
                 print(self.address, 'has disconnected')                

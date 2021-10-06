@@ -14,7 +14,7 @@ This method will link the incoming packet to the right controller
 Similar to backends seen in websites
 """
 
-def route(socket, packet, server, client, connection_handler):
+def route(socket, packet, server, client, connection_handler, session_handler):
 
     """
     If our client has no connected character with it, it means that the client is attempting to communicate with the server without

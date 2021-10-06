@@ -1,4 +1,4 @@
-from GameServer.Controllers import BoutLogin, Lobby, Shop, Guild, Friend, Inbox, Room, Character, Game, gifts, block
+from GameServer.Controllers import BoutLogin, Lobby, Shop, Guild, Friend, Inbox, Room, Character, Game, gifts, block, trade
 
 PACKET_NAME             = 0
 PACKET_HANDLER          = 1
@@ -46,6 +46,9 @@ PACKET_READ = {
     '692b': ('PACKET_SHOP_STORAGE_DRAW',        Shop.storage_action,        True),
     '702b': ('PACKET_SHOP_UNION_PARTS',         Shop.union_parts,           True),
     '722b': ('PACKET_SHOP_CHANGE_RACE',         Shop.change_race,           True),
+
+    '532b': ('PACKET_TRADE_REQUEST',            trade.trade_request,            False),
+    '392f': ('PACKET_TRADE_REQUEST_RESPONSE',   trade.trade_request_response,   False),
 
     '552b': ('PACKET_GUILD_CREATE',             Guild.Create,                   True),
     '562b': ('PACKET_GUILD_APPLY',              Guild.SendGuildApplication,     True),
