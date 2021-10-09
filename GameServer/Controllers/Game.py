@@ -35,9 +35,9 @@ def load_finish_rpc(**_args):
     # Get slot
     slot = Room.get_slot(_args, room)
 
-    # Check if file validation passed. If not, disconnect client now.
-    if not room['slots'][str(slot)]['file_validation_passed']:
-        return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
+    # # Check if file validation passed. If not, disconnect client now.
+    # if not room['slots'][str(slot)]['file_validation_passed']:
+    #     return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
 
     # Get slot and update loading status
     room['slots'][str(slot)]['loaded'] = True
