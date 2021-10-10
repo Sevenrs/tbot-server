@@ -1,4 +1,4 @@
-CLIENT_VERSION = '1.0.2.0'
+CLIENT_VERSION = '1.0.2.1'
 
 CLIENT_FILE_HASHES = [
     '923433565355ad4c1f3124f9ab76368d', # script/dungeon/dungeon.bin
