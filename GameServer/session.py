@@ -37,7 +37,11 @@ class Session:
     '''
     def broadcast(self, session, packet):
         for client in session['clients']:
-            client['socket'].send(packet)
+            try:
+                client['socket'].send(packet)
+            except Exception as e:
+                print('Could not perform session broadcast to remote client because: ', str(e))
+
 
     '''
     This method will destroy an existing session

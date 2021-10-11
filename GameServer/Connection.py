@@ -5,6 +5,7 @@ __version__ = "1.0"
 
 from Packet.Write import Write as PacketWrite
 from GameServer.Controllers.Room import remove_slot
+from GameServer.Controllers.trade import exit
 from relay_tcp_server import connection as relay_connection
 import socket
 
@@ -125,6 +126,10 @@ class Handler:
             if 'room' in client:
                 remove_slot(_args={'server': self.server, 'connection_handler': self}, room_id=client['room'],
                             client=client, reason=6)
+
+            # If the client is in a trade, end the trade session by invoking a exit request
+            if 'trade_session' in client:
+                exit(_args={'client': client, 'session_handler': self.server.session_handler})
 
             self.server.clients.remove(client)
             self.server.client_ids.remove(client['id'])
