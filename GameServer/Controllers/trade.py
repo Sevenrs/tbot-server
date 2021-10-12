@@ -344,8 +344,10 @@ def confirm_trade(**_args):
     else:
         session['data']['item_pool'][local_character_id] = {'items': [], 'currency_oil': 0, 'currency_gold': 0}
 
+        # Make the approved state False for every client (all clients to prevent scamming)
         # Completed will be set shortly, if we do it here we cause a conflict
-        session['data']['states'][local_character_id]['approved'] = False
+        for state in session['data']['states']:
+            session['data']['states'][state]['approved'] = False
 
         # Construct and send item state reset packet
         result = PacketWrite()
