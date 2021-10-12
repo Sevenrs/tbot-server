@@ -47,7 +47,7 @@ def trade_request(**_args):
     request.AddHeader(bytes=[0x53, 0x2B])
     request.AppendBytes(bytes=[0x0C, 0x00])
     request.AppendString(_args['client']['character']['name'], 15)
-    request.AppendString(remote_client['character']['name'], 15)
+    #request.AppendString(remote_client['character']['name'], 15)
     _args['session_handler'].broadcast(session, request.packet)
 
 '''
