@@ -105,7 +105,7 @@ def get_items(_args, character_id, mode = 'wearing', external_id=None):
     elif mode in ['inventory', 'stash', 'gifts']:
 
         # Default item range, where statement and SQL parameter to retrieve all items in the character's inventory.
-        item_range, where_statement, sql_parameter = 21, '`character_id` = %s', _args['client']['character']['id']
+        item_range, where_statement, sql_parameter = 21, '`character_id` = %s', character_id
 
         # If we are trying to obtain a stash, overwrite the item range and where statement
         # We want to obtain the stash ordered by ID with an offset, because an account can have multiple stashes.

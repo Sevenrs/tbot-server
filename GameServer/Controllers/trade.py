@@ -116,8 +116,8 @@ def trade_request_response(**_args):
                 session['data']['requester']['character']['id']:   pool_default.copy()      # Remote client's item pool
             },
             'states': {
-                _args['client']['character']['id']: state_default.copy(),                    # Our client's state
-                session['data']['requester']['character']['id']: state_default.copy()        # Remote client's state
+                _args['client']['character']['id']:                 state_default.copy(),   # Our client's state
+                session['data']['requester']['character']['id']:    state_default.copy()    # Remote client's state
             }
         }
     )
@@ -144,6 +144,19 @@ def get_session(client):
     return False
 
 '''
+This method will send a chat message in the trade chat
+'''
+def send_chat_message(_args, session, name, message):
+
+    # Construct response packet and broadcast to chat session
+    result = PacketWrite()
+    result.AddHeader([0x37, 0x27])
+    result.AppendString(name, 15)
+    result.AppendBytes([0x00, 0x00, 0x00, 0x00, 0x37, 0x00])
+    result.AppendString(message, 128)
+    _args['session_handler'].broadcast(session, result.packet)
+
+'''
 This method will handle trade chats by retrieving the message and then broadcasting it to the session
 '''
 def chat(**_args):
@@ -164,12 +177,10 @@ def chat(**_args):
         return
 
     # Construct response packet and broadcast to chat session
-    result = PacketWrite()
-    result.AddHeader([0x37, 0x27])
-    result.AppendString(_args['client']['character']['name'], 15)
-    result.AppendBytes([0x00, 0x00, 0x00, 0x00, 0x37, 0x00])
-    result.AppendString(message, 128)
-    _args['session_handler'].broadcast(session, result.packet)
+    send_chat_message(_args=_args,
+                      session=session,
+                      name=_args['client']['character']['name'],
+                      message=message)
 
 '''
 This method ls linked to the trade exit functionality and is invoked directly from a packet
@@ -204,6 +215,50 @@ def exit(_args):
     _args['session_handler'].destroy(session)
 
 '''
+This method obtains the remove character ID and returns it to the stack
+'''
+def get_remote_character_id(client, session):
+
+    # Initialize result
+    remote_character_id = None
+
+    # Retrieve all character IDs by looking at the item pool keys (they are indexed by character IDs)
+    for character_id in session['data']['item_pool'].keys():
+
+        # Retrieve the first ID that is not ours and use that
+        if int(character_id) != int(client['character']['id']):
+            remote_character_id = character_id
+            break
+
+    return remote_character_id
+
+
+'''
+This method sends the acceptance and completion state to all clients and syncs the state
+'''
+def sync_state(session):
+
+    for client in session['clients']:
+
+        # Retrieve remote character ID to obtain remote client's state
+        remote_character_id = get_remote_character_id(client, session)
+
+        # Construct state packet
+        result = PacketWrite()
+        result.AddHeader([0x36, 0x27])
+
+        # Add local state to the packet
+        result.AppendBytes([0x00 if not session['data']['states'][client['character']['id']]['completed'] else 0x01,
+                            0x00 if not session['data']['states'][client['character']['id']]['approved'] else 0x01])
+
+        # Add remote state to the packet
+        result.AppendBytes([0x00 if not session['data']['states'][remote_character_id]['completed'] else 0x01,
+                            0x00 if not session['data']['states'][remote_character_id]['approved'] else 0x01])
+
+        # Send state to the client
+        client['socket'].send(result.packet)
+
+'''
 This method will let users confirm their choices and notify the opposite client of their choice
 '''
 def confirm_trade(**_args):
@@ -233,6 +288,17 @@ def confirm_trade(**_args):
         item_2_slot = int(_args['packet'].ReadInteger(23, 4, 'little'))
         item_3_slot = int(_args['packet'].ReadInteger(27, 4, 'little'))
 
+        # Read currency amounts from packet
+        currency_gold   = int(_args['packet'].ReadInteger(31, 4, 'little'))
+        currency_oil    = int(_args['packet'].ReadInteger(35, 4, 'little'))
+
+        # Overwrite currencies with zero in case they exceed the available amount
+        if currency_gold > _args['client']['character']['currency_gigas']:
+            currency_gold = 0
+
+        if currency_oil > _args['client']['character']['currency_botstract']:
+            currency_oil = 0
+
         # Construct item array, for use in validation and the item pool
         item_slots = []
         for slot in [item_1_slot, item_2_slot, item_3_slot]:
@@ -258,12 +324,22 @@ def confirm_trade(**_args):
                 return
 
         # Retrieve our item pool and push the items and currency values to said pool
-        pool            = session['data']['item_pool'][local_character_id]
-        pool['items']   = item_slots
+        pool                    = session['data']['item_pool'][local_character_id]
+        pool['items']           = item_slots
+        pool['currency_gold']   = currency_gold
+        pool['currency_oil']    = currency_oil
 
-    # If completed, revert pool to default state
+    # If completed, revert pool and status to default state
     else:
-        session['data']['item_pool'][local_character_id] = {'items': [], 'currency_oil': 0, 'currency_gold': 0}
+        session['data']['item_pool'][local_character_id]    = {'items': [], 'currency_oil': 0, 'currency_gold': 0}
+        session['data']['states'][local_character_id]['approved'] = False # Completed will be set shortly, if we do it here we cause a conflict
+
+        # Construct and send item state reset packet
+        result = PacketWrite()
+        result.AddHeader([0x33, 0x27])
+        for _ in range(100):
+            result.AppendBytes([0x00])
+        _args['socket'].send(result.packet)
 
     # Mutate completed state, should be the opposite of the current state
     session['data']['states'][local_character_id]['completed'] = \
@@ -296,15 +372,12 @@ def confirm_trade(**_args):
             result.AppendInteger(local_inventory[item_slot]['duration'], 4, 'little')
             result.AppendInteger(local_inventory[item_slot]['duration_type'], 1, 'little')
 
-        result.AppendInteger(1, 4, 'little') # Gold
-        result.AppendInteger(2, 4, 'little') # Oil
+        # Send local currencies to client
+        result.AppendInteger(local_pool['currency_gold'], 4, 'little')
+        result.AppendInteger(local_pool['currency_oil'], 4, 'little')
 
         # Retrieve remote character ID
-        remote_character_id = None
-        for character_id in session['data']['item_pool'].keys():
-            if int(character_id) != int(client['character']['id']):
-                remote_character_id = character_id
-                break
+        remote_character_id = get_remote_character_id(client, session)
 
         # Retrieve remove inventory and item pool
         remote_inventory   = Character.get_items(_args, remote_character_id, 'inventory')
@@ -326,21 +399,112 @@ def confirm_trade(**_args):
             result.AppendInteger(remote_inventory[item_slot]['duration'], 4, 'little')
             result.AppendInteger(remote_inventory[item_slot]['duration_type'], 1, 'little')
 
-        result.AppendInteger(3, 4, 'little')
-        result.AppendInteger(4, 4, 'little')
+        # Send remote currencies to client
+        result.AppendInteger(remote_pool['currency_gold'], 4, 'little')
+        result.AppendInteger(remote_pool['currency_oil'], 4, 'little')
 
         # Send result packet to the client
         client['socket'].send(result.packet)
 
-        # Sync trade states between clients
-        result = PacketWrite()
-        result.AddHeader([0x36, 0x27])
+    # Sync trade state between clients
+    sync_state(session)
 
-        # Our local state
-        result.AppendBytes([0x00 if not session['data']['states'][client['character']['id']]['completed'] else 0x01,
-                            0x00 if not session['data']['states'][client['character']['id']]['approved'] else 0x01])
+'''
+This method allows users to approve or decline the remote transaction / pool
+'''
+def approve_transaction(**_args):
 
-        # Remote state
-        result.AppendBytes([0x00 if not session['data']['states'][remote_character_id]['completed'] else 0x01,
-                            0x00 if not session['data']['states'][remote_character_id]['approved'] else 0x01])
-        client['socket'].send(result.packet)
+    """
+    Check if our client is in a trade session before proceeding.
+    """
+    session = get_session(_args['client'])
+    if not session:
+        return
+
+    # If at least one client has not completed their item pool, drop the packet. Both clients need to be ready
+    # in order to approve a transaction.
+    for id in session['data']['states']:
+        if not session['data']['states'][id]['completed']:
+            return
+
+    # Mutate accepted state. If it is True, become False and vise versa.
+    session['data']['states'][_args['client']['character']['id']]['approved'] = \
+        not session['data']['states'][_args['client']['character']['id']]['approved']
+
+    # Sync state between the clients
+    sync_state(session)
+
+    # Check if all clients have approved the transaction
+    for id in session['data']['states']:
+        if not session['data']['states'][id]['approved']:
+            return
+
+    print('Both clients have accepted the transaction')
+
+    inventory_validation_passed = True # We'll need a boolean because we want to be able to check more inventories at the same time
+
+    # For every client in the session, check if they have enough inventory slots available for their incoming pool
+    for client in session['clients']:
+
+        # Retrieve incoming pool, this will be used to see how many slots we require
+        incoming_pool   = session['data']['item_pool'][get_remote_character_id(client, session)]
+        required_slots  = len(incoming_pool['items'])
+
+        # Retrieve our inventory
+        inventory = Character.get_items(_args, client['character']['id'], 'inventory')
+
+        # Calculate amount of available slots based on the inventory we just obtained
+        available_slots = len(session['data']['item_pool'][client['character']['id']]['items']) # The local item pool size will also be available
+        for item in inventory:
+            if inventory[item]['id'] == 0 and inventory[item]['character_item_id'] is None:
+                available_slots += 1
+
+        # If the required slots exceed the available slots, there is something wrong
+        if required_slots > available_slots:
+            send_chat_message(_args=_args,
+                              session=session,
+                              name='Server',
+                              message="{0} does not have enough available inventory slots for this transaction. {1} slot(s) are available while {2} {3} required.".format(
+                                  client['character']['name'],
+                                  available_slots,
+                                  required_slots,
+                                  'is' if required_slots == 1 else 'are'
+                              ))
+            inventory_validation_passed = False
+
+    # If the inventory validation failed for at least one client, do not proceed
+    if not inventory_validation_passed:
+        return
+
+    # Array containing the transactions
+    transactions = []
+
+    # Construct transaction array from the perspective of all present clients
+    for client in session['clients']:
+
+        # Retrieve local pool and inventory
+        pool        = session['data']['item_pool'][client['character']['id']]
+        inventory   = Character.get_items(_args, client['character']['id'], 'inventory')
+
+        # Construct item ID consisting of only character_item_id instances
+        items = []
+        for item in pool['items']:
+            items.append(inventory[item]['character_item_id'])
+
+        # Add to transactions array
+        transactions.append({
+            'to':       get_remote_character_id(client, session),
+            'items':    items,
+            'currencies': {
+                'currency_gold':    pool['currency_gold'],
+                'currency_oil':     pool['currency_oil']
+            }
+        })
+
+    print(transactions)
+
+    # empty the inventory slots (pool slots)
+
+    # perform transaction (loop through that transaction object)
+
+    # be done and smile (figure out the packet btw)

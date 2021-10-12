@@ -50,6 +50,7 @@ PACKET_READ = {
     '532b': ('PACKET_TRADE_REQUEST',            trade.trade_request,            False),
     '392f': ('PACKET_TRADE_REQUEST_RESPONSE',   trade.trade_request_response,   False),
     '3127': ('PACKET_TRADE_CONFIRM',            trade.confirm_trade,            True),
+    '3227': ('PACKET_TRADE_APPROVE',            trade.approve_transaction,      True),
     '3427': ('PACKET_TRADE_EXIT',               trade.exit_rpc,                 False),
     '3727': ('PACKET_TRADE_CHAT',               trade.chat,                     False),
 
