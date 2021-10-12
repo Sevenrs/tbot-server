@@ -97,7 +97,11 @@ def trade_request_response(**_args):
         remote_result.AddHeader(bytes=[0x28, 0x2F]) # For some reason T-Bot broke the regular trade denied packet
                                                     # so we're using the friend request response packet instead.
         remote_result.AppendBytes(bytes=[0x00, 0x1E])
-        return session['data']['requester']['socket'].send(remote_result.packet)
+        try:
+            session['data']['requester']['socket'].send(remote_result.packet)
+        except Exception as e:
+            print('Failed to send trade request denied packet to remote client because: ', str(e))
+        return
 
     # Construct default item and currency pool
     pool_default    = {'items': [], 'currency_oil': 0, 'currency_gold': 0}
@@ -130,7 +134,10 @@ def trade_request_response(**_args):
     result.AppendBytes(bytes=[0x01, 0x00, 0x01, 0x00])
     result.AppendString(_args['client']['character']['name'], 15)
     result.AppendString(session['data']['requester']['character']['name'], 15)
-    session['data']['requester']['socket'].send(result.packet)
+    try:
+        session['data']['requester']['socket'].send(result.packet)
+    except Exception as e:
+        print('Failed to send trade initialization packet to remove client because: ', str(e))
 
 '''
 This method will retrieve the trade session from a specific given client.
@@ -256,7 +263,10 @@ def sync_state(session):
                             0x00 if not session['data']['states'][remote_character_id]['approved'] else 0x01])
 
         # Send state to the client
-        client['socket'].send(result.packet)
+        try:
+            client['socket'].send(result.packet)
+        except Exception as e:
+            print('Failed to send sync_state() result to client because: ', str(e))
 
 '''
 This method will let users confirm their choices and notify the opposite client of their choice
@@ -404,7 +414,10 @@ def confirm_trade(**_args):
         result.AppendInteger(remote_pool['currency_oil'], 4, 'little')
 
         # Send result packet to the client
-        client['socket'].send(result.packet)
+        try:
+            client['socket'].send(result.packet)
+        except Exception as e:
+            print('Failed to send pool sync packet result to client because: ', str(e))
 
     # Sync trade state between clients
     sync_state(session)
@@ -438,8 +451,6 @@ def approve_transaction(**_args):
     for id in session['data']['states']:
         if not session['data']['states'][id]['approved']:
             return
-
-    print('Both clients have accepted the transaction')
 
     inventory_validation_passed = True # We'll need a boolean because we want to be able to check more inventories at the same time
 
@@ -501,10 +512,112 @@ def approve_transaction(**_args):
             }
         })
 
-    print(transactions)
+        # If the currency_gold or currency_oil is greater than 0, update local state and character
+        if pool['currency_gold'] > 0 or pool['currency_oil'] > 0:
 
-    # empty the inventory slots (pool slots)
+            # Update local state
+            client['character']['currency_gigas']       = (client['character']['currency_gigas']        - pool['currency_gold'])
+            client['character']['currency_botstract']   = (client['character']['currency_botstract']    - pool['currency_oil'])
 
-    # perform transaction (loop through that transaction object)
+            # Update character
+            _args['mysql'].execute('''UPDATE `characters` SET
+                    `currency_gigas`        = (`currency_gigas`     - %s),
+                    `currency_botstract`    = (`currency_botstract` - %s)
+                WHERE `id` = %s''', [
+                    pool['currency_gold'],
+                    pool['currency_oil'],
+                    client['character']['id']
+                ])
 
-    # be done and smile (figure out the packet btw)
+    # Empty inventory based on the item pool
+    for character_id in session['data']['item_pool'].keys():
+
+        # Retrieve item pool slot numbers
+        slot_numbers = session['data']['item_pool'][character_id]['items']
+
+        # Construct SET statement
+        set_statement = ''
+        for number in slot_numbers:
+            set_statement += '`item_{0}` = 0, '.format(str(number + 1))
+
+        # Perform inventory clean-up, but only if the set_statement is actually set
+        if len(set_statement) > 0:
+            _args['mysql'].execute('''UPDATE `inventory` SET {0} WHERE `character_id` = %s'''.format(set_statement[:-2]), [
+                character_id
+            ])
+
+    # Reset item pools
+    for pool in session['data']['item_pool']:
+        session['data']['item_pool'][pool] = {'items': [], 'currency_oil': 0, 'currency_gold': 0}
+
+    # Reset states
+    for state in session['data']['states']:
+        session['data']['states'][state]['completed']   = False
+        session['data']['states'][state]['approved']    = False
+
+    # Perform transactions
+    for transaction in transactions:
+        for item in transaction['items']:
+
+            # Retrieve inventory and first available slot
+            inventory       = Character.get_items(_args, transaction['to'], 'inventory')
+            available_slot  = Character.get_available_inventory_slot(inventory)
+
+            # Insert item in inventory
+            if available_slot is not None:
+                _args['mysql'].execute('''UPDATE `inventory` SET `item_{0}` = %s WHERE `character_id` = %s'''.format(
+                    str(available_slot + 1)), [ item, transaction['to']]
+                )
+
+        # Update character to accept the currency (if any)
+        if transaction['currencies']['currency_gold'] > 0 or transaction['currencies']['currency_oil'] > 0:
+            _args['mysql'].execute('''UPDATE `characters` SET
+                                                            `currency_gigas`        = (`currency_gigas` + %s),
+                                                            `currency_botstract`    = (`currency_botstract` + %s)
+                WHERE `id` = %s''', [
+                    transaction['currencies']['currency_gold'],
+                    transaction['currencies']['currency_oil'],
+                    transaction['to']
+                ])
+
+            # Find target client and update currency states
+            for client in session['clients']:
+                if client['character']['id'] == transaction['to']:
+                    client['character']['currency_gigas']       += transaction['currencies']['currency_gold']
+                    client['character']['currency_botstract']   += transaction['currencies']['currency_oil']
+                    break
+
+    # Send inventory sync packet for every client in the session
+    for client in session['clients']:
+
+        # Construct inventory sync packet
+        result = PacketWrite()
+        result.AddHeader([0x33, 0x27])
+        result.AppendBytes([0x01, 0x00, 0x00, 0x00])
+
+        # Retrieve inventory
+        inventory = Character.get_items(_args, client['character']['id'], 'inventory')
+
+        # Append inventory items to the packet
+        for item in inventory:
+            result.AppendInteger(inventory[item]['id'], 4, 'little')
+            result.AppendInteger(inventory[item]['duration'], 4, 'little')
+            result.AppendInteger(inventory[item]['duration_type'], 1, 'little')
+
+        for _ in range(180):
+            result.AppendBytes([0x00])
+
+        # Send currency amounts
+        result.AppendInteger(client['character']['currency_gigas'], 4, 'little')
+        result.AppendInteger(client['character']['currency_botstract'], 4, 'little')
+
+        try:
+            client['socket'].send(result.packet)
+        except Exception as e:
+            print('Failed to send inventory sync packet to client because: ', str(e))
+
+    # Send transaction success message
+    send_chat_message(_args=_args,
+                      session=session,
+                      name='Server',
+                      message='Transaction successful!')
