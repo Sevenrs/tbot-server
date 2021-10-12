@@ -310,18 +310,19 @@ def confirm_trade(**_args):
             currency_oil = 0
 
         # Construct item array, for use in validation and the item pool
-        item_slots = []
+        item_slots, validation_slots = [], []
         for slot in [item_1_slot, item_2_slot, item_3_slot]:
 
-            # If the slot number is higher than 19 (actually 20, but 0 counts too), skip iteration.
-            # The item was not provided in this case.
-            if slot > 19:
-                continue
+            # If the slot number is higher than 19 (aka none), append None else append the slot number
+            slot_nr = None if slot > 19 else slot
 
-            item_slots.append(slot)
+            # Append slot to item slots and if it is not None, append to duplication check array
+            item_slots.append(slot_nr)
+            if slot_nr is not None:
+                validation_slots.append(slot)
 
-        # Check against duplicate item slot numbers. We will be dropping the packet if a duplicate ia detected.
-        if len(set(item_slots)) != len(item_slots):
+        # Check against duplicate item slot numbers. We will be dropping the packet if a duplicate is detected.
+        if len(set(validation_slots)) != len(validation_slots):
             return
 
         # Retrieve our inventory
@@ -329,7 +330,7 @@ def confirm_trade(**_args):
 
         # Check if all slots are actually in the inventory.
         # Drop the packet if this is not the case.
-        for slot in item_slots:
+        for slot in validation_slots:
             if slot not in inventory:
                 return
 
@@ -341,8 +342,10 @@ def confirm_trade(**_args):
 
     # If completed, revert pool and status to default state
     else:
-        session['data']['item_pool'][local_character_id]    = {'items': [], 'currency_oil': 0, 'currency_gold': 0}
-        session['data']['states'][local_character_id]['approved'] = False # Completed will be set shortly, if we do it here we cause a conflict
+        session['data']['item_pool'][local_character_id] = {'items': [], 'currency_oil': 0, 'currency_gold': 0}
+
+        # Completed will be set shortly, if we do it here we cause a conflict
+        session['data']['states'][local_character_id]['approved'] = False
 
         # Construct and send item state reset packet
         result = PacketWrite()
@@ -370,7 +373,7 @@ def confirm_trade(**_args):
         for i in range(1, 4):
 
             # If the item wasn't found, append 9 null bytes (indicating that there is no item)
-            if i > len(local_pool['items']) or local_pool['items'][i - 1] not in local_inventory:
+            if i > len(local_pool['items']) or local_pool['items'][i - 1] is None or local_pool['items'][i - 1] not in local_inventory:
                 result.AppendBytes([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]) # No item
                 continue
 
@@ -397,7 +400,7 @@ def confirm_trade(**_args):
         for i in range(1, 4):
 
             # If the item wasn't found, append 9 null bytes (indicating that there is no item)
-            if i > len(remote_pool['items']) or remote_pool['items'][i - 1] not in remote_inventory:
+            if i > len(remote_pool['items']) or remote_pool['items'][i - 1] is None or remote_pool['items'][i - 1] not in remote_inventory:
                 result.AppendBytes([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])  # No item
                 continue
 
@@ -459,13 +462,14 @@ def approve_transaction(**_args):
 
         # Retrieve incoming pool, this will be used to see how many slots we require
         incoming_pool   = session['data']['item_pool'][get_remote_character_id(client, session)]
-        required_slots  = len(incoming_pool['items'])
+        required_slots  = len([i for i in incoming_pool['items'] if i is not None]) # Calculate pool length, ignoring None instances
 
         # Retrieve our inventory
         inventory = Character.get_items(_args, client['character']['id'], 'inventory')
 
         # Calculate amount of available slots based on the inventory we just obtained
-        available_slots = len(session['data']['item_pool'][client['character']['id']]['items']) # The local item pool size will also be available
+        # The local item pool size will also be available
+        available_slots = len([i for i in session['data']['item_pool'][client['character']['id']]['items'] if i is not None])
         for item in inventory:
             if inventory[item]['id'] == 0 and inventory[item]['character_item_id'] is None:
                 available_slots += 1
@@ -500,7 +504,8 @@ def approve_transaction(**_args):
         # Construct item ID consisting of only character_item_id instances
         items = []
         for item in pool['items']:
-            items.append(inventory[item]['character_item_id'])
+            if item is not None:
+                items.append(inventory[item]['character_item_id'])
 
         # Add to transactions array
         transactions.append({
@@ -538,6 +543,11 @@ def approve_transaction(**_args):
         # Construct SET statement
         set_statement = ''
         for number in slot_numbers:
+
+            # Do not parse None items
+            if number is None:
+                continue
+
             set_statement += '`item_{0}` = 0, '.format(str(number + 1))
 
         # Perform inventory clean-up, but only if the set_statement is actually set
