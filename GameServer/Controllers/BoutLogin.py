@@ -253,3 +253,7 @@ We should update the last ping time
 '''
 def pong(**_args):
     _args['client']['last_ping'] = datetime.datetime.now()
+
+    # Additionally, if the relay tcp client is still alive then we can update its last ping timestamp as well
+    if 'relay_client' in _args['client']:
+        _args['client']['relay_client']['last_ping'] = datetime.datetime.now()
