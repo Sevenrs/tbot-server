@@ -42,6 +42,11 @@ def trade_request(**_args):
         expires_after   = 12
     )
 
+    request = PacketWrite()
+    request.AddHeader(bytes=[0x39, 0x2F])
+    request.AppendBytes(bytes=[0x00, 0x04])
+    _args['session_handler'].broadcast(session, request.packet)
+
     # Create trade request packet and send it to the remote client
     request = PacketWrite()
     request.AddHeader(bytes=[0x53, 0x2B])
