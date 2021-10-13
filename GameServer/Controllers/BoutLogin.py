@@ -70,6 +70,7 @@ def id_request(**_args):
     _args['client']['new']          = True
     _args['client']['lobby_data']   = {'mode': 0, 'page': 0}
     _args['client']['last_ping']    = datetime.datetime.now()
+    _args['client']['ip_address']   = _args['socket'].getpeername()[0]
 
     # Disconnect all connected sessions with this account name (to stop two or more clients with the same account)
     for session in _args['connection_handler'].GetClients():
@@ -231,7 +232,9 @@ def ping(_args):
     while _args['client'] in _args['server'].clients:
 
         # If the amount of seconds between now and the last ping exceeds 90, disconnect the client
-        if (datetime.datetime.now() - _args['client']['last_ping']).total_seconds() >= 90:
+        # In addition to this, we want to disconnect a client that has changed IPs
+        if (datetime.datetime.now() - _args['client']['last_ping']).total_seconds() >= 90\
+                or _args['socket'].getpeername()[0] != _args['client']['ip_address']:
             return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
 
         # Send ping packet and wait 3 seconds
