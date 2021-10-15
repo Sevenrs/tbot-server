@@ -12,8 +12,7 @@ from GameServer.Controllers.data.military import MILITARY_BASE
 from GameServer.Controllers.data.client import CLIENT_FILE_HASHES
 from GameServer.Controllers.data.game import *
 from GameServer.Controllers.Character import get_items, add_item, get_available_inventory_slot, remove_expired_items
-from GameServer.Controllers import Lobby
-from GameServer.Controllers import Room
+from GameServer.Controllers import Lobby, Room, Guild
 import MySQL.Interface as MySQL
 import random, time, datetime, _thread
 
@@ -949,6 +948,18 @@ def post_game_transaction(_args, room):
             'level': character['level'],
             'points': slot['points']
         }
+
+        # Calculate and award guild points if character is in a guild
+        if Guild.FetchGuild(_args, character['id']) is not None:
+
+            # Calculate guild points based on the amount of experience and rank experience
+            guild_points = int((addition_experience * .70) + (addition_rank_experience * 1.25))
+
+            # Update guild points for this member
+            _args['mysql'].execute('''UPDATE `guild_members` SET `points` = (`points` + %s) WHERE `character_id` = %s''', [
+                guild_points,
+                character['id']
+            ])
 
         # In case the room game type is either Battle or Team Battle, we'll have to display experience as rank experience
         # This is because the client uses the rank experience result screen for Battle too, instead of the traditional one.

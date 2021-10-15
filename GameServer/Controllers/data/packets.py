@@ -1,4 +1,6 @@
-from GameServer.Controllers import BoutLogin, Lobby, Shop, Guild, Friend, Inbox, Room, Character, Game, gifts, block, trade
+from GameServer.Controllers import \
+    BoutLogin, Lobby, Shop, Guild, Friend, Inbox,\
+    Room, Character, Game, gifts, block, trade, myinfo
 
 PACKET_NAME             = 0
 PACKET_HANDLER          = 1
@@ -46,6 +48,8 @@ PACKET_READ = {
     '692b': ('PACKET_SHOP_STORAGE_DRAW',        Shop.storage_action,        True),
     '702b': ('PACKET_SHOP_UNION_PARTS',         Shop.union_parts,           True),
     '722b': ('PACKET_SHOP_CHANGE_RACE',         Shop.change_race,           True),
+
+    'fb2a': ('PACKET_MYINFO_DELETE_BOT',        myinfo.delete_character,    True),
 
     '532b': ('PACKET_TRADE_REQUEST',            trade.trade_request,            False),
     '392f': ('PACKET_TRADE_REQUEST_RESPONSE',   trade.trade_request_response,   False),

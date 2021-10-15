@@ -41,26 +41,6 @@ def Chat(**_args):
     chat_message = "[{0}] {1}".format(_args['client']['character']['name'], message[message.find(']') + 2:])
     chat_type = _args['packet'].GetByte(4)
 
-    command_msg = message[message.find(']') + 2:]
-    if command_msg[0:11] == '@changeslot':
-
-        # Drop invalid ranges
-        if int(command_msg[12]) < 1 or int(command_msg[12]) > 2:
-            return
-
-        _args['mysql'].execute('UPDATE `users` SET `active_bot_slot` = (%s - 1) WHERE `username` = %s', [
-            command_msg[12],
-            _args['client']['account']
-        ])
-
-        # try to kick the user to the channel list, to make sure that works
-        exit = PacketWrite()
-        exit.AddHeader(bytearray([0x0A, 0x2F]))
-        exit.AppendBytes(bytearray([0x01, 0x00]))
-        _args['socket'].send(exit.packet)
-        _args['connection_handler'].CloseConnection(_args['client'])
-        return
-
     if int(chat_type) == 5:
         Guild.Chat(_args, message)
     else:

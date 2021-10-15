@@ -1,0 +1,91 @@
+#!/usr/bin/env python3
+__author__ = "Icseon"
+
+from Packet.Write import Write as PacketWrite
+from GameServer.Controllers import Guild, Character
+
+'''
+This method will delete our client's character entirely
+'''
+def delete_character(**_args):
+
+    # Construct result packet
+    result = PacketWrite()
+    result.AddHeader([0xE3, 0x2E])
+
+    # If we are in a guild, we can not delete the bot
+    if Guild.FetchGuild(_args, _args['client']['character']['id']) is not None:
+        result.AppendBytes([0x00, 0xC4])
+        return _args['socket'].send(result.packet)
+
+    # Retrieve inventory and wearing items for this character
+    inventory   = Character.get_items(_args, _args['client']['character']['id'], 'inventory')
+    wearing     = Character.get_items(_args, _args['client']['character']['id'], 'wearing')
+
+    # Check if we are wearing coin items (if type in field_pack coin_head coin_minibot or duration type = 1)
+    for item in wearing['items']:
+        if wearing['items'][item]['type'] in ['field_pack', 'coin_head', 'coin_minibot'] \
+            or wearing['items'][item]['duration_type'] == 1:
+            result.AppendBytes([0x00, 0xC4])
+            return _args['socket'].send(result.packet)
+
+    # Append all inventory items to the item id array
+    item_ids = []
+    for item in inventory:
+        if inventory[item]['character_item_id'] is not None:
+            item_ids.append(inventory[item]['character_item_id'])
+
+    # Append all wearing items to the item id array
+    for item in wearing['items']:
+        if wearing['items'][item]['character_item_id'] is not None:
+            item_ids.append(wearing['items'][item]['character_item_id'])
+
+    # Remove all IDs from character_items
+    in_statement = ''
+    for id in item_ids:
+        in_statement+="{0}, ".format(str(id))
+
+    # If the in statement has a length greater than 0, delete all of its IDs
+    if len(in_statement) > 0:
+        _args['mysql'].execute('''DELETE FROM `character_items` WHERE `id` IN ({0})'''.format(in_statement[:-2]))
+
+    # Run deletion queries
+    queries = [
+
+        # Delete character inventory
+        'DELETE FROM `inventory` WHERE `character_id` = %s',
+
+        # Remove character's wearing items
+        'DELETE FROM `character_wearing` WHERE `character_id` = %s',
+
+        # Delete incoming gift items for this character
+        'DELETE FROM `character_items` WHERE `id` IN (SELECT `item_1` FROM `gifts` WHERE `receiver` = %s AND `type` = 0)',
+
+        # Delete incoming gifts for this character
+        'DELETE FROM `gifts` WHERE `receiver` = %s',
+
+        # Delete incoming messages for this character
+        'DELETE FROM `inbox` WHERE `receiver_character_id` = %s',
+
+        # Remove blocked users
+        'DELETE FROM `blocked` WHERE `blocker` = %s',
+
+        # Delete character
+        'DELETE FROM `characters` WHERE `id` = %s'
+    ]
+
+    for query in queries:
+        _args['mysql'].execute(query, [_args['client']['character']['id']])
+
+    # Remove friendships. We are doing that separately because there are two possible WHERE conditions
+    _args['mysql'].execute('''DELETE FROM `friends` WHERE (`character_id_1` = %s OR `character_id_2` = %s)''', [
+        _args['client']['character']['id'],
+        _args['client']['character']['id']
+    ])
+
+    # Finalize the result packet and send to the client
+    result.AppendBytes([0x01, 0x00])
+    _args['socket'].send(result.packet)
+
+    # Close connection
+    _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)

@@ -29,7 +29,7 @@ def id_request(**_args):
 
     # Get user from the database
     _args['mysql'].execute(
-        'SELECT `id`, `username`, `active_bot_slot` FROM `users` WHERE `username` = %s AND `banned` = 0 AND `last_ip` = %s',
+        'SELECT `id`, `username` FROM `users` WHERE `username` = %s AND `banned` = 0 AND `last_ip` = %s',
         [
             account,
             _args['socket'].getpeername()[0]
@@ -65,12 +65,11 @@ def id_request(**_args):
     _args['client']['id']           = id
     _args['client']['account']      = user['username']
     _args['client']['account_id']   = user['id']
-    _args['client']['account_data'] = {'bot_slot': user['active_bot_slot'], 'id': user['id']}
+    _args['client']['account_data'] = {'id': user['id']}
     _args['client']['character']    = None
     _args['client']['new']          = True
     _args['client']['lobby_data']   = {'mode': 0, 'page': 0}
     _args['client']['last_ping']    = datetime.datetime.now()
-    _args['client']['ip_address']   = _args['socket'].getpeername()[0]
 
     # Disconnect all connected sessions with this account name (to stop two or more clients with the same account)
     for session in _args['connection_handler'].GetClients():
@@ -111,11 +110,10 @@ This method will obtain the character and return it to the client
 def get_character(**_args):
     print('Character request for', _args['client']['account'])
     
-    # Check if we have a bot in the active slot (or have a character, at all)
+    # Check if we have a character for this account
     _args['mysql'].execute("""SELECT `character`.* FROM `characters` `character` WHERE character.user_id = %s
-                    ORDER BY `character`.`id` ASC LIMIT 1 OFFSET %s""", [
-        _args['client']['account_data']['id'],
-        _args['client']['account_data']['bot_slot']
+            ORDER BY `character`.`id` ASC LIMIT 1""", [
+        _args['client']['account_data']['id']
     ])
     
     # Fetch character row
@@ -171,8 +169,8 @@ def create_character(**_args):
     
     # Check if there's already a character connected to this account
     _args['mysql'].execute('SELECT `id` FROM `characters` WHERE `user_id` = %s', [user['id']])
-    if _args['mysql'].rowcount > 1:
-        raise Exception('User attempted to create a character while already having the maximum amount of allowed characters')
+    if _args['mysql'].rowcount > 0:
+        raise Exception('User attempted to create a character while already having a character')
     
     # Check the character type is between 1 and 3
     elif character_type < 1 or character_type > 3:
@@ -232,9 +230,7 @@ def ping(_args):
     while _args['client'] in _args['server'].clients:
 
         # If the amount of seconds between now and the last ping exceeds 90, disconnect the client
-        # In addition to this, we want to disconnect a client that has changed IPs
-        if (datetime.datetime.now() - _args['client']['last_ping']).total_seconds() >= 90\
-                or _args['socket'].getpeername()[0] != _args['client']['ip_address']:
+        if (datetime.datetime.now() - _args['client']['last_ping']).total_seconds() >= 90:
             return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
 
         # Send ping packet and wait 3 seconds
