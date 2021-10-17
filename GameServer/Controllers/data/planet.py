@@ -451,8 +451,8 @@ PLANET_BOX_MOBS = {
         49,
         50,
         61,
+        69,
         70,
-        72,
         89,
         90,
         83 # Boss
@@ -938,27 +938,21 @@ PLANET_DROPS = {
         ],
 
         BOX_HEAD: [
-            (1010101, 0.50),  # HammererCRT(+1) — CrossgearMIS(+1) — ChainShellSP(+1)
-            (1010102, 0.20),  # HammererCRT(+2) — CrossgearMIS(+2) — ChainShellSP(+2)
-            (1010103, 0.15),  # HammererCRT(+3) — CrossgearMIS(+3) — ChainShellSP(+3)
-            (1010104, 0.10),  # HammererCRT(+4) — CrossgearMIS(+4) — ChainShellSP(+4)
-            (1010105, 0.05),  # HammererCRT(+5) — CrossgearMIS(+5) — ChainShellSP(+5)
+            (1010101, 0.60),  # HammererCRT(+1) — CrossgearMIS(+1) — ChainShellSP(+1)
+            (1010102, 0.30),  # HammererCRT(+2) — CrossgearMIS(+2) — ChainShellSP(+2)
+            (1010103, 0.10)   # HammererCRT(+3) — CrossgearMIS(+3) — ChainShellSP(+3)
         ],
 
         BOX_BODY: [
-            (1020101, 0.50),  # HammererCRT(+1) — CrossgearBST(+1) — ChainShellMX(+1)
-            (1020102, 0.20),  # HammererCRT(+2) — CrossgearBST(+2) — ChainShellMX(+2)
-            (1020103, 0.15),  # HammererCRT(+3) — CrossgearBST(+3) — ChainShellMX(+3)
-            (1020104, 0.10),  # HammererCRT(+4) — CrossgearBST(+4) — ChainShellMX(+4)
-            (1020105, 0.05),  # HammererCRT(+5) — CrossgearBST(+5) — ChainShellMX(+5)
+            (1020101, 0.60),  # HammererCRT(+1) — CrossgearBST(+1) — ChainShellMX(+1)
+            (1020102, 0.30),  # HammererCRT(+2) — CrossgearBST(+2) — ChainShellMX(+2)
+            (1020103, 0.10)   # HammererCRT(+3) — CrossgearBST(+3) — ChainShellMX(+3)
         ],
 
         BOX_ARMS: [
-            (1030101, 0.50),  # HammererTD(+1) — CrossgearGUN(+1) — ChainShellTG(+1)
-            (1030102, 0.20),  # HammererTD(+2) — CrossgearGUN(+2) — ChainShellTG(+2)
-            (1030103, 0.15),  # HammererTD(+3) — CrossgearGUN(+3) — ChainShellTG(+3)
-            (1030104, 0.10),  # HammererTD(+4) — CrossgearGUN(+4) — ChainShellTG(+4)
-            (1030105, 0.05),  # HammererTD(+5) — CrossgearGUN(+5) — ChainShellTG(+5)
+            (1030101, 0.60),  # HammererTD(+1) — CrossgearGUN(+1) — ChainShellTG(+1)
+            (1030102, 0.30),  # HammererTD(+2) — CrossgearGUN(+2) — ChainShellTG(+2)
+            (1030103, 0.10)   # HammererTD(+3) — CrossgearGUN(+3) — ChainShellTG(+3)
         ]
     },
 
@@ -989,27 +983,21 @@ PLANET_DROPS = {
         ],
 
         BOX_HEAD: [
-            (1010101, 0.50),  # HammererCRT(+1) — CrossgearMIS(+1) — ChainShellSP(+1)
-            (1010102, 0.20),  # HammererCRT(+2) — CrossgearMIS(+2) — ChainShellSP(+2)
-            (1010103, 0.15),  # HammererCRT(+3) — CrossgearMIS(+3) — ChainShellSP(+3)
-            (1010104, 0.10),  # HammererCRT(+4) — CrossgearMIS(+4) — ChainShellSP(+4)
-            (1010105, 0.05),  # HammererCRT(+5) — CrossgearMIS(+5) — ChainShellSP(+5)
+            (1010101, 0.60),  # HammererCRT(+1) — CrossgearMIS(+1) — ChainShellSP(+1)
+            (1010102, 0.30),  # HammererCRT(+2) — CrossgearMIS(+2) — ChainShellSP(+2)
+            (1010103, 0.10)   # HammererCRT(+3) — CrossgearMIS(+3) — ChainShellSP(+3)
         ],
 
         BOX_BODY: [
-            (1020101, 0.50),  # HammererCRT(+1) — CrossgearBST(+1) — ChainShellMX(+1)
-            (1020102, 0.20),  # HammererCRT(+2) — CrossgearBST(+2) — ChainShellMX(+2)
-            (1020103, 0.15),  # HammererCRT(+3) — CrossgearBST(+3) — ChainShellMX(+3)
-            (1020104, 0.10),  # HammererCRT(+4) — CrossgearBST(+4) — ChainShellMX(+4)
-            (1020105, 0.05),  # HammererCRT(+5) — CrossgearBST(+5) — ChainShellMX(+5)
+            (1020101, 0.60),  # HammererCRT(+1) — CrossgearBST(+1) — ChainShellMX(+1)
+            (1020102, 0.30),  # HammererCRT(+2) — CrossgearBST(+2) — ChainShellMX(+2)
+            (1020103, 0.15)   # HammererCRT(+3) — CrossgearBST(+3) — ChainShellMX(+3)
         ],
 
         BOX_ARMS: [
-            (1030101, 0.50),  # HammererTD(+1) — CrossgearGUN(+1) — ChainShellTG(+1)
-            (1030102, 0.20),  # HammererTD(+2) — CrossgearGUN(+2) — ChainShellTG(+2)
-            (1030103, 0.15),  # HammererTD(+3) — CrossgearGUN(+3) — ChainShellTG(+3)
-            (1030104, 0.10),  # HammererTD(+4) — CrossgearGUN(+4) — ChainShellTG(+4)
-            (1030105, 0.05),  # HammererTD(+5) — CrossgearGUN(+5) — ChainShellTG(+5)
+            (1030101, 0.60),  # HammererTD(+1) — CrossgearGUN(+1) — ChainShellTG(+1)
+            (1030102, 0.30),  # HammererTD(+2) — CrossgearGUN(+2) — ChainShellTG(+2)
+            (1030103, 0.10)   # HammererTD(+3) — CrossgearGUN(+3) — ChainShellTG(+3)
         ]
     },
 
@@ -1050,27 +1038,21 @@ PLANET_DROPS = {
         ],
 
         BOX_HEAD: [
-            (1010201, 0.50),  # SpikeyCRT(+1) — Lea-ClawMIS(+1) — TweezerHeadSP(+1)
-            (1010202, 0.20),  # SpikeyCRT(+2) — Lea-ClawMIS(+2) — TweezerHeadSP(+2)
-            (1010203, 0.15),  # SpikeyCRT(+3) — Lea-ClawMIS(+3) — TweezerHeadSP(+3)
-            (1010204, 0.10),  # SpikeyCRT(+4) — Lea-ClawMIS(+4) — TweezerHeadSP(+4)
-            (1010205, 0.05),  # SpikeyCRT(+5) — Lea-ClawMIS(+5) — TweezerHeadSP(+5)
+            (1010201, 0.60),  # SpikeyCRT(+1) — Lea-ClawMIS(+1) — TweezerHeadSP(+1)
+            (1010202, 0.30),  # SpikeyCRT(+2) — Lea-ClawMIS(+2) — TweezerHeadSP(+2)
+            (1010203, 0.10)   # SpikeyCRT(+3) — Lea-ClawMIS(+3) — TweezerHeadSP(+3)
         ],
 
         BOX_BODY: [
-            (1020201, 0.50),  # SpikeyTA(+1) — Lea-ClawBST(+1) — TweezerHeadMX(+1)
-            (1020202, 0.20),  # SpikeyTA(+2) — Lea-ClawBST(+2) — TweezerHeadMX(+2)
-            (1020203, 0.15),  # SpikeyTA(+3) — Lea-ClawBST(+3) — TweezerHeadMX(+3)
-            (1020204, 0.10),  # SpikeyTA(+4) — Lea-ClawBST(+4) — TweezerHeadMX(+4)
-            (1020205, 0.05),  # SpikeyTA(+5) — Lea-ClawBST(+5) — TweezerHeadMX(+5)
+            (1020201, 0.60),  # SpikeyTA(+1) — Lea-ClawBST(+1) — TweezerHeadMX(+1)
+            (1020202, 0.30),  # SpikeyTA(+2) — Lea-ClawBST(+2) — TweezerHeadMX(+2)
+            (1020203, 0.10)   # SpikeyTA(+3) — Lea-ClawBST(+3) — TweezerHeadMX(+3)
         ],
 
         BOX_ARMS: [
-            (1030201, 0.50),  # SpikeyTD(+1) — Lea-ClawGUN(+1) — TweezerHeadTG(+1)
-            (1030202, 0.20),  # SpikeyTD(+2) — Lea-ClawGUN(+2) — TweezerHeadTG(+2)
-            (1030203, 0.15),  # SpikeyTD(+3) — Lea-ClawGUN(+3) — TweezerHeadTG(+3)
-            (1030204, 0.10),  # SpikeyTD(+4) — Lea-ClawGUN(+4) — TweezerHeadTG(+4)
-            (1030205, 0.05),  # SpikeyTD(+5) — Lea-ClawGUN(+5) — TweezerHeadTG(+5)
+            (1030201, 0.60),  # SpikeyTD(+1) — Lea-ClawGUN(+1) — TweezerHeadTG(+1)
+            (1030202, 0.30),  # SpikeyTD(+2) — Lea-ClawGUN(+2) — TweezerHeadTG(+2)
+            (1030203, 0.10)   # SpikeyTD(+3) — Lea-ClawGUN(+3) — TweezerHeadTG(+3)
         ]
     },
 
@@ -1108,27 +1090,21 @@ PLANET_DROPS = {
         ],
 
         BOX_HEAD: [
-            (1010201, 0.50),  # SpikeyCRT(+1) — Lea-ClawMIS(+1) — TweezerHeadSP(+1)
-            (1010202, 0.20),  # SpikeyCRT(+2) — Lea-ClawMIS(+2) — TweezerHeadSP(+2)
-            (1010203, 0.15),  # SpikeyCRT(+3) — Lea-ClawMIS(+3) — TweezerHeadSP(+3)
-            (1010204, 0.10),  # SpikeyCRT(+4) — Lea-ClawMIS(+4) — TweezerHeadSP(+4)
-            (1010205, 0.05),  # SpikeyCRT(+5) — Lea-ClawMIS(+5) — TweezerHeadSP(+5)
+            (1010201, 0.60),  # SpikeyCRT(+1) — Lea-ClawMIS(+1) — TweezerHeadSP(+1)
+            (1010202, 0.30),  # SpikeyCRT(+2) — Lea-ClawMIS(+2) — TweezerHeadSP(+2)
+            (1010203, 0.10)   # SpikeyCRT(+3) — Lea-ClawMIS(+3) — TweezerHeadSP(+3)
         ],
 
         BOX_BODY: [
-            (1020201, 0.50),  # SpikeyTA(+1) — Lea-ClawBST(+1) — TweezerHeadMX(+1)
-            (1020202, 0.20),  # SpikeyTA(+2) — Lea-ClawBST(+2) — TweezerHeadMX(+2)
-            (1020203, 0.15),  # SpikeyTA(+3) — Lea-ClawBST(+3) — TweezerHeadMX(+3)
-            (1020204, 0.10),  # SpikeyTA(+4) — Lea-ClawBST(+4) — TweezerHeadMX(+4)
-            (1020205, 0.05),  # SpikeyTA(+5) — Lea-ClawBST(+5) — TweezerHeadMX(+5)
+            (1020201, 0.60),  # SpikeyTA(+1) — Lea-ClawBST(+1) — TweezerHeadMX(+1)
+            (1020202, 0.30),  # SpikeyTA(+2) — Lea-ClawBST(+2) — TweezerHeadMX(+2)
+            (1020203, 0.10)   # SpikeyTA(+3) — Lea-ClawBST(+3) — TweezerHeadMX(+3)
         ],
 
         BOX_ARMS: [
-            (1030201, 0.50),  # SpikeyTD(+1) — Lea-ClawGUN(+1) — TweezerHeadTG(+1)
-            (1030202, 0.20),  # SpikeyTD(+2) — Lea-ClawGUN(+2) — TweezerHeadTG(+2)
-            (1030203, 0.15),  # SpikeyTD(+3) — Lea-ClawGUN(+3) — TweezerHeadTG(+3)
-            (1030204, 0.10),  # SpikeyTD(+4) — Lea-ClawGUN(+4) — TweezerHeadTG(+4)
-            (1030205, 0.05),  # SpikeyTD(+5) — Lea-ClawGUN(+5) — TweezerHeadTG(+5)
+            (1030201, 0.60),  # SpikeyTD(+1) — Lea-ClawGUN(+1) — TweezerHeadTG(+1)
+            (1030202, 0.30),  # SpikeyTD(+2) — Lea-ClawGUN(+2) — TweezerHeadTG(+2)
+            (1030203, 0.10)   # SpikeyTD(+3) — Lea-ClawGUN(+3) — TweezerHeadTG(+3)
         ]
     },
 
@@ -1172,27 +1148,21 @@ PLANET_DROPS = {
         ],
 
         BOX_HEAD: [
-            (1010201, 0.50),  # SpikeyCRT(+1) — Lea-ClawMIS(+1) — TweezerHeadSP(+1)
-            (1010202, 0.20),  # SpikeyCRT(+2) — Lea-ClawMIS(+2) — TweezerHeadSP(+2)
-            (1010203, 0.15),  # SpikeyCRT(+3) — Lea-ClawMIS(+3) — TweezerHeadSP(+3)
-            (1010204, 0.10),  # SpikeyCRT(+4) — Lea-ClawMIS(+4) — TweezerHeadSP(+4)
-            (1010205, 0.05),  # SpikeyCRT(+5) — Lea-ClawMIS(+5) — TweezerHeadSP(+5)
+            (1010201, 0.60),  # SpikeyCRT(+1) — Lea-ClawMIS(+1) — TweezerHeadSP(+1)
+            (1010202, 0.30),  # SpikeyCRT(+2) — Lea-ClawMIS(+2) — TweezerHeadSP(+2)
+            (1010203, 0.10)   # SpikeyCRT(+3) — Lea-ClawMIS(+3) — TweezerHeadSP(+3)
         ],
 
         BOX_BODY: [
-            (1020201, 0.50),  # SpikeyTA(+1) — Lea-ClawBST(+1) — TweezerHeadMX(+1)
-            (1020202, 0.20),  # SpikeyTA(+2) — Lea-ClawBST(+2) — TweezerHeadMX(+2)
-            (1020203, 0.15),  # SpikeyTA(+3) — Lea-ClawBST(+3) — TweezerHeadMX(+3)
-            (1020204, 0.10),  # SpikeyTA(+4) — Lea-ClawBST(+4) — TweezerHeadMX(+4)
-            (1020205, 0.05),  # SpikeyTA(+5) — Lea-ClawBST(+5) — TweezerHeadMX(+5)
+            (1020201, 0.60),  # SpikeyTA(+1) — Lea-ClawBST(+1) — TweezerHeadMX(+1)
+            (1020202, 0.30),  # SpikeyTA(+2) — Lea-ClawBST(+2) — TweezerHeadMX(+2)
+            (1020203, 0.10)   # SpikeyTA(+3) — Lea-ClawBST(+3) — TweezerHeadMX(+3)
         ],
 
         BOX_ARMS: [
-            (1030201, 0.50),  # SpikeyTD(+1) — Lea-ClawGUN(+1) — TweezerHeadTG(+1)
-            (1030202, 0.20),  # SpikeyTD(+2) — Lea-ClawGUN(+2) — TweezerHeadTG(+2)
-            (1030203, 0.15),  # SpikeyTD(+3) — Lea-ClawGUN(+3) — TweezerHeadTG(+3)
-            (1030204, 0.10),  # SpikeyTD(+4) — Lea-ClawGUN(+4) — TweezerHeadTG(+4)
-            (1030205, 0.05),  # SpikeyTD(+5) — Lea-ClawGUN(+5) — TweezerHeadTG(+5)
+            (1030201, 0.60),  # SpikeyTD(+1) — Lea-ClawGUN(+1) — TweezerHeadTG(+1)
+            (1030202, 0.30),  # SpikeyTD(+2) — Lea-ClawGUN(+2) — TweezerHeadTG(+2)
+            (1030203, 0.10)   # SpikeyTD(+3) — Lea-ClawGUN(+3) — TweezerHeadTG(+3)
         ]
     },
 
@@ -1242,27 +1212,21 @@ PLANET_DROPS = {
         ],
 
         BOX_HEAD: [
-            (1010201, 0.50),  # SpikeyCRT(+1) — Lea-ClawMIS(+1) — TweezerHeadSP(+1)
-            (1010202, 0.20),  # SpikeyCRT(+2) — Lea-ClawMIS(+2) — TweezerHeadSP(+2)
-            (1010203, 0.15),  # SpikeyCRT(+3) — Lea-ClawMIS(+3) — TweezerHeadSP(+3)
-            (1010204, 0.10),  # SpikeyCRT(+4) — Lea-ClawMIS(+4) — TweezerHeadSP(+4)
-            (1010205, 0.05),  # SpikeyCRT(+5) — Lea-ClawMIS(+5) — TweezerHeadSP(+5)
+            (1010201, 0.60),  # SpikeyCRT(+1) — Lea-ClawMIS(+1) — TweezerHeadSP(+1)
+            (1010202, 0.30),  # SpikeyCRT(+2) — Lea-ClawMIS(+2) — TweezerHeadSP(+2)
+            (1010203, 0.10)   # SpikeyCRT(+3) — Lea-ClawMIS(+3) — TweezerHeadSP(+3)
         ],
 
         BOX_BODY: [
-            (1020201, 0.50),  # SpikeyTA(+1) — Lea-ClawBST(+1) — TweezerHeadMX(+1)
-            (1020202, 0.20),  # SpikeyTA(+2) — Lea-ClawBST(+2) — TweezerHeadMX(+2)
-            (1020203, 0.15),  # SpikeyTA(+3) — Lea-ClawBST(+3) — TweezerHeadMX(+3)
-            (1020204, 0.10),  # SpikeyTA(+4) — Lea-ClawBST(+4) — TweezerHeadMX(+4)
-            (1020205, 0.05),  # SpikeyTA(+5) — Lea-ClawBST(+5) — TweezerHeadMX(+5)
+            (1020201, 0.60),  # SpikeyTA(+1) — Lea-ClawBST(+1) — TweezerHeadMX(+1)
+            (1020202, 0.30),  # SpikeyTA(+2) — Lea-ClawBST(+2) — TweezerHeadMX(+2)
+            (1020203, 0.10)   # SpikeyTA(+3) — Lea-ClawBST(+3) — TweezerHeadMX(+3)
         ],
 
         BOX_ARMS: [
-            (1030201, 0.50),  # SpikeyTD(+1) — Lea-ClawGUN(+1) — TweezerHeadTG(+1)
-            (1030202, 0.20),  # SpikeyTD(+2) — Lea-ClawGUN(+2) — TweezerHeadTG(+2)
-            (1030203, 0.15),  # SpikeyTD(+3) — Lea-ClawGUN(+3) — TweezerHeadTG(+3)
-            (1030204, 0.10),  # SpikeyTD(+4) — Lea-ClawGUN(+4) — TweezerHeadTG(+4)
-            (1030205, 0.05),  # SpikeyTD(+5) — Lea-ClawGUN(+5) — TweezerHeadTG(+5)
+            (1030201, 0.60),  # SpikeyTD(+1) — Lea-ClawGUN(+1) — TweezerHeadTG(+1)
+            (1030202, 0.30),  # SpikeyTD(+2) — Lea-ClawGUN(+2) — TweezerHeadTG(+2)
+            (1030203, 0.10)   # SpikeyTD(+3) — Lea-ClawGUN(+3) — TweezerHeadTG(+3)
         ]
     },
 
@@ -1324,27 +1288,21 @@ PLANET_DROPS = {
         ],
 
         BOX_HEAD: [
-            (1010301, 0.50),  # StonehazardCRT(+1) — Seven-PearceMIS(+1) — ChestBusterSP(+1)
-            (1010302, 0.20),  # StonehazardCRT(+2) — Seven-PearceMIS(+2) — ChestBusterSP(+2)
-            (1010303, 0.15),  # StonehazardCRT(+3) — Seven-PearceMIS(+3) — ChestBusterSP(+3)
-            (1010304, 0.10),  # StonehazardCRT(+4) — Seven-PearceMIS(+4) — ChestBusterSP(+4)
-            (1010305, 0.05),  # StonehazardCRT(+5) — Seven-PearceMIS(+5) — ChestBusterSP(+5)
+            (1010301, 0.60),  # StonehazardCRT(+1) — Seven-PearceMIS(+1) — ChestBusterSP(+1)
+            (1010302, 0.30),  # StonehazardCRT(+2) — Seven-PearceMIS(+2) — ChestBusterSP(+2)
+            (1010303, 0.10)   # StonehazardCRT(+3) — Seven-PearceMIS(+3) — ChestBusterSP(+3)
         ],
 
         BOX_BODY: [
-            (1020301, 0.50),  # StonehazardTA(+1) — Seven-PearceBST(+1) — ChestBusterMX(+1)
-            (1020302, 0.20),  # StonehazardTA(+2) — Seven-PearceBST(+2) — ChestBusterMX(+2)
-            (1020303, 0.15),  # StonehazardTA(+3) — Seven-PearceBST(+3) — ChestBusterMX(+3)
-            (1020304, 0.10),  # StonehazardTA(+4) — Seven-PearceBST(+4) — ChestBusterMX(+4)
-            (1020305, 0.05),  # StonehazardTA(+5) — Seven-PearceBST(+5) — ChestBusterMX(+5)
+            (1020301, 0.60),  # StonehazardTA(+1) — Seven-PearceBST(+1) — ChestBusterMX(+1)
+            (1020302, 0.30),  # StonehazardTA(+2) — Seven-PearceBST(+2) — ChestBusterMX(+2)
+            (1020303, 0.10)   # StonehazardTA(+3) — Seven-PearceBST(+3) — ChestBusterMX(+3)
         ],
 
         BOX_ARMS: [
-            (1030301, 0.50),  # StonehazardTD(+1) — Seven-PearceGUN(+1) — ChestBusterTG(+1)
-            (1030302, 0.20),  # StonehazardTD(+2) — Seven-PearceGUN(+2) — ChestBusterTG(+2)
-            (1030303, 0.15),  # StonehazardTD(+3) — Seven-PearceGUN(+3) — ChestBusterTG(+3)
-            (1030304, 0.10),  # StonehazardTD(+4) — Seven-PearceGUN(+4) — ChestBusterTG(+4)
-            (1030305, 0.05),  # StonehazardTD(+5) — Seven-PearceGUN(+5) — ChestBusterTG(+5)
+            (1030301, 0.60),  # StonehazardTD(+1) — Seven-PearceGUN(+1) — ChestBusterTG(+1)
+            (1030302, 0.30),  # StonehazardTD(+2) — Seven-PearceGUN(+2) — ChestBusterTG(+2)
+            (1030303, 0.10)   # StonehazardTD(+3) — Seven-PearceGUN(+3) — ChestBusterTG(+3)
         ]
     },
 
@@ -1405,27 +1363,21 @@ PLANET_DROPS = {
         ],
 
         BOX_HEAD: [
-            (1010301, 0.50),  # StonehazardCRT(+1) — Seven-PearceMIS(+1) — ChestBusterSP(+1)
-            (1010302, 0.20),  # StonehazardCRT(+2) — Seven-PearceMIS(+2) — ChestBusterSP(+2)
-            (1010303, 0.15),  # StonehazardCRT(+3) — Seven-PearceMIS(+3) — ChestBusterSP(+3)
-            (1010304, 0.10),  # StonehazardCRT(+4) — Seven-PearceMIS(+4) — ChestBusterSP(+4)
-            (1010305, 0.05),  # StonehazardCRT(+5) — Seven-PearceMIS(+5) — ChestBusterSP(+5)
+            (1010301, 0.60),  # StonehazardCRT(+1) — Seven-PearceMIS(+1) — ChestBusterSP(+1)
+            (1010302, 0.30),  # StonehazardCRT(+2) — Seven-PearceMIS(+2) — ChestBusterSP(+2)
+            (1010303, 0.10)   # StonehazardCRT(+3) — Seven-PearceMIS(+3) — ChestBusterSP(+3)
         ],
 
         BOX_BODY: [
-            (1020301, 0.50),  # StonehazardTA(+1) — Seven-PearceBST(+1) — ChestBusterMX(+1)
-            (1020302, 0.20),  # StonehazardTA(+2) — Seven-PearceBST(+2) — ChestBusterMX(+2)
-            (1020303, 0.15),  # StonehazardTA(+3) — Seven-PearceBST(+3) — ChestBusterMX(+3)
-            (1020304, 0.10),  # StonehazardTA(+4) — Seven-PearceBST(+4) — ChestBusterMX(+4)
-            (1020305, 0.05),  # StonehazardTA(+5) — Seven-PearceBST(+5) — ChestBusterMX(+5)
+            (1020301, 0.60),  # StonehazardTA(+1) — Seven-PearceBST(+1) — ChestBusterMX(+1)
+            (1020302, 0.30),  # StonehazardTA(+2) — Seven-PearceBST(+2) — ChestBusterMX(+2)
+            (1020303, 0.10)   # StonehazardTA(+3) — Seven-PearceBST(+3) — ChestBusterMX(+3)
         ],
 
         BOX_ARMS: [
-            (1030301, 0.50),  # StonehazardTD(+1) — Seven-PearceGUN(+1) — ChestBusterTG(+1)
-            (1030302, 0.20),  # StonehazardTD(+2) — Seven-PearceGUN(+2) — ChestBusterTG(+2)
-            (1030303, 0.15),  # StonehazardTD(+3) — Seven-PearceGUN(+3) — ChestBusterTG(+3)
-            (1030304, 0.10),  # StonehazardTD(+4) — Seven-PearceGUN(+4) — ChestBusterTG(+4)
-            (1030305, 0.05),  # StonehazardTD(+5) — Seven-PearceGUN(+5) — ChestBusterTG(+5)
+            (1030301, 0.60),  # StonehazardTD(+1) — Seven-PearceGUN(+1) — ChestBusterTG(+1)
+            (1030302, 0.30),  # StonehazardTD(+2) — Seven-PearceGUN(+2) — ChestBusterTG(+2)
+            (1030303, 0.10)   # StonehazardTD(+3) — Seven-PearceGUN(+3) — ChestBusterTG(+3)
         ]
     },
 
@@ -1491,27 +1443,21 @@ PLANET_DROPS = {
         ],
 
         BOX_HEAD: [
-            (1010301, 0.50),  # StonehazardCRT(+1) — Seven-PearceMIS(+1) — ChestBusterSP(+1)
-            (1010302, 0.20),  # StonehazardCRT(+2) — Seven-PearceMIS(+2) — ChestBusterSP(+2)
-            (1010303, 0.15),  # StonehazardCRT(+3) — Seven-PearceMIS(+3) — ChestBusterSP(+3)
-            (1010304, 0.10),  # StonehazardCRT(+4) — Seven-PearceMIS(+4) — ChestBusterSP(+4)
-            (1010305, 0.05),  # StonehazardCRT(+5) — Seven-PearceMIS(+5) — ChestBusterSP(+5)
+            (1010301, 0.60),  # StonehazardCRT(+1) — Seven-PearceMIS(+1) — ChestBusterSP(+1)
+            (1010302, 0.30),  # StonehazardCRT(+2) — Seven-PearceMIS(+2) — ChestBusterSP(+2)
+            (1010303, 0.10)   # StonehazardCRT(+3) — Seven-PearceMIS(+3) — ChestBusterSP(+3)
         ],
 
         BOX_BODY: [
-            (1020301, 0.50),  # StonehazardTA(+1) — Seven-PearceBST(+1) — ChestBusterMX(+1)
-            (1020302, 0.20),  # StonehazardTA(+2) — Seven-PearceBST(+2) — ChestBusterMX(+2)
-            (1020303, 0.15),  # StonehazardTA(+3) — Seven-PearceBST(+3) — ChestBusterMX(+3)
-            (1020304, 0.10),  # StonehazardTA(+4) — Seven-PearceBST(+4) — ChestBusterMX(+4)
-            (1020305, 0.05),  # StonehazardTA(+5) — Seven-PearceBST(+5) — ChestBusterMX(+5)
+            (1020301, 0.60),  # StonehazardTA(+1) — Seven-PearceBST(+1) — ChestBusterMX(+1)
+            (1020302, 0.30),  # StonehazardTA(+2) — Seven-PearceBST(+2) — ChestBusterMX(+2)
+            (1020303, 0.10)   # StonehazardTA(+3) — Seven-PearceBST(+3) — ChestBusterMX(+3)
         ],
 
         BOX_ARMS: [
-            (1030301, 0.50),  # StonehazardTD(+1) — Seven-PearceGUN(+1) — ChestBusterTG(+1)
-            (1030302, 0.20),  # StonehazardTD(+2) — Seven-PearceGUN(+2) — ChestBusterTG(+2)
-            (1030303, 0.15),  # StonehazardTD(+3) — Seven-PearceGUN(+3) — ChestBusterTG(+3)
-            (1030304, 0.10),  # StonehazardTD(+4) — Seven-PearceGUN(+4) — ChestBusterTG(+4)
-            (1030305, 0.05),  # StonehazardTD(+5) — Seven-PearceGUN(+5) — ChestBusterTG(+5)
+            (1030301, 0.60),  # StonehazardTD(+1) — Seven-PearceGUN(+1) — ChestBusterTG(+1)
+            (1030302, 0.30),  # StonehazardTD(+2) — Seven-PearceGUN(+2) — ChestBusterTG(+2)
+            (1030303, 0.10)   # StonehazardTD(+3) — Seven-PearceGUN(+3) — ChestBusterTG(+3)
         ]
     },
 
@@ -1573,27 +1519,21 @@ PLANET_DROPS = {
         ],
 
         BOX_HEAD: [
-            (1010401, 0.50),  # CrashcannonCRT(+1) — CresentJetMIS(+1) — DuskrunnerSP(+1)
-            (1010402, 0.20),  # CrashcannonCRT(+2) — CresentJetMIS(+2) — DuskrunnerSP(+2)
-            (1010403, 0.15),  # CrashcannonCRT(+3) — CresentJetMIS(+3) — DuskrunnerSP(+3)
-            (1010404, 0.10),  # CrashcannonCRT(+4) — CresentJetMIS(+4) — DuskrunnerSP(+4)
-            (1010405, 0.05),  # CrashcannonCRT(+5) — CresentJetMIS(+5) — DuskrunnerSP(+5)
+            (1010401, 0.60),  # CrashcannonCRT(+1) — CresentJetMIS(+1) — DuskrunnerSP(+1)
+            (1010402, 0.30),  # CrashcannonCRT(+2) — CresentJetMIS(+2) — DuskrunnerSP(+2)
+            (1010403, 0.10)   # CrashcannonCRT(+3) — CresentJetMIS(+3) — DuskrunnerSP(+3)
         ],
 
         BOX_BODY: [
-            (1020401, 0.50),  # CrashcannonTA(+1) — CresentJetBST(+1) — DuskrunnerMX(+1)
-            (1020402, 0.20),  # CrashcannonTA(+2) — CresentJetBST(+2) — DuskrunnerMX(+2)
-            (1020403, 0.15),  # CrashcannonTA(+3) — CresentJetBST(+3) — DuskrunnerMX(+3)
-            (1020404, 0.10),  # CrashcannonTA(+4) — CresentJetBST(+4) — DuskrunnerMX(+4)
-            (1020405, 0.05),  # CrashcannonTA(+5) — CresentJetBST(+5) — DuskrunnerMX(+5)
+            (1020401, 0.60),  # CrashcannonTA(+1) — CresentJetBST(+1) — DuskrunnerMX(+1)
+            (1020402, 0.30),  # CrashcannonTA(+2) — CresentJetBST(+2) — DuskrunnerMX(+2)
+            (1020403, 0.10)   # CrashcannonTA(+3) — CresentJetBST(+3) — DuskrunnerMX(+3)
         ],
 
         BOX_ARMS: [
-            (1030401, 0.50),  # CrashcannonTD(+1) — CresentJetGUN(+1) — DuskrunnerTG(+1)
-            (1030402, 0.20),  # CrashcannonTD(+2) — CresentJetGUN(+2) — DuskrunnerTG(+2)
-            (1030403, 0.15),  # CrashcannonTD(+3) — CresentJetGUN(+3) — DuskrunnerTG(+3)
-            (1030404, 0.10),  # CrashcannonTD(+4) — CresentJetGUN(+4) — DuskrunnerTG(+4)
-            (1030405, 0.05),  # CrashcannonTD(+5) — CresentJetGUN(+5) — DuskrunnerTG(+5)
+            (1030401, 0.60),  # CrashcannonTD(+1) — CresentJetGUN(+1) — DuskrunnerTG(+1)
+            (1030402, 0.30),  # CrashcannonTD(+2) — CresentJetGUN(+2) — DuskrunnerTG(+2)
+            (1030403, 0.10)   # CrashcannonTD(+3) — CresentJetGUN(+3) — DuskrunnerTG(+3)
         ]
     },
 
@@ -1661,27 +1601,21 @@ PLANET_DROPS = {
         ],
 
         BOX_HEAD: [
-            (1010401, 0.50),  # CrashcannonCRT(+1) — CresentJetMIS(+1) — DuskrunnerSP(+1)
-            (1010402, 0.20),  # CrashcannonCRT(+2) — CresentJetMIS(+2) — DuskrunnerSP(+2)
-            (1010403, 0.15),  # CrashcannonCRT(+3) — CresentJetMIS(+3) — DuskrunnerSP(+3)
-            (1010404, 0.10),  # CrashcannonCRT(+4) — CresentJetMIS(+4) — DuskrunnerSP(+4)
-            (1010405, 0.05),  # CrashcannonCRT(+5) — CresentJetMIS(+5) — DuskrunnerSP(+5)
+            (1010401, 0.60),  # CrashcannonCRT(+1) — CresentJetMIS(+1) — DuskrunnerSP(+1)
+            (1010402, 0.30),  # CrashcannonCRT(+2) — CresentJetMIS(+2) — DuskrunnerSP(+2)
+            (1010403, 0.10)   # CrashcannonCRT(+3) — CresentJetMIS(+3) — DuskrunnerSP(+3)
         ],
 
         BOX_BODY: [
-            (1020401, 0.50),  # CrashcannonTA(+1) — CresentJetBST(+1) — DuskrunnerMX(+1)
-            (1020402, 0.20),  # CrashcannonTA(+2) — CresentJetBST(+2) — DuskrunnerMX(+2)
-            (1020403, 0.15),  # CrashcannonTA(+3) — CresentJetBST(+3) — DuskrunnerMX(+3)
-            (1020404, 0.10),  # CrashcannonTA(+4) — CresentJetBST(+4) — DuskrunnerMX(+4)
-            (1020405, 0.05),  # CrashcannonTA(+5) — CresentJetBST(+5) — DuskrunnerMX(+5)
+            (1020401, 0.60),  # CrashcannonTA(+1) — CresentJetBST(+1) — DuskrunnerMX(+1)
+            (1020402, 0.30),  # CrashcannonTA(+2) — CresentJetBST(+2) — DuskrunnerMX(+2)
+            (1020403, 0.10)   # CrashcannonTA(+3) — CresentJetBST(+3) — DuskrunnerMX(+3)
         ],
 
         BOX_ARMS: [
-            (1030401, 0.50),  # CrashcannonTD(+1) — CresentJetGUN(+1) — DuskrunnerTG(+1)
-            (1030402, 0.20),  # CrashcannonTD(+2) — CresentJetGUN(+2) — DuskrunnerTG(+2)
-            (1030403, 0.15),  # CrashcannonTD(+3) — CresentJetGUN(+3) — DuskrunnerTG(+3)
-            (1030404, 0.10),  # CrashcannonTD(+4) — CresentJetGUN(+4) — DuskrunnerTG(+4)
-            (1030405, 0.05),  # CrashcannonTD(+5) — CresentJetGUN(+5) — DuskrunnerTG(+5)
+            (1030401, 0.60),  # CrashcannonTD(+1) — CresentJetGUN(+1) — DuskrunnerTG(+1)
+            (1030402, 0.30),  # CrashcannonTD(+2) — CresentJetGUN(+2) — DuskrunnerTG(+2)
+            (1030403, 0.10)   # CrashcannonTD(+3) — CresentJetGUN(+3) — DuskrunnerTG(+3)
         ]
     },
 
@@ -1749,27 +1683,21 @@ PLANET_DROPS = {
         ],
 
         BOX_HEAD: [
-            (1010401, 0.50),  # CrashcannonCRT(+1) — CresentJetMIS(+1) — DuskrunnerSP(+1)
-            (1010402, 0.20),  # CrashcannonCRT(+2) — CresentJetMIS(+2) — DuskrunnerSP(+2)
-            (1010403, 0.15),  # CrashcannonCRT(+3) — CresentJetMIS(+3) — DuskrunnerSP(+3)
-            (1010404, 0.10),  # CrashcannonCRT(+4) — CresentJetMIS(+4) — DuskrunnerSP(+4)
-            (1010405, 0.05),  # CrashcannonCRT(+5) — CresentJetMIS(+5) — DuskrunnerSP(+5)
+            (1010401, 0.60),  # CrashcannonCRT(+1) — CresentJetMIS(+1) — DuskrunnerSP(+1)
+            (1010402, 0.30),  # CrashcannonCRT(+2) — CresentJetMIS(+2) — DuskrunnerSP(+2)
+            (1010403, 0.10)   # CrashcannonCRT(+3) — CresentJetMIS(+3) — DuskrunnerSP(+3)
         ],
 
         BOX_BODY: [
-            (1020401, 0.50),  # CrashcannonTA(+1) — CresentJetBST(+1) — DuskrunnerMX(+1)
-            (1020402, 0.20),  # CrashcannonTA(+2) — CresentJetBST(+2) — DuskrunnerMX(+2)
-            (1020403, 0.15),  # CrashcannonTA(+3) — CresentJetBST(+3) — DuskrunnerMX(+3)
-            (1020404, 0.10),  # CrashcannonTA(+4) — CresentJetBST(+4) — DuskrunnerMX(+4)
-            (1020405, 0.05),  # CrashcannonTA(+5) — CresentJetBST(+5) — DuskrunnerMX(+5)
+            (1020401, 0.60),  # CrashcannonTA(+1) — CresentJetBST(+1) — DuskrunnerMX(+1)
+            (1020402, 0.30),  # CrashcannonTA(+2) — CresentJetBST(+2) — DuskrunnerMX(+2)
+            (1020403, 0.10)   # CrashcannonTA(+3) — CresentJetBST(+3) — DuskrunnerMX(+3)
         ],
 
         BOX_ARMS: [
-            (1030401, 0.50),  # CrashcannonTD(+1) — CresentJetGUN(+1) — DuskrunnerTG(+1)
-            (1030402, 0.20),  # CrashcannonTD(+2) — CresentJetGUN(+2) — DuskrunnerTG(+2)
-            (1030403, 0.15),  # CrashcannonTD(+3) — CresentJetGUN(+3) — DuskrunnerTG(+3)
-            (1030404, 0.10),  # CrashcannonTD(+4) — CresentJetGUN(+4) — DuskrunnerTG(+4)
-            (1030405, 0.05),  # CrashcannonTD(+5) — CresentJetGUN(+5) — DuskrunnerTG(+5)
+            (1030401, 0.60),  # CrashcannonTD(+1) — CresentJetGUN(+1) — DuskrunnerTG(+1)
+            (1030402, 0.30),  # CrashcannonTD(+2) — CresentJetGUN(+2) — DuskrunnerTG(+2)
+            (1030403, 0.10)   # CrashcannonTD(+3) — CresentJetGUN(+3) — DuskrunnerTG(+3)
         ]
     },
 
@@ -1837,27 +1765,21 @@ PLANET_DROPS = {
         ],
 
         BOX_HEAD: [
-            (1010401, 0.50),  # CrashcannonCRT(+1) — CresentJetMIS(+1) — DuskrunnerSP(+1)
-            (1010402, 0.20),  # CrashcannonCRT(+2) — CresentJetMIS(+2) — DuskrunnerSP(+2)
-            (1010403, 0.15),  # CrashcannonCRT(+3) — CresentJetMIS(+3) — DuskrunnerSP(+3)
-            (1010404, 0.10),  # CrashcannonCRT(+4) — CresentJetMIS(+4) — DuskrunnerSP(+4)
-            (1010405, 0.05),  # CrashcannonCRT(+5) — CresentJetMIS(+5) — DuskrunnerSP(+5)
+            (1010401, 0.60),  # CrashcannonCRT(+1) — CresentJetMIS(+1) — DuskrunnerSP(+1)
+            (1010402, 0.30),  # CrashcannonCRT(+2) — CresentJetMIS(+2) — DuskrunnerSP(+2)
+            (1010403, 0.10)   # CrashcannonCRT(+3) — CresentJetMIS(+3) — DuskrunnerSP(+3)
         ],
 
         BOX_BODY: [
-            (1020401, 0.50),  # CrashcannonTA(+1) — CresentJetBST(+1) — DuskrunnerMX(+1)
-            (1020402, 0.20),  # CrashcannonTA(+2) — CresentJetBST(+2) — DuskrunnerMX(+2)
-            (1020403, 0.15),  # CrashcannonTA(+3) — CresentJetBST(+3) — DuskrunnerMX(+3)
-            (1020404, 0.10),  # CrashcannonTA(+4) — CresentJetBST(+4) — DuskrunnerMX(+4)
-            (1020405, 0.05),  # CrashcannonTA(+5) — CresentJetBST(+5) — DuskrunnerMX(+5)
+            (1020401, 0.60),  # CrashcannonTA(+1) — CresentJetBST(+1) — DuskrunnerMX(+1)
+            (1020402, 0.30),  # CrashcannonTA(+2) — CresentJetBST(+2) — DuskrunnerMX(+2)
+            (1020403, 0.10)   # CrashcannonTA(+3) — CresentJetBST(+3) — DuskrunnerMX(+3)
         ],
 
         BOX_ARMS: [
-            (1030401, 0.50),  # CrashcannonTD(+1) — CresentJetGUN(+1) — DuskrunnerTG(+1)
-            (1030402, 0.20),  # CrashcannonTD(+2) — CresentJetGUN(+2) — DuskrunnerTG(+2)
-            (1030403, 0.15),  # CrashcannonTD(+3) — CresentJetGUN(+3) — DuskrunnerTG(+3)
-            (1030404, 0.10),  # CrashcannonTD(+4) — CresentJetGUN(+4) — DuskrunnerTG(+4)
-            (1030405, 0.05),  # CrashcannonTD(+5) — CresentJetGUN(+5) — DuskrunnerTG(+5)
+            (1030401, 0.60),  # CrashcannonTD(+1) — CresentJetGUN(+1) — DuskrunnerTG(+1)
+            (1030402, 0.30),  # CrashcannonTD(+2) — CresentJetGUN(+2) — DuskrunnerTG(+2)
+            (1030403, 0.10)   # CrashcannonTD(+3) — CresentJetGUN(+3) — DuskrunnerTG(+3)
         ]
     },
 
@@ -1919,27 +1841,21 @@ PLANET_DROPS = {
         ],
 
         BOX_HEAD: [
-            (1010501, 0.50),  # LycaonLaunchCRT(+1) — BladeShooterMIS(+1) — SticleSP(+1)
-            (1010502, 0.20),  # LycaonLaunchCRT(+2) — BladeShooterMIS(+2) — SticleSP(+2)
-            (1010503, 0.15),  # LycaonLaunchCRT(+3) — BladeShooterMIS(+3) — SticleSP(+3)
-            (1010504, 0.10),  # LycaonLaunchCRT(+4) — BladeShooterMIS(+4) — SticleSP(+4)
-            (1010505, 0.05),  # LycaonLaunchCRT(+5) — BladeShooterMIS(+5) — SticleSP(+5)
+            (1010501, 0.60),  # LycaonLaunchCRT(+1) — BladeShooterMIS(+1) — SticleSP(+1)
+            (1010502, 0.30),  # LycaonLaunchCRT(+2) — BladeShooterMIS(+2) — SticleSP(+2)
+            (1010503, 0.10)   # LycaonLaunchCRT(+3) — BladeShooterMIS(+3) — SticleSP(+3)
         ],
 
         BOX_BODY: [
-            (1020501, 0.50),  # LycaonLaunchTA(+1) — BladeShooterBST(+1) — SticleMX(+1)
-            (1020502, 0.20),  # LycaonLaunchTA(+2) — BladeShooterBST(+2) — SticleMX(+2)
-            (1020503, 0.15),  # LycaonLaunchTA(+3) — BladeShooterBST(+3) — SticleMX(+3)
-            (1020504, 0.10),  # LycaonLaunchTA(+4) — BladeShooterBST(+4) — SticleMX(+4)
-            (1020505, 0.05),  # LycaonLaunchTA(+5) — BladeShooterBST(+5) — SticleMX(+5)
+            (1020501, 0.60),  # LycaonLaunchTA(+1) — BladeShooterBST(+1) — SticleMX(+1)
+            (1020502, 0.30),  # LycaonLaunchTA(+2) — BladeShooterBST(+2) — SticleMX(+2)
+            (1020503, 0.10)   # LycaonLaunchTA(+3) — BladeShooterBST(+3) — SticleMX(+3)
         ],
 
         BOX_ARMS: [
-            (1030501, 0.50),  # LycaonLaunchTD(+1) — BladeShooterGUN(+1) — SticleTG(+1)
-            (1030502, 0.20),  # LycaonLaunchTD(+2) — BladeShooterGUN(+2) — SticleTG(+2)
-            (1030503, 0.15),  # LycaonLaunchTD(+3) — BladeShooterGUN(+3) — SticleTG(+3)
-            (1030504, 0.10),  # LycaonLaunchTD(+4) — BladeShooterGUN(+4) — SticleTG(+4)
-            (1030505, 0.05),  # LycaonLaunchTD(+5) — BladeShooterGUN(+5) — SticleTG(+5)
+            (1030501, 0.60),  # LycaonLaunchTD(+1) — BladeShooterGUN(+1) — SticleTG(+1)
+            (1030502, 0.30),  # LycaonLaunchTD(+2) — BladeShooterGUN(+2) — SticleTG(+2)
+            (1030503, 0.10)   # LycaonLaunchTD(+3) — BladeShooterGUN(+3) — SticleTG(+3)
         ]
     },
 
@@ -2007,27 +1923,21 @@ PLANET_DROPS = {
         ],
 
         BOX_HEAD: [
-            (1010501, 0.50),  # LycaonLaunchCRT(+1) — BladeShooterMIS(+1) — SticleSP(+1)
-            (1010502, 0.20),  # LycaonLaunchCRT(+2) — BladeShooterMIS(+2) — SticleSP(+2)
-            (1010503, 0.15),  # LycaonLaunchCRT(+3) — BladeShooterMIS(+3) — SticleSP(+3)
-            (1010504, 0.10),  # LycaonLaunchCRT(+4) — BladeShooterMIS(+4) — SticleSP(+4)
-            (1010505, 0.05),  # LycaonLaunchCRT(+5) — BladeShooterMIS(+5) — SticleSP(+5)
+            (1010501, 0.60),  # LycaonLaunchCRT(+1) — BladeShooterMIS(+1) — SticleSP(+1)
+            (1010502, 0.30),  # LycaonLaunchCRT(+2) — BladeShooterMIS(+2) — SticleSP(+2)
+            (1010503, 0.10)   # LycaonLaunchCRT(+3) — BladeShooterMIS(+3) — SticleSP(+3)
         ],
 
         BOX_BODY: [
-            (1020501, 0.50),  # LycaonLaunchTA(+1) — BladeShooterBST(+1) — SticleMX(+1)
-            (1020502, 0.20),  # LycaonLaunchTA(+2) — BladeShooterBST(+2) — SticleMX(+2)
-            (1020503, 0.15),  # LycaonLaunchTA(+3) — BladeShooterBST(+3) — SticleMX(+3)
-            (1020504, 0.10),  # LycaonLaunchTA(+4) — BladeShooterBST(+4) — SticleMX(+4)
-            (1020505, 0.05),  # LycaonLaunchTA(+5) — BladeShooterBST(+5) — SticleMX(+5)
+            (1020501, 0.60),  # LycaonLaunchTA(+1) — BladeShooterBST(+1) — SticleMX(+1)
+            (1020502, 0.30),  # LycaonLaunchTA(+2) — BladeShooterBST(+2) — SticleMX(+2)
+            (1020503, 0.10)   # LycaonLaunchTA(+3) — BladeShooterBST(+3) — SticleMX(+3)
         ],
 
         BOX_ARMS: [
-            (1030501, 0.50),  # LycaonLaunchTD(+1) — BladeShooterGUN(+1) — SticleTG(+1)
-            (1030502, 0.20),  # LycaonLaunchTD(+2) — BladeShooterGUN(+2) — SticleTG(+2)
-            (1030503, 0.15),  # LycaonLaunchTD(+3) — BladeShooterGUN(+3) — SticleTG(+3)
-            (1030504, 0.10),  # LycaonLaunchTD(+4) — BladeShooterGUN(+4) — SticleTG(+4)
-            (1030505, 0.05),  # LycaonLaunchTD(+5) — BladeShooterGUN(+5) — SticleTG(+5)
+            (1030501, 0.60),  # LycaonLaunchTD(+1) — BladeShooterGUN(+1) — SticleTG(+1)
+            (1030502, 0.30),  # LycaonLaunchTD(+2) — BladeShooterGUN(+2) — SticleTG(+2)
+            (1030503, 0.10)   # LycaonLaunchTD(+3) — BladeShooterGUN(+3) — SticleTG(+3)
         ]
     },
 
@@ -2094,27 +2004,21 @@ PLANET_DROPS = {
         ],
 
         BOX_HEAD: [
-            (1010501, 0.50),  # LycaonLaunchCRT(+1) — BladeShooterMIS(+1) — SticleSP(+1)
-            (1010502, 0.20),  # LycaonLaunchCRT(+2) — BladeShooterMIS(+2) — SticleSP(+2)
-            (1010503, 0.15),  # LycaonLaunchCRT(+3) — BladeShooterMIS(+3) — SticleSP(+3)
-            (1010504, 0.10),  # LycaonLaunchCRT(+4) — BladeShooterMIS(+4) — SticleSP(+4)
-            (1010505, 0.05),  # LycaonLaunchCRT(+5) — BladeShooterMIS(+5) — SticleSP(+5)
+            (1010501, 0.60),  # LycaonLaunchCRT(+1) — BladeShooterMIS(+1) — SticleSP(+1)
+            (1010502, 0.30),  # LycaonLaunchCRT(+2) — BladeShooterMIS(+2) — SticleSP(+2)
+            (1010503, 0.10)   # LycaonLaunchCRT(+3) — BladeShooterMIS(+3) — SticleSP(+3)
         ],
 
         BOX_BODY: [
-            (1020501, 0.50),  # LycaonLaunchTA(+1) — BladeShooterBST(+1) — SticleMX(+1)
-            (1020502, 0.20),  # LycaonLaunchTA(+2) — BladeShooterBST(+2) — SticleMX(+2)
-            (1020503, 0.15),  # LycaonLaunchTA(+3) — BladeShooterBST(+3) — SticleMX(+3)
-            (1020504, 0.10),  # LycaonLaunchTA(+4) — BladeShooterBST(+4) — SticleMX(+4)
-            (1020505, 0.05),  # LycaonLaunchTA(+5) — BladeShooterBST(+5) — SticleMX(+5)
+            (1020501, 0.60),  # LycaonLaunchTA(+1) — BladeShooterBST(+1) — SticleMX(+1)
+            (1020502, 0.30),  # LycaonLaunchTA(+2) — BladeShooterBST(+2) — SticleMX(+2)
+            (1020503, 0.10)   # LycaonLaunchTA(+3) — BladeShooterBST(+3) — SticleMX(+3)
         ],
 
         BOX_ARMS: [
-            (1030501, 0.50),  # LycaonLaunchTD(+1) — BladeShooterGUN(+1) — SticleTG(+1)
-            (1030502, 0.20),  # LycaonLaunchTD(+2) — BladeShooterGUN(+2) — SticleTG(+2)
-            (1030503, 0.15),  # LycaonLaunchTD(+3) — BladeShooterGUN(+3) — SticleTG(+3)
-            (1030504, 0.10),  # LycaonLaunchTD(+4) — BladeShooterGUN(+4) — SticleTG(+4)
-            (1030505, 0.05),  # LycaonLaunchTD(+5) — BladeShooterGUN(+5) — SticleTG(+5)
+            (1030501, 0.60),  # LycaonLaunchTD(+1) — BladeShooterGUN(+1) — SticleTG(+1)
+            (1030502, 0.30),  # LycaonLaunchTD(+2) — BladeShooterGUN(+2) — SticleTG(+2)
+            (1030503, 0.10)   # LycaonLaunchTD(+3) — BladeShooterGUN(+3) — SticleTG(+3)
         ]
     },
 
@@ -2180,27 +2084,21 @@ PLANET_DROPS = {
         ],
 
         BOX_HEAD: [
-            (1010501, 0.50),  # LycaonLaunchCRT(+1) — BladeShooterMIS(+1) — SticleSP(+1)
-            (1010502, 0.20),  # LycaonLaunchCRT(+2) — BladeShooterMIS(+2) — SticleSP(+2)
-            (1010503, 0.15),  # LycaonLaunchCRT(+3) — BladeShooterMIS(+3) — SticleSP(+3)
-            (1010504, 0.10),  # LycaonLaunchCRT(+4) — BladeShooterMIS(+4) — SticleSP(+4)
-            (1010505, 0.05),  # LycaonLaunchCRT(+5) — BladeShooterMIS(+5) — SticleSP(+5)
+            (1010501, 0.60),  # LycaonLaunchCRT(+1) — BladeShooterMIS(+1) — SticleSP(+1)
+            (1010502, 0.30),  # LycaonLaunchCRT(+2) — BladeShooterMIS(+2) — SticleSP(+2)
+            (1010503, 0.10)   # LycaonLaunchCRT(+3) — BladeShooterMIS(+3) — SticleSP(+3)
         ],
 
         BOX_BODY: [
-            (1020501, 0.50),  # LycaonLaunchTA(+1) — BladeShooterBST(+1) — SticleMX(+1)
-            (1020502, 0.20),  # LycaonLaunchTA(+2) — BladeShooterBST(+2) — SticleMX(+2)
-            (1020503, 0.15),  # LycaonLaunchTA(+3) — BladeShooterBST(+3) — SticleMX(+3)
-            (1020504, 0.10),  # LycaonLaunchTA(+4) — BladeShooterBST(+4) — SticleMX(+4)
-            (1020505, 0.05),  # LycaonLaunchTA(+5) — BladeShooterBST(+5) — SticleMX(+5)
+            (1020501, 0.60),  # LycaonLaunchTA(+1) — BladeShooterBST(+1) — SticleMX(+1)
+            (1020502, 0.30),  # LycaonLaunchTA(+2) — BladeShooterBST(+2) — SticleMX(+2)
+            (1020503, 0.10)   # LycaonLaunchTA(+3) — BladeShooterBST(+3) — SticleMX(+3)
         ],
 
         BOX_ARMS: [
-            (1030501, 0.50),  # LycaonLaunchTD(+1) — BladeShooterGUN(+1) — SticleTG(+1)
-            (1030502, 0.20),  # LycaonLaunchTD(+2) — BladeShooterGUN(+2) — SticleTG(+2)
-            (1030503, 0.15),  # LycaonLaunchTD(+3) — BladeShooterGUN(+3) — SticleTG(+3)
-            (1030504, 0.10),  # LycaonLaunchTD(+4) — BladeShooterGUN(+4) — SticleTG(+4)
-            (1030505, 0.05),  # LycaonLaunchTD(+5) — BladeShooterGUN(+5) — SticleTG(+5)
+            (1030501, 0.60),  # LycaonLaunchTD(+1) — BladeShooterGUN(+1) — SticleTG(+1)
+            (1030502, 0.30),  # LycaonLaunchTD(+2) — BladeShooterGUN(+2) — SticleTG(+2)
+            (1030503, 0.10)   # LycaonLaunchTD(+3) — BladeShooterGUN(+3) — SticleTG(+3)
         ]
     },
 
@@ -2262,27 +2160,21 @@ PLANET_DROPS = {
         ],
 
         BOX_HEAD: [
-            (1010601, 0.50),  # HyperDrillCRT(+1) — LandsliderMIS(+1) — SpikeHazardSP(+1)
-            (1010602, 0.20),  # HyperDrillCRT(+2) — LandsliderMIS(+2) — SpikeHazardSP(+2)
-            (1010603, 0.15),  # HyperDrillCRT(+3) — LandsliderMIS(+3) — SpikeHazardSP(+3)
-            (1010604, 0.10),  # HyperDrillCRT(+4) — LandsliderMIS(+4) — SpikeHazardSP(+4)
-            (1010605, 0.05),  # HyperDrillCRT(+5) — LandsliderMIS(+5) — SpikeHazardSP(+5)
+            (1010601, 0.60),  # HyperDrillCRT(+1) — LandsliderMIS(+1) — SpikeHazardSP(+1)
+            (1010602, 0.30),  # HyperDrillCRT(+2) — LandsliderMIS(+2) — SpikeHazardSP(+2)
+            (1010603, 0.10)   # HyperDrillCRT(+3) — LandsliderMIS(+3) — SpikeHazardSP(+3)
         ],
 
         BOX_BODY: [
-            (1020601, 0.50),  # HyperDrillTA(+1) — LandsliderBST(+1) — SpikeHazardMX(+1)
-            (1020602, 0.20),  # HyperDrillTA(+2) — LandsliderBST(+2) — SpikeHazardMX(+2)
-            (1020603, 0.15),  # HyperDrillTA(+3) — LandsliderBST(+3) — SpikeHazardMX(+3)
-            (1020604, 0.10),  # HyperDrillTA(+4) — LandsliderBST(+4) — SpikeHazardMX(+4)
-            (1020605, 0.05),  # HyperDrillTA(+5) — LandsliderBST(+5) — SpikeHazardMX(+5)
+            (1020601, 0.60),  # HyperDrillTA(+1) — LandsliderBST(+1) — SpikeHazardMX(+1)
+            (1020602, 0.30),  # HyperDrillTA(+2) — LandsliderBST(+2) — SpikeHazardMX(+2)
+            (1020603, 0.10)   # HyperDrillTA(+3) — LandsliderBST(+3) — SpikeHazardMX(+3)
         ],
 
         BOX_ARMS: [
-            (1030601, 0.50),  # HyperDrillTD(+1) — LandsliderGUN(+1) — SpikeHazardTG(+1)
-            (1030602, 0.20),  # HyperDrillTD(+2) — LandsliderGUN(+2) — SpikeHazardTG(+2)
-            (1030603, 0.15),  # HyperDrillTD(+3) — LandsliderGUN(+3) — SpikeHazardTG(+3)
-            (1030604, 0.10),  # HyperDrillTD(+4) — LandsliderGUN(+4) — SpikeHazardTG(+4)
-            (1030605, 0.05),  # HyperDrillTD(+5) — LandsliderGUN(+5) — SpikeHazardTG(+5)
+            (1030601, 0.60),  # HyperDrillTD(+1) — LandsliderGUN(+1) — SpikeHazardTG(+1)
+            (1030602, 0.30),  # HyperDrillTD(+2) — LandsliderGUN(+2) — SpikeHazardTG(+2)
+            (1030603, 0.10)   # HyperDrillTD(+3) — LandsliderGUN(+3) — SpikeHazardTG(+3)
         ]
     },
 
@@ -2350,27 +2242,21 @@ PLANET_DROPS = {
         ],
 
         BOX_HEAD: [
-            (1010601, 0.50),  # HyperDrillCRT(+1) — LandsliderMIS(+1) — SpikeHazardSP(+1)
-            (1010602, 0.20),  # HyperDrillCRT(+2) — LandsliderMIS(+2) — SpikeHazardSP(+2)
-            (1010603, 0.15),  # HyperDrillCRT(+3) — LandsliderMIS(+3) — SpikeHazardSP(+3)
-            (1010604, 0.10),  # HyperDrillCRT(+4) — LandsliderMIS(+4) — SpikeHazardSP(+4)
-            (1010605, 0.05),  # HyperDrillCRT(+5) — LandsliderMIS(+5) — SpikeHazardSP(+5)
+            (1010601, 0.60),  # HyperDrillCRT(+1) — LandsliderMIS(+1) — SpikeHazardSP(+1)
+            (1010602, 0.30),  # HyperDrillCRT(+2) — LandsliderMIS(+2) — SpikeHazardSP(+2)
+            (1010603, 0.10)   # HyperDrillCRT(+3) — LandsliderMIS(+3) — SpikeHazardSP(+3)
         ],
 
         BOX_BODY: [
-            (1020601, 0.50),  # HyperDrillTA(+1) — LandsliderBST(+1) — SpikeHazardMX(+1)
-            (1020602, 0.20),  # HyperDrillTA(+2) — LandsliderBST(+2) — SpikeHazardMX(+2)
-            (1020603, 0.15),  # HyperDrillTA(+3) — LandsliderBST(+3) — SpikeHazardMX(+3)
-            (1020604, 0.10),  # HyperDrillTA(+4) — LandsliderBST(+4) — SpikeHazardMX(+4)
-            (1020605, 0.05),  # HyperDrillTA(+5) — LandsliderBST(+5) — SpikeHazardMX(+5)
+            (1020601, 0.60),  # HyperDrillTA(+1) — LandsliderBST(+1) — SpikeHazardMX(+1)
+            (1020602, 0.30),  # HyperDrillTA(+2) — LandsliderBST(+2) — SpikeHazardMX(+2)
+            (1020603, 0.10)   # HyperDrillTA(+3) — LandsliderBST(+3) — SpikeHazardMX(+3)
         ],
 
         BOX_ARMS: [
-            (1030601, 0.50),  # HyperDrillTD(+1) — LandsliderGUN(+1) — SpikeHazardTG(+1)
-            (1030602, 0.20),  # HyperDrillTD(+2) — LandsliderGUN(+2) — SpikeHazardTG(+2)
-            (1030603, 0.15),  # HyperDrillTD(+3) — LandsliderGUN(+3) — SpikeHazardTG(+3)
-            (1030604, 0.10),  # HyperDrillTD(+4) — LandsliderGUN(+4) — SpikeHazardTG(+4)
-            (1030605, 0.05),  # HyperDrillTD(+5) — LandsliderGUN(+5) — SpikeHazardTG(+5)
+            (1030601, 0.60),  # HyperDrillTD(+1) — LandsliderGUN(+1) — SpikeHazardTG(+1)
+            (1030602, 0.30),  # HyperDrillTD(+2) — LandsliderGUN(+2) — SpikeHazardTG(+2)
+            (1030603, 0.10)   # HyperDrillTD(+3) — LandsliderGUN(+3) — SpikeHazardTG(+3)
         ]
     },
 
@@ -2438,27 +2324,21 @@ PLANET_DROPS = {
         ],
 
         BOX_HEAD: [
-            (1010601, 0.50),  # HyperDrillCRT(+1) — LandsliderMIS(+1) — SpikeHazardSP(+1)
-            (1010602, 0.20),  # HyperDrillCRT(+2) — LandsliderMIS(+2) — SpikeHazardSP(+2)
-            (1010603, 0.15),  # HyperDrillCRT(+3) — LandsliderMIS(+3) — SpikeHazardSP(+3)
-            (1010604, 0.10),  # HyperDrillCRT(+4) — LandsliderMIS(+4) — SpikeHazardSP(+4)
-            (1010605, 0.05),  # HyperDrillCRT(+5) — LandsliderMIS(+5) — SpikeHazardSP(+5)
+            (1010601, 0.60),  # HyperDrillCRT(+1) — LandsliderMIS(+1) — SpikeHazardSP(+1)
+            (1010602, 0.30),  # HyperDrillCRT(+2) — LandsliderMIS(+2) — SpikeHazardSP(+2)
+            (1010603, 0.10)   # HyperDrillCRT(+3) — LandsliderMIS(+3) — SpikeHazardSP(+3)
         ],
 
         BOX_BODY: [
-            (1020601, 0.50),  # HyperDrillTA(+1) — LandsliderBST(+1) — SpikeHazardMX(+1)
-            (1020602, 0.20),  # HyperDrillTA(+2) — LandsliderBST(+2) — SpikeHazardMX(+2)
-            (1020603, 0.15),  # HyperDrillTA(+3) — LandsliderBST(+3) — SpikeHazardMX(+3)
-            (1020604, 0.10),  # HyperDrillTA(+4) — LandsliderBST(+4) — SpikeHazardMX(+4)
-            (1020605, 0.05),  # HyperDrillTA(+5) — LandsliderBST(+5) — SpikeHazardMX(+5)
+            (1020601, 0.60),  # HyperDrillTA(+1) — LandsliderBST(+1) — SpikeHazardMX(+1)
+            (1020602, 0.30),  # HyperDrillTA(+2) — LandsliderBST(+2) — SpikeHazardMX(+2)
+            (1020603, 0.10)   # HyperDrillTA(+3) — LandsliderBST(+3) — SpikeHazardMX(+3)
         ],
 
         BOX_ARMS: [
-            (1030601, 0.50),  # HyperDrillTD(+1) — LandsliderGUN(+1) — SpikeHazardTG(+1)
-            (1030602, 0.20),  # HyperDrillTD(+2) — LandsliderGUN(+2) — SpikeHazardTG(+2)
-            (1030603, 0.15),  # HyperDrillTD(+3) — LandsliderGUN(+3) — SpikeHazardTG(+3)
-            (1030604, 0.10),  # HyperDrillTD(+4) — LandsliderGUN(+4) — SpikeHazardTG(+4)
-            (1030605, 0.05),  # HyperDrillTD(+5) — LandsliderGUN(+5) — SpikeHazardTG(+5)
+            (1030601, 0.60),  # HyperDrillTD(+1) — LandsliderGUN(+1) — SpikeHazardTG(+1)
+            (1030602, 0.30),  # HyperDrillTD(+2) — LandsliderGUN(+2) — SpikeHazardTG(+2)
+            (1030603, 0.10)   # HyperDrillTD(+3) — LandsliderGUN(+3) — SpikeHazardTG(+3)
         ]
     },
 
@@ -2526,27 +2406,21 @@ PLANET_DROPS = {
         ],
 
         BOX_HEAD: [
-            (1010601, 0.50),  # HyperDrillCRT(+1) — LandsliderMIS(+1) — SpikeHazardSP(+1)
-            (1010602, 0.20),  # HyperDrillCRT(+2) — LandsliderMIS(+2) — SpikeHazardSP(+2)
-            (1010603, 0.15),  # HyperDrillCRT(+3) — LandsliderMIS(+3) — SpikeHazardSP(+3)
-            (1010604, 0.10),  # HyperDrillCRT(+4) — LandsliderMIS(+4) — SpikeHazardSP(+4)
-            (1010605, 0.05),  # HyperDrillCRT(+5) — LandsliderMIS(+5) — SpikeHazardSP(+5)
+            (1010601, 0.60),  # HyperDrillCRT(+1) — LandsliderMIS(+1) — SpikeHazardSP(+1)
+            (1010602, 0.30),  # HyperDrillCRT(+2) — LandsliderMIS(+2) — SpikeHazardSP(+2)
+            (1010603, 0.10)   # HyperDrillCRT(+3) — LandsliderMIS(+3) — SpikeHazardSP(+3)
         ],
 
         BOX_BODY: [
-            (1020601, 0.50),  # HyperDrillTA(+1) — LandsliderBST(+1) — SpikeHazardMX(+1)
-            (1020602, 0.20),  # HyperDrillTA(+2) — LandsliderBST(+2) — SpikeHazardMX(+2)
-            (1020603, 0.15),  # HyperDrillTA(+3) — LandsliderBST(+3) — SpikeHazardMX(+3)
-            (1020604, 0.10),  # HyperDrillTA(+4) — LandsliderBST(+4) — SpikeHazardMX(+4)
-            (1020605, 0.05),  # HyperDrillTA(+5) — LandsliderBST(+5) — SpikeHazardMX(+5)
+            (1020601, 0.60),  # HyperDrillTA(+1) — LandsliderBST(+1) — SpikeHazardMX(+1)
+            (1020602, 0.30),  # HyperDrillTA(+2) — LandsliderBST(+2) — SpikeHazardMX(+2)
+            (1020603, 0.10)   # HyperDrillTA(+3) — LandsliderBST(+3) — SpikeHazardMX(+3)
         ],
 
         BOX_ARMS: [
-            (1030601, 0.50),  # HyperDrillTD(+1) — LandsliderGUN(+1) — SpikeHazardTG(+1)
-            (1030602, 0.20),  # HyperDrillTD(+2) — LandsliderGUN(+2) — SpikeHazardTG(+2)
-            (1030603, 0.15),  # HyperDrillTD(+3) — LandsliderGUN(+3) — SpikeHazardTG(+3)
-            (1030604, 0.10),  # HyperDrillTD(+4) — LandsliderGUN(+4) — SpikeHazardTG(+4)
-            (1030605, 0.05),  # HyperDrillTD(+5) — LandsliderGUN(+5) — SpikeHazardTG(+5)
+            (1030601, 0.60),  # HyperDrillTD(+1) — LandsliderGUN(+1) — SpikeHazardTG(+1)
+            (1030602, 0.30),  # HyperDrillTD(+2) — LandsliderGUN(+2) — SpikeHazardTG(+2)
+            (1030603, 0.10)   # HyperDrillTD(+3) — LandsliderGUN(+3) — SpikeHazardTG(+3)
         ]
     },
 
@@ -2608,27 +2482,21 @@ PLANET_DROPS = {
         ],
 
         BOX_HEAD: [
-            (1010701, 0.50),  # fireroadCRT(+1) — SwordcasterMIS(+1) — MinusboltSP(+1)
-            (1010702, 0.20),  # fireroadCRT(+2) — SwordcasterMIS(+2) — MinusboltSP(+2)
-            (1010703, 0.15),  # fireroadCRT(+3) — SwordcasterMIS(+3) — MinusboltSP(+3)
-            (1010704, 0.10),  # fireroadCRT(+4) — SwordcasterMIS(+4) — MinusboltSP(+4)
-            (1010705, 0.05),  # fireroadCRT(+5) — SwordcasterMIS(+5) — MinusboltSP(+5)
+            (1010701, 0.60),  # fireroadCRT(+1) — SwordcasterMIS(+1) — MinusboltSP(+1)
+            (1010702, 0.30),  # fireroadCRT(+2) — SwordcasterMIS(+2) — MinusboltSP(+2)
+            (1010703, 0.10)   # fireroadCRT(+3) — SwordcasterMIS(+3) — MinusboltSP(+3)
         ],
 
         BOX_BODY: [
-            (1020701, 0.50),  # fireroadTA(+1) — SwordcasterBST(+1) — MinusboltMX(+1)
-            (1020702, 0.20),  # fireroadTA(+2) — SwordcasterBST(+2) — MinusboltMX(+2)
-            (1020703, 0.15),  # fireroadTA(+3) — SwordcasterBST(+3) — MinusboltMX(+3)
-            (1020704, 0.10),  # fireroadTA(+4) — SwordcasterBST(+4) — MinusboltMX(+4)
-            (1020705, 0.05),  # fireroadTA(+5) — SwordcasterBST(+5) — MinusboltMX(+5)
+            (1020701, 0.60),  # fireroadTA(+1) — SwordcasterBST(+1) — MinusboltMX(+1)
+            (1020702, 0.30),  # fireroadTA(+2) — SwordcasterBST(+2) — MinusboltMX(+2)
+            (1020703, 0.10)   # fireroadTA(+3) — SwordcasterBST(+3) — MinusboltMX(+3)
         ],
 
         BOX_ARMS: [
-            (1030701, 0.50),  # fireroadTD(+1) — SwordcasterGUN(+1) — MinusboltTG(+1)
-            (1030702, 0.20),  # fireroadTD(+2) — SwordcasterGUN(+2) — MinusboltTG(+2)
-            (1030703, 0.15),  # fireroadTD(+3) — SwordcasterGUN(+3) — MinusboltTG(+3)
-            (1030704, 0.10),  # fireroadTD(+4) — SwordcasterGUN(+4) — MinusboltTG(+4)
-            (1030705, 0.05),  # fireroadTD(+5) — SwordcasterGUN(+5) — MinusboltTG(+5)
+            (1030701, 0.60),  # fireroadTD(+1) — SwordcasterGUN(+1) — MinusboltTG(+1)
+            (1030702, 0.30),  # fireroadTD(+2) — SwordcasterGUN(+2) — MinusboltTG(+2)
+            (1030703, 0.10)   # fireroadTD(+3) — SwordcasterGUN(+3) — MinusboltTG(+3)
         ]
     },
 
@@ -2696,27 +2564,21 @@ PLANET_DROPS = {
         ],
 
         BOX_HEAD: [
-            (1010701, 0.50),  # fireroadCRT(+1) — SwordcasterMIS(+1) — MinusboltSP(+1)
-            (1010702, 0.20),  # fireroadCRT(+2) — SwordcasterMIS(+2) — MinusboltSP(+2)
-            (1010703, 0.15),  # fireroadCRT(+3) — SwordcasterMIS(+3) — MinusboltSP(+3)
-            (1010704, 0.10),  # fireroadCRT(+4) — SwordcasterMIS(+4) — MinusboltSP(+4)
-            (1010705, 0.05),  # fireroadCRT(+5) — SwordcasterMIS(+5) — MinusboltSP(+5)
+            (1010701, 0.60),  # fireroadCRT(+1) — SwordcasterMIS(+1) — MinusboltSP(+1)
+            (1010702, 0.30),  # fireroadCRT(+2) — SwordcasterMIS(+2) — MinusboltSP(+2)
+            (1010703, 0.10)   # fireroadCRT(+3) — SwordcasterMIS(+3) — MinusboltSP(+3)
         ],
 
         BOX_BODY: [
-            (1020701, 0.50),  # fireroadTA(+1) — SwordcasterBST(+1) — MinusboltMX(+1)
-            (1020702, 0.20),  # fireroadTA(+2) — SwordcasterBST(+2) — MinusboltMX(+2)
-            (1020703, 0.15),  # fireroadTA(+3) — SwordcasterBST(+3) — MinusboltMX(+3)
-            (1020704, 0.10),  # fireroadTA(+4) — SwordcasterBST(+4) — MinusboltMX(+4)
-            (1020705, 0.05),  # fireroadTA(+5) — SwordcasterBST(+5) — MinusboltMX(+5)
+            (1020701, 0.60),  # fireroadTA(+1) — SwordcasterBST(+1) — MinusboltMX(+1)
+            (1020702, 0.30),  # fireroadTA(+2) — SwordcasterBST(+2) — MinusboltMX(+2)
+            (1020703, 0.10)   # fireroadTA(+3) — SwordcasterBST(+3) — MinusboltMX(+3)
         ],
 
         BOX_ARMS: [
-            (1030701, 0.50),  # fireroadTD(+1) — SwordcasterGUN(+1) — MinusboltTG(+1)
-            (1030702, 0.20),  # fireroadTD(+2) — SwordcasterGUN(+2) — MinusboltTG(+2)
-            (1030703, 0.15),  # fireroadTD(+3) — SwordcasterGUN(+3) — MinusboltTG(+3)
-            (1030704, 0.10),  # fireroadTD(+4) — SwordcasterGUN(+4) — MinusboltTG(+4)
-            (1030705, 0.05),  # fireroadTD(+5) — SwordcasterGUN(+5) — MinusboltTG(+5)
+            (1030701, 0.60),  # fireroadTD(+1) — SwordcasterGUN(+1) — MinusboltTG(+1)
+            (1030702, 0.30),  # fireroadTD(+2) — SwordcasterGUN(+2) — MinusboltTG(+2)
+            (1030703, 0.10)   # fireroadTD(+3) — SwordcasterGUN(+3) — MinusboltTG(+3)
         ]
     },
 
@@ -2783,27 +2645,21 @@ PLANET_DROPS = {
         ],
 
         BOX_HEAD: [
-            (1010701, 0.50),  # fireroadCRT(+1) — SwordcasterMIS(+1) — MinusboltSP(+1)
-            (1010702, 0.20),  # fireroadCRT(+2) — SwordcasterMIS(+2) — MinusboltSP(+2)
-            (1010703, 0.15),  # fireroadCRT(+3) — SwordcasterMIS(+3) — MinusboltSP(+3)
-            (1010704, 0.10),  # fireroadCRT(+4) — SwordcasterMIS(+4) — MinusboltSP(+4)
-            (1010705, 0.05),  # fireroadCRT(+5) — SwordcasterMIS(+5) — MinusboltSP(+5)
+            (1010701, 0.60),  # fireroadCRT(+1) — SwordcasterMIS(+1) — MinusboltSP(+1)
+            (1010702, 0.30),  # fireroadCRT(+2) — SwordcasterMIS(+2) — MinusboltSP(+2)
+            (1010703, 0.10),  # fireroadCRT(+3) — SwordcasterMIS(+3) — MinusboltSP(+3)
         ],
 
         BOX_BODY: [
-            (1020701, 0.50),  # fireroadTA(+1) — SwordcasterBST(+1) — MinusboltMX(+1)
-            (1020702, 0.20),  # fireroadTA(+2) — SwordcasterBST(+2) — MinusboltMX(+2)
-            (1020703, 0.15),  # fireroadTA(+3) — SwordcasterBST(+3) — MinusboltMX(+3)
-            (1020704, 0.10),  # fireroadTA(+4) — SwordcasterBST(+4) — MinusboltMX(+4)
-            (1020705, 0.05),  # fireroadTA(+5) — SwordcasterBST(+5) — MinusboltMX(+5)
+            (1020701, 0.60),  # fireroadTA(+1) — SwordcasterBST(+1) — MinusboltMX(+1)
+            (1020702, 0.30),  # fireroadTA(+2) — SwordcasterBST(+2) — MinusboltMX(+2)
+            (1020703, 0.10)   # fireroadTA(+3) — SwordcasterBST(+3) — MinusboltMX(+3)
         ],
 
         BOX_ARMS: [
-            (1030701, 0.50),  # fireroadTD(+1) — SwordcasterGUN(+1) — MinusboltTG(+1)
-            (1030702, 0.20),  # fireroadTD(+2) — SwordcasterGUN(+2) — MinusboltTG(+2)
-            (1030703, 0.15),  # fireroadTD(+3) — SwordcasterGUN(+3) — MinusboltTG(+3)
-            (1030704, 0.10),  # fireroadTD(+4) — SwordcasterGUN(+4) — MinusboltTG(+4)
-            (1030705, 0.05),  # fireroadTD(+5) — SwordcasterGUN(+5) — MinusboltTG(+5)
+            (1030701, 0.60),  # fireroadTD(+1) — SwordcasterGUN(+1) — MinusboltTG(+1)
+            (1030702, 0.30),  # fireroadTD(+2) — SwordcasterGUN(+2) — MinusboltTG(+2)
+            (1030703, 0.10)   # fireroadTD(+3) — SwordcasterGUN(+3) — MinusboltTG(+3)
         ]
     },
 
@@ -2869,27 +2725,21 @@ PLANET_DROPS = {
         ],
 
         BOX_HEAD: [
-            (1010701, 0.50),  # fireroadCRT(+1) — SwordcasterMIS(+1) — MinusboltSP(+1)
-            (1010702, 0.20),  # fireroadCRT(+2) — SwordcasterMIS(+2) — MinusboltSP(+2)
-            (1010703, 0.15),  # fireroadCRT(+3) — SwordcasterMIS(+3) — MinusboltSP(+3)
-            (1010704, 0.10),  # fireroadCRT(+4) — SwordcasterMIS(+4) — MinusboltSP(+4)
-            (1010705, 0.05),  # fireroadCRT(+5) — SwordcasterMIS(+5) — MinusboltSP(+5)
+            (1010701, 0.60),  # fireroadCRT(+1) — SwordcasterMIS(+1) — MinusboltSP(+1)
+            (1010702, 0.30),  # fireroadCRT(+2) — SwordcasterMIS(+2) — MinusboltSP(+2)
+            (1010703, 0.10)   # fireroadCRT(+3) — SwordcasterMIS(+3) — MinusboltSP(+3)
         ],
 
         BOX_BODY: [
-            (1020701, 0.50),  # fireroadTA(+1) — SwordcasterBST(+1) — MinusboltMX(+1)
-            (1020702, 0.20),  # fireroadTA(+2) — SwordcasterBST(+2) — MinusboltMX(+2)
-            (1020703, 0.15),  # fireroadTA(+3) — SwordcasterBST(+3) — MinusboltMX(+3)
-            (1020704, 0.10),  # fireroadTA(+4) — SwordcasterBST(+4) — MinusboltMX(+4)
-            (1020705, 0.05),  # fireroadTA(+5) — SwordcasterBST(+5) — MinusboltMX(+5)
+            (1020701, 0.60),  # fireroadTA(+1) — SwordcasterBST(+1) — MinusboltMX(+1)
+            (1020702, 0.30),  # fireroadTA(+2) — SwordcasterBST(+2) — MinusboltMX(+2)
+            (1020703, 0.10)   # fireroadTA(+3) — SwordcasterBST(+3) — MinusboltMX(+3)
         ],
 
         BOX_ARMS: [
-            (1030701, 0.50),  # fireroadTD(+1) — SwordcasterGUN(+1) — MinusboltTG(+1)
-            (1030702, 0.20),  # fireroadTD(+2) — SwordcasterGUN(+2) — MinusboltTG(+2)
-            (1030703, 0.15),  # fireroadTD(+3) — SwordcasterGUN(+3) — MinusboltTG(+3)
-            (1030704, 0.10),  # fireroadTD(+4) — SwordcasterGUN(+4) — MinusboltTG(+4)
-            (1030705, 0.05),  # fireroadTD(+5) — SwordcasterGUN(+5) — MinusboltTG(+5)
+            (1030701, 0.60),  # fireroadTD(+1) — SwordcasterGUN(+1) — MinusboltTG(+1)
+            (1030702, 0.30),  # fireroadTD(+2) — SwordcasterGUN(+2) — MinusboltTG(+2)
+            (1030703, 0.10)   # fireroadTD(+3) — SwordcasterGUN(+3) — MinusboltTG(+3)
         ]
     },
 
@@ -2951,27 +2801,21 @@ PLANET_DROPS = {
         ],
 
         BOX_HEAD: [
-            (1010701, 0.50),  # fireroadCRT(+1) — SwordcasterMIS(+1) — MinusboltSP(+1)
-            (1010702, 0.20),  # fireroadCRT(+2) — SwordcasterMIS(+2) — MinusboltSP(+2)
-            (1010703, 0.15),  # fireroadCRT(+3) — SwordcasterMIS(+3) — MinusboltSP(+3)
-            (1010704, 0.10),  # fireroadCRT(+4) — SwordcasterMIS(+4) — MinusboltSP(+4)
-            (1010705, 0.05),  # fireroadCRT(+5) — SwordcasterMIS(+5) — MinusboltSP(+5)
+            (1010701, 0.60),  # fireroadCRT(+1) — SwordcasterMIS(+1) — MinusboltSP(+1)
+            (1010702, 0.30),  # fireroadCRT(+2) — SwordcasterMIS(+2) — MinusboltSP(+2)
+            (1010703, 0.10)   # fireroadCRT(+3) — SwordcasterMIS(+3) — MinusboltSP(+3)
         ],
 
         BOX_BODY: [
-            (1020701, 0.50),  # fireroadTA(+1) — SwordcasterBST(+1) — MinusboltMX(+1)
-            (1020702, 0.20),  # fireroadTA(+2) — SwordcasterBST(+2) — MinusboltMX(+2)
-            (1020703, 0.15),  # fireroadTA(+3) — SwordcasterBST(+3) — MinusboltMX(+3)
-            (1020704, 0.10),  # fireroadTA(+4) — SwordcasterBST(+4) — MinusboltMX(+4)
-            (1020705, 0.05),  # fireroadTA(+5) — SwordcasterBST(+5) — MinusboltMX(+5)
+            (1020701, 0.60),  # fireroadTA(+1) — SwordcasterBST(+1) — MinusboltMX(+1)
+            (1020702, 0.30),  # fireroadTA(+2) — SwordcasterBST(+2) — MinusboltMX(+2)
+            (1020703, 0.10)   # fireroadTA(+3) — SwordcasterBST(+3) — MinusboltMX(+3)
         ],
 
         BOX_ARMS: [
-            (1030701, 0.50),  # fireroadTD(+1) — SwordcasterGUN(+1) — MinusboltTG(+1)
-            (1030702, 0.20),  # fireroadTD(+2) — SwordcasterGUN(+2) — MinusboltTG(+2)
-            (1030703, 0.15),  # fireroadTD(+3) — SwordcasterGUN(+3) — MinusboltTG(+3)
-            (1030704, 0.10),  # fireroadTD(+4) — SwordcasterGUN(+4) — MinusboltTG(+4)
-            (1030705, 0.05),  # fireroadTD(+5) — SwordcasterGUN(+5) — MinusboltTG(+5)
+            (1030701, 0.60),  # fireroadTD(+1) — SwordcasterGUN(+1) — MinusboltTG(+1)
+            (1030702, 0.30),  # fireroadTD(+2) — SwordcasterGUN(+2) — MinusboltTG(+2)
+            (1030703, 0.10)   # fireroadTD(+3) — SwordcasterGUN(+3) — MinusboltTG(+3)
         ]
     },
 
@@ -3033,27 +2877,21 @@ PLANET_DROPS = {
         ],
 
         BOX_HEAD: [
-            (1010701, 0.50),  # fireroadCRT(+1) — SwordcasterMIS(+1) — MinusboltSP(+1)
-            (1010702, 0.20),  # fireroadCRT(+2) — SwordcasterMIS(+2) — MinusboltSP(+2)
-            (1010703, 0.15),  # fireroadCRT(+3) — SwordcasterMIS(+3) — MinusboltSP(+3)
-            (1010704, 0.10),  # fireroadCRT(+4) — SwordcasterMIS(+4) — MinusboltSP(+4)
-            (1010705, 0.05),  # fireroadCRT(+5) — SwordcasterMIS(+5) — MinusboltSP(+5)
+            (1010701, 0.60),  # fireroadCRT(+1) — SwordcasterMIS(+1) — MinusboltSP(+1)
+            (1010702, 0.30),  # fireroadCRT(+2) — SwordcasterMIS(+2) — MinusboltSP(+2)
+            (1010703, 0.10)   # fireroadCRT(+3) — SwordcasterMIS(+3) — MinusboltSP(+3)
         ],
 
         BOX_BODY: [
-            (1020701, 0.50),  # fireroadTA(+1) — SwordcasterBST(+1) — MinusboltMX(+1)
-            (1020702, 0.20),  # fireroadTA(+2) — SwordcasterBST(+2) — MinusboltMX(+2)
-            (1020703, 0.15),  # fireroadTA(+3) — SwordcasterBST(+3) — MinusboltMX(+3)
-            (1020704, 0.10),  # fireroadTA(+4) — SwordcasterBST(+4) — MinusboltMX(+4)
-            (1020705, 0.05),  # fireroadTA(+5) — SwordcasterBST(+5) — MinusboltMX(+5)
+            (1020701, 0.60),  # fireroadTA(+1) — SwordcasterBST(+1) — MinusboltMX(+1)
+            (1020702, 0.30),  # fireroadTA(+2) — SwordcasterBST(+2) — MinusboltMX(+2)
+            (1020703, 0.10)   # fireroadTA(+3) — SwordcasterBST(+3) — MinusboltMX(+3)
         ],
 
         BOX_ARMS: [
-            (1030701, 0.50),  # fireroadTD(+1) — SwordcasterGUN(+1) — MinusboltTG(+1)
-            (1030702, 0.20),  # fireroadTD(+2) — SwordcasterGUN(+2) — MinusboltTG(+2)
-            (1030703, 0.15),  # fireroadTD(+3) — SwordcasterGUN(+3) — MinusboltTG(+3)
-            (1030704, 0.10),  # fireroadTD(+4) — SwordcasterGUN(+4) — MinusboltTG(+4)
-            (1030705, 0.05),  # fireroadTD(+5) — SwordcasterGUN(+5) — MinusboltTG(+5)
+            (1030701, 0.60),  # fireroadTD(+1) — SwordcasterGUN(+1) — MinusboltTG(+1)
+            (1030702, 0.30),  # fireroadTD(+2) — SwordcasterGUN(+2) — MinusboltTG(+2)
+            (1030703, 0.10)   # fireroadTD(+3) — SwordcasterGUN(+3) — MinusboltTG(+3)
         ]
     },
 
@@ -3107,27 +2945,21 @@ PLANET_DROPS = {
         ],
 
         BOX_HEAD: [
-            (1010701, 0.50),  # fireroadCRT(+1) — SwordcasterMIS(+1) — MinusboltSP(+1)
-            (1010702, 0.20),  # fireroadCRT(+2) — SwordcasterMIS(+2) — MinusboltSP(+2)
-            (1010703, 0.15),  # fireroadCRT(+3) — SwordcasterMIS(+3) — MinusboltSP(+3)
-            (1010704, 0.10),  # fireroadCRT(+4) — SwordcasterMIS(+4) — MinusboltSP(+4)
-            (1010705, 0.05),  # fireroadCRT(+5) — SwordcasterMIS(+5) — MinusboltSP(+5)
+            (1010701, 0.60),  # fireroadCRT(+1) — SwordcasterMIS(+1) — MinusboltSP(+1)
+            (1010702, 0.30),  # fireroadCRT(+2) — SwordcasterMIS(+2) — MinusboltSP(+2)
+            (1010703, 0.10)   # fireroadCRT(+3) — SwordcasterMIS(+3) — MinusboltSP(+3)
         ],
 
         BOX_BODY: [
-            (1020701, 0.50),  # fireroadTA(+1) — SwordcasterBST(+1) — MinusboltMX(+1)
-            (1020702, 0.20),  # fireroadTA(+2) — SwordcasterBST(+2) — MinusboltMX(+2)
-            (1020703, 0.15),  # fireroadTA(+3) — SwordcasterBST(+3) — MinusboltMX(+3)
-            (1020704, 0.10),  # fireroadTA(+4) — SwordcasterBST(+4) — MinusboltMX(+4)
-            (1020705, 0.05),  # fireroadTA(+5) — SwordcasterBST(+5) — MinusboltMX(+5)
+            (1020701, 0.60),  # fireroadTA(+1) — SwordcasterBST(+1) — MinusboltMX(+1)
+            (1020702, 0.30),  # fireroadTA(+2) — SwordcasterBST(+2) — MinusboltMX(+2)
+            (1020703, 0.10)   # fireroadTA(+3) — SwordcasterBST(+3) — MinusboltMX(+3)
         ],
 
         BOX_ARMS: [
-            (1030701, 0.50),  # fireroadTD(+1) — SwordcasterGUN(+1) — MinusboltTG(+1)
-            (1030702, 0.20),  # fireroadTD(+2) — SwordcasterGUN(+2) — MinusboltTG(+2)
-            (1030703, 0.15),  # fireroadTD(+3) — SwordcasterGUN(+3) — MinusboltTG(+3)
-            (1030704, 0.10),  # fireroadTD(+4) — SwordcasterGUN(+4) — MinusboltTG(+4)
-            (1030705, 0.05),  # fireroadTD(+5) — SwordcasterGUN(+5) — MinusboltTG(+5)
+            (1030701, 0.60),  # fireroadTD(+1) — SwordcasterGUN(+1) — MinusboltTG(+1)
+            (1030702, 0.30),  # fireroadTD(+2) — SwordcasterGUN(+2) — MinusboltTG(+2)
+            (1030703, 0.10)   # fireroadTD(+3) — SwordcasterGUN(+3) — MinusboltTG(+3)
         ]
     },
 
@@ -3175,27 +3007,21 @@ PLANET_DROPS = {
         ],
 
         BOX_HEAD: [
-            (1010701, 0.50),  # fireroadCRT(+1) — SwordcasterMIS(+1) — MinusboltSP(+1)
-            (1010702, 0.20),  # fireroadCRT(+2) — SwordcasterMIS(+2) — MinusboltSP(+2)
-            (1010703, 0.15),  # fireroadCRT(+3) — SwordcasterMIS(+3) — MinusboltSP(+3)
-            (1010704, 0.10),  # fireroadCRT(+4) — SwordcasterMIS(+4) — MinusboltSP(+4)
-            (1010705, 0.05),  # fireroadCRT(+5) — SwordcasterMIS(+5) — MinusboltSP(+5)
+            (1010701, 0.60),  # fireroadCRT(+1) — SwordcasterMIS(+1) — MinusboltSP(+1)
+            (1010702, 0.30),  # fireroadCRT(+2) — SwordcasterMIS(+2) — MinusboltSP(+2)
+            (1010703, 0.10)   # fireroadCRT(+3) — SwordcasterMIS(+3) — MinusboltSP(+3)
         ],
 
         BOX_BODY: [
-            (1020701, 0.50),  # fireroadTA(+1) — SwordcasterBST(+1) — MinusboltMX(+1)
-            (1020702, 0.20),  # fireroadTA(+2) — SwordcasterBST(+2) — MinusboltMX(+2)
-            (1020703, 0.15),  # fireroadTA(+3) — SwordcasterBST(+3) — MinusboltMX(+3)
-            (1020704, 0.10),  # fireroadTA(+4) — SwordcasterBST(+4) — MinusboltMX(+4)
-            (1020705, 0.05),  # fireroadTA(+5) — SwordcasterBST(+5) — MinusboltMX(+5)
+            (1020701, 0.60),  # fireroadTA(+1) — SwordcasterBST(+1) — MinusboltMX(+1)
+            (1020702, 0.30),  # fireroadTA(+2) — SwordcasterBST(+2) — MinusboltMX(+2)
+            (1020703, 0.10)   # fireroadTA(+3) — SwordcasterBST(+3) — MinusboltMX(+3)
         ],
 
         BOX_ARMS: [
-            (1030701, 0.50),  # fireroadTD(+1) — SwordcasterGUN(+1) — MinusboltTG(+1)
-            (1030702, 0.20),  # fireroadTD(+2) — SwordcasterGUN(+2) — MinusboltTG(+2)
-            (1030703, 0.15),  # fireroadTD(+3) — SwordcasterGUN(+3) — MinusboltTG(+3)
-            (1030704, 0.10),  # fireroadTD(+4) — SwordcasterGUN(+4) — MinusboltTG(+4)
-            (1030705, 0.05),  # fireroadTD(+5) — SwordcasterGUN(+5) — MinusboltTG(+5)
+            (1030701, 0.60),  # fireroadTD(+1) — SwordcasterGUN(+1) — MinusboltTG(+1)
+            (1030702, 0.30),  # fireroadTD(+2) — SwordcasterGUN(+2) — MinusboltTG(+2)
+            (1030703, 0.10)   # fireroadTD(+3) — SwordcasterGUN(+3) — MinusboltTG(+3)
         ]
     },
 
@@ -3233,27 +3059,21 @@ PLANET_DROPS = {
         ],
 
         BOX_HEAD: [
-            (1010201, 0.40),  # SpikeyCRT(+1) — Lea-ClawMIS(+1) — TweezerHeadSP(+1)
-            (1010202, 0.10),  # SpikeyCRT(+2) — Lea-ClawMIS(+2) — TweezerHeadSP(+2)
-            (1010203, 0.25),  # SpikeyCRT(+3) — Lea-ClawMIS(+3) — TweezerHeadSP(+3)
-            (1010204, 0.15),  # SpikeyCRT(+4) — Lea-ClawMIS(+4) — TweezerHeadSP(+4)
-            (1010205, 0.10),  # SpikeyCRT(+5) — Lea-ClawMIS(+5) — TweezerHeadSP(+5)
+            (1010201, 0.60),  # SpikeyCRT(+1) — Lea-ClawMIS(+1) — TweezerHeadSP(+1)
+            (1010202, 0.30),  # SpikeyCRT(+2) — Lea-ClawMIS(+2) — TweezerHeadSP(+2)
+            (1010203, 0.10)   # SpikeyCRT(+3) — Lea-ClawMIS(+3) — TweezerHeadSP(+3)
         ],
 
         BOX_BODY: [
-            (1020201, 0.40),  # SpikeyTA(+1) — Lea-ClawBST(+1) — TweezerHeadMX(+1)
-            (1020202, 0.10),  # SpikeyTA(+2) — Lea-ClawBST(+2) — TweezerHeadMX(+2)
-            (1020203, 0.25),  # SpikeyTA(+3) — Lea-ClawBST(+3) — TweezerHeadMX(+3)
-            (1020204, 0.15),  # SpikeyTA(+4) — Lea-ClawBST(+4) — TweezerHeadMX(+4)
-            (1020205, 0.10),  # SpikeyTA(+5) — Lea-ClawBST(+5) — TweezerHeadMX(+5)
+            (1020201, 0.60),  # SpikeyTA(+1) — Lea-ClawBST(+1) — TweezerHeadMX(+1)
+            (1020202, 0.30),  # SpikeyTA(+2) — Lea-ClawBST(+2) — TweezerHeadMX(+2)
+            (1020203, 0.10)   # SpikeyTA(+3) — Lea-ClawBST(+3) — TweezerHeadMX(+3)
         ],
 
         BOX_ARMS: [
-            (1030201, 0.40),  # SpikeyTD(+1) — Lea-ClawGUN(+1) — TweezerHeadTG(+1)
-            (1030202, 0.10),  # SpikeyTD(+2) — Lea-ClawGUN(+2) — TweezerHeadTG(+2)
-            (1030203, 0.25),  # SpikeyTD(+3) — Lea-ClawGUN(+3) — TweezerHeadTG(+3)
-            (1030204, 0.15),  # SpikeyTD(+4) — Lea-ClawGUN(+4) — TweezerHeadTG(+4)
-            (1030205, 0.10),  # SpikeyTD(+5) — Lea-ClawGUN(+5) — TweezerHeadTG(+5)
+            (1030201, 0.60),  # SpikeyTD(+1) — Lea-ClawGUN(+1) — TweezerHeadTG(+1)
+            (1030202, 0.30),  # SpikeyTD(+2) — Lea-ClawGUN(+2) — TweezerHeadTG(+2)
+            (1030203, 0.10)   # SpikeyTD(+3) — Lea-ClawGUN(+3) — TweezerHeadTG(+3)
         ]
     },
 
@@ -3314,27 +3134,21 @@ PLANET_DROPS = {
         ],
 
         BOX_HEAD: [
-            (1010301, 0.40),  # StonehazardCRT(+1) — Seven-PearceMIS(+1) — ChestBusterSP(+1)
-            (1010302, 0.10),  # StonehazardCRT(+2) — Seven-PearceMIS(+2) — ChestBusterSP(+2)
-            (1010303, 0.25),  # StonehazardCRT(+3) — Seven-PearceMIS(+3) — ChestBusterSP(+3)
-            (1010304, 0.15),  # StonehazardCRT(+4) — Seven-PearceMIS(+4) — ChestBusterSP(+4)
-            (1010305, 0.10),  # StonehazardCRT(+5) — Seven-PearceMIS(+5) — ChestBusterSP(+5)
+            (1010301, 0.60),  # StonehazardCRT(+1) — Seven-PearceMIS(+1) — ChestBusterSP(+1)
+            (1010302, 0.30),  # StonehazardCRT(+2) — Seven-PearceMIS(+2) — ChestBusterSP(+2)
+            (1010303, 0.10)   # StonehazardCRT(+3) — Seven-PearceMIS(+3) — ChestBusterSP(+3)
         ],
 
         BOX_BODY: [
-            (1020301, 0.40),  # StonehazardTA(+1) — Seven-PearceBST(+1) — ChestBusterMX(+1)
-            (1020302, 0.10),  # StonehazardTA(+2) — Seven-PearceBST(+2) — ChestBusterMX(+2)
-            (1020303, 0.25),  # StonehazardTA(+3) — Seven-PearceBST(+3) — ChestBusterMX(+3)
-            (1020304, 0.15),  # StonehazardTA(+4) — Seven-PearceBST(+4) — ChestBusterMX(+4)
-            (1020305, 0.10),  # StonehazardTA(+5) — Seven-PearceBST(+5) — ChestBusterMX(+5)
+            (1020301, 0.60),  # StonehazardTA(+1) — Seven-PearceBST(+1) — ChestBusterMX(+1)
+            (1020302, 0.30),  # StonehazardTA(+2) — Seven-PearceBST(+2) — ChestBusterMX(+2)
+            (1020303, 0.10)   # StonehazardTA(+3) — Seven-PearceBST(+3) — ChestBusterMX(+3)
         ],
 
         BOX_ARMS: [
-            (1030301, 0.40),  # StonehazardTD(+1) — Seven-PearceGUN(+1) — ChestBusterTG(+1)
-            (1030302, 0.10),  # StonehazardTD(+2) — Seven-PearceGUN(+2) — ChestBusterTG(+2)
-            (1030303, 0.25),  # StonehazardTD(+3) — Seven-PearceGUN(+3) — ChestBusterTG(+3)
-            (1030304, 0.15),  # StonehazardTD(+4) — Seven-PearceGUN(+4) — ChestBusterTG(+4)
-            (1030305, 0.10),  # StonehazardTD(+5) — Seven-PearceGUN(+5) — ChestBusterTG(+5)
+            (1030301, 0.60),  # StonehazardTD(+1) — Seven-PearceGUN(+1) — ChestBusterTG(+1)
+            (1030302, 0.30),  # StonehazardTD(+2) — Seven-PearceGUN(+2) — ChestBusterTG(+2)
+            (1030303, 0.10)   # StonehazardTD(+3) — Seven-PearceGUN(+3) — ChestBusterTG(+3)
         ]
     },
 
@@ -3402,27 +3216,21 @@ PLANET_DROPS = {
         ],
 
         BOX_HEAD: [
-            (1010401, 0.40),  # CrashcannonCRT(+1) — CresentJetMIS(+1) — DuskrunnerSP(+1)
-            (1010402, 0.10),  # CrashcannonCRT(+2) — CresentJetMIS(+2) — DuskrunnerSP(+2)
-            (1010403, 0.25),  # CrashcannonCRT(+3) — CresentJetMIS(+3) — DuskrunnerSP(+3)
-            (1010404, 0.15),  # CrashcannonCRT(+4) — CresentJetMIS(+4) — DuskrunnerSP(+4)
-            (1010405, 0.10),  # CrashcannonCRT(+5) — CresentJetMIS(+5) — DuskrunnerSP(+5)
+            (1010401, 0.60),  # CrashcannonCRT(+1) — CresentJetMIS(+1) — DuskrunnerSP(+1)
+            (1010402, 0.30),  # CrashcannonCRT(+2) — CresentJetMIS(+2) — DuskrunnerSP(+2)
+            (1010403, 0.10)   # CrashcannonCRT(+3) — CresentJetMIS(+3) — DuskrunnerSP(+3)
         ],
 
         BOX_BODY: [
-            (1020401, 0.40),  # CrashcannonTA(+1) — CresentJetBST(+1) — DuskrunnerMX(+1)
-            (1020402, 0.10),  # CrashcannonTA(+2) — CresentJetBST(+2) — DuskrunnerMX(+2)
-            (1020403, 0.25),  # CrashcannonTA(+3) — CresentJetBST(+3) — DuskrunnerMX(+3)
-            (1020404, 0.15),  # CrashcannonTA(+4) — CresentJetBST(+4) — DuskrunnerMX(+4)
-            (1020405, 0.10),  # CrashcannonTA(+5) — CresentJetBST(+5) — DuskrunnerMX(+5)
+            (1020401, 0.60),  # CrashcannonTA(+1) — CresentJetBST(+1) — DuskrunnerMX(+1)
+            (1020402, 0.30),  # CrashcannonTA(+2) — CresentJetBST(+2) — DuskrunnerMX(+2)
+            (1020403, 0.10)   # CrashcannonTA(+3) — CresentJetBST(+3) — DuskrunnerMX(+3)
         ],
 
         BOX_ARMS: [
-            (1030401, 0.40),  # CrashcannonTD(+1) — CresentJetGUN(+1) — DuskrunnerTG(+1)
-            (1030402, 0.10),  # CrashcannonTD(+2) — CresentJetGUN(+2) — DuskrunnerTG(+2)
-            (1030403, 0.25),  # CrashcannonTD(+3) — CresentJetGUN(+3) — DuskrunnerTG(+3)
-            (1030404, 0.15),  # CrashcannonTD(+4) — CresentJetGUN(+4) — DuskrunnerTG(+4)
-            (1030405, 0.10),  # CrashcannonTD(+5) — CresentJetGUN(+5) — DuskrunnerTG(+5)
+            (1030401, 0.60),  # CrashcannonTD(+1) — CresentJetGUN(+1) — DuskrunnerTG(+1)
+            (1030402, 0.30),  # CrashcannonTD(+2) — CresentJetGUN(+2) — DuskrunnerTG(+2)
+            (1030403, 0.10)   # CrashcannonTD(+3) — CresentJetGUN(+3) — DuskrunnerTG(+3)
         ]
     },
 
@@ -3489,27 +3297,21 @@ PLANET_DROPS = {
         ],
 
         BOX_HEAD: [
-            (1010501, 0.40),  # LycaonLaunchCRT(+1) — BladeShooterMIS(+1) — SticleSP(+1)
-            (1010502, 0.10),  # LycaonLaunchCRT(+2) — BladeShooterMIS(+2) — SticleSP(+2)
-            (1010503, 0.25),  # LycaonLaunchCRT(+3) — BladeShooterMIS(+3) — SticleSP(+3)
-            (1010504, 0.15),  # LycaonLaunchCRT(+4) — BladeShooterMIS(+4) — SticleSP(+4)
-            (1010505, 0.10),  # LycaonLaunchCRT(+5) — BladeShooterMIS(+5) — SticleSP(+5)
+            (1010501, 0.60),  # LycaonLaunchCRT(+1) — BladeShooterMIS(+1) — SticleSP(+1)
+            (1010502, 0.30),  # LycaonLaunchCRT(+2) — BladeShooterMIS(+2) — SticleSP(+2)
+            (1010503, 0.10)   # LycaonLaunchCRT(+3) — BladeShooterMIS(+3) — SticleSP(+3)
         ],
 
         BOX_BODY: [
-            (1020501, 0.40),  # LycaonLaunchTA(+1) — BladeShooterBST(+1) — SticleMX(+1)
-            (1020502, 0.10),  # LycaonLaunchTA(+2) — BladeShooterBST(+2) — SticleMX(+2)
-            (1020503, 0.25),  # LycaonLaunchTA(+3) — BladeShooterBST(+3) — SticleMX(+3)
-            (1020504, 0.15),  # LycaonLaunchTA(+4) — BladeShooterBST(+4) — SticleMX(+4)
-            (1020505, 0.10),  # LycaonLaunchTA(+5) — BladeShooterBST(+5) — SticleMX(+5)
+            (1020501, 0.60),  # LycaonLaunchTA(+1) — BladeShooterBST(+1) — SticleMX(+1)
+            (1020502, 0.30),  # LycaonLaunchTA(+2) — BladeShooterBST(+2) — SticleMX(+2)
+            (1020503, 0.10)  # LycaonLaunchTA(+3) — BladeShooterBST(+3) — SticleMX(+3)
         ],
 
         BOX_ARMS: [
-            (1030501, 0.40),  # LycaonLaunchTD(+1) — BladeShooterGUN(+1) — SticleTG(+1)
-            (1030502, 0.10),  # LycaonLaunchTD(+2) — BladeShooterGUN(+2) — SticleTG(+2)
-            (1030503, 0.25),  # LycaonLaunchTD(+3) — BladeShooterGUN(+3) — SticleTG(+3)
-            (1030504, 0.15),  # LycaonLaunchTD(+4) — BladeShooterGUN(+4) — SticleTG(+4)
-            (1030505, 0.10),  # LycaonLaunchTD(+5) — BladeShooterGUN(+5) — SticleTG(+5)
+            (1030501, 0.60),  # LycaonLaunchTD(+1) — BladeShooterGUN(+1) — SticleTG(+1)
+            (1030502, 0.30),  # LycaonLaunchTD(+2) — BladeShooterGUN(+2) — SticleTG(+2)
+            (1030503, 0.10)   # LycaonLaunchTD(+3) — BladeShooterGUN(+3) — SticleTG(+3)
         ]
     },
 
@@ -3577,27 +3379,21 @@ PLANET_DROPS = {
         ],
 
         BOX_HEAD: [
-            (1010601, 0.40),  # HyperDrillCRT(+1) — LandsliderMIS(+1) — SpikeHazardSP(+1)
-            (1010602, 0.10),  # HyperDrillCRT(+2) — LandsliderMIS(+2) — SpikeHazardSP(+2)
-            (1010603, 0.25),  # HyperDrillCRT(+3) — LandsliderMIS(+3) — SpikeHazardSP(+3)
-            (1010604, 0.15),  # HyperDrillCRT(+4) — LandsliderMIS(+4) — SpikeHazardSP(+4)
-            (1010605, 0.10),  # HyperDrillCRT(+5) — LandsliderMIS(+5) — SpikeHazardSP(+5)
+            (1010601, 0.60),  # HyperDrillCRT(+1) — LandsliderMIS(+1) — SpikeHazardSP(+1)
+            (1010602, 0.30),  # HyperDrillCRT(+2) — LandsliderMIS(+2) — SpikeHazardSP(+2)
+            (1010603, 0.10)   # HyperDrillCRT(+3) — LandsliderMIS(+3) — SpikeHazardSP(+3)
         ],
 
         BOX_BODY: [
-            (1020601, 0.40),  # HyperDrillTA(+1) — LandsliderBST(+1) — SpikeHazardMX(+1)
-            (1020602, 0.10),  # HyperDrillTA(+2) — LandsliderBST(+2) — SpikeHazardMX(+2)
-            (1020603, 0.25),  # HyperDrillTA(+3) — LandsliderBST(+3) — SpikeHazardMX(+3)
-            (1020604, 0.15),  # HyperDrillTA(+4) — LandsliderBST(+4) — SpikeHazardMX(+4)
-            (1020605, 0.10),  # HyperDrillTA(+5) — LandsliderBST(+5) — SpikeHazardMX(+5)
+            (1020601, 0.60),  # HyperDrillTA(+1) — LandsliderBST(+1) — SpikeHazardMX(+1)
+            (1020602, 0.30),  # HyperDrillTA(+2) — LandsliderBST(+2) — SpikeHazardMX(+2)
+            (1020603, 0.10)   # HyperDrillTA(+3) — LandsliderBST(+3) — SpikeHazardMX(+3)
         ],
 
         BOX_ARMS: [
-            (1030601, 0.40),  # HyperDrillTD(+1) — LandsliderGUN(+1) — SpikeHazardTG(+1)
-            (1030602, 0.10),  # HyperDrillTD(+2) — LandsliderGUN(+2) — SpikeHazardTG(+2)
-            (1030603, 0.25),  # HyperDrillTD(+3) — LandsliderGUN(+3) — SpikeHazardTG(+3)
-            (1030604, 0.15),  # HyperDrillTD(+4) — LandsliderGUN(+4) — SpikeHazardTG(+4)
-            (1030605, 0.10),  # HyperDrillTD(+5) — LandsliderGUN(+5) — SpikeHazardTG(+5)
+            (1030601, 0.60),  # HyperDrillTD(+1) — LandsliderGUN(+1) — SpikeHazardTG(+1)
+            (1030602, 0.30),  # HyperDrillTD(+2) — LandsliderGUN(+2) — SpikeHazardTG(+2)
+            (1030603, 0.10)   # HyperDrillTD(+3) — LandsliderGUN(+3) — SpikeHazardTG(+3)
         ]
     }
 }
