@@ -991,7 +991,7 @@ PLANET_DROPS = {
         BOX_BODY: [
             (1020101, 0.60),  # HammererCRT(+1) — CrossgearBST(+1) — ChainShellMX(+1)
             (1020102, 0.30),  # HammererCRT(+2) — CrossgearBST(+2) — ChainShellMX(+2)
-            (1020103, 0.15)   # HammererCRT(+3) — CrossgearBST(+3) — ChainShellMX(+3)
+            (1020103, 0.10)   # HammererCRT(+3) — CrossgearBST(+3) — ChainShellMX(+3)
         ],
 
         BOX_ARMS: [
