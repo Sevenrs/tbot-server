@@ -489,3 +489,117 @@ def Chat(_args, message):
             client = _args['connection_handler'].GetCharacterClient(member['name'])
             if client is not None:
                 Lobby.ChatMessage(client, message, 5)
+
+'''
+Method:         invite
+Description:    This method allows guild masters to invite new members in their guild through the lobby
+'''
+def invite(**_args):
+
+    # Fetch guild membership and check if we are its leader. If not, do not proceed.
+    guild = FetchGuild(_args, _args['client']['character']['id'])
+    if guild is None or guild['is_leader'] == 0:
+        return
+
+    # Construct error packet, in the event that the remote client is unavailable
+    error = PacketWrite()
+    error.AddHeader([0x47, 0x2F])
+    error.AppendBytes([0x00, 0x00])
+
+    # Get target character name and check if the name does not match our own
+    character_name = _args['packet'].ReadString(17).strip()
+
+    # Get remote client from the character name received from the packet
+    remote_client = _args['connection_handler'].GetCharacterClient(character_name)
+
+    ''' Check if the client:
+        1. Has been found
+        2. Is not in a room
+        3. Is not our own '''
+    # Otherwise, we'll send an error indicating that the player can not respond at the moment
+    if remote_client is None or 'room' in remote_client or remote_client is _args['client']:
+        return _args['socket'].send(error.packet)
+
+    # Check if the remote client is already in a guild. If so, we'll have to send an error as well.
+    remote_guild = FetchGuild(_args, remote_client['character']['id'])
+    if remote_guild is not None:
+        return _args['socket'].send(error.packet)
+
+    '''
+    Create guild invite request session that expires after 12 seconds after being created
+    '''
+    session = _args['session_handler'].create(
+        type            = 'guild_invite_request',
+        clients         = [ remote_client ],
+        data            = {'requester': _args['client'], 'guild': guild['id']},
+        expires_after   = 12
+    )
+
+    # Create guild invite request and send it to the remote client
+    request = PacketWrite()
+    request.AddHeader(bytes=[0x62, 0x2B])
+    request.AppendBytes(bytes=[0x01, 0x00])
+    request.AppendString(_args['client']['character']['name'])
+    _args['session_handler'].broadcast(session, request.packet)
+
+'''
+Method:         invitation_response
+Description:    This method allows users to accept or deny guild invitations
+'''
+def invitation_response(**_args):
+
+    # Read response and remote character name
+    response            = int(_args['packet'].GetByte(0))
+    remote_character    = _args['packet'].ReadString(19).strip()
+
+    # Attempt to find the invitation session
+    invitation_session = None
+    for session in _args['server'].sessions:
+
+        if session['type'] == 'guild_invite_request' \
+            and _args['client'] in session['clients'] \
+                and session['data']['requester']['character']['name'] == remote_character:
+            invitation_session = session
+            break
+
+    # Create result packet
+    result = PacketWrite()
+    result.AddHeader(bytes=[0x47, 0x2F])
+
+    # If we did not find any session, drop the packet and send an error
+    if invitation_session is None:
+        result.AppendBytes(bytes=[0x00, 0x00])  # Not logged in
+        _args['socket'].send(result.packet)
+        return
+
+    # If we did find the session, destroy it and process the request further
+    _args['session_handler'].destroy(invitation_session)
+
+    # If the invitation has been refused, send the refusal packet to the remote client
+    if response == 0:
+        result.AppendBytes(bytes=[0x00, 0x01])  # The player has refused the invitation
+
+        # Send packet to remote client
+        try:
+            invitation_session['data']['requester']['socket'].send(result.packet)
+        except Exception as e:
+            print('Failed to send invitation declined packet to remote client because: ', str(e))
+        return
+
+    # If we accepted the request, add our client to the guild and send guild sync packet to our client
+    AddMember(_args, _args['client']['character']['id'], invitation_session['data']['guild'], applying=0)
+    GetGuild(_args, _args['client'])
+
+    # Finally, attempt to send the sync guild packet to the remote client
+    # Additionally, attempt to send the success packet as well
+    try:
+
+        # Sync guild state
+        GetGuild(_args, invitation_session['data']['requester'])
+
+        # Success status
+        result.AppendBytes(bytes=[0x01, 0x00])
+        invitation_session['data']['requester']['socket'].send(result.packet)
+
+    except Exception as e:
+        print('Failed to send guild sync packet to remote client because: ', str(e))

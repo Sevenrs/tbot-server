@@ -42,6 +42,7 @@ def trade_request(**_args):
         expires_after   = 12
     )
 
+    # This packet is sent to prevent a debugging error
     request = PacketWrite()
     request.AddHeader(bytes=[0x39, 0x2F])
     request.AppendBytes(bytes=[0x00, 0x04])
@@ -76,6 +77,7 @@ def trade_request_response(**_args):
             and _args['client'] in session['clients'] \
                 and session['data']['requester']['character']['name'] == remote_character:
             request_session = session
+            break
 
     # Create result packet
     result = PacketWrite()
