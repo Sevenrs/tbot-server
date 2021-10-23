@@ -28,7 +28,7 @@ RELAY_NONE = bytearray([
 """
 This method will authenticate a user
 """
-def GetChannels(server, address, packet):
+def GetChannels(server, address, packet, game_server):
     
     # Get requested world for channels
     world = int(packet.data[0])
@@ -40,7 +40,7 @@ def GetChannels(server, address, packet):
     try:
         connection = MySQL.GetConnection()
         cursor = connection.cursor(dictionary=True)
-        
+
         # Create new packet and add the proper header
         packet = PacketWrite()
         packet.AddHeader(bytearray([0xEE, 0x2C]))
@@ -52,7 +52,8 @@ def GetChannels(server, address, packet):
         for channel in cursor:
             
             # Min and max level and channel name
-            packet.AppendInteger(channel['population'], 2, 'little')
+            #packet.AppendInteger(channel['population'], 2, 'little')
+            packet.AppendInteger(len(game_server.clients), 2, 'little') # Temporary population, change when scaling to multiple servers
             packet.AppendInteger(channel['min_level'])
             packet.AppendInteger(channel['max_level'])
             packet.AppendString(channel['name'], 22)

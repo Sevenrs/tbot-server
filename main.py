@@ -33,7 +33,7 @@ def main():
     _thread.start_new_thread(game_server.listen, ())
     
     # Start the Channel Server
-    _thread.start_new_thread(ChannelServer.Socket, (11010,))
+    _thread.start_new_thread(ChannelServer.Socket, (11010, game_server))
 
     # Start the RoomHostServer
     room_host_server = RoomHostServer.Socket(11011, game_server)

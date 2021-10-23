@@ -12,8 +12,9 @@ class Socket:
     """
     ChannelServer contructor
     """
-    def __init__(self, port):
-        self.port = port
+    def __init__(self, port, game_server):
+        self.port           = port
+        self.game_server    = game_server
 
         # Start the server
         self.listen()
@@ -35,7 +36,7 @@ class Socket:
                 
                 # Accept the new client and handle the connection in a separate thread
                 message, address = server.recvfrom(12)
-                _thread.start_new_thread(Client.Client, (message, address, server,))
+                _thread.start_new_thread(Client.Client, (message, address, server, self.game_server))
                 
             # Free socket on application termination
             server.close()
