@@ -35,7 +35,12 @@ def route(socket, packet, server, client, connection_handler, session_handler):
 
         received_packet = PACKET_READ[packet.id]
         if received_packet[PACKET_NAME] != 'PACKET_PONG':
-            print("[GameServer] Parsing packet :: {0}".format(received_packet[PACKET_NAME]))
+            print("[GameServer]{1} Parsing packet :: {0} <{2}>".format(
+                received_packet[PACKET_NAME],
+                '' if ('character' not in client or client['character'] is None) \
+                    else ' <{0} (id={1})>'.format(client['character']['name'], client['id']) ,
+                packet.data
+            ))
 
         # If we need a MySQL connection, create one
         if received_packet[PACKET_MYSQL_REQUIRED]:

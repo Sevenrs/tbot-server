@@ -117,7 +117,11 @@ def check_connection(**_args):
         character_name  = _args['packet'].ReadStringByRange(start + 2, (start + 17))
 
         if len(character_name) > 0:
-            print("Character name: {0}, connected: {1}".format(character_name, connected))
+            print("[relay_tcp_server@check_connection()] <from: {2}> :: remote character: {0}, connected: {1}".format(
+                character_name,
+                connected,
+                _args['client']['game_client']['character']['name']
+            ))
 
         # If their character name exists and if they're not connected, we should add their ID to the relay ID array.
         if connected == 0 and len(character_name) > 0:
