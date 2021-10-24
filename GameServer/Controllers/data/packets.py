@@ -14,14 +14,14 @@ PACKET_READ = {
     '222b': ('PACKET_EXIT_SERVER',              BoutLogin.exit_server,      False),
 
     '082b': ('PACKET_LOBBY_REQUEST',            Lobby.GetLobby,             True),
-    '1a27': ('PACKET_LOBBY_CHAT',               Lobby.Chat,                 True),
+    '1a27': ('PACKET_LOBBY_CHAT',               Lobby.chat,                 True),
     '412b': ('PACKET_LOBBY_EXAMINE_PLAYER',     Lobby.examine_player,       True),
     '442b': ('PACKET_LOBBY_WHISPER',            Lobby.Whisper,              False),
     '0a2b': ('PACKET_LOBBY_ROOMS',              Lobby.RoomList,             False),
 
-    '272b': ('PACKET_FRIEND_REQUEST',           Friend.FriendRequest,       False),
-    '242b': ('PACKET_FRIEND_REQUEST_RESULT',    Friend.FriendRequestResult, True),
-    '252b': ('PACKET_FRIEND_DELETE',            Friend.DeleteFriend,        True),
+    '272b': ('PACKET_FRIEND_REQUEST',           Friend.friend_request,          True),
+    '242b': ('PACKET_FRIEND_REQUEST_RESULT',    Friend.friend_request_result,   True),
+    '252b': ('PACKET_FRIEND_DELETE',            Friend.DeleteFriend,            True),
 
     '282b': ('PACKET_INBOX_REQUEST',            Inbox.RequestInbox,         True),
     '292b': ('PACKET_INBOX_SEND',               Inbox.SendMessage,          True),

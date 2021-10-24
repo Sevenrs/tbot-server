@@ -16,46 +16,49 @@ This method will send a chat message to a specific target client
 If the return_packet boolean is True, the packet is not sent but returned to the stack
 """
 def ChatMessage(target, message, color, return_packet=False):
-    chat = PacketWrite()
-    chat.AddHeader(bytearray([0x1A, 0x27]))
-    chat.AppendBytes(bytearray([0x00, 0x00, 0x00, 0x00]))
-    chat.AppendInteger(color, 1)
-    chat.AppendBytes(bytearray([0x00]))
-    chat.AppendString(message)
-    chat.AppendBytes(bytearray([0x00, 0x00, 0x00, 0x00, 0x00]))
+
+    # Construct chat packet
+    result = PacketWrite()
+    result.AddHeader(bytearray([0x1A, 0x27]))
+    result.AppendBytes(bytearray([0x00, 0x00, 0x00, 0x00]))
+    result.AppendInteger(color, 1)
+    result.AppendBytes(bytearray([0x00]))
+    result.AppendString(message)
+    result.AppendBytes(bytearray([0x00, 0x00, 0x00, 0x00, 0x00]))
 
     # If we want to use the chat packet itself, return the packet to the stack
     if return_packet:
-        return chat.packet
+        return result.packet
 
     # Otherwise, send the packet to the intended target
     try:
-        target['socket'].send(chat.packet)
+        target['socket'].send(result.packet)
     except Exception as e:
         pass
 """
 This method will handle chat requests
 """
-def Chat(**_args):
-    message = _args['packet'].ReadString(6)
-    chat_message = "[{0}] {1}".format(_args['client']['character']['name'], message[message.find(']') + 2:])
-    chat_type = _args['packet'].GetByte(4)
+def chat(**_args):
 
+    # Read message from packet and construct a new message (due to packet edits)
+    message         = _args['packet'].ReadString(6)
+    chat_message    = "[{0}] {1}".format(_args['client']['character']['name'], message[message.find(']') + 2:])
+    chat_type       = _args['packet'].GetByte(4)
+
+    # In the event the message is a chat message with the guild scope, send it to all guild members.
     if int(chat_type) == 5:
-        Guild.Chat(_args, message)
-    else:
+        return Guild.Chat(_args, message)
 
-        # Retrieve all clients that are currently not in a room, but are connected.
-        clients = _args['connection_handler'].get_lobby_clients()
+    # Retrieve all clients that are currently not in a room, but are connected.
+    clients = _args['connection_handler'].get_lobby_clients()
 
-        # Depending on the position of the player, we need a different scope of clients
-        # If the player a staff member, retrieve all clients
-        if _args['client']['character']['position'] != 0:
-            clients = _args['connection_handler'].GetClients()
+    # Determine message scope. Message should be sent to all connected clients in case a staff member is sending it.
+    clients = _args['connection_handler'].get_lobby_clients() if _args['client']['character']['position'] == 0 \
+        else _args['connection_handler'].GetClients() # All clients if sent by a staff member
 
-        # Send the message to the right clients
-        for client in clients:
-            ChatMessage(client, chat_message, _args['client']['character']['position'])
+    # Send the message to the right clients
+    for client in clients:
+        ChatMessage(client, chat_message, _args['client']['character']['position'])
 
 def Whisper(**_args):
     

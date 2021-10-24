@@ -13,6 +13,11 @@ def delete_character(**_args):
     result = PacketWrite()
     result.AddHeader([0xE3, 0x2E])
 
+    # If we are a staff member, we can not delete our bot
+    if _args['client']['character']['position'] > 0:
+        result.AppendBytes([0x00, 0xBF])
+        return _args['socket'].send(result.packet)
+
     # If we are in a guild, we can not delete the bot
     if Guild.FetchGuild(_args, _args['client']['character']['id']) is not None:
         result.AppendBytes([0x00, 0xC4])

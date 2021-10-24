@@ -26,7 +26,7 @@ def AddMember(_args, character_id, guild_id, applying = 0):
 
 def FetchGuild(_args, character_id):
     _args['mysql'].execute("""SELECT g.`id`, g.`name`, g.`created`, g.`notice`, g.`max_members`, c.`name` AS `guild_master`,
-        (SELECT COUNT(*) FROM `guild_members` WHERE `guild_id` = g.`id`) AS `member_count`,
+        (SELECT COUNT(*) FROM `guild_members` WHERE `guild_id` = g.`id` AND `applying` = 0) AS `member_count`,
         (SELECT SUM(`points`) FROM `guild_members` WHERE `guild_id` = g.`id` AND `applying` = 0) AS `guild_points`,
         (g.`leader_character_id` = m.`character_id`) AS `is_leader`, m.`applying`
         
@@ -36,6 +36,19 @@ def FetchGuild(_args, character_id):
         WHERE m.`character_id` = %s""", [character_id])
 
     return _args['mysql'].fetchone()
+
+'''
+Method:         get_members
+Description:    This method will retrieve all members of a specific guild (those who are not applying)
+Parameters:     The guild ID where we will be getting the members from
+'''
+def get_members(_args, guild_id):
+
+    # Get all members belonging to the guild
+    _args['mysql'].execute("""SELECT c.`name`, m.`points` FROM `guild_members` m
+            JOIN `characters` c ON c.`id` = m.`character_id`
+            WHERE m.`guild_id` = %s AND m.`applying` = 0""", [ guild_id ])
+    return _args['mysql'].fetchall()
 
 """
 Method:         GetGuild
@@ -115,10 +128,7 @@ def GetGuild(_args, client, get_notice=False):
     GuildMembers.AppendBytes(bytearray([0x01, 0x00]))
     
     # Get all members belonging to this guild
-    _args['mysql'].execute("""SELECT c.`name`, m.`points` FROM `guild_members` m
-        JOIN `characters` c ON c.`id` = m.`character_id`
-        WHERE m.`guild_id` = %s AND m.`applying` = 0""", [guild['id']])
-    members = _args['mysql'].fetchall()
+    members = get_members(_args, guild_id=guild['id'])
     
     # Append the character name and guild points for every member in the guild
     for member in members:
@@ -296,6 +306,14 @@ def AcceptApplication(**_args):
 
     # If we are not in a guild, or are not the leader, we should do nothing
     if guild is None or guild['is_leader'] == 0:
+        return
+
+    # Check if we have not exceeded the maximum member count
+    if len(get_members(_args, guild_id=guild['id'])) >= int(guild['max_members']):
+        full = PacketWrite()
+        full.AddHeader([0x28, 0x2F])
+        full.AppendBytes([0x00, 0x31])
+        _args['socket'].send(full.packet)
         return
 
     # Read character name from packet
@@ -500,6 +518,15 @@ def invite(**_args):
     guild = FetchGuild(_args, _args['client']['character']['id'])
     if guild is None or guild['is_leader'] == 0:
         return
+
+    # Check if the guild is full
+    if len(get_members(_args, guild_id=guild['id'])) >= int(guild['max_members']):
+
+        # Construct guild full error message and send to our own client
+        full = PacketWrite()
+        full.AddHeader([0x28, 0x2F])
+        full.AppendBytes([0x00, 0x31])
+        return _args['socket'].send(full.packet)
 
     # Construct error packet, in the event that the remote client is unavailable
     error = PacketWrite()

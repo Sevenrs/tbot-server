@@ -1,7 +1,7 @@
  #!/usr/bin/env python3
 __author__ = "Icseon"
-__copyright__ = "Copyright (C) 2020 Icseon"
-__version__ = "1.0"
+__copyright__ = "Copyright (C) 2020 - 2021 Icseon"
+__version__ = "1.1"
 
 from Packet.Write import Write as PacketWrite
 from GameServer.Controllers import Lobby
@@ -15,10 +15,10 @@ Method:         GetFriends
 Description:    This method will obtain all friends from the database based on the character ID
 """
 def GetFriends(_args, character_id):
-    _args['mysql'].execute("""SELECT `character`.`level`, `character`.`name` FROM `characters` `character`
+    _args['mysql'].execute("""SELECT `character`.`level`, `character`.`name`, `character`.`id` FROM `characters` `character`
         WHERE `character`.`id` IN (SELECT `character_id_1` FROM `friends` WHERE `character_id_2` = %s)
         UNION
-        SELECT `character`.`level`, `character`.`name` FROM `characters` `character`
+        SELECT `character`.`level`, `character`.`name`, `character`.`id` FROM `characters` `character`
         WHERE `character`.`id` IN (SELECT `character_id_2` FROM `friends` WHERE `character_id_1` = %s)""", [
             character_id,
             character_id
@@ -53,64 +53,138 @@ def RetrieveFriends(_args, client):
             friends.AppendInteger(1, 4, 'little')
     
     """ Additional padding (240 bytes) """
-    for i in range(240):
+    for _ in range(240):
         friends.AppendBytes([0x00])
     
-    """ Send target client the packet we just built """
-    client['socket'].send(friends.packet)
+    """ Attempt to send the packet we built to the target client """
+    try:
+        client['socket'].send(friends.packet)
+    except Exception as e:
+        print('Failed to send friend list packet to client because: ', str(e))
     
 """
-Method:         FriendRequest
+Method:         friend_request
 Description:    This method will handle all incoming friend requests and ensure the packets are sent to the right client(s)
 """
-def FriendRequest(**_args):
+def friend_request(**_args):
+
+    # Read remote character name from packet
+    receiver = _args['packet'].ReadString(16)
+
+    # Construct error packet in the event we need it
+    error = PacketWrite()
+    error.AddHeader([0x28, 0x2F])
+
+    # Check if we have reached the maximum amount of friends (10)
+    friends = GetFriends(_args, _args['client']['character']['id']).fetchall()
+    if len(friends) >= 10:
+        error.AppendBytes([0x00, 0x55]) # Max friend list capacity reached (10)
+        return _args['socket'].send(error.packet)
+
+    # Retrieve remote character's client handle
+    remote_client = _args['connection_handler'].GetCharacterClient(receiver)
+
+    # Check if the client exists, is not in a room and is not our own client
+    if remote_client is None or 'room' in remote_client or remote_client is _args['client']:
+        error.AppendBytes([0x00, 0x53]) # Request denied or player can not accept at the moment
+        return _args['socket'].send(error.packet)
+
+    # Check if the remote player still has any available slots for friends
+    # If they do not, send an error to our own client
+    remote_friends = GetFriends(_args, remote_client['character']['id']).fetchall()
+    if len(remote_friends) >= 10:
+        error.AppendBytes([0x00, 0x53]) # Request denied or player can not accept at the moment
+        return _args['socket'].send(error.packet)
+
+    # Check if the remote player is already in our friends list. Refuse the packet if this is the case.
+    for friend in friends:
+        if friend['id'] == remote_client['character']['id']:
+            error.AppendBytes([0x00, 0x3D]) # Request refused
+            return _args['socket'].send(error.packet)
+
+    # Create friend request session that expires 20 seconds after being created
+    session = _args['session_handler'].create(
+        type            =   'friend_request',
+        clients         =   [ remote_client ],
+        data            =   {'requester': _args['client']},
+        expires_after   = 20 # Expire after 20 seconds
+    )
     
-    """ Read the receiver and the sender character name(s) from the packet """
-    sender      = _args['packet'].ReadString(1) # Local player character name
-    receiver    = _args['packet'].ReadString()  # Remote player character name
-    
-    """ Contruct the friend request packet for the receiver to receive """
+    # Construct the friend request packet for the receiver to receive
+    # After construction, broadcast it to the remote client
     request = PacketWrite()
     request.AddHeader(bytearray([0x0F, 0x2F]))
     request.AppendBytes(bytearray([0x01, 0x00]))
-    request.AppendString(_args['client']['character']['name'], 15) # Since our local client is the sender, we need to append our character name to the packet
-    
-    """ Attempt to find the target client and send the request packet to the socket """
-    _args['connection_handler'].GetCharacterClient(receiver, request.packet)
+    request.AppendString(_args['client']['character']['name'], 15) # Sender
+    _args['session_handler'].broadcast(session, request.packet)
     
 """
 Method:         FriendRequestResult
 Description:    This method will handle the answer for the friend request sent by the receiver of the initial request
 """
-def FriendRequestResult(**_args):
-    result      = _args['packet'].GetByte(2)    # If the request had been accepted
-    receiver    = _args['packet'].ReadString(5) # Our local player's character name
-    sender      = _args['packet'].ReadString()  # Our remote player's character name
+def friend_request_result(**_args):
+
+    # Read relevant data from packet
+    response    = _args['packet'].GetByte(2)        # Acceptance
+    sender      = _args['packet'].ReadString(20)    # Sender of request
+
+    # Attempt to find the friend request session
+    request_session = None
+    for session in _args['server'].sessions:
+        if session['type'] == 'friend_request' \
+            and _args['client'] in session['clients'] \
+                and session['data']['requester']['character']['name'] == sender:
+            request_session = session
+            break
+
+    # Construct result packet that we will be sending to our own client
+    result = PacketWrite()
+    result.AddHeader([0x28, 0x2F])
+
+    # If the request session was not found, drop the packet and send an error
+    if request_session is None:
+        result.AppendBytes([0x00, 0x3D]) # Request refused
+        return _args['socket'].send(result.packet)
+
+    # Destroy session and proceed with the request
+    _args['session_handler'].destroy(request_session)
+
+    # Obtain our friends so we can check if we still have capacity at this moment
+    # We should also perform this check for the remote client
+    friends         = GetFriends(_args, _args['client']['character']['id']).fetchall()
+    remote_friends  = GetFriends(_args, request_session['data']['requester']['character']['id']).fetchall()
     
-    # Get client instance of the sender of the request
-    sender_client = _args['connection_handler'].GetCharacterClient(sender)
-    
-    # If the sender is not online, we should not proceed
-    if sender_client is None:
+    # If the friend request was denied, or if we have hit the maximum capacity of our friend list
+    # send the declination message to the remote client. If we have hit the maximum capacity, send that message
+    # to our own client as well.
+    if response == 0 or len(friends) >= 10 or len(remote_friends) >= 10:
+
+        # Construct declination message and attempt to send to the requester
+        declined = PacketWrite()
+        declined.AddHeader([0x28, 0x2F])
+        declined.AppendBytes([0x00, 0x53])
+        try:
+            request_session['data']['requester']['socket'].send(declined.packet)
+        except Exception as e:
+            print('Failed to send friend request declined packet to remote client because: ', str(e))
+
+        # In case our friend list has reached its maximum capacity, send an error to our client as well
+        if len(friends) >= 10:
+            result.AppendBytes([0x00, 0x55])
+            _args['socket'].send(result.packet)
+
+        # Do not proceed with the request
         return
-    
-    # If the friend request was declined, send a message indicating such
-    if result == 0:
-        declined_msg = PacketWrite()
-        declined_msg.AddHeader(bytearray([0x28, 0x2F]))
-        declined_msg.AppendBytes(bytearray([0x00, 0x53]))
-        sender_client['socket'].send(declined_msg.packet)
-        
-    # If the request was accepted, insert the friend in the database and send the friend packet to both clients
-    else:
-        _args['mysql'].execute("""
-            INSERT INTO `friends` (`character_id_1`, `character_id_2`, `date`)
-                VALUES(%s, %s, UTC_TIMESTAMP())
-        """, [_args['client']['character']['id'], sender_client['character']['id']])
-        
-        # Send friend state packet to both parties
-        RetrieveFriends(_args, _args['client'])
-        RetrieveFriends(_args, sender_client)
+
+    # Otherwise, we can proceed to create the relationship between the two players
+    _args['mysql'].execute("""
+                INSERT INTO `friends` (`character_id_1`, `character_id_2`, `date`)
+                    VALUES(%s, %s, UTC_TIMESTAMP())
+            """, [_args['client']['character']['id'], request_session['data']['requester']['character']['id']])
+
+    # Send friend state packet to both clients
+    RetrieveFriends(_args, _args['client'])
+    RetrieveFriends(_args, request_session['data']['requester'])
         
 """
 Method:         DeleteFriend

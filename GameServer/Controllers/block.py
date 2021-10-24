@@ -23,8 +23,15 @@ def block_user(**_args):
     result = PacketWrite()
     result.AddHeader([0x50, 0x2F]) # COption::ReplyBlockAdd
 
+    # Check if we have exceeded the limit of blocked users (20)
+    _args['mysql'].execute('''SELECT `id` FROM `blocked` WHERE `blocker` = %s''', [ _args['client']['character']['id']])
+    blocks = _args['mysql'].fetchall()
+    if len(blocks) >= 20:
+        result.AppendBytes([0x00, 0xC0]) # You cannot add anymore BOTS to your Block list. (Limit 20)
+        return _args['socket'].send(result.packet)
+
     # Attempt to find the target's character ID. We should exclude staff members from the scope of blockable users.
-    _args['mysql'].execute('''SELECT `id` FROM `characters` WHERE `name` = %s AND `position` = 0''', [ username ])
+    _args['mysql'].execute('''SELECT `id`, `name` FROM `characters` WHERE `name` = %s AND `position` = 0''', [ username ])
     target_character = _args['mysql'].fetchone()
 
     # Check if the target character exists and is not our own by checking the ID
@@ -33,12 +40,12 @@ def block_user(**_args):
         return _args['socket'].send(result.packet)
 
     # Create the block between the two users by adding it to the database, but only if the block does not exist
-    # Additionally, do not allow to block anymore users if the amount of users this user has blocked is equal or greater than 15
+    # Additionally, do not allow to block anymore users if the amount of users this user has blocked is equal or greater than 20
     _args['mysql'].execute('''INSERT INTO `blocked` (`blocker`, `blocked`)
                                 SELECT %s, %s FROM DUAL
                                     WHERE
                                         NOT EXISTS (SELECT * FROM `blocked` WHERE (`blocker` = %s AND `blocked` = %s) LIMIT 1)
-                                        AND (SELECT COUNT(*) FROM `blocked` WHERE (`blocker` = %s)) < 15''', [
+                                        AND (SELECT COUNT(*) FROM `blocked` WHERE (`blocker` = %s)) < 20''', [
         _args['client']['character']['id'],
         target_character['id'],
         _args['client']['character']['id'],
@@ -46,14 +53,14 @@ def block_user(**_args):
         _args['client']['character']['id']
     ])
 
-    # If the affected row count is 0, the user was already blocked. Send bot name error.
+    # If the affected row count is 0, the user was already blocked
     if _args['mysql'].rowcount == 0:
-        result.AppendBytes([0x00, 0x33])
+        result.AppendBytes([0x00, 0xBE]) # This bot is already on the list!
         return _args['socket'].send(result.packet)
 
     # If the affected rows were higher than 0, the user has been blocked successfully. Send result packet.
     result.AppendBytes([0x01, 0x00])
-    result.AppendString(username, 15)
+    result.AppendString(target_character['name'], 15)
     _args['socket'].send(result.packet)
 
 '''
