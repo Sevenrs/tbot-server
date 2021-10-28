@@ -5,7 +5,7 @@ __version__ = "1.0"
 
 from Packet.Write import Write as PacketWrite
 from GameServer.Controllers import Character, Shop
-from GameServer.Controllers.data.client import CLIENT_VERSION
+from GameServer.Controllers.data.client import CLIENT_VERSION, PING_TIMEOUT
 import MySQL.Interface as MySQL
 import re, time, _thread, datetime
 
@@ -230,7 +230,7 @@ def ping(_args):
     while _args['client'] in _args['server'].clients:
 
         # If the amount of seconds between now and the last ping exceeds 90, disconnect the client
-        if (datetime.datetime.now() - _args['client']['last_ping']).total_seconds() >= 90:
+        if (datetime.datetime.now() - _args['client']['last_ping']).total_seconds() >= PING_TIMEOUT:
             return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
 
         # Send ping packet and wait 3 seconds

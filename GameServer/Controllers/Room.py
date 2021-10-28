@@ -584,9 +584,12 @@ def set_status(**_args):
         else:
             room['closed_slots'].remove(slot)
 
+    # Handle ready requests
     elif status_type == 1:
         room['slots'][str(slot)]['ready'] = not room['slots'][str(slot)]['ready']
-    elif status_type == 2:
+
+    # Handle team change requests
+    elif status_type == 2 and room['game_type'] in [MODE_TEAM_BATTLE, MODE_MILITARY]:
         room['slots'][str(slot)]['team'] = 1 if room['slots'][str(slot)]['team'] == 2 else 2
 
     # Broadcast the status change to the room
@@ -676,6 +679,25 @@ def start_game(**_args):
     # Create start packet which will be used for errors
     start = PacketWrite()
     start.AddHeader(bytearray([0xF3, 0x2E]))
+
+    # If we are in Battle or Deathmatch mode, we'll have to check if we have more than one player
+    if room['game_type'] in [MODE_BATTLE, MODE_DEATHMATCH] and len(room['slots']) < 2:
+        start.AppendBytes([0x00, 0x50])
+        return _args['client']['socket'].send(start.packet)
+
+    # If we are in a game mode that relies on teams, check if each team has at least one player available
+    elif room['game_type'] in [MODE_TEAM_BATTLE, MODE_MILITARY]:
+
+        # Retrieve how many players each team has
+        team_players = { TEAM_RED: 0, TEAM_BLUE: 0 }
+        for slot in room['slots']:
+            team_players[room['slots'][slot]['team']] += 1
+
+        # Check if one team has no players
+        for team in team_players:
+            if team_players[team] == 0:
+                start.AppendBytes([0x00, 0x6F])
+                return _args['client']['socket'].send(start.packet)
 
     # Check if everyone is ready
     for key, slot in room['slots'].items():

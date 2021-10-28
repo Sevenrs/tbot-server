@@ -6,8 +6,9 @@ __version__ = "1.0"
 from Packet.Write import Write as PacketWrite
 from GameServer.Controllers.Room import remove_slot
 from GameServer.Controllers.trade import exit
+from GameServer.Controllers.data.client import PING_TIMEOUT
 from relay_tcp_server import connection as relay_connection
-import socket
+import socket, datetime
 
 """
 This file is responsible for dealing with all the clients at once.
@@ -122,10 +123,14 @@ class Handler:
         # Check if the current client exists in the service client container
         if client in self.server.clients:
 
-            # If the client is in a room, attempt to remove it
+            # If the client is in a room, attempt to remove it. We'll give the system overload reason in case the client has exceeded the ping timeout.
             if 'room' in client:
                 remove_slot(_args={'server': self.server, 'connection_handler': self}, room_id=client['room'],
-                            client=client, reason=6)
+
+                            # 6 = Forced to logout
+                            # 3 = System overload
+
+                            client=client, reason=6 if (datetime.datetime.now() - client['last_ping']).total_seconds() < PING_TIMEOUT else 3)
 
             # If the client is in a trade, end the trade session by invoking a exit request
             if 'trade_session' in client:
