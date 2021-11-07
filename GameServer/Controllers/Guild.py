@@ -451,10 +451,19 @@ def ExpelGuildMember(**_args):
 
     # Get remote client from the connection class and sync the guild and send a message
     if _args['mysql'].rowcount > 0:
+
         remote_client = _args['connection_handler'].GetCharacterClient(character_name)
         if remote_client is not None:
             GetGuild(_args, remote_client)
-            Lobby.ChatMessage(remote_client, "[Server] You have been expelled from guild [{}]!".format(guild['name']), 3)
+
+            # If the client is not in a room or a trade session, send the withdrawal message
+            if 'room' not in remote_client and 'trade_session' not in remote_client:
+
+                # Construct and send withdrawal message
+                withdrawal = PacketWrite()
+                withdrawal.AddHeader([0x42, 0x2F])
+                withdrawal.AppendBytes([0x01, 0x00])
+                remote_client['socket'].send(withdrawal.packet)
 
 def UpdateGuildNotice(**_args):
 
@@ -566,7 +575,8 @@ def invite(**_args):
     request = PacketWrite()
     request.AddHeader(bytes=[0x62, 0x2B])
     request.AppendBytes(bytes=[0x01, 0x00])
-    request.AppendString(_args['client']['character']['name'])
+    request.AppendString(_args['client']['character']['name'], 15)
+    request.AppendString(remote_client['character']['name'], 15)
     _args['session_handler'].broadcast(session, request.packet)
 
 '''
@@ -627,6 +637,12 @@ def invitation_response(**_args):
         # Success status
         result.AppendBytes(bytes=[0x01, 0x00])
         invitation_session['data']['requester']['socket'].send(result.packet)
+
+        # Construct and send player added to guild packet
+        player_added = PacketWrite()
+        player_added.AddHeader([0x3D, 0x2F])
+        player_added.AppendBytes([0x01, 0x00])
+        invitation_session['data']['requester']['socket'].send(player_added.packet)
 
     except Exception as e:
         print('Failed to send guild sync packet to remote client because: ', str(e))

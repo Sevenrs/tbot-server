@@ -16,7 +16,7 @@ CLIENT_FILE_HASHES = [
     'df4c9044e38d0e0d946d8b0986d68d19', # script/shop.bin
     '443897a2bc6a8d0a0f208e0893dbbd1f', # script/skillpk.bin
     'b19d22b003ca6c9928799e81ba01efa1', # script/slangs.bin
-    'baad7b8ce3a4dd8191eab7c081a5615f', # script/string.bin
+    'cf7a4e8547279e5ce7869b6d9945a078', # script/string.bin
     'f106ef15f6bc83a6791348d5c3f4aaac', # script/map_base.bin
     '03d200380f50b6cf047a7a04afb01128', # script/map_battle.bin
     '5a44d40241c3bc346481ebc7bd52b96a', # script/map_daeth.bin
