@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 __author__ = "Icseon"
 __copyright__ = "Copyright (C) 2020 - 2021 Icseon"
-__version__ = "1.1"
+__version__ = "1.2"
 # This file is the entry point for the T-Bot Rewritten server
 
 import _thread
 import threading
-from LoginServer        import Server as LoginServer
+from login_tcp_server   import server as login_tcp_server
 from ChannelServer      import Server as ChannelServer
 from RoomHostServer     import Server as RoomHostServer
 from GameServer         import Server as GameServer
@@ -43,7 +43,7 @@ def main():
     _thread.start_new_thread(relay_udp_server.RelayUDPServer, (11013, relay_tcp, room_host_server,))
 
     # Use the main thread as the login server
-    LoginServer.Socket(11000)
+    (login_tcp_server.LoginTCPServer(11000)).listen()
     
 # Only run the entry point code when needed
 if __name__ == '__main__':

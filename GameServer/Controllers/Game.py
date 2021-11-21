@@ -117,7 +117,7 @@ def monster_kill(**_args):
         drops+= [
             (CANISTER_REBIRTH,  0.02),
             (CANISTER_BOMB,     0.02),
-            (CHEST_GOLD,        0.007)
+            (CHEST_GOLD,        1.00)
         ]
 
         # If the monster is a mob from which to drop boxes from, append the boxes array

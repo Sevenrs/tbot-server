@@ -1,7 +1,8 @@
 from Packet.Write import Write as PacketWrite
 from GameServer.Controllers.Room import get_slot
 import _thread, time, socket, datetime
-import MySQL.Interface as MySQL
+from dotenv import dotenv_values
+import requests
 from relay_tcp_server import connection as connection_handler
 
 def route(client, packet):
@@ -26,27 +27,27 @@ def id_request(**_args):
     # Read account name from the packet
     account = _args['packet'].ReadString()[1:]
 
-    # Create MySQL connection to see if we are authorized to use this account
-    connection = MySQL.GetConnection()
-    cursor = connection.cursor(dictionary=True)
-    cursor.execute(
-        'SELECT `id` FROM `users` WHERE `username` = %s AND `banned` = 0 AND `last_ip` = %s', [
-            account, _args['client']['socket'].getpeername()[0]
-        ]
-    )
+    # Read environment variables
+    env = dotenv_values('.env')
 
-    # Fetch user
-    user = cursor.fetchone()
+    # Check if we are authorized to use this account
+    response = requests.post("{0}/verify".format(env['INTERNAL_ROOT_URL']),
+                             json={
+                                 "username": account,
+                                 "ip": _args['client']['address'][0]
+                             },
 
-    # Before checking, close the SQL connection
-    connection.close()
+                             headers={
+                                 "Content-Type": "application/json",
+                                 "Authorization": env['INTERNAL_ACCESS_TOKEN']
+                             })
 
     # Create response packet
     result = PacketWrite()
     result.AddHeader(bytes=[0x1A, 0xA4])
 
     # Check if the user exists. If it does not, throw an exception which closes the connection
-    if user is None:
+    if response.status_code != 200:
         result.AppendBytes([0x00])
         result.AppendInteger(50, 1, 'little') # Incorrect authentication
         _args['client']['socket'].send(result.packet)
@@ -66,7 +67,7 @@ def id_request(**_args):
         break
 
     # Fill our client object with relevant information
-    _args['client']['account']      = account
+    _args['client']['account']      = response.json()['username']
     _args['client']['id']           = id
     _args['client']['last_ping']    = datetime.datetime.now()
 
@@ -77,7 +78,7 @@ def id_request(**_args):
     # This is because it is possible to have relay clients without a game client.
     # Disconnect any relay client that is connected with our account to stop the existence of multiple instances
     for client in _args['client']['server'].clients:
-        if client['account'] == account and client is not _args['client']:
+        if client['account'] == _args['client']['account'] and client is not _args['client']:
             connection_handler.close_connection(client)
 
     # Send response to client

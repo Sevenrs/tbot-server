@@ -7,6 +7,8 @@ from Packet.Write import Write as PacketWrite
 from GameServer.Controllers import Character, Shop
 from GameServer.Controllers.data.client import CLIENT_VERSION, PING_TIMEOUT
 import MySQL.Interface as MySQL
+from dotenv import dotenv_values
+import requests
 import re, time, _thread, datetime
 
 """
@@ -27,18 +29,33 @@ def id_request(**_args):
     error.AddHeader(bytearray([0xE2, 0x2E]))
     error.AppendBytes([0x00])
 
-    # Get user from the database
-    _args['mysql'].execute(
-        'SELECT `id`, `username` FROM `users` WHERE `username` = %s AND `banned` = 0 AND `last_ip` = %s',
-        [
-            account,
-            _args['socket'].getpeername()[0]
-        ])
+    # Read environment variables
+    env = dotenv_values('.env')
 
-    # Get user and check if we have a result. Just disconnect the client if we do not
-    user = _args['mysql'].fetchone()
-    if user is None:
-        raise Exception('Invalid user given in the ID request')
+    # Check if we are authorized to use this account
+    response = requests.post("{0}/verify".format(env['INTERNAL_ROOT_URL']),
+                             json={
+                                 "username": account,
+                                 "ip": _args['socket'].getpeername()[0]
+                             },
+
+                             headers={
+                                 "Content-Type": "application/json",
+                                 "Authorization": env['INTERNAL_ACCESS_TOKEN']
+                             })
+
+
+    # Get user and check if we have a result. Just disconnect the client if we do not.
+    if response.status_code != 200:
+        raise Exception('Verification failed')
+
+    # Get internal user from the database
+    _args['mysql'].execute('SELECT `id` FROM `users` WHERE `external_id` = %s', [ response.json()['web_id'] ])
+    internal_user = _args['mysql'].fetchone()
+
+    # Check if the internal user was found
+    if internal_user is None:
+        raise Exception('Internal user could not be found')
 
     ''' If the client version is incorrect, we must send an error message and disconnect the client. '''
     if client_version != CLIENT_VERSION:
@@ -63,9 +80,8 @@ def id_request(**_args):
     
     # Update our socket to use this ID and assign the account to it as well
     _args['client']['id']           = id
-    _args['client']['account']      = user['username']
-    _args['client']['account_id']   = user['id']
-    _args['client']['account_data'] = {'id': user['id']}
+    _args['client']['account']      = response.json()['username']
+    _args['client']['account_id']   = internal_user['id']
     _args['client']['character']    = None
     _args['client']['new']          = True
     _args['client']['lobby_data']   = {'mode': 0, 'page': 0}
@@ -95,11 +111,11 @@ def id_request(**_args):
         return _args['connection_handler'].CloseConnection(_args['client'])
 
     # Construct ID request response and send it to the client
-    response = PacketWrite()
-    response.AddHeader(bytearray([0xE0, 0x2E]))
-    response.AppendInteger(id, 2, 'little')
-    response.AppendBytes([0x01, 0x00])
-    _args['socket'].send(response.packet)
+    reply = PacketWrite()
+    reply.AddHeader(bytearray([0xE0, 0x2E]))
+    reply.AppendInteger(id, 2, 'little')
+    reply.AppendBytes([0x01, 0x00])
+    _args['socket'].send(reply.packet)
 
     # Start ping thread
     _thread.start_new_thread(ping, (_args,))
@@ -113,7 +129,7 @@ def get_character(**_args):
     # Check if we have a character for this account
     _args['mysql'].execute("""SELECT `character`.* FROM `characters` `character` WHERE character.user_id = %s
             ORDER BY `character`.`id` ASC LIMIT 1""", [
-        _args['client']['account_data']['id']
+        _args['client']['account_id']
     ])
     
     # Fetch character row
@@ -149,26 +165,31 @@ def create_character(**_args):
     character_type  = int(_args['packet'].GetByte(2))
     username        = _args['packet'].ReadString(6)[1:]
     character_name  = _args['packet'].ReadString()
-    
-    # Check if the username exists in the user table, close the connection if this fails
-    _args['mysql'].execute('SELECT `id`, `banned`, `last_ip` FROM `users` WHERE `username` = %s', [username])
-    user = _args['mysql'].fetchone()
-    
-    # Check if the row has been found and if it has been, check if the user has been banned
-    if user is None:
-        raise Exception('User was not found while trying to create a character')
 
-    # Check if our ip address matches the last ip of the account.
-    #   We should not be able to create a character that does not belong to us
-    elif user['last_ip'] != _args['socket'].getpeername()[0]:
-        raise Exception('The IP address the user connected from trying to create a character does not match the IP address in the database')
+    # Read environment variables
+    env = dotenv_values('.env')
+
+    # Verify if we have authorization to create a character for this user
+    response = requests.post("{0}/verify".format(env['INTERNAL_ROOT_URL']),
+                             json={
+                                 "username": username,
+                                 "ip": _args['socket'].getpeername()[0]
+                             },
+
+                             headers={
+                                 "Content-Type": "application/json",
+                                 "Authorization": env['INTERNAL_ACCESS_TOKEN']
+                             })
+
+    if response.status_code != 200:
+        raise Exception('Validation failed while trying to create a character')
     
-    # Check if the user has been banned
-    elif user['banned'] == 1:
-        raise Exception('User has been banned and attempted to create a character')
+    # Find the internal user
+    _args['mysql'].execute('SELECT `id` FROM `users` WHERE `external_id` = %s', [ response.json()['web_id'] ])
+    internal_user = _args['mysql'].fetchone()
     
     # Check if there's already a character connected to this account
-    _args['mysql'].execute('SELECT `id` FROM `characters` WHERE `user_id` = %s', [user['id']])
+    _args['mysql'].execute('SELECT `id` FROM `characters` WHERE `user_id` = %s', [ internal_user['id'] ])
     if _args['mysql'].rowcount > 0:
         raise Exception('User attempted to create a character while already having a character')
     
@@ -197,7 +218,7 @@ def create_character(**_args):
         
         # Insert the new character in the database
         _args['mysql'].execute("""INSERT INTO `characters` (`user_id`, `name`, `type`) VALUES (%s, %s, %s)""",
-                       [user['id'], character_name, character_type])
+                       [ internal_user['id'], character_name, character_type ])
 
         # Retrieve character id of the character we just built and create a new wearing and inventory table for our character
         character_id = _args['mysql'].lastrowid

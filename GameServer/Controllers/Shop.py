@@ -87,7 +87,7 @@ def purchase_item(**_args):
             {"table": "characters", "column": "currency_gigas", "where": "id", "is": _args['client']['character']['id']}},
 
         '042b': {"item_id_index": 41, "type": "cash", "db_info":
-            {"table": "users", "column": "cash", "where": "username", "is": _args['client']['account']}}
+            {"table": "users", "column": "cash", "where": "id", "is": _args['client']['account_id']}}
     }
 
     # Retrieve type data
@@ -203,9 +203,9 @@ def sell_item(**_args):
 
     # Gold bars should give cash points
     if item['item_id'] in ID_GOLD_BAR:
-        _args['mysql'].execute("""UPDATE `users` SET `cash` = (`cash` + %s) WHERE `username` = %s""", [
+        _args['mysql'].execute("""UPDATE `users` SET `cash` = (`cash` + %s) WHERE `id` = %s""", [
             item['selling_price'] / 10,
-            _args['client']['account']
+            _args['client']['account_id']
         ])
     else:
 
