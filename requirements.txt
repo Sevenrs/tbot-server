@@ -1,3 +1,2 @@
 python-dotenv==0.18.0
 mysql-connector-python==8.0.25
-bcrypt==3.2.0

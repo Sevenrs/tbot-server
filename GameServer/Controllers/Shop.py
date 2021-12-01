@@ -106,11 +106,6 @@ def purchase_item(**_args):
 
     # Define an error if the item has not been found or can not be purchased
     if item is None or item['buyable'] != 1:
-
-        # temporary
-        if item is not None:
-                _args['mysql'].execute("""UPDATE `game_items` SET `buyable` = 1 WHERE id = %s""", [item['id']])
-
         return sync_inventory(_args, 'purchase', 66)
 
     # If the item type is equal to gold or cash but there is no price for assumed type, the request should fail

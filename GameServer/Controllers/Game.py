@@ -844,7 +844,7 @@ def post_game_transaction(_args, room):
         character = slot['client']['character']
 
         # Default experience addition and giga addition values
-        addition_experience, addition_gigas, addition_rank_experience = 0, 0, 0
+        addition_experience, addition_gigas, addition_rank_experience, party_experience = 0, 0, 0, 0
 
         ''' Calculate experience and giga gains for planet mode'''
         if room['game_type'] == MODE_PLANET:
@@ -887,6 +887,16 @@ def post_game_transaction(_args, room):
             ''' Calculate additional experience for Military mode'''
             if room['game_type'] == MODE_MILITARY:
                 addition_experience += int(slot['monster_kills'] * (experience_multiplier * random.uniform(1.0, 1.3)))
+
+        # Find the amount of players that share the same team with our current player.
+        # That will be the amount of additional party experience awarded.
+        for room_slot in room['slots']:
+            if room['slots'][room_slot]['team'] == slot['team'] \
+                    and room['slots'][room_slot]['client'] is not slot['client']:
+                party_experience += (1 * room['experience_modifier'])
+
+        # Add party_experience to the addition_experience variable so that it is added to the total experience amount
+        addition_experience += party_experience
 
         # Check if we have leveled up
         level_up = character['experience'] + addition_experience >= EXP_TABLE[character['level'] + 1]
@@ -936,7 +946,8 @@ def post_game_transaction(_args, room):
         remove_expired_items(_args, character['id'])
 
         information[key] = {
-            'addition_experience': addition_experience,
+            'addition_experience': addition_experience - party_experience, # The regular experience count is not part of any additional bonus
+            'party_experience': party_experience,
             'addition_rank_experience': addition_rank_experience,
             'addition_gigas': addition_gigas,
             'experience': character['experience'],
@@ -1054,8 +1065,8 @@ def game_stats(_args, room):
         room_results.AppendInteger(0, 2, 'little')
 
     # Party experience
-    for _ in range(8):
-        room_results.AppendInteger(0, 2, 'little')
+    for i in range(8):
+        room_results.AppendInteger(0 if str(i + 1) not in information else information[str(i + 1)]['party_experience'], 2, 'little')
 
     room_results.AppendBytes(bytearray([0x00, 0x00, 0x00, 0x00, 0x00])) # Unknown
 
