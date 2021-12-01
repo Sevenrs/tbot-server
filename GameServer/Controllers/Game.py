@@ -895,6 +895,9 @@ def post_game_transaction(_args, room):
                     and room['slots'][room_slot]['client'] is not slot['client']:
                 party_experience += (1 * room['experience_modifier'])
 
+        # To ensure that party experience is always a full number, it is cased to an integer
+        party_experience = int(party_experience)
+
         # Add party_experience to the addition_experience variable so that it is added to the total experience amount
         addition_experience += party_experience
 
