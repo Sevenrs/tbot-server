@@ -77,7 +77,8 @@ def authenticate(**_args):
         # Create a new user if we have to
         connection  = MySQL.GetConnection()
         cursor      = connection.cursor(dictionary=True)
-        cursor.execute('''INSERT IGNORE INTO `users` SET `external_id` = %s''', [
+        cursor.execute('''INSERT INTO `users` (`external_id`) SELECT %s FROM DUAL WHERE NOT EXISTS (SELECT * FROM `users` WHERE `external_id`= %s LIMIT 1) ''', [
+            web_id,
             web_id
         ])
 
