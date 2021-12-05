@@ -890,10 +890,12 @@ def post_game_transaction(_args, room):
 
         # Find the amount of players that share the same team with our current player.
         # That will be the amount of additional party experience awarded.
-        for room_slot in room['slots']:
-            if room['slots'][room_slot]['team'] == slot['team'] \
-                    and room['slots'][room_slot]['client'] is not slot['client']:
-                party_experience += (1 * room['experience_modifier'])
+        # But only if we have won the current match
+        if slot['won']:
+            for room_slot in room['slots']:
+                if room['slots'][room_slot]['team'] == slot['team'] \
+                        and room['slots'][room_slot]['client'] is not slot['client']:
+                    party_experience += (1 * room['experience_modifier'])
 
         # To ensure that party experience is always a full number, it is cased to an integer
         party_experience = int(party_experience)
