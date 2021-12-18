@@ -35,7 +35,7 @@ def load_finish(_args, room):
         ]
 
         message = Lobby.ChatMessage(target=None,
-                                    message=messages[random.randint(0, len(messages))],
+                                    message=messages[random.randint(0, len(messages) - 1)],
                                     color=3,
                                     return_packet=True)
         _args['connection_handler'].SendRoomAll(room['id'], message)
