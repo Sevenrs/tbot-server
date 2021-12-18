@@ -64,7 +64,7 @@ def load_finish(_args, room):
     # If all clients are ready to play, send the ready packet
     ready = PacketWrite()
     ready.AddHeader(bytearray([0x24, 0x2F]))
-    ready.AppendBytes(bytearray([0x00]))
+    ready.AppendBytes(bytearray([0xCC]))
     _args['connection_handler'].SendRoomAll(room['id'], ready.packet)
 
     # Start new countdown timer thread, but only for Planet and DeathMatch modes

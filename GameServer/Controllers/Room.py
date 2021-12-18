@@ -729,9 +729,6 @@ def start_game(**_args):
     start.AppendInteger(special_transformation, 1, 'little')
     start.AppendBytes([0x00])  # Event boss
 
-    for _ in range(2):
-        start.AppendBytes(bytearray([0x00, 0x00]))
-
     # Send start packet to entire room
     _args['connection_handler'].SendRoomAll(_args['client']['room'], start.packet)
     _args['connection_handler'].SendRoomAll(_args['client']['room'], bytearray([0x28, 0x27, 0x02, 0x00, 0x01, 0x00]))
