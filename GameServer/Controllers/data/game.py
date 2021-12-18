@@ -7,3 +7,5 @@ MODE_DEATHMATCH     = 4
 TEAM_NONE   = 0
 TEAM_RED    = 1
 TEAM_BLUE   = 2
+
+ROOM_CALLBACKS=['event_weekends', 'event_christmas']

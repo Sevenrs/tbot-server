@@ -61,6 +61,8 @@ def load_finish(_args, room):
     # Mark the room's game as loaded
     room['game_loaded'] = True
 
+    Room.execute_callbacks(_args, room, 'load_finish')
+
     # If all clients are ready to play, send the ready packet
     ready = PacketWrite()
     ready.AddHeader(bytearray([0x24, 0x2F]))
@@ -1160,7 +1162,7 @@ def game_stats(_args, room):
         return
 
     # Reset room status and broadcast room status to lobby
-    Room.reset(room)
+    Room.reset(_args=_args, room=room)
     room['status'] = 0
     Room.get_list(_args, mode=0 if room['game_type'] in [MODE_BATTLE, MODE_TEAM_BATTLE] else room['game_type'] - 1,
              page=Room.get_list_page_by_room_id(room['id'], room['game_type']), local=False)

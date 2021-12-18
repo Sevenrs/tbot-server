@@ -11,8 +11,11 @@ from GameServer.Controllers.data.battle import BATTLE_MAP_TABLE
 from GameServer.Controllers.data.military import MILITARY_MAP_TABLE
 from GameServer.Controllers.data.game import *
 from GameServer.Controllers.Game import game_end, load_finish, load_finish_thread
-import math, os, time, datetime, _thread
+import math, os, time, datetime, _thread, sys
 from random import randrange
+
+from GameServer.Controllers.data.callbacks \
+    import event_weekends, event_christmas
 
 """
 This controller is responsible for handling all room related requests
@@ -423,8 +426,10 @@ def create(**_args):
         'experience_modifier':  1.0,
         'maps':                 maps,
         'killed_mobs':          [],
-        'network_state_requests': {},
-        'start_time':             None
+        'network_state_requests':   {},
+        'start_time':               None,
+        'callbacks':                {},
+        'callback_data':            {}
     }
 
     # Pass the room to the server room container and notify any client that may see this change in the lobby
@@ -705,6 +710,14 @@ def start_game(**_args):
             start.AppendBytes(bytearray([0x00, 0x6C]))
             return _args['client']['socket'].send(start.packet)
 
+    # Run through all possible callbacks run their registration methods
+    for callback in ROOM_CALLBACKS:
+        getattr(sys.modules['GameServer.Controllers.data.callbacks.' + callback],
+                'register')(room)
+
+    # Run start_game event on all registered callbacks
+    execute_callbacks(_args, room, 'start_game')
+
     # If the game mode is not equal to planet, determine if we should randomize the map or not
     map = room['level']
     if room['game_type'] != 2:
@@ -727,23 +740,16 @@ def start_game(**_args):
     # Calculate special transformation
     special_transformation = randrange(5)
     start.AppendInteger(special_transformation, 1, 'little')
-    start.AppendBytes([0x00])  # Event boss
+    start.AppendInteger(99 if 'event_boss' in room['callback_data'] else 0, 1, 'little')  # Event boss
 
     # Send start packet to entire room
     _args['connection_handler'].SendRoomAll(_args['client']['room'], start.packet)
-    _args['connection_handler'].SendRoomAll(_args['client']['room'], bytearray([0x28, 0x27, 0x02, 0x00, 0x01, 0x00]))
-
-    # Determine whether or not it is weekend. Based on that result, a 1.5x experience buff will be enabled
-    # Additionally, this will only be in effect in planet gameplay
-    room['experience_modifier'] = 1.0 if not datetime.datetime.today().weekday() >= 5 or \
-                                         room['game_type'] != 2 else 1.5
-
-    _args['connection_handler'].SendRoomAll(room['id'], bytearray(
-        [0x28, 0x27, 0x02, 0x00, 0x01 if room['experience_modifier'] > 1.0 else 0x00, 0x00]))
 
     # Set room status
-    room['status'] = 3
-    room['start_time'] = datetime.datetime.now()
+    room['status']          = 3
+    room['start_time']      = datetime.datetime.now()
+
+    # Send room status to all lobby sockets
     get_list(_args, mode=0 if room['game_type'] in [0, 1] else room['game_type'] - 1,
              page=get_list_page_by_room_id(room['id'], room['game_type']), local=False)
 
@@ -754,7 +760,10 @@ def start_game(**_args):
 This method will reset the room by making sure nobody is ready anymore, drops are set back at their standard
 values, etc.
 '''
-def reset(room):
+def reset(_args, room):
+
+    # Perform callbacks
+    execute_callbacks(_args, room, 'reset')
 
     # Reset room variables
     room['drop_index']              = 1
@@ -762,6 +771,8 @@ def reset(room):
     room['game_loaded']             = False
     room['killed_mobs']             = []
     room['network_state_requests']  = {}
+    room['callbacks']               = {}
+    room['callback_data']           = {}
     room['start_time']              = None
 
     # Reset player status
@@ -968,8 +979,35 @@ def sync_state(_args, room):
                     game_end(_args=_args, room=room, status=1)
                     break
 
+'''
+This method will register a callback on a specific event name.
+The callback will be executed with the specified event.
 
+This can be used for additional functionality that should only be present
+on a precondition.
+'''
+def register_callback(room, event, callback):
+    room['callbacks'].setdefault(event, []).append(callback)
 
+'''
+This method will data to the callback data object. Callbacks can use this method to pass
+data to the regular code.
+'''
+def add_callback_data(room, key, value):
+    room['callback_data'].setdefault(key, value)
+
+'''
+This method will execute all registered callbacks that belong to a certain event name
+'''
+def execute_callbacks(_args, room, event):
+
+    # If there are no callbacks to execute, do not proceed
+    if event not in room['callbacks']:
+        return
+
+    # Loop through every callback the event has and run the callback's event
+    for callback in room['callbacks'][event]:
+        getattr(sys.modules['GameServer.Controllers.data.callbacks.' + callback], event)(_args, room)
 
 '''
 This method will check if the client is in a room.
