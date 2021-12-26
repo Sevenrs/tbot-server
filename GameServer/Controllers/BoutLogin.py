@@ -254,7 +254,7 @@ def ping(_args):
         if (datetime.datetime.now() - _args['client']['last_ping']).total_seconds() >= PING_TIMEOUT:
             return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
 
-        # Send ping packet and wait 3 seconds
+        # Send ping packet and wait 1 second
         ping_rpc = PacketWrite()
         ping_rpc.AddHeader([0x01, 0x00])
         ping_rpc.AppendBytes([0xCC])

@@ -7,7 +7,7 @@ from Packet.Write import Write as PacketWrite
 from GameServer.Controllers.data.drops import *
 from GameServer.Controllers.data.exp import *
 from GameServer.Controllers.data.planet import PLANET_MAP_TABLE, PLANET_BOXES, PLANET_BOX_MOBS, PLANET_DROPS,\
-    PLANET_ASSISTS
+    PLANET_ASSISTS, PLANET_CANISTER_EXCEPTIONS
 from GameServer.Controllers.data.military import MILITARY_BASE
 from GameServer.Controllers.data.client import CLIENT_FILE_HASHES
 from GameServer.Controllers.data.game import *
@@ -140,28 +140,55 @@ def monster_kill(**_args):
     # Randomly shuffle the drops to randomize drop order
     random.shuffle(drops)
 
-    # Calculate whether or not we should drop an item based on chance
-    # But only if the monster ID is not in the array of killed mobs and if the game is still going
-    # Lastly, we shouldn't drop anything if the monster has been pushed
+    '''
+    Check if we should drop an item or canister based on chances.
+    
+    Only check if the following conditions are met:
+    --
+    1. The monster is not already killed and is not pushed
+    2. The monster is in the PLANET_CANISTER_EXCEPTIONS
+    3. The game hasn't ended
+    '''
+
     monster_drops = []
-    if monster_id not in room['killed_mobs'] and not room['game_over'] and pushed == 0:
+    if (
+            # Monster ID is not in the killed array and if the monster has not been pushed
+            (monster_id not in room['killed_mobs'] and pushed == 0) or
+
+            # We are playing planet mode and the monster ID is in the PLANET_CANISTER_EXCEPTIONS array
+            (room['game_type'] == MODE_PLANET and room['level'] in PLANET_CANISTER_EXCEPTIONS and monster_id in PLANET_CANISTER_EXCEPTIONS[room['level']])
+
+    ) and not room['game_over']:
+
         for drop, chance in drops:
 
-            ''' If the monster ID is equal to the boss, we'll have to change the drop chances, but only if we are in planet mode '''
-            if room['level'] in PLANET_BOXES and monster_id == PLANET_BOX_MOBS[room['level']][len(PLANET_BOX_MOBS[room['level']]) - 1] \
-                    and room['game_type'] == MODE_PLANET:
+            # Planet mode rules
+            if room['game_type'] == MODE_PLANET:
 
-                # If the drop is not a canister, increase chance by 5x
-                if drop >= BOX_ARMS:
-                    chance = chance * 5
-                else:
-
-                    # Otherwise, the chance should be 0. We do not want to drop canisters.
+                ''' If the drop is equal to gold and the monster has been killed before, do not drop it '''
+                if monster_id in room['killed_mobs'] and drop == CHEST_GOLD:
                     chance = 0.00
 
-                    # Except if the drop is a rebirth then the chance should always be 100%
-                    if drop == CANISTER_REBIRTH:
-                        chance = 1.00
+                ''' If the monster ID is equal to the boss, we'll have to change the drop chances, but only if we are in planet mode '''
+                if room['level'] in PLANET_BOXES and monster_id == PLANET_BOX_MOBS[room['level']][len(PLANET_BOX_MOBS[room['level']]) - 1]:
+
+                    # If the drop is not a canister, increase chance by 5x
+                    if drop >= BOX_ARMS:
+                        chance = chance * 5
+                    else:
+
+                        # Otherwise, the chance should be 0. We do not want to drop canisters.
+                        chance = 0.00
+
+                        # Except if the drop is a rebirth then the chance should always be 100%
+                        if drop == CANISTER_REBIRTH:
+                            chance = 1.00
+
+                # If we are playing hard or medium difficulty and the monster does not drop a box (barrels and bosses), decrease drop chance
+                elif room['difficulty'] in [DIFFICULTY_MEDIUM, DIFFICULTY_HARD] and monster_id not in PLANET_BOX_MOBS[room['level']]:
+
+                    # If medium, we have a 50% drop otherwise we have a 75% drop of chance
+                    chance = chance / (2 if room['difficulty'] == DIFFICULTY_MEDIUM else 4)
 
             # Ensure that a military base always drops gold
             elif room['game_type'] == MODE_MILITARY and monster_id in MILITARY_BASE and drop == CHEST_GOLD:
@@ -172,6 +199,8 @@ def monster_kill(**_args):
                 monster_drops.append(bytes([room['drop_index'], drop, 0, 0, 0]))
                 room['drops'][room['drop_index']] = {'type': drop, 'used': False}
                 room['drop_index'] += 1
+
+    # Construct drop bytes for the response packet
     drop_bytes = b''.join(monster_drops)
 
     # Randomly generate drop direction
@@ -194,8 +223,9 @@ def monster_kill(**_args):
             and monster_id not in room['killed_mobs'] and room['game_over'] == False:
         room['slots'][str(who + 1)]['monster_kills'] += 1
 
-    # Add the monster to the killed mob array, but only if we're in planet or military mode
-    if room['game_type'] == MODE_PLANET or (room['game_type'] == MODE_MILITARY and monster_id != MILITARY_BASE):
+    # Add the monster to the killed mob array, but only if we're in planet or military mode and if it isn't already in the array
+    if (room['game_type'] == MODE_PLANET or (room['game_type'] == MODE_MILITARY and monster_id != MILITARY_BASE)) \
+            and monster_id not in room['killed_mobs']:
         room['killed_mobs'].append(monster_id)
 
 '''
@@ -906,7 +936,8 @@ def post_game_transaction(_args, room):
         addition_experience += party_experience
 
         # Check if we have leveled up
-        level_up = character['experience'] + addition_experience >= EXP_TABLE[character['level'] + 1]
+        level_up = character['level'] < MAX_LEVEL \
+                   and character['experience'] + addition_experience >= EXP_TABLE[character['level'] + 1]
         if level_up:
 
             # Update our level and experience
@@ -924,8 +955,9 @@ def post_game_transaction(_args, room):
         # Do not change the rank if the rank is greater than 43 (max rank)
         new_rank = 0
         for rank in RANK_EXP_TABLE:
-            if character['rank_exp'] >= RANK_EXP_TABLE[rank] and rank <= 43:
+            if character['rank_exp'] >= RANK_EXP_TABLE[rank] and rank <= MAX_RANK:
                 new_rank = rank
+                break
 
         # Change our current rank to the new rank if it's greater than our current rank
         rank_up = new_rank > character['rank']

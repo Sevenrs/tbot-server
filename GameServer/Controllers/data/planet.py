@@ -458,6 +458,10 @@ PLANET_BOX_MOBS = {
         83 # Boss
     ]
 }
+
+'''
+This object contains all the monster IDs that should drop assist canisters, meaning they would drop many
+'''
 PLANET_ASSISTS = {
 
 
@@ -513,6 +517,28 @@ PLANET_ASSISTS = {
 
 }
 
+'''
+This object contains the mob IDs that should drop canisters even if they have respawned
+'''
+PLANET_CANISTER_EXCEPTIONS = {
+
+    # [Lv30]Acurin-Ruins1
+    12: [
+        67,
+        68,
+        69,
+        70,
+        72,
+        73,
+        74,
+        75
+    ]
+
+}
+
+'''
+This object contains all box drop types and their chances per planet map
+'''
 PLANET_BOXES = {
 
     #[Lv01]Training Camp
@@ -912,6 +938,9 @@ PLANET_BOXES = {
     ]
 }
 
+'''
+For each type defined in the object above, this contains all their drops and their chances
+'''
 PLANET_DROPS = {
 
     #[Lv01]Training Camp

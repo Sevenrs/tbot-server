@@ -8,4 +8,8 @@ TEAM_NONE   = 0
 TEAM_RED    = 1
 TEAM_BLUE   = 2
 
+DIFFICULTY_EASY     = 0
+DIFFICULTY_MEDIUM   = 1
+DIFFICULTY_HARD     = 2
+
 ROOM_CALLBACKS=['event_weekends', 'event_christmas']
