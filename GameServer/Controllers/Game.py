@@ -11,7 +11,7 @@ from GameServer.Controllers.data.planet import PLANET_MAP_TABLE, PLANET_BOXES, P
 from GameServer.Controllers.data.military import MILITARY_BASE
 from GameServer.Controllers.data.client import CLIENT_FILE_HASHES
 from GameServer.Controllers.data.game import *
-from GameServer.Controllers.Character import get_items, add_item, get_available_inventory_slot, remove_expired_items
+from GameServer.Controllers.Character import get_items, add_item, get_available_inventory_slot, remove_expired_items, remove_item
 from GameServer.Controllers import Lobby, Room, Guild
 import MySQL.Interface as MySQL
 import random, time, datetime, _thread
@@ -440,9 +440,17 @@ def use_field_pack(**_args):
 
             _args['socket'].send(update_pack_times.packet)
 
-            # Subtract one from the remaining_times column for the item
-            _args['mysql'].execute("""UPDATE `character_items` SET `remaining_times` = (`remaining_times` - 1) 
-                WHERE `id` = %s AND `remaining_times` > 0""", [wearing['items'][idx]['character_item_id']])
+            # If the field pack has expired, delete it
+            if wearing['items'][idx]['duration'] == 0:
+                remove_item(_args, wearing['items'][idx]['character_item_id'])
+
+            # Otherwise, we'll want to subtract one usage from the field pack
+            else:
+
+                # Subtract one from the remaining_times column for the item
+                _args['mysql'].execute("""UPDATE `character_items` SET `remaining_times` = (`remaining_times` - 1) 
+                    WHERE `id` = %s AND `remaining_times` > 0""", [ wearing['items'][idx]['character_item_id'] ])
+
             break
 
 
