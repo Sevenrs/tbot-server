@@ -965,7 +965,6 @@ def post_game_transaction(_args, room):
         for rank in RANK_EXP_TABLE:
             if character['rank_exp'] >= RANK_EXP_TABLE[rank] and rank <= MAX_RANK:
                 new_rank = rank
-                break
 
         # Change our current rank to the new rank if it's greater than our current rank
         rank_up = new_rank > character['rank']

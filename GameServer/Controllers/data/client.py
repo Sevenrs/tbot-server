@@ -2,8 +2,8 @@ CLIENT_VERSION  = '1.0.2.2'     # Client version
 PING_TIMEOUT    = 90            # Connection timeout in seconds
 
 CLIENT_FILE_HASHES = [
-    '1fb166ed2a00c1c21f037dce93ddc320', # script/dungeon/dungeon.bin
-    '305742d42ddd96576ad250c4ea76d7fe', # script/dungeon/p_monai.bin
+    'd9097271c4dcf7893c138402484271a2', # script/dungeon/dungeon.bin
+    '6fbada1f64ceb6db89f97fffea427103', # script/dungeon/p_monai.bin
     '32de15763d99e8ee86a24642d84de501', # script/dungeon/p_monimg.bin
     '3b868a14f2433666314792910ba4533f', # script/base.bin
     'd6dd34f8935ff76a41dcc5de397226d4', # script/bulinfo.sys
@@ -20,5 +20,5 @@ CLIENT_FILE_HASHES = [
     'f106ef15f6bc83a6791348d5c3f4aaac', # script/map_base.bin
     '03d200380f50b6cf047a7a04afb01128', # script/map_battle.bin
     '5a44d40241c3bc346481ebc7bd52b96a', # script/map_daeth.bin
-    'f40af8dc71de4e17b02ce99bde03326e', # script/map_planet.bin
+    '21caf4a07371d2c5757dfc0d3b4c6301', # script/map_planet.bin
 ]
