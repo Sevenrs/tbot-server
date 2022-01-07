@@ -192,8 +192,11 @@ def construct_room_players(_args, packet, character, slot_num, client, room):
 
     packet.AppendInteger(slot_num - 1)
 
-    for _ in range(4):
-        packet.AppendBytes(bytearray([0x00]))
+    packet.AppendBytes([0x00]) # Unknown
+
+    packet.AppendBytes([0xFF if client['warnet_bonus'] else 0x00]) # Warnet bonus
+
+    packet.AppendBytes([0x00, 0x00])  # Unknown
 
     packet.AppendString(character['name'], 15)
 

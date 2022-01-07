@@ -85,13 +85,16 @@ def authenticate(**_args):
         # Close MySQL connection
         connection.close()
 
-        # Append success status to the packet and send to the client and close the connection
-        result.AppendInteger(RESPONSE_SUCCESS, 1, 'little')
+        result.AppendInteger(RESPONSE_SUCCESS, 1, 'little')                             # Append success status to the packet and send to the client and close the connection
+        result.AppendBytes([0x00, (0x01 if response.json()['warnet_bonus'] else 0x00)]) # Append warnet bonus status to the packet. It's 1 if there's a bonus, otherwise it's 0
+        result.AppendBytes(PACKET_FOOTER[2:])                                           # Skip the first two bytes because we've manually written those above
 
     except Exception:
-        result.AppendInteger(RESPONSE_ERROR, 1, 'little')
 
-    result.AppendBytes(PACKET_FOOTER)
+        # In case of an error, send the RESPONSE_ERROR status to the client
+        result.AppendInteger(RESPONSE_ERROR, 1, 'little')
+        result.AppendBytes(PACKET_FOOTER)
+
     _args['client']['socket'].send(result.packet)
     return _args['client']['socket'].close()
 

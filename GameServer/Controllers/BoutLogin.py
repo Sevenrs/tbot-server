@@ -49,8 +49,13 @@ def id_request(**_args):
     if response.status_code != 200:
         raise Exception('Verification failed')
 
+    # Fetch the response into a readable list
+    verification_response = response.json()
+
     # Get internal user from the database
-    _args['mysql'].execute('SELECT `id` FROM `users` WHERE `external_id` = %s', [ response.json()['web_id'] ])
+    _args['mysql'].execute('SELECT `id` FROM `users` WHERE `external_id` = %s', [
+        verification_response['web_id']
+    ])
     internal_user = _args['mysql'].fetchone()
 
     # Check if the internal user was found
@@ -80,10 +85,11 @@ def id_request(**_args):
     
     # Update our socket to use this ID and assign the account to it as well
     _args['client']['id']           = id
-    _args['client']['account']      = response.json()['username']
+    _args['client']['account']      = verification_response['username']
     _args['client']['account_id']   = internal_user['id']
+    _args['client']['warnet_bonus'] = verification_response['warnet_bonus']
     _args['client']['character']    = None
-    _args['client']['new']          = True
+    _args['client']['new'] = True
     _args['client']['lobby_data']   = {'mode': 0, 'page': 0}
     _args['client']['last_ping']    = datetime.datetime.now()
 
