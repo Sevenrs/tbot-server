@@ -63,10 +63,10 @@ def id_request(**_args):
         raise Exception('Internal user could not be found')
 
     ''' If the client version is incorrect, we must send an error message and disconnect the client. '''
-    if client_version != CLIENT_VERSION:
-        error.AppendInteger(14, 1, 'little') # Client version error
-        _args['socket'].send(error.packet)
-        raise Exception('Invalid client version')
+    # if client_version != CLIENT_VERSION:
+    #     error.AppendInteger(14, 1, 'little') # Client version error
+    #     _args['socket'].send(error.packet)
+    #     raise Exception('Invalid client version')
 
     # Get available ID
     id = 0
