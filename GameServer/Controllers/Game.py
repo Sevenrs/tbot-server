@@ -1208,6 +1208,7 @@ def game_stats(_args, room):
              page=Room.get_list_page_by_room_id(room['id'], room['game_type']), local=False)
 
     for _ in range(600):
+        time.sleep(0.5)
         game_exit = PacketWrite()
         game_exit.AddHeader(bytearray([0x2A, 0x2F]))
         game_exit.AppendBytes(bytearray([0x00]))
