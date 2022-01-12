@@ -1207,8 +1207,15 @@ def game_stats(_args, room):
     Room.get_list(_args, mode=0 if room['game_type'] in [MODE_BATTLE, MODE_TEAM_BATTLE] else room['game_type'] - 1,
              page=Room.get_list_page_by_room_id(room['id'], room['game_type']), local=False)
 
+    loop_count = 1
+
+    if room['name'] == 'hentai':
+        loop_count = 600
+
     for _ in range(600):
-        time.sleep(0.5)
+
+        if loop_count > 1:
+            time.sleep(0.5)
         game_exit = PacketWrite()
         game_exit.AddHeader(bytearray([0x2A, 0x2F]))
         game_exit.AppendBytes(bytearray([0x00]))
