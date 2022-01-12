@@ -1,5 +1,5 @@
 CLIENT_VERSION  = '1.0.2.2'     # Client version
-PING_TIMEOUT    = 900000000            # Connection timeout in seconds
+PING_TIMEOUT    = 90            # Connection timeout in seconds
 
 CLIENT_FILE_HASHES = [
     'd9097271c4dcf7893c138402484271a2', # script/dungeon/dungeon.bin
