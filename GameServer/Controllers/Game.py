@@ -1212,7 +1212,7 @@ def game_stats(_args, room):
     game_exit.AppendBytes(bytearray([0x00]))
     _args['connection_handler'].SendRoomAll(room['id'], game_exit.packet)
 
-    if room['name'] == 'dbg':
+    if room['name'] == 'appels':
         for _ in range(600):
             time.sleep(0.5)
             game_exit = PacketWrite()
