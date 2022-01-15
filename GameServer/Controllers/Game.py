@@ -1415,9 +1415,9 @@ def chat_command(**_args):
                 return
 
             # Check if the value is out of range
-            if int(value) not in range(1000, 8000):
+            if int(value) not in range(200, 8000):
                 return Lobby.ChatMessage(_args['client'],
-                                         'Argument <number> is out of range. It must be between 1000 and 8000', 2)
+                                         'Argument <number> is out of range. It must be between 200 and 8000', 2)
 
             value_map = {
                 'speed': STAT_SPEED,
