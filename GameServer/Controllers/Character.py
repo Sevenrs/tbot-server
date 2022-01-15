@@ -5,6 +5,7 @@ __version__ = "1.0"
 
 from Packet.Write import Write as PacketWrite
 from enum import Enum
+from GameServer.Controllers.data.bot import *
 
 '''
 This method is responsible for obtaining items connected to an account or character.
@@ -307,10 +308,31 @@ def get_storage_count(_args, account_id):
     return _args['mysql'].rowcount
 
 '''
+This method will return the requested statistic value and apply the statistic override where applicable
+'''
+def get_statistic_value(
+        character,
+        wearing_items,
+        statistic,
+        stat_override={}
+):
+
+    # Calculate the value by adding the default value as well as the value from the specification object
+    value = character[ statistic[STAT_KEY] ] + wearing_items['specifications'][ statistic[STAT_EFFECT_KEY] ]
+
+    # If the stat is defined in the stat override object, overwrite the stat with the value there
+    if statistic[STAT_KEY] in stat_override:
+        value = stat_override[ statistic[STAT_KEY] ]
+
+    # Return the value to the stack
+    return value
+
+'''
 This method constructs the bot data which can then be appended to a packet to send the character information sheet
 '''
-def construct_bot_data(_args, character):
+def construct_bot_data(_args, character, stat_override={}):
 
+    # Prepare bot packet
     bot = PacketWrite()
 
     # Before we obtain wearing items, remove any expired items that we may have
@@ -320,44 +342,40 @@ def construct_bot_data(_args, character):
     wearing_items = get_items(_args, character['id'], 'wearing')
 
     # Append general character information to packet
-    bot.AppendString(character['name'], 15)
-    bot.AppendInteger(character['type'], 2, 'little')
-    bot.AppendInteger(character['experience'], 4, 'little')
-    bot.AppendInteger(character['level'], 2, 'little')
-    bot.AppendInteger(character['health']
-                                        + wearing_items['specifications']['effect_health'], 2, 'little')
-    bot.AppendInteger(character['att_min']
-                                        + wearing_items['specifications']['effect_att_min'], 2, 'little')
-    bot.AppendInteger(character['att_max']
-                                        + wearing_items['specifications']['effect_att_max'], 2, 'little')
-    bot.AppendInteger(character['att_trans_min']
-                                        + wearing_items['specifications']['effect_att_trans_min'], 2, 'little')
-    bot.AppendInteger(character['att_trans_max']
-                                        + wearing_items['specifications']['effect_att_trans_max'], 2, 'little')
+    bot.AppendString    (character['name'], 15)
+    bot.AppendInteger   (character['type'], 2, 'little')
+    bot.AppendInteger   (character['experience'], 4, 'little')
+    bot.AppendInteger   (character['level'], 2, 'little')
 
+    # Append health, att_min, att_max, att_trans_min and att_trans_max to the packet
+    for statistic in [
+        STAT_HEALTH,
+        STAT_ATT_MIN,
+        STAT_ATT_MAX,
+        STAT_ATT_TRANS_MIN,
+        STAT_ATT_TRANS_MAX
+    ]: bot.AppendInteger(get_statistic_value(
+        character=character, wearing_items=wearing_items, statistic=statistic, stat_override=stat_override
+    ), 2, 'little')
+
+    # Defense statistic, 51.2% of incoming damage
     bot.AppendInteger(512, 2, 'little')
 
     # Append character effects to the packet
-    bot.AppendInteger(character['trans_guage']
-                                        + wearing_items['specifications']['effect_trans_guage'], 2, 'little')
-    bot.AppendInteger(character['att_critical']
-                                        + wearing_items['specifications']['effect_critical'], 2, 'little')
-    bot.AppendInteger(character['att_evade']
-                                        + wearing_items['specifications']['effect_critical'], 2, 'little')
-    bot.AppendInteger(character['trans_special']
-                                        + wearing_items['specifications']['effect_special_trans'], 2, 'little')
-    bot.AppendInteger(character['speed']
-                                        + wearing_items['specifications']['effect_speed'], 2, 'little')
-    bot.AppendInteger(character['trans_def']
-                                        + wearing_items['specifications']['effect_trans_bot_defense'], 2, 'little')
-    bot.AppendInteger(character['trans_att']
-                                        + wearing_items['specifications']['effect_trans_bot_attack'], 2, 'little')
-    bot.AppendInteger(character['trans_speed']
-                                        + wearing_items['specifications']['effect_trans_speed'], 2, 'little')
-    bot.AppendInteger(character['att_ranged']
-                                        + wearing_items['specifications']['effect_ranged_attack'], 2, 'little')
-    bot.AppendInteger(character['luck']
-                                        + wearing_items['specifications']['effect_luck'], 2, 'little')
+    for statistic in [
+        STAT_ATT_TRANS_GAUGE,
+        STAT_ATT_CRITICAL,
+        STAT_ATT_EVADE,
+        STAT_ATT_SPECIAL_TRANS,
+        STAT_SPEED,
+        STAT_TRANS_DEF,
+        STAT_TRANS_ATT,
+        STAT_TRANS_SPEED,
+        STAT_ATT_RANGED,
+        STAT_LUCK
+    ]: bot.AppendInteger(get_statistic_value(
+        character=character, wearing_items=wearing_items, statistic=statistic, stat_override=stat_override
+    ), 2, 'little')
 
     # Append the amount of botstract to the packet
     bot.AppendInteger(character['currency_botstract'], 4, 'little')
@@ -394,7 +412,7 @@ def construct_bot_data(_args, character):
         bot.AppendInteger(item['duration'], 4, 'little')
         bot.AppendInteger(item['duration_type'], 1, 'little')
 
-    for i in range(200):
+    for _ in range(200):
         bot.AppendBytes([0x00])
 
     for i in range(17, 19):

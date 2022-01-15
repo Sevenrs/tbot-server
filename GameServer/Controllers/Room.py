@@ -316,6 +316,10 @@ def add_slot(_args, room_id, client, broadcast=False):
     # Send a message to the client about the commands they can use
     Lobby.ChatMessage(_args['client'], 'There are commands available. Type @help for a list of commands.', 2)
 
+    if room['master'] is client and room['game_type'] in [ MODE_DEATHMATCH, MODE_BATTLE, MODE_TEAM_BATTLE ]:
+        Lobby.ChatMessage(_args['client'], 'This game type allows you to change player\'s statistics. For more information, type @stat-help', 2)
+
+
 '''
 This method will remove a player from the room
 '''
@@ -432,7 +436,8 @@ def create(**_args):
         'network_state_requests':   {},
         'start_time':               None,
         'callbacks':                {},
-        'callback_data':            {}
+        'callback_data':            {},
+        'stat_override':            {}
     }
 
     # Pass the room to the server room container and notify any client that may see this change in the lobby
@@ -712,6 +717,17 @@ def start_game(**_args):
         if not slot['ready'] and slot['client']['id'] != room['master']['id'] and int(_args['client']['character']['position']) != 1:
             start.AppendBytes(bytearray([0x00, 0x6C]))
             return _args['client']['socket'].send(start.packet)
+
+    # If the room has stat_overrides, send all clients in the room their modified stats
+    if len(room['stat_override']) > 0:
+
+        for key, slot in room['slots'].items():
+
+            sync = PacketWrite()
+            sync.AddHeader([0xE5, 0x2E])
+            sync.AppendBytes([0x01, 0x00])
+            sync.AppendBytes(Character.construct_bot_data(_args, slot['client']['character'], room['stat_override']))
+            _args['socket'].send(sync.packet)
 
     # Run through all possible callbacks run their registration methods
     for callback in ROOM_CALLBACKS:

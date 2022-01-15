@@ -11,7 +11,8 @@ from GameServer.Controllers.data.planet import PLANET_MAP_TABLE, PLANET_BOXES, P
 from GameServer.Controllers.data.military import MILITARY_BASE
 from GameServer.Controllers.data.client import CLIENT_FILE_HASHES
 from GameServer.Controllers.data.game import *
-from GameServer.Controllers.Character import get_items, add_item, get_available_inventory_slot, remove_expired_items, remove_item
+from GameServer.Controllers.data.bot import *
+from GameServer.Controllers.Character import get_items, add_item, get_available_inventory_slot, remove_expired_items, remove_item, construct_bot_data
 from GameServer.Controllers import Lobby, Room, Guild
 import MySQL.Interface as MySQL
 import random, time, datetime, _thread
@@ -1344,7 +1345,7 @@ def chat_command(**_args):
     # Read message
     message = _args['packet'].ReadString()
 
-    if message[0] == '@':
+    if message.startswith('@'):
         command = message[1:]
 
         # Handle exit requests
@@ -1366,6 +1367,75 @@ def chat_command(**_args):
         # Force time over command (deathmatch variant), only available to staff members
         elif command == 'timeoutdm' and _args['client']['character']['position'] == 1:
             game_end(_args=_args, room=room, status=3)
+
+        # Statistic modification for player battle modes
+        elif command[:5] in ['speed', 'gauge', 'reset']:
+
+            # Check if we are the room master
+            if room['master'] != _args['client']:
+                return Lobby.ChatMessage(_args['client'], 'Only room masters can change player statistics', 2)
+
+            # Check if the game mode is correct
+            elif room['game_type'] not in [ MODE_DEATHMATCH, MODE_BATTLE, MODE_TEAM_BATTLE ]:
+                return Lobby.ChatMessage(_args['client'], 'Player statistics can only be changed in Deathmatch, Battle and Team Battle', 2)
+
+            # Check if the game has already started
+            elif room['status'] != 0:
+                return Lobby.ChatMessage(_args['client'], 'You can not change the statistics after the game has started', 2)
+
+            # Split the command string so we can begin to read values
+            command_split = command.split()
+
+            # Read what we want to change
+            what = command_split[0]
+
+            # Handle statistic reset requests
+            if what == 'reset':
+                room['stat_override'] = {}
+
+                # Send acknowledgement message to everyone in the room
+                message = Lobby.ChatMessage(target=None,
+                                            message='{0} has reset all custom statistics'.format(
+                                                _args['client']['character']['name']
+                                            ),
+                                            color=3,
+                                            return_packet=True)
+                return _args['connection_handler'].SendRoomAll(room['id'], message)
+
+            # If the command_split length is not 2, quit executing the command. This means we have too many or too few arguments
+            if len(command_split) != 2:
+                return Lobby.ChatMessage(_args['client'],
+                                         'Invalid arguments. We expect: @{0} <number>'.format(command[:5]), 2)
+
+            # Read value from the command
+            value = command_split[1]
+
+            # If the value is not an integer, do nothing
+            if not value.isdigit():
+                return
+
+            # Check if the value is out of range
+            if int(value) not in range(1000, 8000):
+                return Lobby.ChatMessage(_args['client'],
+                                         'Argument <number> is out of range. It must be between 1000 and 8000', 2)
+
+            value_map = {
+                'speed': STAT_SPEED,
+                'gauge': STAT_ATT_TRANS_GAUGE
+            }
+
+            room['stat_override'][ value_map[what][STAT_KEY] ] = int(value)
+
+            # Send acknowledgement message to everyone in the room
+            message = Lobby.ChatMessage(target=None,
+                                        message='{0} has changed everyone\'s {1} to {2}'.format(
+                                            _args['client']['character']['name'],
+                                            what,
+                                            value
+                                        ),
+                                        color=3,
+                                        return_packet=True)
+            _args['connection_handler'].SendRoomAll(room['id'], message)
 
         # Handle suicide requests
         elif command == 'suicide':
@@ -1433,6 +1503,34 @@ def chat_command(**_args):
                 {
                     "command": "@kick <name>",
                     "description": "Kicks a player from your room"
+                },
+
+                {
+                    "command": "@stat-help",
+                    "description": "Tells you more about the ability to change player's statistics in Battle modes"
+                }
+            ]
+
+            for command in commands:
+                Lobby.ChatMessage(_args['client'], '{0} -- {1}'.format(command['command'], command['description']), 2)
+
+        # Mirror of the help command except it only lists commands used for player statistic alterations
+        elif command == 'stat-help':
+
+            commands = [
+                {
+                    "command": "@speed <number>",
+                    "description": "Changes players' speed"
+                },
+
+                {
+                    "command": "@gauge <number>",
+                    "description": "Changes players' transformation gauge"
+                },
+
+                {
+                    "command": "@reset",
+                    "description": "Resets all custom player statistics"
                 }
             ]
 

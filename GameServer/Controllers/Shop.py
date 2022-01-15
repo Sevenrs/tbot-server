@@ -34,6 +34,13 @@ def sync_cash_rpc(**_args):
     sync_cash(_args)
     sync_inventory(_args)
 
+    # Send the unwear packet to sync character statistics in the event that a game with custom statistics has been played
+    sync = PacketWrite()
+    sync.AddHeader([0xE5, 0x2E])
+    sync.AppendBytes([0x01, 0x00])
+    sync.AppendBytes(Character.construct_bot_data(_args, _args['client']['character']))
+    _args['socket'].send(sync.packet)
+
 '''
 This method will sync the inventory.
 '''
