@@ -728,6 +728,7 @@ def start_game(**_args):
             sync.AppendBytes([0x01, 0x00])
             sync.AppendBytes(Character.construct_bot_data(_args, slot['client']['character'], room['stat_override']))
             slot['client']['socket'].send(sync.packet)
+            slot['client']['needs_sync'] = True
 
     # Run through all possible callbacks run their registration methods
     for callback in ROOM_CALLBACKS:

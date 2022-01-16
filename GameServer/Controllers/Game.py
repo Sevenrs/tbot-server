@@ -37,8 +37,7 @@ def load_finish_rpc(**_args):
 
     # Check if file validation passed. If not, disconnect client now.
     if not room['slots'][str(slot)]['file_validation_passed']:
-        print('aa')
-        #return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
+        return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
 
     # Get slot and update loading status
     room['slots'][str(slot)]['loaded'] = True
@@ -534,7 +533,7 @@ def file_validation(**_args):
         # Compare hash. If they don't match, we disconnect the client.
         if client_hash != hash:
             print("Invalid file hash. Expected: {0}, Got: {1}".format(hash, client_hash))
-            #return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
+            return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
 
     # If we have passed validation, update our validation state to True (passed)
     room['slots'][str(room_slot)]['file_validation_passed'] = True

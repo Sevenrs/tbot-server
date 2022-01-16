@@ -1,1 +1,1 @@
-LOBBY_MSG = '[Message of the Day] Welcome to T-Bot Rewritten! Visit our website at https://tbot.icseon.com', 3
+LOBBY_MSG = '[Server] Welcome to T-Bot Rewritten!', 3

@@ -25,8 +25,14 @@ class Client:
     This method will handle the client's data
     """
     def handle(self):
-        #print('New connection from:', self.address)
-        
-        # Obtain packet and execute the relevant command for it
-        packet = ReadDatagram(self.data)
-        Commands.execute(self.server, self.address, self.game_server, self.connection_handler, packet)
+
+        try:
+
+            print('[RoomHostServer] New connection from:', self.address)
+
+            # Obtain packet and execute the relevant command for it
+            packet = ReadDatagram(self.data)
+            Commands.execute(self.server, self.address, self.game_server, self.connection_handler, packet)
+
+        except Exception as e:
+            print("[RoomHostServer] Failed to handle RoomHostServer UDP client because" , e)

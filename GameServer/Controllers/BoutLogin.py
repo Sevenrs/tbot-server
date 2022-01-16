@@ -63,10 +63,10 @@ def id_request(**_args):
         raise Exception('Internal user could not be found')
 
     ''' If the client version is incorrect, we must send an error message and disconnect the client. '''
-    # if client_version != CLIENT_VERSION:
-    #     error.AppendInteger(14, 1, 'little') # Client version error
-    #     _args['socket'].send(error.packet)
-    #     raise Exception('Invalid client version')
+    if client_version != CLIENT_VERSION:
+        error.AppendInteger(14, 1, 'little') # Client version error
+        _args['socket'].send(error.packet)
+        raise Exception('Invalid client version')
 
     # Get available ID
     id = 0
@@ -80,18 +80,17 @@ def id_request(**_args):
         id = i
         _args['server'].client_ids.append(id)
         break
-
-    print("Client id: {0}".format(id))
     
     # Update our socket to use this ID and assign the account to it as well
-    _args['client']['id']           = id
-    _args['client']['account']      = verification_response['username']
-    _args['client']['account_id']   = internal_user['id']
-    _args['client']['warnet_bonus'] = verification_response['warnet_bonus']
-    _args['client']['character']    = None
-    _args['client']['new'] = True
-    _args['client']['lobby_data']   = {'mode': 0, 'page': 0}
-    _args['client']['last_ping']    = datetime.datetime.now()
+    _args['client']['id']           = id                                        # Client identification number
+    _args['client']['account']      = verification_response['username']         # The username from the website
+    _args['client']['account_id']   = internal_user['id']                       # User ID in our local database, not the web id
+    _args['client']['warnet_bonus'] = verification_response['warnet_bonus']     # Whether this user is eligible for the warnet bonus icon
+    _args['client']['character']    = None                                      # Character object
+    _args['client']['new']          = True                                      # Whether we need to send the initial lobby message
+    _args['client']['needs_sync']   = False                                     # Whether we need to send a character sync packet
+    _args['client']['lobby_data']   = {'mode': 0, 'page': 0}                    # Lobby information
+    _args['client']['last_ping']    = datetime.datetime.now()                   # Last ping timestamp
 
     # Disconnect all connected sessions with this account name (to stop two or more clients with the same account)
     for session in _args['connection_handler'].GetClients():

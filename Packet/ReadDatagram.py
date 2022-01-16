@@ -31,4 +31,4 @@ class ReadDatagram:
             self.data = self.packet[4:(4+ self.length)]
             
         except Exception as e:
-            print('Failed to parse datagram packet because', e)
+            raise Exception('Failed to parse datagram packet because', e)

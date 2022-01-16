@@ -16,7 +16,7 @@ def execute(server, address, game_server, connection_handler, packet):
 
 ''' This handler will handle unknown packets by printing its information to stdout '''
 def unknown(**_args):
-    print('Unknown packet: <0x{0}::{1}>'.format(_args['packet'].id, _args['packet'].data))
+    print('[RoomHostServer] Unknown packet: <0x{0}::{1}>'.format(_args['packet'].id, _args['packet'].data))
 
 ''' This handler will handle ping packets '''
 def ping(**_args):

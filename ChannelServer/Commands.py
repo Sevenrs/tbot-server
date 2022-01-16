@@ -13,4 +13,4 @@ def execute(server, address, packet, game_server):
     if packet.id == 'fa2a':
         Channels.GetChannels(server, address, packet, game_server)
     else:
-        print('Unknown command ID', packet.id)
+        print('[ChannelServer] Unknown command ID', packet.id)
