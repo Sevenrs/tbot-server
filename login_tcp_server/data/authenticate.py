@@ -3,6 +3,7 @@ RESPONSE_SUCCESS            = 0
 RESPONSE_INCORRECT_PASSWORD = 1
 RESPONSE_USER_NOT_FOUND     = 2
 RESPONSE_USER_SUSPENDED     = 3
+RESPONSE_EMAIL_UNVERIFIED   = 4
 RESPONSE_RATE_LIMIT         = 5
 RESPONSE_ERROR              = 6
 
@@ -20,5 +21,8 @@ STATUS_MAP = {
 
     # Password errors
     'errors.password.invalid':      RESPONSE_INCORRECT_PASSWORD,
-    'errors.password.rate_limit':   RESPONSE_RATE_LIMIT
+    'errors.password.rate_limit':   RESPONSE_RATE_LIMIT,
+
+    # Email not verified
+    'errors.email.not-verified':    RESPONSE_EMAIL_UNVERIFIED
 }
