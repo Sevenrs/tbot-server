@@ -133,8 +133,9 @@ def check_connection(**_args):
                 # Attempt to retrieve the remote client by looping through all clients.
                 for client in _args['client']['server'].clients:
 
-                    # Check if the game_client is not None to ensure it exists
-                    if 'game_client' in client and client['game_client'] is not None:
+                    # Check if the game_client is not None to ensure it exists. We'll also be making sure this client has a character assigned to begin with.
+                    if 'game_client' in client and client['game_client'] is not None \
+                            and 'character' in client['game_client'] and client['game_client']['character'] is not None:
 
                         # Check if this is the client we are looking for by comparing the character name
                         if client['game_client']['character']['name'] == character_name:
@@ -166,8 +167,9 @@ def remove_connection(**_args):
     try:
         for client in _args['client']['server'].clients:
 
-            # Check if the client is not None and if the game_client is also not None
-            if client is not None and 'game_client' in client and client['game_client'] is not None:
+            # Check if the client is not None and if the game_client is also not None. We'll also check if the client has a character assigned with it.
+            if client is not None and 'game_client' in client and client['game_client'] is not None \
+                and 'character' in client['game_client'] and client['game_client']['character'] is not None:
 
                 # Check if the character name is equal to the name we received
                 if client['game_client']['character']['name'] == character_name:
