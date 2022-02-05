@@ -28,14 +28,14 @@ class Read:
             Receive the first two bytes that represent the packet ID
             Packet IDs should be converted to hexadecimal
             """
-            self.id = "".join(map(chr, binascii.hexlify(socket.recv(2))))
+            self.id = "".join(map(chr, binascii.hexlify(socket.recv(2, Socket.MSG_WAITALL))))
             
             """
             Receive the next two bytes that represent the packet length
             This contains an unsigned short (max length is 65535 bytes)
             Also remove null bytes from the length bytes to avoid it reading them
             """
-            self.length = int.from_bytes(socket.recv(2), 'little')
+            self.length = int.from_bytes(socket.recv(2, Socket.MSG_WAITALL), 'little')
             
             """
             Validate packet length. Check if the amount of bytes are really available
@@ -47,7 +47,7 @@ class Read:
             Receive additional data from the client based on the received
             packet length
             """
-            self.data = socket.recv(self.length)
+            self.data = socket.recv(self.length, Socket.MSG_WAITALL)
             if not self.data:
                 raise Exception('Unable to receive data')
             

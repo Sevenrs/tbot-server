@@ -35,10 +35,23 @@ def route(socket, packet, server, client, connection_handler, session_handler):
 
         received_packet = PACKET_READ[packet.id]
         if received_packet[PACKET_NAME] != 'PACKET_PONG':
-            print("[GameServer]{1} Parsing packet :: {0} <{2}>".format(
+
+            # Retrieve connection information
+            connection_information = "<{0}> - <character={1}, account={2} (game_server_id={3}, relay_server_id={4})>".format(
+                client['socket'].getpeername(),
+                client['character']['name'] if 'character' in client and client['character'] is not None else None,
+                client['account'] if 'account' in client else None,
+                client['id'],
+                client['relay_client']['id'] if 'relay_client' in client else None
+            )
+
+            # Debug print the packet to stdout
+            print("[GameServer ({0})] {1} - Processing packet <{2}> [len_recv:{3}, actual_len:{4}] :: <{5}>".format(
+                server.port,
+                connection_information,
                 received_packet[PACKET_NAME],
-                '' if ('character' not in client or client['character'] is None) \
-                    else ' <{0} (id={1})>'.format(client['character']['name'], client['id']) ,
+                packet.length,
+                len(packet.data),
                 packet.data
             ))
 

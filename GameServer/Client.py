@@ -20,7 +20,7 @@ class Client:
         
         " Create new client dictionary "
         self.client = {
-            'id':       0,
+            'id':       None,
             'socket':   self.socket
         }
         

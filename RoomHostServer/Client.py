@@ -28,7 +28,7 @@ class Client:
 
         try:
 
-            print('[RoomHostServer] New connection from:', self.address)
+            #print('[RoomHostServer] New connection from:', self.address)
 
             # Obtain packet and execute the relevant command for it
             packet = ReadDatagram(self.data)
