@@ -12,11 +12,31 @@ This class is responsible for the reading of packets
 class Read:
 
     """
+    This method will receive packet data, de-xor it and return it to the stack
+    """
+    def recv(self, length):
+
+        # Receive data from the socket
+        data = self.socket.recv(length, Socket.MSG_WAITALL)
+
+        # Initialize result buffer
+        result = bytearray()
+
+        # De-xor every byte in the buffer
+        for i in range(len(data)):
+            result.append(0xEC ^ data[i])
+
+        return result
+
+    """
     Packet constructor
     """
     def __init__(self, socket):
         
         try:
+
+            # Set socket
+            self.socket = socket
 
             """
             Check to see if we are receiving at least 4 bytes
@@ -28,14 +48,14 @@ class Read:
             Receive the first two bytes that represent the packet ID
             Packet IDs should be converted to hexadecimal
             """
-            self.id = "".join(map(chr, binascii.hexlify(socket.recv(2, Socket.MSG_WAITALL))))
+            self.id = "".join(map(chr, binascii.hexlify(self.recv(2))))
             
             """
             Receive the next two bytes that represent the packet length
             This contains an unsigned short (max length is 65535 bytes)
             Also remove null bytes from the length bytes to avoid it reading them
             """
-            self.length = int.from_bytes(socket.recv(2, Socket.MSG_WAITALL), 'little')
+            self.length = int.from_bytes(self.recv(2), 'little')
             
             """
             Validate packet length. Check if the amount of bytes are really available
@@ -47,7 +67,7 @@ class Read:
             Receive additional data from the client based on the received
             packet length
             """
-            self.data = socket.recv(self.length, Socket.MSG_WAITALL)
+            self.data = self.recv(self.length)
             if not self.data:
                 raise Exception('Unable to receive data')
             
@@ -57,7 +77,7 @@ class Read:
             self.position = 0
             
         except OSError as e:
-            raise Exception('Unable to read client packet: The connection which we tried to read data from no longer exists')
+            raise Exception('Unable to read client packet: The connection which we tried to read data from no longer exists: ', e)
 
         except Exception as e:
             raise Exception('Unable to read client packet:', e)

@@ -21,8 +21,8 @@ def id_request(**_args):
         return
 
     # Read account name from packet
-    account         = _args['packet'].ReadString()
     client_version  = _args['packet'].ReadString()
+    account         = _args['packet'].ReadString()
 
     # Create error packet, in the event we require it
     error = PacketWrite()

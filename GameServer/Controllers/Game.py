@@ -532,14 +532,9 @@ def file_validation(**_args):
 
         # Compare hash. If they don't match, we disconnect the client.
         # In case we receive incomplete hashes, we'll let it slip through.
-        if client_hash != hash and hash[:len(client_hash)] != client_hash:
+        if client_hash != hash:
             print("Invalid file hash. Expected: {0}, Got: {1}".format(hash, client_hash))
             return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
-
-        # Log incomplete hashes and ensure the check does not continue from this point onwards
-        if client_hash != hash:
-            print('Incomplete hash detected. Expected: {0}, Actual: {1}'.format(hash, client_hash))
-            break
 
     # If we have passed validation, update our validation state to True (passed)
     room['slots'][str(room_slot)]['file_validation_passed'] = True

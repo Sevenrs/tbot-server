@@ -18,9 +18,9 @@ def route(socket, packet, server, client, connection_handler, session_handler):
 
     """
     If our client has no connected character with it, it means that the client is attempting to communicate with the server without
-    having sent a ID request first.
+    having sent an ID request first.
 
-    We must check if the client exists in the global client container and check if the command ID is equal to the ID request
+    We must check if the client exists in the global client container and check if the command ID is equal to the ID request,
     and we must check if the client has a character, and if not we must only accept the character create packet
     """
     if client not in server.clients and packet.id != 'f82a' or 'character' not in client and client in server.clients and not (
@@ -46,12 +46,10 @@ def route(socket, packet, server, client, connection_handler, session_handler):
             )
 
             # Debug print the packet to stdout
-            print("[GameServer ({0})] {1} - Processing packet <{2}> [len_recv:{3}, actual_len:{4}] :: <{5}>".format(
+            print("[GameServer ({0})] {1} - Processing packet <{2}> :: <{3}>".format(
                 server.port,
                 connection_information,
                 received_packet[PACKET_NAME],
-                packet.length,
-                len(packet.data),
                 packet.data
             ))
 
