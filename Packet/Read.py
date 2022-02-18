@@ -24,7 +24,7 @@ class Read:
 
         # De-xor every byte in the buffer
         for i in range(len(data)):
-            result.append(0xEC ^ data[i])
+            result.append(0xED ^ data[i])
 
         return result
 

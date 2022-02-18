@@ -1,1 +1,1 @@
-LOBBY_MSG = '[Server] Welcome to T-Bot Rewritten!', 3
+LOBBY_MSG = 'Welcome to T-Bot Rewritten! Join our Discord at https://discord.gg/Fa2zgNtegV to stay up to informed on the latest news', 1
