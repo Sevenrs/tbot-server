@@ -560,12 +560,7 @@ def statistic_validation(**_args):
     # Retrieve wearing items, so we can calculate the expected statistic based on the items the player is wearing
     wearing_items = get_items(_args, _args['client']['character']['id'], 'wearing')
 
-    # Retrieve variable health from the packet and check if the health exceeds the health value we have
-    current_health = int(_args['packet'].ReadInteger(0, 4, 'little'))
-    if current_health > _args['client']['character'][STAT_HEALTH[STAT_KEY]] + wearing_items['specifications'][STAT_HEALTH[STAT_EFFECT_KEY]]:
-        return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
-
-    # Now we'll validate the static values by comparing them with our values
+    # Validate the static values by comparing them with our values
     for idx, statistic in enumerate([
         STAT_HEALTH,
         STAT_ATT_MIN,
@@ -582,6 +577,10 @@ def statistic_validation(**_args):
         STAT_ATT_EVADE
     ]):
 
+        # Skip health check because the client does not appear to send it properly
+        if statistic[STAT_KEY] == 'health':
+            continue
+
         # Receive statistic from packet. We're already at offset four and each statistic is contained within 4 bytes.
         received_stat = int(_args['packet'].ReadInteger(4 + (idx * 4), 4, 'little'))
 
@@ -595,10 +594,7 @@ def statistic_validation(**_args):
 
         # If the stats do not match, disconnect the client for attempted hacking
         if received_stat != expected_stat:
-
-            # Allow max health checks to fail on Deathmatch because this mode modifies it to balance gameplay
-            if room['game_type'] != MODE_DEATHMATCH or statistic[STAT_KEY] != 'health':
-                return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
+            return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
 
 
 '''
