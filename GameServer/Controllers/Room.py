@@ -577,12 +577,12 @@ def set_status(**_args):
     slot = get_slot(_args, room)
 
     # Read status type from the packet
-    status_type = int(_args['packet'].ReadInteger(6, 2, 'big'))
+    status_type = int(_args['packet'].ReadInteger(5, 2, 'big'))
 
     if status_type == 0 and room['master'] is _args['client']:
 
         # Retrieve the target slot number from the packet
-        target_slot = int(_args['packet'].ReadInteger(3, 1, 'little')) + 1
+        target_slot = int(_args['packet'].ReadInteger(2, 1, 'little')) + 1
 
         # Check if the target slot is empty and check if the slot is equal to our own slot
         if str(target_slot) in room['slots'] or target_slot == slot:
@@ -829,7 +829,7 @@ def kick_player(**_args):
         return _args['client']['socket'].send(error.packet)
 
     # Read slot number from the packet
-    slot = int(_args['packet'].ReadInteger(18, 1, 'little'))
+    slot = int(_args['packet'].ReadInteger(17, 1, 'little'))
 
     # Stop the room master from kicking themselves
     if slot + 1 == get_slot(_args, room):
@@ -893,7 +893,7 @@ def join_room(**_args):
         return
 
     # Read information from join packet
-    room_client_id  = int(_args['packet'].ReadInteger(1, 2, 'little')) - 1
+    room_client_id  = int(_args['packet'].ReadInteger(0, 2, 'little')) - 1
     room_password   = _args['packet'].ReadStringByRange(29, 40)
 
     # Find room and join the room

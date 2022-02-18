@@ -509,7 +509,7 @@ def set_score(**_args):
     room_slot = Room.get_slot(_args, room)
 
     # Retrieve score from the packet and set the score
-    score = int(_args['packet'].ReadInteger(0, 2, 'big'))
+    score = int(_args['packet'].ReadInteger(0, 2, 'little'))
     room['slots'][str(room_slot)]['points'] = score
 
 '''
@@ -534,10 +534,72 @@ def file_validation(**_args):
         # In case we receive incomplete hashes, we'll let it slip through.
         if client_hash != hash:
             print("Invalid file hash. Expected: {0}, Got: {1}".format(hash, client_hash))
-            return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
+            #return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
 
     # If we have passed validation, update our validation state to True (passed)
     room['slots'][str(room_slot)]['file_validation_passed'] = True
+
+'''
+This method will compare the incoming players' statistics and compare them to the values we have on our end.
+If a mismatch occurs, we'll disconnect the client for attempted hacking
+
+This only works for slot number 1 for now. So if the current client is not slot 1, we won't run this check.
+'''
+def statistic_validation(**_args):
+
+    # Check if we are in a room and get the room
+    room = Room.get_room(_args)
+    if not room:
+        return
+
+    # Check if our client is the first slot number. For now, we'll only be running these checks for the first slot.
+    # Additionally, this check only functions properly on planet mode
+    if int(Room.get_slot(_args, room)) != 1:
+        return
+
+    # Retrieve wearing items, so we can calculate the expected statistic based on the items the player is wearing
+    wearing_items = get_items(_args, _args['client']['character']['id'], 'wearing')
+
+    # Retrieve variable health from the packet and check if the health exceeds the health value we have
+    current_health = int(_args['packet'].ReadInteger(0, 4, 'little'))
+    if current_health > _args['client']['character'][STAT_HEALTH[STAT_KEY]] + wearing_items['specifications'][STAT_HEALTH[STAT_EFFECT_KEY]]:
+        return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
+
+    # Now we'll validate the static values by comparing them with our values
+    for idx, statistic in enumerate([
+        STAT_HEALTH,
+        STAT_ATT_MIN,
+        STAT_ATT_MAX,
+        STAT_SPEED,
+        STAT_ATT_TRANS_MIN,
+        STAT_ATT_TRANS_MAX,
+        STAT_TRANS_DEF,
+        STAT_TRANS_ATT,
+        STAT_TRANS_SPEED,
+        STAT_ATT_TRANS_GAUGE,
+        STAT_ATT_SPECIAL_TRANS,
+        STAT_ATT_CRITICAL,
+        STAT_ATT_EVADE
+    ]):
+
+        # Receive statistic from packet. We're already at offset four and each statistic is contained within 4 bytes.
+        received_stat = int(_args['packet'].ReadInteger(4 + (idx * 4), 4, 'little'))
+
+        # Retrieve actual statistic from the character object. It is a combination of the base stat and the specification statistic that comes from wearing items
+        expected_stat = _args['client']['character'][ statistic[STAT_KEY]] \
+                        + wearing_items['specifications'][ statistic[STAT_EFFECT_KEY] ]
+
+        # If the room has overwritten the expected stat, we must do the same here to stop a false detection
+        if statistic[STAT_KEY] in room['stat_override']:
+            expected_stat = room['stat_override'][statistic[STAT_KEY]]
+
+        # If the stats do not match, disconnect the client for attempted hacking
+        if received_stat != expected_stat:
+
+            # Allow max health checks to fail on Deathmatch because this mode modifies it to balance gameplay
+            if room['game_type'] != MODE_DEATHMATCH or statistic[STAT_KEY] != 'health':
+                return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
+
 
 '''
 This method will link clients through relay when the clients indicate that they are not connected with each-other.
@@ -551,7 +613,7 @@ def network_state(**_args):
         return
 
     # Read request ID from the packet. The request ID is the aforementioned container's unique identifier.
-    request_id = int(_args['packet'].ReadInteger(7, 2, 'little'))
+    request_id = int(_args['packet'].ReadInteger(6, 2, 'little'))
 
     # Create the container of unlinked clients if such container was not previously created.
     # These containers will be cleaned up once the room is reset
@@ -582,7 +644,7 @@ def network_state(**_args):
 
             try:
 
-                # Retrieve all clients inside of the request container
+                # Retrieve all clients inside the request container
                 for remote_client in room['network_state_requests'][request_id]:
 
                     '''
@@ -635,7 +697,7 @@ def game_end_rpc(**_args):
             room['slots'][str(room_slot)]['deaths'] += 1
 
         # Retrieve who killed the player
-        who = int(_args['packet'].ReadInteger(5, 2, 'little'))
+        who = int(_args['packet'].ReadInteger(4, 2, 'little'))
 
         # If the player is in the room and the game hasn't ended, increment their kill count by one
         if str(who + 1) in room['slots'] and who != 65535 and not room['game_over']:
@@ -803,7 +865,7 @@ def military_win(**_args):
         return
 
     # Read winning team
-    winning_team = int(_args['packet'].ReadInteger(3, 2, 'little'))
+    winning_team = int(_args['packet'].ReadInteger(2, 2, 'little'))
 
     # If the winning team from the client is not valid, drop the packet
     if winning_team not in [TEAM_RED, TEAM_BLUE]:

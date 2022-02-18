@@ -301,13 +301,13 @@ def confirm_trade(**_args):
     if not session['data']['states'][local_character_id]['completed']:
 
         # Read item inventory slots from packet
-        item_1_slot = int(_args['packet'].ReadInteger(19, 4, 'little'))
-        item_2_slot = int(_args['packet'].ReadInteger(23, 4, 'little'))
-        item_3_slot = int(_args['packet'].ReadInteger(27, 4, 'little'))
+        item_1_slot = int(_args['packet'].ReadInteger(18, 4, 'little'))
+        item_2_slot = int(_args['packet'].ReadInteger(22, 4, 'little'))
+        item_3_slot = int(_args['packet'].ReadInteger(26, 4, 'little'))
 
         # Read currency amounts from packet
-        currency_gold   = int(_args['packet'].ReadInteger(31, 4, 'little'))
-        currency_oil    = int(_args['packet'].ReadInteger(35, 4, 'little'))
+        currency_gold   = int(_args['packet'].ReadInteger(30, 4, 'little'))
+        currency_oil    = int(_args['packet'].ReadInteger(34, 4, 'little'))
 
         # Overwrite currencies with zero in case they exceed the available amount
         if currency_gold > _args['client']['character']['currency_gigas']:

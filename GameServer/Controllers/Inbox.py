@@ -154,7 +154,7 @@ def DeleteMessage(**_args):
     
     # Remove message from the database
     _args['mysql'].execute("""DELETE FROM `inbox` WHERE `id` = (SELECT `id` FROM `inbox` WHERE `receiver_character_id` = %s
-                           ORDER BY `id` ASC LIMIT 1 OFFSET %s) AND `receiver_character_id` = %s""", [
+                           ORDER BY `id` DESC LIMIT 1 OFFSET %s) AND `receiver_character_id` = %s""", [
         _args['client']['character']['id'],
         (message_index - 1),
         _args['client']['character']['id']

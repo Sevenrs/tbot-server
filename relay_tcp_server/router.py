@@ -114,7 +114,7 @@ def check_connection(**_args):
         start = (17 * i) + 8
 
         # Read if the remote player is connected and their character name
-        connected       = int(_args['packet'].ReadInteger(start + 2, 1, 'little'))
+        connected       = int(_args['packet'].ReadInteger(start + 1, 1, 'little'))
         character_name  = _args['packet'].ReadStringByRange(start + 2, (start + 17))
 
         if len(character_name) > 0:

@@ -1,4 +1,4 @@
-CLIENT_VERSION  = '1.0.2.4'     # Client version
+CLIENT_VERSION  = '1.0.2.5'     # Client version
 PING_TIMEOUT    = 90            # Connection timeout in seconds
 
 CLIENT_FILE_HASHES = [

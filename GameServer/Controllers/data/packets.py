@@ -96,6 +96,7 @@ PACKET_READ = {
     'a627': ('PACKET_GAME_CHAT_COMMAND',        Game.chat_command,          False),
     'a628': ('PACKET_GAME_SET_ATTACK_SCORE',    Game.set_score,             False),
     'a629': ('PACKET_GAME_FILE_VALIDATION',     Game.file_validation,       False),
+    'a630': ('PACKET_GAME_STAT_VALIDATION',     Game.statistic_validation,  True),
     '4a2b': ('PACKET_GAME_NETWORK_STATE',       Game.network_state,         False),
     '542b': ('PACKET_GAME_MILITARY_WIN',        Game.military_win,          False)
 }

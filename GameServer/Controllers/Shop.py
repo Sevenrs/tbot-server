@@ -91,10 +91,10 @@ def purchase_item(**_args):
        different values in different places for different conditions """
     types = {
 
-        '022b': {"item_id_index": 39, "type": "gold", "db_info":
+        '022b': {"item_id_index": 38, "type": "gold", "db_info":
             {"table": "characters", "column": "currency_gigas", "where": "id", "is": _args['client']['character']['id']}},
 
-        '042b': {"item_id_index": 41, "type": "cash", "db_info":
+        '042b': {"item_id_index": 40, "type": "cash", "db_info":
             {"table": "users", "column": "cash", "where": "id", "is": _args['client']['account_id']}}
     }
 
@@ -185,7 +185,7 @@ This method will allow users to sell their items
 def sell_item(**_args):
 
     # Read slot number from the packet
-    slot = int(_args['packet'].ReadInteger(39, 1, 'little'))
+    slot = int(_args['packet'].ReadInteger(38, 1, 'little'))
 
     # Retrieve inventory and the item
     inventory       = Character.get_items(_args, _args['client']['character']['id'], 'inventory')
@@ -239,13 +239,13 @@ def wear_item(**_args):
     types = {
 
         # Parts
-        'fc2a': [26, [0xE4, 0x2E]],
+        'fc2a': [25, [0xE4, 0x2E]],
 
         # Accessories
-        '322b': [3, [0x19, 0x2F]],
+        '322b': [2, [0x19, 0x2F]],
 
         # Skills
-        '342b': [3, [0x1B, 0x2F]]
+        '342b': [2, [0x1B, 0x2F]]
 
     }
 
@@ -337,9 +337,9 @@ def unwear_item(**_args):
     types = {
 
         # Parts
-        'fd2a': {"type_index": 26, "types": ['head', 'body', 'arms']},
-        '332b': {"type_index": 3, "types": ['mini-bot', 'gun', 'ef', 'wing', 'shield', 'shoulder', 'flag1', 'flag2']},
-        '352b': {"type_index": 3, "types": ['passive_skill', 'attack_skill', 'field_pack', 'trans_pack', 'merc1', 'merc2']}
+        'fd2a': {"type_index": 25, "types": ['head', 'body', 'arms']},
+        '332b': {"type_index": 2, "types": ['mini-bot', 'gun', 'ef', 'wing', 'shield', 'shoulder', 'flag1', 'flag2']},
+        '352b': {"type_index": 2, "types": ['passive_skill', 'attack_skill', 'field_pack', 'trans_pack', 'merc1', 'merc2']}
     }
 
     # Retrieve data based on packet id
@@ -494,8 +494,8 @@ These actions are as follows
 def storage_action(**_args):
 
     # Read source slot and storage number from the packet
-    source_slot     = int(_args['packet'].ReadInteger(26, 1, 'little'))
-    storage_number  = int(_args['packet'].ReadInteger(27, 1, 'little')) + 1
+    source_slot     = int(_args['packet'].ReadInteger(25, 1, 'little'))
+    storage_number  = int(_args['packet'].ReadInteger(26, 1, 'little')) + 1
 
     # Get storage count so we can check if we actually own the storage we are trying to move to or move from.
     storage_count = Character.get_storage_count(_args, _args['client']['account_id'])
@@ -579,12 +579,12 @@ This method will allow users to combine their body, arm and head parts.
 def union_parts(**_args):
 
     # Read coupon slot from packet
-    coupon_slot = int(_args['packet'].ReadInteger(3, 1, 'little'))
+    coupon_slot = int(_args['packet'].ReadInteger(2, 1, 'little'))
 
     # Read item slots from packet
-    item_1_slot = int(_args['packet'].ReadInteger(4, 1, 'little'))
-    item_2_slot = int(_args['packet'].ReadInteger(5, 1, 'little'))
-    item_3_slot = int(_args['packet'].ReadInteger(6, 1, 'little'))
+    item_1_slot = int(_args['packet'].ReadInteger(3, 1, 'little'))
+    item_2_slot = int(_args['packet'].ReadInteger(4, 1, 'little'))
+    item_3_slot = int(_args['packet'].ReadInteger(5, 1, 'little'))
 
     # Check against duplicates. It could be possible for a client to send the same slots for each item.
     if len(set([item_1_slot, item_2_slot, item_3_slot])) != len([item_1_slot, item_2_slot, item_3_slot]):
@@ -659,7 +659,7 @@ This method will allow users to change their Bot's Race if they own the transfor
 def change_race(**_args):
 
     # Read new bot type from packet
-    new_type = int(_args['packet'].ReadInteger(3, 1, 'little'))
+    new_type = int(_args['packet'].ReadInteger(2, 1, 'little'))
 
     # Check if the new bot type is valid and check if the new bot type does not equal our own
     if new_type not in [TYPE_PATCH, TYPE_SURGE, TYPE_RAM] or new_type == _args['client']['character']['type']:

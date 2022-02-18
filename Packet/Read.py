@@ -159,6 +159,6 @@ class Read:
         bytes = bytearray()
 
         for i in range(end):
-            bytes.append(self.data[start + (i - 1)])
+            bytes.append(self.data[start + i])
 
         return int.from_bytes(bytes, byteorder=order)

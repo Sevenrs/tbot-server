@@ -120,7 +120,7 @@ Description:    This method will receive gifts. For items, it would move the ite
 def receive_gift(**_args):
 
     # Read gift offset from packet
-    gift_offset = int(_args['packet'].ReadInteger(5, 1, 'little'))
+    gift_offset = int(_args['packet'].ReadInteger(4, 1, 'little'))
 
     # Find gift and select id, type and item_1 (contents)
     _args['mysql'].execute('''SELECT `id`, `type`, `item_1` AS `contents` FROM `gifts` WHERE `receiver` = %s ORDER BY `id` DESC LIMIT 1 OFFSET %s''', [
@@ -214,14 +214,14 @@ def send_gift(**_args):
 
     # Read gift message, type and contents
     message     = _args['packet'].ReadString()
-    gift_type   =  int(_args['packet'].ReadInteger(3, 1, 'little'))
+    gift_type   =  int(_args['packet'].ReadInteger(2, 1, 'little'))
 
     # Each gift type has a different content position in the packet.
     # We'll have to retrieve the content number based on the offset given in the list below.
     gift_data = {
-        TYPE_ITEM:  {'content_offset': 65},
-        TYPE_GOLD:  {'content_offset': 69},
-        TYPE_OIL:   {'content_offset': 73}
+        TYPE_ITEM:  {'content_offset': 64},
+        TYPE_GOLD:  {'content_offset': 68},
+        TYPE_OIL:   {'content_offset': 72}
     }
 
     # Check if the gift type is valid
@@ -303,7 +303,7 @@ def purchase_gift(**_args):
     sender      = _args['packet'].ReadString(3)  # This will not be used in practice, we are already aware of who we are.
     receiver    = _args['packet'].ReadString().strip()
     message     = _args['packet'].ReadString()
-    item_id     = int(_args['packet'].ReadInteger(71, 3, 'little'))
+    item_id     = int(_args['packet'].ReadInteger(70, 3, 'little'))
 
     # Construct result packet
     result = PacketWrite()
