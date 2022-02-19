@@ -290,15 +290,15 @@ def add_slot(_args, room_id, client, broadcast=False):
                 room_info.AppendInteger(int(key) - 1, 1, 'little')
 
         # DeathMatch countdown times
-        if room['game_type'] == 4:
+        if room['game_type'] == MODE_DEATHMATCH:
 
             # Array containing the amount of seconds
             countdown_times = [
-                [0xB4, 0x00], # 3 minutes
-                [0x2C, 0x01]  # 5 minutes
+                180, # 3 minutes
+                300  # 5 minutes
             ]
 
-            room_info.AppendBytes(countdown_times[room['time']])
+            room_info.AppendInteger(countdown_times[room['time']], 4, 'little')
 
         # Notify our client about the room
         client['socket'].send(room_info.packet)

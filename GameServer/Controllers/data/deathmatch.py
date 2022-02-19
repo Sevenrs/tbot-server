@@ -6,5 +6,6 @@ DEATHMATCH_MAP_TABLE = {
     4,  # Lava Canyon
     5,  # Pirates Island
     6,  # Land of Death
-    7   # Pit of Faith
+    7,  # Pit of Faith
+    8   # Darkness Temple
 }
