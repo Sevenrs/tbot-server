@@ -229,6 +229,14 @@ def monster_kill(**_args):
             and monster_id not in room['killed_mobs']:
         room['killed_mobs'].append(monster_id)
 
+        # If the monster is pushed, append the monster ID to the pushed mobs array
+        if pushed == 1:
+            room['pushed_mobs'].append(monster_id)
+
+    # Execute monster kill callback, but only if we're playing planet mode and the game hasn't ended yet
+    if room['game_type'] == MODE_PLANET and room['game_over'] == False:
+        Room.execute_callbacks(_args, room, 'monster_kill')
+
 '''
 This method will handle picking up items which were dropped from monsters
 '''
@@ -512,6 +520,8 @@ def set_score(**_args):
     score = int(_args['packet'].ReadInteger(0, 2, 'little'))
     room['slots'][str(room_slot)]['points'] = score
 
+    print("Attack score: ", score)
+
 '''
 This method will receive the file hashes of every important file of the game and compare its hashes against what
 we have. If any hash is not matching, we disconnect the client.
@@ -534,7 +544,7 @@ def file_validation(**_args):
         # In case we receive incomplete hashes, we'll let it slip through.
         if client_hash != hash:
             print("Invalid file hash. Expected: {0}, Got: {1}".format(hash, client_hash))
-            return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
+            #return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
 
     # If we have passed validation, update our validation state to True (passed)
     room['slots'][str(room_slot)]['file_validation_passed'] = True
@@ -842,6 +852,11 @@ def game_end_rpc(**_args):
         if room['level'] not in room['maps']:
             status = 0
 
+        # If the boss hasn't been killed, we'll drop the packet. Retrieve boss ID and validate.
+        boss_id = PLANET_BOX_MOBS[room['level']][len(PLANET_BOX_MOBS[room['level']]) - 1]
+        if boss_id not in room['killed_mobs']:
+            return
+
         # End the game
         game_end(_args=_args, room=room, status=status)
 
@@ -882,7 +897,8 @@ After this, it will start a new thread that will run the post-game transaction a
 def game_end(_args, room, status=None):
 
     # If the game is already over, there is not anything to do.
-    if room['game_over']:
+    # We'll also do nothing if the room status is not 3 (started).
+    if room['game_over'] or room['status'] != 3:
         return
 
     # The game is over. This is to avoid multiple calls to this method and to stop polling threads.
@@ -934,6 +950,9 @@ def post_game_transaction(_args, room):
     """
     mysql_connection    = MySQL.GetConnection()
     _args['mysql']      = mysql_connection.cursor(dictionary=True)
+
+    # Perform anti hacking checks before we continue
+    anti_hack_check(_args, room)
 
     information = {}
 
@@ -1105,6 +1124,89 @@ def post_game_transaction(_args, room):
     mysql_connection.close()
     return information
 
+'''
+This method will perform post game checks to determine wheter or not potential hacking is occuring.
+If this check fails, all clients in the room will be kicked from the server.
+'''
+def anti_hack_check(_args, room):
+
+    # If the room game type is equal to Planet mode, perform the attack score and minimum monster checks
+    if room['game_type'] == MODE_PLANET:
+
+        '''
+        Point validation:   The attack score of every slot in the room is validated against
+                            a minimum amount
+        '''
+
+        # Retrieve minimum score from the planet map array
+        minimum_score = PLANET_MAP_TABLE[ room['level'] ][3]
+
+        # Total score amount. We'll increase this with the attack score of every player in the room
+        total_score = 0
+
+        # We need to track if a player has a mercenary equipped. If this is the case, we'll skip
+        # this check because mercs do not give attack points.
+        has_merc = False
+
+        # Calculate the total attack score from every player in the room
+        for key, slot in list(room['slots'].items()):
+            total_score += slot['points']
+
+            # Get wearing items for the slot in question
+            wearing_items = get_items(_args, slot['client']['character']['id'], 'wearing')
+
+            # Check if the slot has a mercenary equipped
+            for idx in wearing_items['items']:
+                if wearing_items['items'][idx]['type'] == 'merc1' \
+                        and wearing_items['items'][idx]['character_item_id'] is not None:
+                    has_merc = True
+                    break
+
+        # Validate the total score against the minimum score
+        # We'll only do this if there is no mercenary in the room and if the room pushed array length is equal to 0
+        if minimum_score > total_score and not has_merc and len(room['pushed_mobs']) == 0:
+            return anti_hack_fail(_args, room)
+
+        '''
+        Minimum monster kill validation:    The amount of killed mobs must be equal or greater
+                                            than the value we store.
+        '''
+        min_mob_kills   = PLANET_MAP_TABLE[ room['level'] ][4]
+        total_mob_kills = 0
+
+        # Calculate amount of total mob kills
+        for key, slot in list(room['slots'].items()):
+            total_mob_kills += slot['monster_kills']
+
+        # Validate the amount of monster kills against the minimum amount
+        if min_mob_kills > total_mob_kills:
+            return anti_hack_fail(_args, room)
+
+'''
+This method will kick all clients in a room due to a failed anti hack check
+'''
+def anti_hack_fail(_args, room):
+
+    # Create a copy of the room slots in memory
+    slots = list(room['slots'].items())
+
+    # Check if a staff member is present. If so, we do not continue
+    has_staff = False
+
+    for key, slot in slots:
+        if slot['client']['character']['position'] == 1:
+            has_staff = True
+            break
+
+    # If the room has a staff member present, do not proceed
+    if has_staff:
+        return
+
+    # Loop through every slot in the room and disconnect the player from the server
+    for key, slot in slots:
+        _args['connection_handler'].UpdatePlayerStatus(slot['client'], 2)
+
+
 
 '''
 This method will show the game statistics and the result of the post game transaction which is also
@@ -1263,7 +1365,7 @@ def game_stats(_args, room):
     # Reset room status and broadcast room status to lobby
     Room.reset(_args=_args, room=room)
     room['status'] = 0
-    Room.get_list(_args, mode=0 if room['game_type'] in [MODE_BATTLE, MODE_TEAM_BATTLE] else room['game_type'] - 1,
+    Room.get_list(_args, mode=0 if room['game_type'] in [ MODE_BATTLE, MODE_TEAM_BATTLE ] else room['game_type'] - 1,
              page=Room.get_list_page_by_room_id(room['id'], room['game_type']), local=False)
 
     game_exit = PacketWrite()
@@ -1283,17 +1385,20 @@ def game_stats(_args, room):
 This method is responsible for waiting for the time to be over in sessions.
 It uses polling due to having no ability to mutate the thread's state once it has been started.
 '''
-def countdown_timer(_args, room):
+def countdown_timer(_args, room, minutes=None):
 
     # Always wait for the game count down to conclude. That's when the timer starts on the client.
     time.sleep(2)
 
-    # Retrieve the amount of minutes from the room setting
-    minutes = 3 if room['time'] == 0 else 5
+    # We only have to retrieve the amount of minutes in case minutes is not defined
+    if minutes is None:
 
-    # For planet gameplay, retrieve the amount of minutes from the map
-    if room['game_type'] == MODE_PLANET:
-        minutes = PLANET_MAP_TABLE[room['level']][1]
+        # Retrieve the amount of minutes from the room setting
+        minutes = 3 if room['time'] == 0 else 5
+
+        # For planet gameplay, retrieve the amount of minutes from the map
+        if room['game_type'] == MODE_PLANET:
+            minutes = PLANET_MAP_TABLE[room['level']][1]
 
     # Wait a predefined amount of time and check whether the game ended every second
     # If the game ended, stop polling. If everyone left the room, also stop.

@@ -15,7 +15,7 @@ import math, os, time, datetime, _thread, sys
 from random import randrange
 
 from GameServer.Controllers.data.callbacks \
-    import event_weekends, event_christmas
+    import event_weekends, event_christmas, callback_monster_kill
 
 """
 This controller is responsible for handling all room related requests
@@ -433,6 +433,7 @@ def create(**_args):
         'experience_modifier':  1.0,
         'maps':                 maps,
         'killed_mobs':          [],
+        'pushed_mobs':          [],
         'network_state_requests':   {},
         'start_time':               None,
         'callbacks':                {},
@@ -790,6 +791,7 @@ def reset(_args, room):
     room['game_over']               = False
     room['game_loaded']             = False
     room['killed_mobs']             = []
+    room['pushed_mobs']             = []
     room['network_state_requests']  = {}
     room['callbacks']               = {}
     room['callback_data']           = {}

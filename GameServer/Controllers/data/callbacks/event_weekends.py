@@ -18,7 +18,7 @@ This method will execute once the game is started
 '''
 def start_game(_args, room):
 
-    # Determine whether or not we are awarding +50% experience
+    # Determine whether we are awarding +50% experience
     awarding = (datetime.datetime.today().weekday() >= 5 or (datetime.datetime.now().month == 2 and (datetime.datetime.now().day == 1))) and room['game_type'] == MODE_PLANET
 
     # If we are awarding more experience, mutate the experience modifier

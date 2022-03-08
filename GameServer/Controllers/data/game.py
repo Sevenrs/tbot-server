@@ -12,4 +12,4 @@ DIFFICULTY_EASY     = 0
 DIFFICULTY_MEDIUM   = 1
 DIFFICULTY_HARD     = 2
 
-ROOM_CALLBACKS=['event_weekends', 'event_christmas']
+ROOM_CALLBACKS=['event_weekends', 'event_christmas', 'callback_monster_kill']
