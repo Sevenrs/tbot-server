@@ -853,9 +853,9 @@ def game_end_rpc(**_args):
             status = 0
 
         # If the boss hasn't been killed, we'll drop the packet. Retrieve boss ID and validate.
-        boss_id = PLANET_BOX_MOBS[room['level']][len(PLANET_BOX_MOBS[room['level']]) - 1]
-        if boss_id not in room['killed_mobs'] and status == 1:
-            return
+        # boss_id = PLANET_BOX_MOBS[room['level']][len(PLANET_BOX_MOBS[room['level']]) - 1]
+        # if boss_id not in room['killed_mobs'] and status == 1:
+        #     return
 
         # End the game
         game_end(_args=_args, room=room, status=status)
