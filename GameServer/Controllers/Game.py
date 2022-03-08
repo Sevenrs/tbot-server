@@ -14,6 +14,7 @@ from GameServer.Controllers.data.game import *
 from GameServer.Controllers.data.bot import *
 from GameServer.Controllers.Character import get_items, add_item, get_available_inventory_slot, remove_expired_items, remove_item, construct_bot_data
 from GameServer.Controllers import Lobby, Room, Guild
+from GameServer.Controllers.handlers import moderation
 import MySQL.Interface as MySQL
 import random, time, datetime, _thread
 
@@ -514,13 +515,12 @@ def set_score(**_args):
     if not room:
         return
 
+    # Get our own room slot
     room_slot = Room.get_slot(_args, room)
 
     # Retrieve score from the packet and set the score
-    score = int(_args['packet'].ReadInteger(0, 2, 'little'))
+    score = int(_args['packet'].ReadInteger(0, 2, 'little')) - 200
     room['slots'][str(room_slot)]['points'] = score
-
-    print("Attack score: ", score)
 
 '''
 This method will receive the file hashes of every important file of the game and compare its hashes against what
@@ -544,7 +544,7 @@ def file_validation(**_args):
         # In case we receive incomplete hashes, we'll let it slip through.
         if client_hash != hash:
             print("Invalid file hash. Expected: {0}, Got: {1}".format(hash, client_hash))
-            #return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
+            return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
 
     # If we have passed validation, update our validation state to True (passed)
     room['slots'][str(room_slot)]['file_validation_passed'] = True
@@ -854,7 +854,7 @@ def game_end_rpc(**_args):
 
         # If the boss hasn't been killed, we'll drop the packet. Retrieve boss ID and validate.
         boss_id = PLANET_BOX_MOBS[room['level']][len(PLANET_BOX_MOBS[room['level']]) - 1]
-        if boss_id not in room['killed_mobs']:
+        if boss_id not in room['killed_mobs'] and status == 1:
             return
 
         # End the game
@@ -934,13 +934,13 @@ def game_end(_args, room, status=None):
                 pass
 
     # Start new thread for the game statistics
-    _thread.start_new_thread(game_stats, (_args, room,))
+    _thread.start_new_thread(game_stats, (_args, room, status))
 
 '''
 This method will update all characters in the room with their new results (if applicable)
 Additionally, this method will return the results of the transaction in the form of a dictionary
 '''
-def post_game_transaction(_args, room):
+def post_game_transaction(_args, room, status=None):
 
     """
     Because we are not in the main thread, the database connection is not available to this method.
@@ -951,8 +951,9 @@ def post_game_transaction(_args, room):
     mysql_connection    = MySQL.GetConnection()
     _args['mysql']      = mysql_connection.cursor(dictionary=True)
 
-    # Perform anti hacking checks before we continue
-    anti_hack_check(_args, room)
+    # Perform anti hacking checks before we continue, if we're playing planet mode
+    if room['game_type'] == MODE_PLANET and status == 1:
+        anti_hack_check(_args, room)
 
     information = {}
 
@@ -1202,9 +1203,9 @@ def anti_hack_fail(_args, room):
     if has_staff:
         return
 
-    # Loop through every slot in the room and disconnect the player from the server
+    # Loop through every slot in the room and suspend the player from the server
     for key, slot in slots:
-        _args['connection_handler'].UpdatePlayerStatus(slot['client'], 2)
+        moderation.suspend_player(slot['client']['web_id'], _args['connection_handler'], slot['client'])
 
 
 
@@ -1212,7 +1213,7 @@ def anti_hack_fail(_args, room):
 This method will show the game statistics and the result of the post game transaction which is also
 invoked in this method
 '''
-def game_stats(_args, room):
+def game_stats(_args, room, status=None):
 
     # To give players the chance to obtain items such as drops, we will be waiting a few seconds.
     time.sleep(6.5)
@@ -1222,7 +1223,7 @@ def game_stats(_args, room):
         return
 
     # Perform post game transaction and obtain its results
-    information = post_game_transaction(_args, room)
+    information = post_game_transaction(_args, room, status)
 
     # Construct room-wide information
     room_results = PacketWrite()
@@ -1248,9 +1249,17 @@ def game_stats(_args, room):
         room_results.AppendInteger(0 if str(i + 1) not in information else room['slots'][str(i + 1)]['client']['character']['health']
                              + information[str(i + 1)]['wearing_items']['specifications']['effect_health'], 2, 'little')
 
-    # Attack points
+    # Attack points, obfuscate the actual value
     for i in range(8):
-        room_results.AppendInteger(0 if str(i + 1) not in information else int(room['slots'][str(i + 1)]['points'] / 1.5), 2, 'little')
+
+        # Get actual point count
+        points = 0 if str(i + 1) not in information else int(room['slots'][str(i + 1)]['points'])
+
+        # Obfuscate the points amount, but only if we have more than 0 points
+        if points > 0:
+            points = (points + random.randrange(23, 89)) / 1.5
+
+        room_results.AppendInteger(int(points), 2, 'little')
 
     # unknown
     for _ in range(8):

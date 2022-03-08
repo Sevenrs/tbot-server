@@ -84,6 +84,7 @@ def id_request(**_args):
     # Update our socket to use this ID and assign the account to it as well
     _args['client']['id']           = id                                        # Client identification number
     _args['client']['account']      = verification_response['username']         # The username from the website
+    _args['client']['web_id']       = verification_response['web_id']           # The website user ID
     _args['client']['account_id']   = internal_user['id']                       # User ID in our local database, not the web id
     _args['client']['warnet_bonus'] = verification_response['warnet_bonus']     # Whether this user is eligible for the warnet bonus icon
     _args['client']['character']    = None                                      # Character object

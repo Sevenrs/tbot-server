@@ -3,6 +3,7 @@ from GameServer.Controllers.data.drops import *
 # This table contains the experience points to award per planet level.
 # Structure: Level index, easy, medium and hard difficulty awards
 # After the array: minutes and recommended level, minimum attack score to pass the level and minimum monster kills
+
 PLANET_MAP_TABLE = {
     0: ([100, 150, 200],        7.5,    1,  1100,   17),    # [Lv01]Training Camp
     1: ([125, 175, 250],        10.5,   3,  1400,   13),    # [Lv03]Base Camp
@@ -31,17 +32,15 @@ PLANET_MAP_TABLE = {
     24: ([1288, 1450, 1650],    27,     60, 13000,  8),     # [Lv60]Escape-From-MECA
     25: ([1388, 1550, 1750],    27,     61, 4500,   15),    # [Lv61]Ship Takeover
     26: ([1588, 1650, 1889],    27,     63, 5800,   55),    # [Lv63]MeraMountin
-
-    27: ([1687, 1890, 1950], 27, 66),   # [Lv66]MeraMountin2
-    28: ([1799, 1905, 1980], 27, 68),   # [Lv68]MeraMountin3
-    29: ([1900, 2030, 2530], 27, 70),   # [Lv70]MeraMountin4
-    30: ([540, 760, 870], 18, 8),       # [Lv08]The-Fallen(Elite)
-    31: ([980, 1040, 1230], 36, 18),    # [Lv18]Lava-Field(Elite)
-    32: ([1020, 1430, 1560], 45, 28),   # [Lv28]The-Pirate(Elite)
-    33: ([1340, 1530, 1800], 45, 38),   # [Lv38]Evil-Port(Elite)
-    34: ([1560, 1890, 2050], 48, 48),   # [Lv48]Bloodway(Elite)
+    27: ([1687, 1890, 1950],    27,     66, 600,    44),    # [Lv66]MeraMountin2
+    28: ([1799, 1905, 1980],    27,     68, 900,    55),    # [Lv68]MeraMountin3
+    29: ([1900, 2030, 2530],    27,     70, 1000,   60),    # [Lv70]MeraMountin4
+    30: ([540, 760, 870],       18,     8,  2800,   21),    # [Lv08]The-Fallen(Elite)
+    31: ([980, 1040, 1230],     36,     18, 3500,   27),    # [Lv18]Lava-Field(Elite)
+    32: ([1020, 1430, 1560],    45,     28, 4000,   25),    # [Lv28]The-Pirate(Elite)
+    33: ([1340, 1530, 1800],    45,     38, 5000,   40),    # [Lv38]Evil-Port(Elite)
+    34: ([1560, 1890, 2050],    48,     48, 5200,   49),    # [Lv48]Bloodway(Elite)
 }
-
 # This table contains the mob table from which to drops boxes from
 PLANET_BOX_MOBS = {
 
