@@ -11,7 +11,7 @@ from GameServer.Controllers.data.battle import BATTLE_MAP_TABLE
 from GameServer.Controllers.data.military import MILITARY_MAP_TABLE
 from GameServer.Controllers.data.game import *
 from GameServer.Controllers.Game import game_end, load_finish, load_finish_thread
-import math, os, time, datetime, _thread, sys
+import math, os, time, datetime, _thread, sys, copy
 from random import randrange
 
 from GameServer.Controllers.data.callbacks \
@@ -64,7 +64,6 @@ def get_list(_args, mode=2, page=0, local=True):
     # If our own client is requesting the list, send the list to our client only.
     if local:
         _args['client']['lobby_data'] = {'mode': mode, 'page': page}
-        print(_args['client']['lobby_data'])
         _args['socket'].send(result.packet)
 
     # Otherwise, send the room list to all sockets in the lobby and those able to see this specific room
@@ -433,7 +432,7 @@ def create(**_args):
         'experience_modifier':  1.0,
         'maps':                 maps,
         'killed_mobs':          [],
-        'pushed_mobs':          [],
+        'player_data':          copy.deepcopy(PLAYER_DATA_DEFAULT),
         'network_state_requests':   {},
         'start_time':               None,
         'callbacks':                {},
@@ -744,6 +743,16 @@ def start_game(**_args):
     if room['game_type'] != 2:
         map = int(map) - 1 if map > 0 else randrange(0, len(room['maps']) - 1)
 
+    # Construct player_data objects for every slot in the room
+    for key in room['player_data']:
+
+        # We should only do this if the key type is a dictionary
+        if type(room['player_data'][key]) is dict:
+
+            # Do this for every slot in the room at the moment of game start
+            for slot in room['slots'].keys():
+                room['player_data'][key].setdefault(slot, 0)
+
     # Construct start packet and send to entire room
     start = PacketWrite()
     start.AddHeader(bytearray([0xF3, 0x2E]))
@@ -791,7 +800,7 @@ def reset(_args, room):
     room['game_over']               = False
     room['game_loaded']             = False
     room['killed_mobs']             = []
-    room['pushed_mobs']             = []
+    room['player_data']             = copy.deepcopy(PLAYER_DATA_DEFAULT)
     room['network_state_requests']  = {}
     room['callbacks']               = {}
     room['callback_data']           = {}

@@ -221,9 +221,13 @@ def monster_kill(**_args):
     _args['connection_handler'].SendRoomAll(room['id'], death.packet)
 
     # Count up the amount of mobs the slot has killed, but only if the slot is in the room and the mob isn't already registered as dead
-    if str(who +1) in room['slots'] and who != 65535 \
-            and monster_id not in room['killed_mobs'] and room['game_over'] == False:
+    if str(who +1) in room['slots'] and who != 65535 and monster_id not in room['killed_mobs'] and room['game_over'] == False:
+
+        # Increment the monster kill count by one for the slot in question
         room['slots'][str(who + 1)]['monster_kills'] += 1
+
+        # Write the monster kill amount to the player data container as well
+        room['player_data']['monster_kills'][str(who + 1)] = room['slots'][str(who + 1)]['monster_kills']
 
     # Add the monster to the killed mob array, but only if we're in planet or military mode and if it isn't already in the array
     if (room['game_type'] == MODE_PLANET or (room['game_type'] == MODE_MILITARY and monster_id != MILITARY_BASE)) \
@@ -232,7 +236,7 @@ def monster_kill(**_args):
 
         # If the monster is pushed, append the monster ID to the pushed mobs array
         if pushed == 1:
-            room['pushed_mobs'].append(monster_id)
+            room['player_data']['pushed_mobs'].append(monster_id)
 
     # Execute monster kill callback, but only if we're playing planet mode and the game hasn't ended yet
     if room['game_type'] == MODE_PLANET and room['game_over'] == False:
@@ -551,7 +555,7 @@ def file_validation(**_args):
 
 '''
 This method will compare the incoming players' statistics and compare them to the values we have on our end.
-If a mismatch occurs, we'll disconnect the client for attempted hacking
+If a mismatch occurs, we'll suspend the player for hacking.
 
 This only works for slot number 1 for now. So if the current client is not slot 1, we won't run this check.
 '''
@@ -562,9 +566,15 @@ def statistic_validation(**_args):
     if not room:
         return
 
+    # Retrieve our slot number
+    slot = Room.get_slot(_args, room)
+
+    # Receive attack score and use the attack score for the player_data attack points object
+    room['player_data']['attack_points'][str(slot)] = int(_args['packet'].ReadInteger(56, 2, 'little')) - 350
+
     # Check if our client is the first slot number. For now, we'll only be running these checks for the first slot.
     # Additionally, this check only functions properly on planet mode
-    if int(Room.get_slot(_args, room)) != 1:
+    if int(slot) != 1:
         return
 
     # Retrieve wearing items, so we can calculate the expected statistic based on the items the player is wearing
@@ -602,9 +612,9 @@ def statistic_validation(**_args):
         if statistic[STAT_KEY] in room['stat_override']:
             expected_stat = room['stat_override'][statistic[STAT_KEY]]
 
-        # If the stats do not match, disconnect the client for attempted hacking
+        # If the stats do not match, suspend the player for hacking
         if received_stat != expected_stat:
-            return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
+            return moderation.suspend_player(_args['client']['web_id'], _args['connection_handler'], _args['client'])
 
 
 '''
@@ -1149,9 +1159,12 @@ def anti_hack_check(_args, room):
         # this check because mercs do not give attack points.
         has_merc = False
 
-        # Calculate the total attack score from every player in the room
+        # Calculate the total attack score
+        for key, points in room['player_data']['attack_points'].items():
+            total_score += points
+
+        # Check if a player is wearing a mercenary. If so, we can not proceed with this check.
         for key, slot in list(room['slots'].items()):
-            total_score += slot['points']
 
             # Get wearing items for the slot in question
             wearing_items = get_items(_args, slot['client']['character']['id'], 'wearing')
@@ -1165,7 +1178,7 @@ def anti_hack_check(_args, room):
 
         # Validate the total score against the minimum score
         # We'll only do this if there is no mercenary in the room and if the room pushed array length is equal to 0
-        if minimum_score > total_score and not has_merc and len(room['pushed_mobs']) == 0:
+        if minimum_score > total_score and not has_merc and len(room['player_data']['pushed_mobs']) == 0:
             return anti_hack_fail(_args, room)
 
         '''
@@ -1176,8 +1189,8 @@ def anti_hack_check(_args, room):
         total_mob_kills = 0
 
         # Calculate amount of total mob kills
-        for key, slot in list(room['slots'].items()):
-            total_mob_kills += slot['monster_kills']
+        for key, kills in room['player_data']['monster_kills'].items():
+            total_mob_kills += kills
 
         # Validate the amount of monster kills against the minimum amount
         if min_mob_kills > total_mob_kills:
@@ -1316,8 +1329,17 @@ def game_stats(_args, room, status=None):
         # Deaths
         room_results.AppendInteger(0 if str(i + 1) not in information else room['slots'][str(i + 1)]['deaths'], 4, 'little')
 
-        # Attack points
-        room_results.AppendInteger(0 if str(i + 1) not in information else room['slots'][str(i + 1)]['points'], 4, 'little')
+        # Attack points, obfuscate the actual value
+        for i in range(8):
+
+            # Get actual point count
+            points = 0 if str(i + 1) not in information else int(room['slots'][str(i + 1)]['points'])
+
+            # Obfuscate the points amount, but only if we have more than 0 points
+            if points > 0:
+                points = (points + random.randrange(23, 89)) / 1.5
+
+            room_results.AppendInteger(int(points), 4, 'little')
 
         # Leveled up
         room_results.AppendBytes(bytearray([0x00]))
