@@ -1404,14 +1404,6 @@ def game_stats(_args, room, status=None):
     game_exit.AppendBytes(bytearray([0x00]))
     _args['connection_handler'].SendRoomAll(room['id'], game_exit.packet)
 
-    if room['name'] == 'appels':
-        for _ in range(600):
-            time.sleep(0.5)
-            game_exit = PacketWrite()
-            game_exit.AddHeader(bytearray([0x2A, 0x2F]))
-            game_exit.AppendBytes(bytearray([0x00]))
-            _args['connection_handler'].SendRoomAll(room['id'], game_exit.packet)
-
 '''
 This method is responsible for waiting for the time to be over in sessions.
 It uses polling due to having no ability to mutate the thread's state once it has been started.
