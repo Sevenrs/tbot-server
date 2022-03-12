@@ -1,45 +1,45 @@
 from GameServer.Controllers.data.drops import *
 
 # This table contains the experience points to award per planet level.
-# Structure: Level index, easy, medium and hard difficulty awards
-# After the array: minutes and recommended level, minimum attack score to pass the level and minimum monster kills
+# Structure: Level index, base experience, minutes, recommended level, minimum attack score to pass the level and minimum monster kills
 
 PLANET_MAP_TABLE = {
-    0: ([100, 150, 200],        7.5,    1,  1100,   17),    # [Lv01]Training Camp
-    1: ([125, 175, 250],        10.5,   3,  1400,   13),    # [Lv03]Base Camp
-    2: ([150, 250, 300],        10.5,   6,  1800,   27),    # [Lv06]Camp-Spike
-    3: ([500, 750, 1000],       15,     8,  1800,   38),    # [Lv08]Camp-Spike2
-    4: ([250, 300, 500],        18,     10, 2000,   22),    # [Lv10]Planet-Alderan
-    5: ([250, 430, 640],        19.5,   13, 2600,   20),    # [Lv13]Alderan-Entrance
-    6: ([540, 780, 1334],       19.5,   16, 500,    24),    # [Lv16]Mine-Alderan
-    7: ([540, 780, 1334],       21,     18, 500,    25),    # [Lv18]Mine-Alderan2
-    8: ([600, 700, 900],        21,     20, 3100,   25),    # [Lv20]Mine-Blaster
-    9: ([540, 680, 920],        22.5,   23, 3100,   27),    # [Lv23]Lava-Sea1
-    10: ([560, 680, 920],       22.5,   26, 500,    25),    # [Lv26]Lava-Sea2
-    11: ([700, 800, 1240],      22.5,   28, 800,    47),    # [Lv28]Lava-Sea3
-    12: ([740, 850, 1480],      22.5,   30, 800,    17),    # [Lv30]Acurin-Ruins1
-    13: ([780, 870, 1500],      22.5,   33, 1300,   31),    # [Lv33]Acurin-Ruins2
-    14: ([840, 980, 1040],      22.5,   36, 4400,   62),    # [Lv36]Planet-Acurin
-    15: ([840, 980, 1040],      24,     38, 4500,   48),    # [Lv38]Planet-Acurin2
-    16: ([980, 1040, 1220],     24,     40, 4800,   41),    # [Lv40]Port-Acurin
-    17: ([1040, 1220, 1340],    24,     43, 4900,   29),    # [Lv43]Escape-Acurin
-    18: ([840, 850, 960],       24,     46, 5500,   33),    # [Lv46]Planet-MECA
-    19: ([840, 850, 960],       24,     48, 5800,   64),    # [Lv48]Planet-MECA2
-    20: ([780, 830, 920],       24.5,   50, 5500,   44),    # [Lv50]Hidden-Archive
-    21: ([840, 930, 1020],      25.5,   53, 6000,   39),    # [Lv53]Secret-passage
-    22: ([950, 1060, 1170],     25.5,   56, 10000,  8),     # [Lv56]Destroy-all
-    23: ([950, 1060, 1170],     25.5,   58, 6200,   39),    # [Lv58]Destroy-all2
-    24: ([1288, 1450, 1650],    27,     60, 13000,  8),     # [Lv60]Escape-From-MECA
-    25: ([1388, 1550, 1750],    27,     61, 4500,   15),    # [Lv61]Ship Takeover
-    26: ([1588, 1650, 1889],    27,     63, 5800,   55),    # [Lv63]MeraMountin
-    27: ([1687, 1890, 1950],    27,     66, 600,    44),    # [Lv66]MeraMountin2
-    28: ([1799, 1905, 1980],    27,     68, 900,    55),    # [Lv68]MeraMountin3
-    29: ([1900, 2030, 2530],    27,     70, 1000,   60),    # [Lv70]MeraMountin4
-    30: ([540, 760, 870],       18,     8,  2800,   21),    # [Lv08]The-Fallen(Elite)
-    31: ([980, 1040, 1230],     36,     18, 3500,   27),    # [Lv18]Lava-Field(Elite)
-    32: ([1020, 1430, 1560],    45,     28, 4000,   25),    # [Lv28]The-Pirate(Elite)
-    33: ([1340, 1530, 1800],    45,     38, 5000,   40),    # [Lv38]Evil-Port(Elite)
-    34: ([1560, 1890, 2050],    48,     48, 5200,   49),    # [Lv48]Bloodway(Elite)
+    0: (60,     7.5,    1,  1100,   17),    # [Lv01]Training Camp
+    1: (60,     10.5,   3,  1400,   13),    # [Lv03]Base Camp
+    2: (80,     10.5,   6,  1800,   27),    # [Lv06]Camp-Spike
+    3: (80,     15,     8,  1800,   38),    # [Lv08]Camp-Spike2
+    4: (120,    18,     10, 2000,   22),    # [Lv10]Planet-Alderan
+    5: (160,    19.5,   13, 2600,   20),    # [Lv13]Alderan-Entrance
+    6: (160,    19.5,   16, 500,    24),    # [Lv16]Mine-Alderan
+    7: (170,    21,     18, 500,    25),    # [Lv18]Mine-Alderan2
+    8: (250,    21,     20, 3100,   25),    # [Lv20]Mine-Blaster
+    9: (290,    22.5,   23, 3100,   27),    # [Lv23]Lava-Sea1
+    10: (300,   22.5,   26, 500,    25),    # [Lv26]Lava-Sea2
+    11: (330,   22.5,   28, 800,    47),    # [Lv28]Lava-Sea3
+    12: (450,   22.5,   30, 800,    17),    # [Lv30]Acurin-Ruins1
+    13: (450,   22.5,   33, 1300,   31),    # [Lv33]Acurin-Ruins2
+    14: (500,   22.5,   36, 4400,   62),    # [Lv36]Planet-Acurin
+    15: (520,   24,     38, 4500,   48),    # [Lv38]Planet-Acurin2
+    16: (630,   24,     40, 4800,   41),    # [Lv40]Port-Acurin
+    17: (630,   24,     43, 4900,   29),    # [Lv43]Escape-Acurin
+    18: (650,   24,     46, 5500,   33),    # [Lv46]Planet-MECA
+    19: (650,   24,     48, 5800,   64),    # [Lv48]Planet-MECA2
+    20: (700,   24.5,   50, 5500,   44),    # [Lv50]Hidden-Archive
+    21: (700,   25.5,   53, 6000,   39),    # [Lv53]Secret-passage
+    22: (860,   25.5,   56, 10000,  8),     # [Lv56]Destroy-all
+    23: (887,   25.5,   58, 6200,   39),    # [Lv58]Destroy-all2
+    24: (1288,  27,     60, 13000,  8),     # [Lv60]Escape-From-MECA
+    25: (1324,  27,     61, 4500,   15),    # [Lv61]Ship Takeover
+    26: (1395,  27,     63, 5800,   55),    # [Lv63]MeraMountin
+    27: (1402,  27,     66, 600,    44),    # [Lv66]MeraMountin2
+    28: (1420,  27,     68, 900,    55),    # [Lv68]MeraMountin3
+    29: (2266,  27,     70, 1000,   60),    # [Lv70]MeraMountin4
+
+    30: (120,   18,     8,  2800,   21),    # [Lv08]The-Fallen(Elite)
+    31: (255,   36,     18, 3500,   27),    # [Lv18]Lava-Field(Elite)
+    32: (495,   45,     28, 4000,   25),    # [Lv28]The-Pirate(Elite)
+    33: (780,   45,     38, 5000,   40),    # [Lv38]Evil-Port(Elite)
+    34: (975,   48,     48, 5200,   49),    # [Lv48]Bloodway(Elite)
 }
 # This table contains the mob table from which to drops boxes from
 PLANET_BOX_MOBS = {

@@ -984,15 +984,48 @@ def post_game_transaction(_args, room, status=None):
                 
                 If there is an experience modifier present, it will be applied on top of the base experience.
                 Finally, if the player has lost the game, no experience will be awarded at all. '''
-            addition_experience = int(PLANET_MAP_TABLE[room['level']][0][room['difficulty']] * room['experience_modifier'] \
-                                  / (1.00 if abs(PLANET_MAP_TABLE[room['level']][2] - character['level']) < 10 else 4.00)) \
-                                        if room['level'] in PLANET_MAP_TABLE.keys() and slot['won'] else 0
+
+            # Default experience addition
+            addition_experience = 0
+
+            # We'll only be awarding experience if the player hasn't lost the game and if the level is valid
+            if room['level'] in PLANET_MAP_TABLE.keys() and slot['won']:
+
+                # We'll increase the base experience by this amount, based on the difficulity
+                difficulity_multiplication = {
+                    DIFFICULTY_EASY:    1.00,
+                    DIFFICULTY_MEDIUM:  1.25,
+                    DIFFICULTY_HARD:    1.50
+                }
+
+                # If the character has a difference of a number in here, the experience will be reduced accordingly
+                experience_reduction = {
+                    9:  0.25,   # 75%
+                    4:  0.50,   # 50%
+                    2:  0.75,   # 25%
+                    1:  0.95    # 5%
+                }
+
+                # Retrieve base experience amount from the experience table
+                addition_experience = PLANET_MAP_TABLE[room['level']][0] * difficulity_multiplication[room['difficulty']] \
+                             * room['experience_modifier'] # We'll modify the base experience with the experience modifier when needed
+
+                # Retrieve the amount of experience to reduce, based on the experience reduction table
+                for level_difference in experience_reduction.keys():
+
+                    # If the level difference matches, we'll reduce the experience based on the result in the table
+                    if abs(PLANET_MAP_TABLE[room['level']][2] - character['level']) >= level_difference:
+                        addition_experience = addition_experience * experience_reduction[level_difference]
+                        break # We do not want to proceed if we have a result
+
+            # Ensure that the experience addition is always an integer
+            addition_experience = int(addition_experience)
 
             ''' Calculate the amount of gigas to award to the player. If the level difference is too large, the amount is reduced.
                 The base reward is equal to 1250 which a rate is applied on top of.'''
             mv      = (PLANET_MAP_TABLE[room['level']][2] + 1) * 2
-            rate    = min(15.0, max(0.1, 1.0 + (float(mv - character['level']) / 10.0)))
-            reward  = int(1250 * rate / (1.00 if abs(PLANET_MAP_TABLE[room['level']][2] - character['level']) < 10 else 4.00))
+            rate    = min(15.0, max(0.1, 1.0 + (float(mv - character['level']) / 3.0)))
+            reward  = int(1250 * rate / (1.00 if abs(PLANET_MAP_TABLE[room['level']][2] - character['level']) < 3 else 4.00))
             addition_gigas = reward if slot['won'] else 0
 
         # If the game mode is DeathMatch, calculate the rank addition
