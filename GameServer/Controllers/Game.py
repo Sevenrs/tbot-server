@@ -1330,16 +1330,13 @@ def game_stats(_args, room, status=None):
         room_results.AppendInteger(0 if str(i + 1) not in information else room['slots'][str(i + 1)]['deaths'], 4, 'little')
 
         # Attack points, obfuscate the actual value
-        for i in range(8):
+        points = 0 if str(i + 1) not in information else int(room['slots'][str(i + 1)]['points'])
 
-            # Get actual point count
-            points = 0 if str(i + 1) not in information else int(room['slots'][str(i + 1)]['points'])
+        # Obfuscate the points amount, but only if we have more than 0 points
+        if points > 0:
+            points = (points + random.randrange(23, 89)) / 1.5
 
-            # Obfuscate the points amount, but only if we have more than 0 points
-            if points > 0:
-                points = (points + random.randrange(23, 89)) / 1.5
-
-            room_results.AppendInteger(int(points), 4, 'little')
+        room_results.AppendInteger(int(points), 4, 'little')
 
         # Leveled up
         room_results.AppendBytes(bytearray([0x00]))
