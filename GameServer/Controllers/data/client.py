@@ -3,7 +3,7 @@ PING_TIMEOUT    = 90            # Connection timeout in seconds
 
 CLIENT_FILE_HASHES = [
     'f8bef447dfc6653b26432ed9f730c28b', # TbotShield.dll
-    '6990a67dd548c72ce84cf427aacf105f', # script/dungeon/dungeon.bin
+    '6d9703073e1278cdeebb417a508dce26', # script/dungeon/dungeon.bin
     '6fbada1f64ceb6db89f97fffea427103', # script/dungeon/p_monai.bin
     '32de15763d99e8ee86a24642d84de501', # script/dungeon/p_monimg.bin
     '3b868a14f2433666314792910ba4533f', # script/base.bin
