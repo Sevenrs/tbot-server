@@ -37,9 +37,8 @@ def load_finish_rpc(**_args):
     slot = Room.get_slot(_args, room)
 
     # Check if file validation passed. If not, disconnect client now.
-    if not room['slots'][str(slot)]['file_validation_passed']:
-        print('no pass but ok')
-        #return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
+    if not room['slots'][str(slot)]['file_validation_passed'] and _args['client']['character']['position'] == 0:
+        return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
 
     # Get slot and update loading status
     room['slots'][str(slot)]['loaded'] = True
@@ -964,8 +963,7 @@ def post_game_transaction(_args, room, status=None):
 
     # Perform anti hacking checks before we continue, if we're playing planet mode
     if room['game_type'] == MODE_PLANET and status == 1:
-        print('hack fail but ok for now')
-        #anti_hack_check(_args, room)
+        anti_hack_check(_args, room)
 
     information = {}
 

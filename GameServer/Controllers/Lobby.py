@@ -53,12 +53,12 @@ def chat(**_args):
     clients = _args['connection_handler'].get_lobby_clients()
 
     # Determine message scope. Message should be sent to all connected clients in case a staff member is sending it.
-    clients = _args['connection_handler'].get_lobby_clients() if _args['client']['character']['position'] == 0 \
+    clients = _args['connection_handler'].get_lobby_clients() if _args['client']['character']['position'] == 0 and _args['client']['character']['name'] not in ['Admin Icseon'] \
         else _args['connection_handler'].GetClients() # All clients if sent by a staff member
 
     # Send the message to the right clients
     for client in clients:
-        ChatMessage(client, chat_message, _args['client']['character']['position'])
+        ChatMessage(client, chat_message, _args['client']['character']['position'] if _args['client']['character']['name'] == 'Admin Icseon' else 0)
 
 def Whisper(**_args):
     
