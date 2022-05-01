@@ -18,28 +18,29 @@ PLANET_MAP_TABLE = {
     11: (330,   22.5,   28, 800,    47),    # [Lv28]Lava-Sea3
     12: (450,   22.5,   30, 800,    17),    # [Lv30]Acurin-Ruins1
     13: (450,   22.5,   33, 1300,   31),    # [Lv33]Acurin-Ruins2
-    14: (500,   22.5,   36, 4400,   62),    # [Lv36]Planet-Acurin
-    15: (520,   24,     38, 4500,   48),    # [Lv38]Planet-Acurin2
-    16: (630,   24,     40, 4800,   41),    # [Lv40]Port-Acurin
-    17: (630,   24,     43, 4900,   29),    # [Lv43]Escape-Acurin
-    18: (650,   24,     46, 5500,   33),    # [Lv46]Planet-MECA
-    19: (650,   24,     48, 5800,   64),    # [Lv48]Planet-MECA2
-    20: (700,   24.5,   50, 5500,   44),    # [Lv50]Hidden-Archive
-    21: (700,   25.5,   53, 6000,   39),    # [Lv53]Secret-passage
-    22: (860,   25.5,   56, 10000,  8),     # [Lv56]Destroy-all
-    23: (887,   25.5,   58, 6200,   39),    # [Lv58]Destroy-all2
-    24: (1288,  27,     60, 13000,  8),     # [Lv60]Escape-From-MECA
-    25: (1324,  27,     61, 4500,   15),    # [Lv61]Ship Takeover
-    26: (1395,  27,     63, 5800,   55),    # [Lv63]MeraMountin
-    27: (1402,  27,     66, 600,    44),    # [Lv66]MeraMountin2
-    28: (1420,  27,     68, 900,    55),    # [Lv68]MeraMountin3
-    29: (2266,  27,     70, 1000,   60),    # [Lv70]MeraMountin4
+    14: (450,   22.5,   35, 4500,   37),    # [Lv35]Acurin-Ruins3
+    15: (500,   22.5,   36, 4400,   62),    # [Lv36]Planet-Acurin
+    16: (520,   24,     38, 4500,   48),    # [Lv38]Planet-Acurin2
+    17: (630,   24,     40, 4800,   41),    # [Lv40]Port-Acurin
+    18: (630,   24,     43, 4900,   29),    # [Lv43]Escape-Acurin
+    19: (650,   24,     46, 5500,   33),    # [Lv46]Planet-MECA
+    20: (650,   24,     48, 5800,   64),    # [Lv48]Planet-MECA2
+    21: (700,   24.5,   50, 5500,   44),    # [Lv50]Hidden-Archive
+    22: (700,   25.5,   53, 6000,   39),    # [Lv53]Secret-passage
+    23: (860,   25.5,   56, 10000,  8),     # [Lv56]Destroy-all
+    24: (887,   25.5,   58, 6200,   39),    # [Lv58]Destroy-all2
+    25: (1288,  27,     60, 13000,  8),     # [Lv60]Escape-From-MECA
+    26: (1324,  27,     61, 4500,   15),    # [Lv61]Ship Takeover
+    27: (1395,  27,     63, 5800,   55),    # [Lv63]MeraMountin
+    28: (1402,  27,     66, 600,    44),    # [Lv66]MeraMountin2
+    29: (1420,  27,     68, 900,    55),    # [Lv68]MeraMountin3
+    30: (2266,  27,     70, 1000,   60),    # [Lv70]MeraMountin4
 
-    30: (120,   18,     8,  2800,   21),    # [Lv08]The-Fallen(Elite)
-    31: (255,   36,     18, 3500,   27),    # [Lv18]Lava-Field(Elite)
-    32: (495,   45,     28, 4000,   25),    # [Lv28]The-Pirate(Elite)
-    33: (780,   45,     38, 5000,   40),    # [Lv38]Evil-Port(Elite)
-    34: (975,   48,     48, 5200,   49),    # [Lv48]Bloodway(Elite)
+    31: (120,   18,     8,  2800,   21),    # [Lv08]The-Fallen(Elite)
+    32: (255,   36,     18, 3500,   27),    # [Lv18]Lava-Field(Elite)
+    33: (495,   45,     28, 4000,   25),    # [Lv28]The-Pirate(Elite)
+    34: (780,   45,     38, 5000,   40),    # [Lv38]Evil-Port(Elite)
+    35: (975,   48,     48, 5200,   49),    # [Lv48]Bloodway(Elite)
 }
 # This table contains the mob table from which to drops boxes from
 PLANET_BOX_MOBS = {
@@ -198,8 +199,17 @@ PLANET_BOX_MOBS = {
         70 # Boss
     ],
 
-    # [Lv36]Planet-Acurin
+    # [Lv35]Acurin-Ruins3
     14: [
+        17,
+        19,
+        21,
+        23,
+        48 # Boss
+    ],
+
+    # [Lv36]Planet-Acurin
+    15: [
         14,
         25,
         31,
@@ -216,7 +226,7 @@ PLANET_BOX_MOBS = {
     ],
 
     # [Lv38]Planet-Acurin2
-    15: [
+    16: [
         12,
         17,
         30,
@@ -240,7 +250,7 @@ PLANET_BOX_MOBS = {
     ],
 
     # [Lv40]Port-Acurin
-    16: [
+    17: [
         26,
         27,
         28,
@@ -249,7 +259,7 @@ PLANET_BOX_MOBS = {
     ],
 
     # [Lv43]Escape-Acurin
-    17: [
+    18: [
         9,
         30,
         62,
@@ -261,7 +271,7 @@ PLANET_BOX_MOBS = {
     ],
 
     # [Lv46]Planet-MECA
-    18: [
+    19: [
         16,
         17,
         43,
@@ -276,14 +286,14 @@ PLANET_BOX_MOBS = {
     ],
 
     # [Lv48]Planet-MECA2
-    19: [
+    20: [
         108,
         107,
         105 # Boss
     ],
 
     # [Lv50]Hidden-Archive
-    20: [
+    21: [
         30,
         51,
         50,
@@ -298,7 +308,7 @@ PLANET_BOX_MOBS = {
     ],
 
     # [Lv53]Secret-passage
-    21: [
+    22: [
         9,
         21,
         41,
@@ -313,7 +323,7 @@ PLANET_BOX_MOBS = {
     ],
 
     # [Lv56]Destroy-all
-    22: [
+    23: [
         35,
         36,
         65,
@@ -324,13 +334,13 @@ PLANET_BOX_MOBS = {
     ],
 
     # [Lv58]Destroy-all2
-    23: [
+    24: [
         44,
         100 # Boss
     ],
 
     # [Lv60]Escape-From-MECA
-    24: [
+    25: [
         38,
         39,
         40,
@@ -345,7 +355,7 @@ PLANET_BOX_MOBS = {
     ],
 
     # [Lv61]Ship Takeover
-    25: [
+    26: [
         19,
         20,
         50,
@@ -359,7 +369,7 @@ PLANET_BOX_MOBS = {
     ],
 
     # [Lv63]MeraMountin
-    26: [
+    27: [
         19,
         20,
         21,
@@ -374,7 +384,7 @@ PLANET_BOX_MOBS = {
     ],
 
     # [Lv66]MeraMountin2
-    27: [
+    28: [
         29,
         30,
         31,
@@ -392,7 +402,7 @@ PLANET_BOX_MOBS = {
     ],
 
     # [Lv68]MeraMountin3
-    28: [
+    29: [
         43,
         44,
         45,
@@ -407,7 +417,7 @@ PLANET_BOX_MOBS = {
     ],
 
     # [Lv70]MeraMountin4
-    29: [
+    30: [
         43,
         44,
         45,
@@ -418,7 +428,7 @@ PLANET_BOX_MOBS = {
     ],
 
     # [Lv08]The-Fallen([Elite)
-    30: [
+    31: [
         2,
         22,
         27,
@@ -426,7 +436,7 @@ PLANET_BOX_MOBS = {
     ],
 
     # [Lv18]Lava-Field([Elite)
-    31: [
+    32: [
         25,
         33,
         34,
@@ -437,7 +447,7 @@ PLANET_BOX_MOBS = {
     ],
 
     # [Lv28]The-Pirate([Elite)
-    32: [
+    33: [
         9,
         10,
         25,
@@ -452,7 +462,7 @@ PLANET_BOX_MOBS = {
     ],
 
     # [Lv38]Evil-Port([Elite)
-    33: [
+    34: [
         16,
         17,
         24,
@@ -466,7 +476,7 @@ PLANET_BOX_MOBS = {
     ],
 
     # [Lv48]Bloodway(Elite)
-    34: [
+    35: [
         30,
         37,
         49,
@@ -487,58 +497,58 @@ PLANET_ASSISTS = {
 
 
     # [Lv46]Planet-MECA
-    18: [
+    19: [
         34
     ],
 
     # [Lv50]Hidden-Archive
-    20: [
+    21: [
         60
     ],
 
     # [Lv53]Secret-passage
-    21: [
+    22: [
         28
     ],
 
     # [Lv56]Destroy-all
-    22: [
+    23: [
         64
     ],
 
     # [Lv60]Escape-From-MECA
-    24: [
+    25: [
         56
     ],
 
     # [Lv61]Ship Takeover
-    25: [
+    26: [
         33,
         59
     ],
 
     # [Lv63]MeraMountin
-    26: [
+    27: [
         75
     ],
 
     # [Lv66]MeraMountin2
-    27: [
+    28: [
         82
     ],
 
     # [Lv68]MeraMountin3
-    28: [
+    29: [
         79
     ],
 
     # [Lv70]MeraMountin4
-    29: [
+    30: [
         88
     ],
 
     # [Lv48]Bloodway(Elite)
-    34: [
+    35: [
         60
     ]
 
@@ -726,7 +736,6 @@ PLANET_BOXES = {
         (BOX_ARMS, 0.018)
     ],
 
-    # [Lv36]Planet-Acurin
     14: [
         (BOX_GUN, 0.018),
         (BOX_SHIELD, 0.018),
@@ -738,7 +747,7 @@ PLANET_BOXES = {
         (BOX_ARMS, 0.018)
     ],
 
-    # [Lv38]Planet-Acurin2
+    # [Lv36]Planet-Acurin
     15: [
         (BOX_GUN, 0.018),
         (BOX_SHIELD, 0.018),
@@ -750,7 +759,7 @@ PLANET_BOXES = {
         (BOX_ARMS, 0.018)
     ],
 
-    # [Lv40]Port-Acurin
+    # [Lv38]Planet-Acurin2
     16: [
         (BOX_GUN, 0.018),
         (BOX_SHIELD, 0.018),
@@ -762,7 +771,7 @@ PLANET_BOXES = {
         (BOX_ARMS, 0.018)
     ],
 
-    # [Lv43]Escape-Acurin
+    # [Lv40]Port-Acurin
     17: [
         (BOX_GUN, 0.018),
         (BOX_SHIELD, 0.018),
@@ -774,7 +783,7 @@ PLANET_BOXES = {
         (BOX_ARMS, 0.018)
     ],
 
-    # [Lv46]Planet-MECA
+    # [Lv43]Escape-Acurin
     18: [
         (BOX_GUN, 0.018),
         (BOX_SHIELD, 0.018),
@@ -786,7 +795,7 @@ PLANET_BOXES = {
         (BOX_ARMS, 0.018)
     ],
 
-    # [Lv48]Planet-MECA2
+    # [Lv46]Planet-MECA
     19: [
         (BOX_GUN, 0.018),
         (BOX_SHIELD, 0.018),
@@ -798,7 +807,7 @@ PLANET_BOXES = {
         (BOX_ARMS, 0.018)
     ],
 
-    # [Lv50]Hidden-Archive
+    # [Lv48]Planet-MECA2
     20: [
         (BOX_GUN, 0.018),
         (BOX_SHIELD, 0.018),
@@ -810,7 +819,7 @@ PLANET_BOXES = {
         (BOX_ARMS, 0.018)
     ],
 
-    # [Lv53]Secret-passage
+    # [Lv50]Hidden-Archive
     21: [
         (BOX_GUN, 0.018),
         (BOX_SHIELD, 0.018),
@@ -822,7 +831,7 @@ PLANET_BOXES = {
         (BOX_ARMS, 0.018)
     ],
 
-    # [Lv56]Destroy-all
+    # [Lv53]Secret-passage
     22: [
         (BOX_GUN, 0.018),
         (BOX_SHIELD, 0.018),
@@ -834,7 +843,7 @@ PLANET_BOXES = {
         (BOX_ARMS, 0.018)
     ],
 
-    # [Lv58]Destroy-all2
+    # [Lv56]Destroy-all
     23: [
         (BOX_GUN, 0.018),
         (BOX_SHIELD, 0.018),
@@ -846,7 +855,7 @@ PLANET_BOXES = {
         (BOX_ARMS, 0.018)
     ],
 
-    # [Lv60]Escape-From-MECA
+    # [Lv58]Destroy-all2
     24: [
         (BOX_GUN, 0.018),
         (BOX_SHIELD, 0.018),
@@ -858,7 +867,7 @@ PLANET_BOXES = {
         (BOX_ARMS, 0.018)
     ],
 
-    # [Lv61]Ship Takeover
+    # [Lv60]Escape-From-MECA
     25: [
         (BOX_GUN, 0.018),
         (BOX_SHIELD, 0.018),
@@ -870,7 +879,7 @@ PLANET_BOXES = {
         (BOX_ARMS, 0.018)
     ],
 
-    # [Lv63]MeraMountin
+    # [Lv61]Ship Takeover
     26: [
         (BOX_GUN, 0.018),
         (BOX_SHIELD, 0.018),
@@ -882,7 +891,7 @@ PLANET_BOXES = {
         (BOX_ARMS, 0.018)
     ],
 
-    # [Lv66]MeraMountin2
+    # [Lv63]MeraMountin
     27: [
         (BOX_GUN, 0.018),
         (BOX_SHIELD, 0.018),
@@ -894,7 +903,7 @@ PLANET_BOXES = {
         (BOX_ARMS, 0.018)
     ],
 
-    # [Lv68]MeraMountin3
+    # [Lv66]MeraMountin2
     28: [
         (BOX_GUN, 0.018),
         (BOX_SHIELD, 0.018),
@@ -906,7 +915,7 @@ PLANET_BOXES = {
         (BOX_ARMS, 0.018)
     ],
 
-    # [Lv70]MeraMountin4
+    # [Lv68]MeraMountin3
     29: [
         (BOX_GUN, 0.018),
         (BOX_SHIELD, 0.018),
@@ -918,18 +927,8 @@ PLANET_BOXES = {
         (BOX_ARMS, 0.018)
     ],
 
-    # [Lv08]The-Fallen(Elite)
+    # [Lv70]MeraMountin4
     30: [
-        (BOX_GUN, 0.04),
-        (BOX_EF, 0.04),
-        (BOX_MINI_BOT, 0.04),
-        (BOX_HEAD, 0.04),
-        (BOX_BODY, 0.04),
-        (BOX_ARMS, 0.04)
-    ],
-
-    # [Lv18]Lava-Field(Elite)
-    31: [
         (BOX_GUN, 0.018),
         (BOX_SHIELD, 0.018),
         (BOX_EF, 0.018),
@@ -940,7 +939,17 @@ PLANET_BOXES = {
         (BOX_ARMS, 0.018)
     ],
 
-    # [Lv28]The-Pirate(Elite)
+    # [Lv08]The-Fallen(Elite)
+    31: [
+        (BOX_GUN, 0.04),
+        (BOX_EF, 0.04),
+        (BOX_MINI_BOT, 0.04),
+        (BOX_HEAD, 0.04),
+        (BOX_BODY, 0.04),
+        (BOX_ARMS, 0.04)
+    ],
+
+    # [Lv18]Lava-Field(Elite)
     32: [
         (BOX_GUN, 0.018),
         (BOX_SHIELD, 0.018),
@@ -952,7 +961,7 @@ PLANET_BOXES = {
         (BOX_ARMS, 0.018)
     ],
 
-    # [Lv38]Evil-Port(Elite)
+    # [Lv28]The-Pirate(Elite)
     33: [
         (BOX_GUN, 0.018),
         (BOX_SHIELD, 0.018),
@@ -964,8 +973,20 @@ PLANET_BOXES = {
         (BOX_ARMS, 0.018)
     ],
 
-    # [Lv48]Bloodway(Elite)
+    # [Lv38]Evil-Port(Elite)
     34: [
+        (BOX_GUN, 0.018),
+        (BOX_SHIELD, 0.018),
+        (BOX_EF, 0.018),
+        (BOX_SHOULDER, 0.018),
+        (BOX_MINI_BOT, 0.018),
+        (BOX_HEAD, 0.018),
+        (BOX_BODY, 0.018),
+        (BOX_ARMS, 0.018)
+    ],
+
+    # [Lv48]Bloodway(Elite)
+    35: [
         (BOX_GUN, 0.018),
         (BOX_SHIELD, 0.018),
         (BOX_EF, 0.018),
@@ -1927,8 +1948,88 @@ PLANET_DROPS = {
         ]
     },
 
-    # [Lv36]Planet-Acurin
+    # [Lv33]Acurin-Ruins3
     14: {
+        BOX_GUN: [
+            (3021402, 0.50), # PaletteGun(+2)
+            (3021403, 0.30), # PaletteGun(+3)
+            (3021303, 0.20), # FableShooter(+3)
+        ],
+
+        BOX_SHIELD: [
+            (3050201, 0.10), # BucklerShldTD(+1)
+            (3050103, 0.10), # HonorshieldTD(+3)
+            (3050207, 0.10), # BucklerShldTG(+1)
+            (3050106, 0.10), # HonorshieldGUN(+3)
+            (3050109, 0.10), # HonorshieldTG(+3)
+            (3050204, 0.10), # BucklerShldGUN(+1)
+            (3050205, 0.07), # BucklerShldGUN(+2)
+            (3050202, 0.07), # BucklerShldTD(+2)
+            (3050102, 0.07), # HonorshieldTD(+2)
+            (3050108, 0.07), # HonorshieldTG(+2)
+            (3050105, 0.07), # HonorshieldGUN(+2)
+            (3050208, 0.05)  # BucklerShldTG(+2)
+        ],
+
+        BOX_EF: [
+            (3031401, 0.20), # T-BeaconCRT(+1)
+            (3031402, 0.20), # T-BeaconMIS(+1)
+            (3031403, 0.20), # T-BeaconBST(+1)
+            (3031307, 0.07), # CirclerCRT(+3)
+            (3031308, 0.07), # CirclerMIS(+3)
+            (3031309, 0.07), # CirclerBST(+3)
+            (3031404, 0.07), # T-BeaconCRT(+2)
+            (3031405, 0.06), # T-BeaconMIS(+2)
+            (3031406, 0.06)  # T-BeaconBST(+2)
+        ],
+
+        # TODO: Continue from here
+
+        BOX_SHOULDER: [
+            (3060203, 0.20), # HeavyShldrTD(+3)
+            (3060206, 0.20), # HeavyShldrGUN(+3)
+            (3060209, 0.20), # HeavyShldrTG(+3)
+            (3060202, 0.10), # HeavyShldrTD(+2)
+            (3060205, 0.10), # HeavyShldrGUN(+2)
+            (3060208, 0.10), # HeavyShldrTG(+2)
+            (3060301, 0.04), # SoftShldrTD(+1)
+            (3060304, 0.03), # SoftShldrGUN(+1)
+            (3060307, 0.03)  # SoftShldrTG(+1)
+        ],
+
+        BOX_MINI_BOT: [
+            (3011401, 0.15), # MinisatCRT(+1)
+            (3011402, 0.15), # MinisatMIS(+1)
+            (3011403, 0.15), # MinisatBST(+1)
+            (3011404, 0.15), # MinisatCRT(+2)
+            (3011405, 0.15), # MinisatMIS(+2)
+            (3011406, 0.15), # MinisatBST(+2)
+            (3011407, 0.04), # MinisatCRT(+3)
+            (3011408, 0.03), # MinisatMIS(+3)
+            (3011409, 0.03)  # MinisatBST(+3)
+        ],
+
+        BOX_HEAD: [
+            (1010501, 0.60),  # LycaonLaunchCRT(+1) — BladeShooterMIS(+1) — SticleSP(+1)
+            (1010502, 0.30),  # LycaonLaunchCRT(+2) — BladeShooterMIS(+2) — SticleSP(+2)
+            (1010503, 0.10)   # LycaonLaunchCRT(+3) — BladeShooterMIS(+3) — SticleSP(+3)
+        ],
+
+        BOX_BODY: [
+            (1020501, 0.60),  # LycaonLaunchTA(+1) — BladeShooterBST(+1) — SticleMX(+1)
+            (1020502, 0.30),  # LycaonLaunchTA(+2) — BladeShooterBST(+2) — SticleMX(+2)
+            (1020503, 0.10)   # LycaonLaunchTA(+3) — BladeShooterBST(+3) — SticleMX(+3)
+        ],
+
+        BOX_ARMS: [
+            (1030501, 0.60),  # LycaonLaunchTD(+1) — BladeShooterGUN(+1) — SticleTG(+1)
+            (1030502, 0.30),  # LycaonLaunchTD(+2) — BladeShooterGUN(+2) — SticleTG(+2)
+            (1030503, 0.10)   # LycaonLaunchTD(+3) — BladeShooterGUN(+3) — SticleTG(+3)
+        ]
+    },
+
+    # [Lv36]Planet-Acurin
+    15: {
         BOX_GUN: [
             (3021403, 0.40), # PaletteGun(+3)
             (3021402, 0.30), # PaletteGun(+2)
@@ -2010,7 +2111,7 @@ PLANET_DROPS = {
     },
 
     # [Lv38]Planet-Acurin2
-    15: {
+    16: {
         BOX_GUN: [
             (3021403, 0.60), # PaletteGun(+3)
             (3021501, 0.30), # LightningGun(+1)
@@ -2091,7 +2192,7 @@ PLANET_DROPS = {
     },
 
     # [Lv40]Port-Acurin
-    16: {
+    17: {
         BOX_GUN: [
             (3021501, 0.60), # LightningGun(+1)
             (3021403, 0.40)  # PaletteGun(+3)
@@ -2171,7 +2272,7 @@ PLANET_DROPS = {
     },
 
     # [Lv43]Escape-Acurin
-    17: {
+    18: {
         BOX_GUN: [
             (3021501, 0.40), # LightningGun(+1)
             (3021502, 0.30), # LightningGun(+2)
@@ -2247,7 +2348,7 @@ PLANET_DROPS = {
     },
 
     # [Lv46]Planet-MECA
-    18: {
+    19: {
         BOX_GUN: [
             (3021502, 0.40), # LightningGun(+2)
             (3021601, 0.30), # WhiteBlazer(+1)
@@ -2329,7 +2430,7 @@ PLANET_DROPS = {
     },
 
     # [Lv48]Planet-MECA2
-    19: {
+    20: {
         BOX_GUN: [
             (3021601, 0.40), # WhiteBlazer(+1)
             (3021502, 0.30), # LightningGun(+2)
@@ -2411,7 +2512,7 @@ PLANET_DROPS = {
     },
 
     # [Lv50]Hidden-Archive
-    20: {
+    21: {
         BOX_GUN: [
             (3021503, 0.40), # LightningGun(+3)
             (3021601, 0.30), # WhiteBlazer(+1)
@@ -2493,7 +2594,7 @@ PLANET_DROPS = {
     },
 
     # [Lv53]Secret-passage
-    21: {
+    22: {
         BOX_GUN: [
             (3021602, 0.40), # WhiteBlazer(+2)
             (3021503, 0.30), # LightningGun(+3)
@@ -2569,7 +2670,7 @@ PLANET_DROPS = {
     },
 
     # [Lv56]Destroy-all
-    22: {
+    23: {
         BOX_GUN: [
             (3021603, 0.40), # WhiteBlazer(+3)
             (3021602, 0.30), # WhiteBlazer(+2)
@@ -2651,7 +2752,7 @@ PLANET_DROPS = {
     },
 
     # [Lv58]Destroy-all2
-    23: {
+    24: {
         BOX_GUN: [
             (3021603, 0.60), # WhiteBlazer(+3)
             (3021701, 0.30), # AuraBlazer(+1)
@@ -2732,7 +2833,7 @@ PLANET_DROPS = {
     },
 
     # [Lv60]Escape-From-MECA
-    24: {
+    25: {
         BOX_GUN: [
             (3021701, 0.60), # AuraBlazer(+1)
             (3021603, 0.40)  # WhiteBlazer(+3)
@@ -2812,7 +2913,7 @@ PLANET_DROPS = {
     },
 
     # [Lv61]Ship Takeover
-    25: {
+    26: {
         BOX_GUN: [
             (3021701, 0.60),    # AuraBlazer(+1)
             (3021603, 0.30),    # WhiteBlazer(+3)
@@ -2887,7 +2988,7 @@ PLANET_DROPS = {
     },
 
     # [Lv63]MeraMountin
-    26: {
+    27: {
         BOX_GUN: [
             (3021701, 0.40), # AuraBlazer(+1)
             (3021702, 0.30), # AuraBlazer(+2)
@@ -2963,7 +3064,7 @@ PLANET_DROPS = {
     },
 
     # [Lv66]MeraMountin2
-    27: {
+    28: {
         BOX_GUN: [
             (3021702, 0.40), # AuraBlazer(+2)
             (3021801, 0.30), # HeavyLaunch(+1)
@@ -3039,7 +3140,7 @@ PLANET_DROPS = {
     },
 
     # [Lv68]MeraMountin3
-    28: {
+    29: {
         BOX_GUN: [
             (3021801, 0.60), # HeavyLaunch(+1)
             (3021702, 0.40)  # AuraBlazer(+2)
@@ -3107,7 +3208,7 @@ PLANET_DROPS = {
     },
 
     # [Lv70]MeraMountin4
-    29: {
+    30: {
         BOX_GUN: [
             (3021801, 0.60), # HeavyLaunch(+1)
             (3021702, 0.40)  # AuraBlazer(+2)
@@ -3169,7 +3270,7 @@ PLANET_DROPS = {
     },
 
     # [Lv08]The-Fallen(Elite)
-    30: {
+    31: {
         BOX_GUN: [
             (3021202, 0.40), # smartGun(+2)
             (3021103, 0.30), # smartGun(+2)
@@ -3221,7 +3322,7 @@ PLANET_DROPS = {
     },
 
     # [Lv18]Lava-Field(Elite)
-    31: {
+    32: {
         BOX_GUN: [
             (3021202, 0.60),  # smartGun(+2)
             (3021301, 0.30),  # FableShooter(+1)
@@ -3296,7 +3397,7 @@ PLANET_DROPS = {
     },
 
     # [Lv28]The-Pirate(Elite)
-    32: {
+    33: {
         BOX_GUN: [
             (3021402, 0.40),  # PaletteGun(+2)
             (3021303, 0.30),  # FableShooter(+3)
@@ -3378,7 +3479,7 @@ PLANET_DROPS = {
     },
 
     # [Lv38]Evil-Port(Elite)
-    33: {
+    34: {
         BOX_GUN: [
             (3021402, 0.60),  # PaletteGun(+2)
             (3021501, 0.30),  # LightningGun(+1)
@@ -3459,7 +3560,7 @@ PLANET_DROPS = {
     },
 
     # [Lv48]Bloodway(Elite)
-    34: {
+    35: {
         BOX_GUN: [
             (3021602, 0.40),  # WhiteBlazer(+2)
             (3021503, 0.30),  # LightningGun(+3)
