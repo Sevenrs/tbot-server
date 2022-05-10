@@ -4,45 +4,45 @@ from GameServer.Controllers.data.drops import *
 # Structure: Level index, base experience, minutes, recommended level, minimum attack score to pass the level and minimum monster kills
 
 PLANET_MAP_TABLE = {
-    0: (60,     7.5,    1,  1100,   17),    # [Lv01]Training Camp
-    1: (60,     10.5,   3,  1400,   13),    # [Lv03]Base Camp
-    2: (80,     10.5,   6,  1800,   27),    # [Lv06]Camp-Spike
-    3: (80,     15,     8,  1800,   38),    # [Lv08]Camp-Spike2
-    4: (120,    18,     10, 2000,   22),    # [Lv10]Planet-Alderan
-    5: (160,    19.5,   13, 2600,   20),    # [Lv13]Alderan-Entrance
-    6: (160,    19.5,   16, 500,    24),    # [Lv16]Mine-Alderan
-    7: (170,    21,     18, 500,    25),    # [Lv18]Mine-Alderan2
-    8: (250,    21,     20, 3100,   25),    # [Lv20]Mine-Blaster
-    9: (290,    22.5,   23, 3100,   27),    # [Lv23]Lava-Sea1
-    10: (300,   22.5,   26, 500,    25),    # [Lv26]Lava-Sea2
-    11: (330,   22.5,   28, 800,    47),    # [Lv28]Lava-Sea3
-    12: (450,   22.5,   30, 800,    17),    # [Lv30]Acurin-Ruins1
-    13: (450,   22.5,   33, 1300,   31),    # [Lv33]Acurin-Ruins2
-    14: (450,   22.5,   35, 4500,   37),    # [Lv35]Acurin-Ruins3
-    15: (500,   22.5,   36, 4400,   62),    # [Lv36]Planet-Acurin
-    16: (520,   24,     38, 4500,   48),    # [Lv38]Planet-Acurin2
-    17: (630,   24,     40, 4800,   41),    # [Lv40]Port-Acurin
-    18: (630,   24,     43, 4900,   29),    # [Lv43]Escape-Acurin
-    19: (650,   24,     46, 5500,   33),    # [Lv46]Planet-MECA
-    20: (650,   24,     48, 5800,   64),    # [Lv48]Planet-MECA2
-    21: (700,   24.5,   50, 5500,   44),    # [Lv50]Hidden-Archive
-    22: (700,   25.5,   53, 6000,   39),    # [Lv53]Secret-passage
-    23: (860,   25.5,   56, 10000,  8),     # [Lv56]Destroy-all
-    24: (887,   25.5,   58, 6200,   39),    # [Lv58]Destroy-all2
-    25: (1288,  27,     60, 13000,  8),     # [Lv60]Escape-From-MECA
-    26: (1324,  27,     61, 4500,   15),    # [Lv61]Ship Takeover
-    27: (1395,  27,     63, 5800,   55),    # [Lv63]MeraMountin
-    28: (1402,  27,     66, 600,    44),    # [Lv66]MeraMountin2
-    29: (1420,  27,     68, 900,    55),    # [Lv68]MeraMountin3
-    30: (2266,  27,     70, 1000,   60),    # [Lv70]MeraMountin4
+    0: (60,     7.5,    1,  1100,   17),    # [Level 1] Training Ring
+    1: (60,     9,      3,  1400,   13),    # [Level 3] Base Camp
+    2: (80,     10.5,   6,  1800,   27),    # [Level 6] Camp Spike
+    3: (80,     15.5,   8,  1800,   38),    # [Level 8] Camp Escape
+    4: (120,    15,     10, 2000,   22),    # [Level 10] Planet Alderan
+    5: (160,    18,     13, 2600,   20),    # [Level 13] Mine Entrance
+    6: (160,    19.5,   16, 500,    24),    # [Level 16] Mine Alderan
+    7: (170,    19.5,   18, 500,    25),    # [Level 18] Inner Mine
+    8: (250,    21,     20, 3100,   25),    # [Level 20] Mine Exit
+    9: (290,    21,     23, 3100,   27),    # [Level 23] Lava Sea
+    10: (300,   22.5,   26, 500,    25),    # [Level 26] Lava Sea 2
+    11: (330,   22.5,   28, 800,    47),    # [Level 28] Lava Sea 3
+    12: (450,   22.5,   30, 800,    17),    # [Level 30] Acurin Ruins
+    13: (450,   22.5,   33, 1300,   31),    # [Level 33] Acurin Ruins 2
+    14: (450,   22.5,   35, 4500,   37),    # [Level 35] Acurin Ruins 3
+    15: (500,   22.5,   36, 4400,   62),    # [Level 36] Planet Acurin
+    16: (520,   22.5,   38, 4500,   48),    # [Level 38] Planet Acurin 2
+    17: (630,   24,     40, 4800,   41),    # [Level 40] Port Acurin
+    18: (630,   24,     43, 4900,   29),    # [Level 43] Escape Acurin
+    19: (650,   24,     46, 5500,   33),    # [Level 46] Planet MECA
+    20: (650,   24,     48, 5800,   64),    # [Level 48] Planet MECA 2
+    21: (700,   25.5,   50, 5500,   44),    # [Level 50] Hidden Archive
+    22: (700,   25.5,   53, 6000,   39),    # [Level 53] Secret Passage
+    23: (860,   25.5,   56, 10000,  8),     # [Level 56] Destroy MECA
+    24: (887,   25.5,   58, 6200,   39),    # [Level 58] Destroy MECA 2
+    25: (1288,  27,     60, 13000,  8),     # [Level 60] Escape from MECA
+    26: (1324,  27,     61, 4500,   15),    # [Level 61] Ship Takeover
+    27: (1395,  27,     63, 5800,   55),    # [Level 63] Mera Mountain
+    28: (1402,  27,     66, 600,    44),    # [Level 66] Mera Mountain 2
+    29: (1420,  27,     68, 900,    55),    # [Level 68] Mera Mountain 3
+    30: (2266,  27,     70, 1000,   60),    # [Level 70] Mera Mountain 4
 
-    31: (120,   18,     8,  2800,   21),    # [Lv08]The-Fallen(Elite)
-    32: (255,   36,     18, 3500,   27),    # [Lv18]Lava-Field(Elite)
-    33: (495,   45,     28, 4000,   25),    # [Lv28]The-Pirate(Elite)
-    34: (780,   45,     38, 5000,   40),    # [Lv38]Evil-Port(Elite)
-    35: (975,   48,     48, 5200,   49),    # [Lv48]Bloodway(Elite)
+    31: (120,   18,     8,  2800,   21),    # [Level 08] The Fallen (Elite)
+    32: (255,   36,     18, 3500,   27),    # [Level 18] Lava Field (Elite)
+    33: (495,   45,     28, 4000,   25),    # [Level 28] The Pirate (Elite)
+    34: (780,   45,     38, 5000,   40),    # [Level 38] Evil Port (Elite)
+    35: (975,   48,     48, 5200,   49),    # [Level 48] Bloodway (Elite)
 }
-# This table contains the mob table from which to drops boxes from
+# This table contains the mob table from which to drop boxes from
 PLANET_BOX_MOBS = {
 
     # [Lv01]Training Camp
@@ -1983,30 +1983,31 @@ PLANET_DROPS = {
             (3031406, 0.06)  # T-BeaconBST(+2)
         ],
 
-        # TODO: Continue from here
-
         BOX_SHOULDER: [
-            (3060203, 0.20), # HeavyShldrTD(+3)
-            (3060206, 0.20), # HeavyShldrGUN(+3)
-            (3060209, 0.20), # HeavyShldrTG(+3)
-            (3060202, 0.10), # HeavyShldrTD(+2)
-            (3060205, 0.10), # HeavyShldrGUN(+2)
-            (3060208, 0.10), # HeavyShldrTG(+2)
-            (3060301, 0.04), # SoftShldrTD(+1)
-            (3060304, 0.03), # SoftShldrGUN(+1)
-            (3060307, 0.03)  # SoftShldrTG(+1)
+            (3060301, 0.10), # SoftShldrTD(+1)
+            (3060203, 0.10), # HeavyShldrTD(+3)
+            (3060307, 0.10), # SoftShldrTG(+1)
+            (3060206, 0.10), # HeavyShldrGUN(+3)
+            (3060209, 0.10), # HeavyShldrTG(+3)
+            (3060304, 0.10), # SoftShldrGUN(+1)
+            (3060305, 0.07), # SoftShldrGUN(+2)
+            (3060302, 0.07), # SoftShldrTD(+2)
+            (3060202, 0.07), # HeavyShldrTD(+2)
+            (3060208, 0.07), # HeavyShldrTG(+2)
+            (3060205, 0.06), # HeavyShldrGUN(+2)
+            (3060308, 0.06)  # SoftShldrTG(+2)
         ],
 
         BOX_MINI_BOT: [
-            (3011401, 0.15), # MinisatCRT(+1)
-            (3011402, 0.15), # MinisatMIS(+1)
-            (3011403, 0.15), # MinisatBST(+1)
-            (3011404, 0.15), # MinisatCRT(+2)
-            (3011405, 0.15), # MinisatMIS(+2)
-            (3011406, 0.15), # MinisatBST(+2)
-            (3011407, 0.04), # MinisatCRT(+3)
-            (3011408, 0.03), # MinisatMIS(+3)
-            (3011409, 0.03)  # MinisatBST(+3)
+            (3011404, 0.15), # MinisatCRT(+1)
+            (3011405, 0.15), # MinisatMIS(+1)
+            (3011406, 0.15), # MinisatBST(+1)
+            (3011407, 0.10), # MinisatCRT(+2)
+            (3011408, 0.10), # MinisatMIS(+2)
+            (3011409, 0.10), # MinisatBST(+2)
+            (3011401, 0.09), # MinisatCRT(+3)
+            (3011402, 0.08), # MinisatMIS(+3)
+            (3011403, 0.08)  # MinisatBST(+3)
         ],
 
         BOX_HEAD: [

@@ -987,7 +987,7 @@ def sync_state(_args, room):
             load_finish(_args, room)
 
         # If we are playing DeathMatch or Battle and there are less than 2 players in the room, end the game
-        if room['game_type'] in [MODE_BATTLE, MODE_DEATHMATCH] and len(room['slots']) < 2:
+        if room['game_type'] in [ MODE_BATTLE, MODE_DEATHMATCH ] and len(room['slots']) < 2:
 
             # If the game type is DeathMatch, the status should be TimeOver else it should be Win
             status = 3 if room['game_type'] == 4 else 1
@@ -995,9 +995,9 @@ def sync_state(_args, room):
             game_end(_args=_args, room=room, status=status)
 
         # If we are playing team battle or military, check if any of the teams have 0 players left
-        elif room['game_type'] in [MODE_TEAM_BATTLE, MODE_MILITARY]:
+        elif room['game_type'] in [ MODE_TEAM_BATTLE, MODE_MILITARY ]:
 
-            for team in [TEAM_RED, TEAM_BLUE]:
+            for team in [ TEAM_RED, TEAM_BLUE ]:
 
                 # Get amount of players in the team
                 players = 0
@@ -1009,6 +1009,18 @@ def sync_state(_args, room):
                 if players == 0:
                     game_end(_args=_args, room=room, status=1)
                     break
+
+        # If we are playing Planet mode, check if everyone is dead
+        elif room['game_type'] == MODE_PLANET:
+
+            # If there is one slot alive, end the loop
+            for slot in room['slots']:
+                if not room['slots'][slot]['dead']:
+                    return
+
+            # End the game with the lose status
+            game_end(_args=_args, room=room, status=0)
+
 
 '''
 This method will register a callback on a specific event name.

@@ -88,7 +88,7 @@ def SendMessage(**_args):
 
                 # Construct text notification and send to remote client
                 Lobby.ChatMessage(target=remote_client,
-                                  message='[Server] {0} has sent you a message'.format(
+                                  message='[*Server*] {0} has sent you a message'.format(
                                       _args['client']['character']['name']),
                                   color=1)
 

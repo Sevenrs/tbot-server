@@ -3,7 +3,7 @@ PING_TIMEOUT    = 90            # Connection timeout in seconds
 
 CLIENT_FILE_HASHES = [
     'f8bef447dfc6653b26432ed9f730c28b', # TbotShield.dll
-    '6d9703073e1278cdeebb417a508dce26', # script/dungeon/dungeon.bin
+    'b6a4934b9d8f2ed02b5fd796b1bfd6ee', # script/dungeon/dungeon.bin
     '6fbada1f64ceb6db89f97fffea427103', # script/dungeon/p_monai.bin
     '32de15763d99e8ee86a24642d84de501', # script/dungeon/p_monimg.bin
     '3b868a14f2433666314792910ba4533f', # script/base.bin
@@ -21,5 +21,5 @@ CLIENT_FILE_HASHES = [
     'f106ef15f6bc83a6791348d5c3f4aaac', # script/map_base.bin
     '03d200380f50b6cf047a7a04afb01128', # script/map_battle.bin
     '5a3a309d76d1f7adfbabc33484c9e684', # script/map_daeth.bin
-    '3b009ae5b3975979f2063261a36c8cd3', # script/map_planet.bin
+    '2057a116cf4642be09522d1eb22053d2', # script/map_planet.bin
 ]

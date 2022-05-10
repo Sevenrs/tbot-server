@@ -331,7 +331,7 @@ def AcceptApplication(**_args):
         client = _args['connection_handler'].GetCharacterClient(character_name)
         if client is not None:
             GetGuild(_args, client)
-            Lobby.ChatMessage(client, "[Server] You have been accepted into guild [{}]!"
+            Lobby.ChatMessage(client, "[*Server*] You have been accepted into guild [{}]!"
                               .format(guild['name']), 3)
 
 def RejectApplication(**_args):
@@ -404,7 +404,7 @@ def LeaveGuild(**_args):
                 client = _args['connection_handler'].GetCharacterClient(member['name'])
                 if client is not None:
                     GetGuild(_args, client)
-                    Lobby.ChatMessage(client, "[Server] Your guild leader [{}] has left the guild ({})! The new leader is [{}]"
+                    Lobby.ChatMessage(client, "[*Server*] Your guild leader [{}] has left the guild ({})! The new leader is [{}]"
                                       .format(_args['client']['character']['name'], guild['name'], new_leader['name']), 3)
 
     else:
@@ -412,7 +412,7 @@ def LeaveGuild(**_args):
         # Send the guild master a notification that a member has left
         client = _args['connection_handler'].GetCharacterClient(guild['guild_master'])
         if client is not None:
-            Lobby.ChatMessage(client, "[Server] [{}] has left your guild"
+            Lobby.ChatMessage(client, "[*Server*] [{}] has left your guild"
                               .format(_args['client']['character']['name']), 3)
 
         # Send the guild information packet to all online guild members including the master

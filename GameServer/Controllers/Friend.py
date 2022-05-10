@@ -230,6 +230,6 @@ def PresenceNotification(_args):
         client = _args['connection_handler'].GetCharacterClient(friend['name'])
         if client is not None:
             try:
-                Lobby.ChatMessage(client, "[Server] Your friend {0} has just logged in!".format(_args['client']['character']['name']), 1)
+                Lobby.ChatMessage(client, "[*Server*] Your friend {0} has just logged in!".format(_args['client']['character']['name']), 1)
             except Exception as e:
                 print('Could not send PresenceNotification to remote client because: ', str(e))

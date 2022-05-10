@@ -13,11 +13,11 @@ PACKET_READ = {
     'fa2a': ('PACKET_CREATE_CHARACTER',         BoutLogin.create_character, True),
     '222b': ('PACKET_EXIT_SERVER',              BoutLogin.exit_server,      False),
 
-    '082b': ('PACKET_LOBBY_REQUEST',            Lobby.GetLobby,             True),
+    '082b': ('PACKET_LOBBY_REQUEST',            Lobby.get_lobby,            True),
     '1a27': ('PACKET_LOBBY_CHAT',               Lobby.chat,                 True),
     '412b': ('PACKET_LOBBY_EXAMINE_PLAYER',     Lobby.examine_player,       True),
-    '442b': ('PACKET_LOBBY_WHISPER',            Lobby.Whisper,              False),
-    '0a2b': ('PACKET_LOBBY_ROOMS',              Lobby.RoomList,             False),
+    '442b': ('PACKET_LOBBY_WHISPER',            Lobby.whisper,              False),
+    '0a2b': ('PACKET_LOBBY_ROOMS',              Lobby.room_list,            False),
 
     '272b': ('PACKET_FRIEND_REQUEST',           Friend.friend_request,          True),
     '242b': ('PACKET_FRIEND_REQUEST_RESULT',    Friend.friend_request_result,   True),

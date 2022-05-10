@@ -545,10 +545,9 @@ def file_validation(**_args):
         client_hash = _args['packet'].ReadString()
 
         # Compare hash. If they don't match, we disconnect the client.
-        # In case we receive incomplete hashes, we'll let it slip through.
         if client_hash != hash:
             print("Invalid file hash. Expected: {0}, Got: {1}".format(hash, client_hash))
-            #return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
+            return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
 
     # If we have passed validation, update our validation state to True (passed)
     room['slots'][str(room_slot)]['file_validation_passed'] = True
@@ -704,7 +703,7 @@ def game_end_rpc(**_args):
     if room['game_type'] != MODE_PLANET:
 
         # Update death status (unless we're playing DeathMatch or Military)
-        if room['game_type'] not in [MODE_DEATHMATCH, MODE_MILITARY]:
+        if room['game_type'] not in [ MODE_DEATHMATCH, MODE_MILITARY ]:
             slot = room['slots'][str(room_slot)]
             slot['dead'] = True
 
@@ -725,8 +724,9 @@ def game_end_rpc(**_args):
             # Default drop result and drop bytes used for player drops.
             drop_result, drop_bytes = [], b''
 
-            # We only want to have drops for the Battle modes. Military shouldn't drop anything
-            if room['game_type'] != MODE_MILITARY:
+            # We only want to have drops for the Battle modes. Military shouldn't drop anything.
+            # We also won't drop anything if the game has ended.
+            if room['game_type'] != MODE_MILITARY and not room['game_over']:
 
                 # Array with possible drops from players
                 drops = [
@@ -998,25 +998,14 @@ def post_game_transaction(_args, room, status=None):
                     DIFFICULTY_HARD:    1.50
                 }
 
-                # If the character has a difference of a number in here, the experience will be reduced accordingly
-                experience_reduction = {
-                    9:  0.25,   # 75%
-                    4:  0.50,   # 50%
-                    2:  0.75,   # 25%
-                    1:  0.95    # 5%
-                }
-
                 # Retrieve base experience amount from the experience table
                 addition_experience = PLANET_MAP_TABLE[room['level']][0] * difficulity_multiplication[room['difficulty']] \
                              * room['experience_modifier'] # We'll modify the base experience with the experience modifier when needed
 
-                # Retrieve the amount of experience to reduce, based on the experience reduction table
-                for level_difference in experience_reduction.keys():
-
-                    # If the level difference matches, we'll reduce the experience based on the result in the table
-                    if abs(PLANET_MAP_TABLE[room['level']][2] - character['level']) >= level_difference:
-                        addition_experience = addition_experience * experience_reduction[level_difference]
-                        break # We do not want to proceed if we have a result
+                # If the level difference between the recommended level and the users' level is equal or greater than 9
+                # we will apply a 75% experience reduction in order to encourage players to play on their own level.
+                if abs(PLANET_MAP_TABLE[room['level']][2] - character['level']) >= 9:
+                    addition_experience = addition_experience * 0.25
 
             # Ensure that the experience addition is always an integer
             addition_experience = int(addition_experience)
@@ -1429,10 +1418,14 @@ def game_stats(_args, room, status=None):
     Room.get_list(_args, mode=0 if room['game_type'] in [ MODE_BATTLE, MODE_TEAM_BATTLE ] else room['game_type'] - 1,
              page=Room.get_list_page_by_room_id(room['id'], room['game_type']), local=False)
 
+    # Broadcast the game exit packet to every peer in the room
     game_exit = PacketWrite()
     game_exit.AddHeader(bytearray([0x2A, 0x2F]))
     game_exit.AppendBytes(bytearray([0x00]))
     _args['connection_handler'].SendRoomAll(room['id'], game_exit.packet)
+
+    # Sync room state
+    Room.sync_state(_args, room)
 
 '''
 This method is responsible for waiting for the time to be over in sessions.

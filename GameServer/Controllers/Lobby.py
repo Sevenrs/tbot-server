@@ -40,27 +40,26 @@ This method will handle chat requests
 """
 def chat(**_args):
 
-    # Read message from packet and construct a new message (due to packet edits)
-    message         = _args['packet'].ReadString(6)
-    chat_message    = "[{0}] {1}".format(_args['client']['character']['name'], message[message.find(']') + 2:])
-    chat_type       = _args['packet'].GetByte(4)
+    # Read incoming message from the client
+    message_type        = _args['packet'].GetByte(4)
+    message             = _args['packet'].ReadString(6)
+    message_username    = _args['client']['character']['name']
 
-    # In the event the message is a chat message with the guild scope, send it to all guild members.
-    if int(chat_type) == 5:
+    # If the message is a guild chat, send the message to all members in the user's guild
+    if int(message_type) == 5:
         return Guild.Chat(_args, message)
 
-    # Retrieve all clients that are currently not in a room, but are connected.
-    clients = _args['connection_handler'].get_lobby_clients()
+    # Determine the scope of the message we are about to send
+    clients = _args['connection_handler'].get_lobby_clients() if _args['client']['character']['position'] == 0 \
+        else _args['connection_handler'].GetClients()
 
-    # Determine message scope. Message should be sent to all connected clients in case a staff member is sending it.
-    clients = _args['connection_handler'].get_lobby_clients() if _args['client']['character']['position'] == 0 and _args['client']['character']['name'] not in ['Admin Icseon'] \
-        else _args['connection_handler'].GetClients() # All clients if sent by a staff member
-
-    # Send the message to the right clients
+    # Broadcast message to all clients in the scope
     for client in clients:
-        ChatMessage(client, chat_message, _args['client']['character']['position'] if _args['client']['character']['name'] == 'Admin Icseon' else 0)
+        ChatMessage(target=client,
+                    message="[{0}] {1}".format(message_username, message[message.find(']') + 2:]),
+                    color=_args['client']['character']['position'])
 
-def Whisper(**_args):
+def whisper(**_args):
     
     """
     Get the target username
@@ -79,7 +78,7 @@ def Whisper(**_args):
     # Attempt to obtain the user from the user dictionary. If we can not find the user, the user is offline.
     result = _args['connection_handler'].GetCharacterClient(target)
         
-    # Contruct whisper packet
+    # Construct whisper packet
     whisper_packet = PacketWrite()
     whisper_packet.AddHeader([0x2B, 0x2F])
     
@@ -164,7 +163,7 @@ def examine_player(**_args):
 """
 This method will load the lobby
 """
-def GetLobby(**_args):
+def get_lobby(**_args):
     lobby_packet = PacketWrite()
 
     # Packet header
@@ -222,9 +221,9 @@ def GetLobby(**_args):
 
     # Get amount of unread messages and gift count. Also send a message notification packet if we have to.
     unread_messages, gifts = unread_message_notification(_args), gift_count(_args)
-    ChatMessage(_args['client'], "[Server] You have {0} unread message(s) and {1} gift(s)".format(unread_messages, gifts), 1)
+    ChatMessage(_args['client'], "[*Server*] You have {0} unread message(s) and {1} gift(s)".format(unread_messages, gifts), 1)
 
-def RoomList(**_args):
+def room_list(**_args):
 
     # Read mode and page from packet
     page = _args['packet'].GetByte(2)
