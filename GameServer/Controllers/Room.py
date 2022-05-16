@@ -542,15 +542,17 @@ def set_level(**_args):
 
 def set_difficulty(**_args):
 
-    # Check if we are in a room
-    if 'room' not in _args['client']:
+    # Retrieve the room we are currently in.
+    # We should be room master as well.
+    room = get_room(_args, master=True)
+    if not room:
         return
 
-    # Get room from ID
-    room = _args['server'].rooms[str(_args['client']['room'])]
+    # Get our own slot number
+    slot = get_slot(_args, room)
 
-    # Check if we are the room master
-    if room['master']['id'] != _args['client']['id']:
+    # Check if we are in the shop. If we are, we drop the packet
+    if room['slots'][str(slot)]['in_shop']:
         return
 
     # Read difficulty from the incoming packet
