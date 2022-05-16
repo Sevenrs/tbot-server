@@ -630,6 +630,10 @@ def enter_shop(**_args):
     # Retrieve our slot number
     slot = get_slot(_args, room)
 
+    # If we are already in the shop, we drop the packet
+    if room['slots'][str(slot)]['in_shop']:
+        return
+
     # Construct enter shop packet
     result = PacketWrite()
     result.AddHeader(bytearray([0x60, 0x2F]))
@@ -656,13 +660,17 @@ This method allows users to exit the shop. This will notify all the other client
 '''
 def exit_shop(**_args):
 
-    # Get room and check if we are inside of a room
+    # Get room and check if we are inside a room
     room = get_room(_args)
     if not room:
         return
 
     # Get our slot number
     slot = get_slot(_args, room)
+
+    # If we are not in the shop, we drop the packet
+    if not room['slots'][str(slot)]['in_shop']:
+        return
 
     # Construct exit shop packet
     result = PacketWrite()
