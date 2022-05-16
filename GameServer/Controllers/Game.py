@@ -568,8 +568,12 @@ def statistic_validation(**_args):
     # Retrieve our slot number
     slot = Room.get_slot(_args, room)
 
-    # Receive attack score and use the attack score for the player_data attack points object
-    room['player_data']['attack_points'][str(slot)] = int(_args['packet'].ReadInteger(56, 2, 'little')) - 350
+    # Read attacks score
+    attack_score = int(_args['packet'].ReadInteger(56, 2, 'little')) - 350
+
+    # If the attack score is greater than the value we already have, update
+    if attack_score > room['player_data']['attack_points'][str(slot)]:
+        room['player_data']['attack_points'][str(slot)] = attack_score
 
     # Check if our client is the first slot number. For now, we'll only be running these checks for the first slot.
     # Additionally, this check only functions properly on planet mode
