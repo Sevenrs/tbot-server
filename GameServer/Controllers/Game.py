@@ -187,7 +187,10 @@ def monster_kill(**_args):
                             chance = 1.00
 
                 # If we are playing hard or medium difficulty and the monster does not drop a box (barrels and bosses), decrease drop chance
-                elif room['difficulty'] in [DIFFICULTY_MEDIUM, DIFFICULTY_HARD] and monster_id not in PLANET_BOX_MOBS[room['level']]:
+                # We will also be ignoring this check if the assistant_multiplication is not 1.0
+                elif room['difficulty'] in [ DIFFICULTY_MEDIUM, DIFFICULTY_HARD ] \
+                        and assistant_multiplication == 1.0 \
+                        and monster_id not in PLANET_BOX_MOBS[room['level']]:
 
                     # If medium, we have a 50% drop otherwise we have a 75% drop of chance
                     chance = chance / (2 if room['difficulty'] == DIFFICULTY_MEDIUM else 4)
@@ -199,7 +202,7 @@ def monster_kill(**_args):
             # If applicable, apply the assistant multiplication except if the drop type is greater or equal to CHEST_GOLD(18)
             if random.random() < (chance * (assistant_multiplication if drop < BOX_ARMS else 1.0)) and room['drop_index'] < 256:
                 monster_drops.append(bytes([room['drop_index'], drop, 0, 0, 0]))
-                room['drops'][room['drop_index']] = {'type': drop, 'used': False}
+                room['drops'][room['drop_index']] = { 'type': drop, 'used': False }
                 room['drop_index'] += 1
 
     # Construct drop bytes for the response packet
