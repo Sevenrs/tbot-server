@@ -268,7 +268,7 @@ def ping(_args):
             _args['client']['socket'].send(ping_rpc.packet)
         except Exception:
             pass
-        time.sleep(20)
+        time.sleep(1)
 
 '''
 This method is invoked when the client sends us a pong packet indicating it is still alive.

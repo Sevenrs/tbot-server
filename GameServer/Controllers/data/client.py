@@ -1,5 +1,5 @@
 CLIENT_VERSION  = '1.0.3.2'     # Client version
-PING_TIMEOUT    = 1            # Connection timeout in seconds
+PING_TIMEOUT    = 90            # Connection timeout in seconds
 
 CLIENT_FILE_HASHES = [
     'b82b7e81fdef722f85336def186b0430', # TbotShield.dll
