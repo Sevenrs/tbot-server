@@ -1,5 +1,6 @@
 from Packet.Write import Write as PacketWrite
 from GameServer.Controllers.Room import get_slot
+from ratelimit import LOGIN_RATE_LIMIT
 import _thread, time, socket, datetime
 from dotenv import dotenv_values
 import requests
@@ -29,6 +30,9 @@ def id_request(**_args):
 
     # Read environment variables
     env = dotenv_values('.env')
+
+    # Consume login rate limit point
+    LOGIN_RATE_LIMIT.try_acquire('LOGIN_RELAY_ID_REQUEST_{0}'.format(_args['client']['address'][0]))
 
     # Check if we are authorized to use this account
     response = requests.post("{0}/verify".format(env['INTERNAL_ROOT_URL']),

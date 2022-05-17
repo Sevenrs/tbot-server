@@ -10,6 +10,7 @@ This file is responsible for handling all login packets
 from Packet.Write import Write as PacketWrite
 import MySQL.Interface as MySQL
 from login_tcp_server.data.authenticate import *
+from ratelimit import LOGIN_RATE_LIMIT
 from dotenv import dotenv_values
 import requests
 
@@ -37,6 +38,9 @@ def authenticate(**_args):
     env = dotenv_values('.env')
 
     try:
+
+        # Consume login rate limit point
+        LOGIN_RATE_LIMIT.try_acquire('LOGIN_{0}'.format(_args['client']['address'][0]))
 
         # Send credentials to the internal web API
         response = requests.post("{0}/login".format(env['INTERNAL_ROOT_URL']),

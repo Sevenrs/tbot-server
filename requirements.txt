@@ -1,2 +1,3 @@
 python-dotenv==0.18.0
 mysql-connector-python==8.0.25
+pyrate-limiter==2.8.1

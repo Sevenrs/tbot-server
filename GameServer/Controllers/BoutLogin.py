@@ -6,6 +6,7 @@ __version__ = "1.0"
 from Packet.Write import Write as PacketWrite
 from GameServer.Controllers import Character, Shop
 from GameServer.Controllers.data.client import CLIENT_VERSION, PING_TIMEOUT
+from ratelimit import LOGIN_RATE_LIMIT
 import MySQL.Interface as MySQL
 from dotenv import dotenv_values
 import requests
@@ -31,6 +32,9 @@ def id_request(**_args):
 
     # Read environment variables
     env = dotenv_values('.env')
+
+    # Consume login rate limit point
+    LOGIN_RATE_LIMIT.try_acquire('LOGIN_GAME_ID_REQUEST_{0}'.format(_args['socket'].getpeername()[0]))
 
     # Check if we are authorized to use this account
     response = requests.post("{0}/verify".format(env['INTERNAL_ROOT_URL']),
@@ -174,6 +178,8 @@ def create_character(**_args):
 
     # Read environment variables
     env = dotenv_values('.env')
+
+    LOGIN_RATE_LIMIT.try_acquire('LOGIN_GAME_ID_REQUEST_{0}'.format(_args['socket'].getpeername()[0]))
 
     # Verify if we have authorization to create a character for this user
     response = requests.post("{0}/verify".format(env['INTERNAL_ROOT_URL']),
