@@ -69,7 +69,7 @@ def id_request(**_args):
     ''' If the client version is incorrect, we must send an error message and disconnect the client. '''
     if client_version != CLIENT_VERSION:
         error.AppendInteger(14, 1, 'little') # Client version error
-        _args['socket'].send(error.packet)
+        _args['socket'].sendall(error.packet)
         raise Exception('Invalid client version')
 
     # Get available ID
@@ -117,7 +117,7 @@ def id_request(**_args):
             In this case, close our own connection. '''
     if 'relay_client' not in _args['client']:
         error.AppendInteger(4, 1, 'little') # Protocol error
-        _args['socket'].send(error.packet)
+        _args['socket'].sendall(error.packet)
         return _args['connection_handler'].CloseConnection(_args['client'])
 
     # Construct ID request response and send it to the client
@@ -125,7 +125,7 @@ def id_request(**_args):
     reply.AddHeader(bytearray([0xE0, 0x2E]))
     reply.AppendInteger(id, 2, 'little')
     reply.AppendBytes([0x01, 0x00])
-    _args['socket'].send(reply.packet)
+    _args['socket'].sendall(reply.packet)
 
     # Start ping thread
     _thread.start_new_thread(ping, (_args,))
@@ -147,7 +147,7 @@ def get_character(**_args):
     
     # If we do not have a character, simply send the character not found packet
     if character is None:
-        _args['socket'].send(bytearray([0xE1, 0x2E, 0x02, 0x00, 0x00, 0x35]))
+        _args['socket'].sendall(bytearray([0xE1, 0x2E, 0x02, 0x00, 0x00, 0x35]))
     else:
 
         # Append the character to the client instance and also pass the client instance to the
@@ -160,7 +160,7 @@ def get_character(**_args):
         character_information.AddHeader(bytearray([0xE1, 0x2E]))
         character_information.AppendBytes([0x01, 0x00])
         character_information.AppendBytes(Character.construct_bot_data(_args, character))
-        _args['socket'].send(character_information.packet)
+        _args['socket'].sendall(character_information.packet)
 
 """
 This method will handle new character creation requests
@@ -217,13 +217,13 @@ def create_character(**_args):
     _args['mysql'].execute('SELECT `id` FROM `characters` WHERE `name` = %s', [character_name])
     if _args['mysql'].rowcount > 0:
         packet.AppendBytes(character_create_name_taken)
-        _args['socket'].send(packet.packet)
+        _args['socket'].sendall(packet.packet)
         return _args['connection_handler'].CloseConnection(_args['client'])
 
     # Check if the name is valid. If not, send error and close connection.
     elif not re.match('^[a-zA-Z0-9]+$', character_name) or len(character_name) < 4 or len(character_name) > 13:
         packet.AppendBytes(character_create_name_error)
-        _args['socket'].send(packet.packet)
+        _args['socket'].sendall(packet.packet)
         return _args['connection_handler'].CloseConnection(_args['client'])
     else:
         packet.AppendBytes(character_create_success)
@@ -238,7 +238,7 @@ def create_character(**_args):
         _args['mysql'].execute('INSERT INTO `inventory` (`character_id`) VALUES (%s)', [character_id])
 
         # Send success status to the client
-        _args['socket'].send(packet.packet)
+        _args['socket'].sendall(packet.packet)
 
 """
 This method will handle exit server requests
@@ -249,7 +249,7 @@ def exit_server(**_args):
     exit = PacketWrite()
     exit.AddHeader(bytearray([0x0A, 0x2F]))
     exit.AppendBytes(bytearray([0x01, 0x00]))
-    _args['socket'].send(exit.packet)
+    _args['socket'].sendall(exit.packet)
     
     # Disconnect the client, in case the connection is still alive
     _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
@@ -271,10 +271,10 @@ def ping(_args):
         ping_rpc.AddHeader([0x01, 0x00])
         ping_rpc.AppendBytes([0xCC])
         try:
-            _args['client']['socket'].send(ping_rpc.packet)
+            _args['client']['socket'].sendall(ping_rpc.packet)
         except Exception:
             pass
-        time.sleep(1)
+        time.sleep(3.5)
 
 '''
 This method is invoked when the client sends us a pong packet indicating it is still alive.

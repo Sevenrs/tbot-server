@@ -54,7 +54,7 @@ def id_request(**_args):
     if response.status_code != 200:
         result.AppendBytes([0x00])
         result.AppendInteger(50, 1, 'little') # Incorrect authentication
-        _args['client']['socket'].send(result.packet)
+        _args['client']['socket'].sendall(result.packet)
         raise Exception('IP address {0} is not authorized to sign in with account {1}'.format(
             _args['client']['socket'].getpeername()[0],
             account
@@ -88,7 +88,7 @@ def id_request(**_args):
     # Send response to client
     result.AppendBytes([0x01, 0x00])
     result.AppendBytes([id & 0xFF, id >> 8 & 0xFF])
-    _args['client']['socket'].send(result.packet)
+    _args['client']['socket'].sendall(result.packet)
 
     # Start keep-alive thread
     _thread.start_new_thread(keep_alive, (_args,))

@@ -28,7 +28,7 @@ def block_user(**_args):
     blocks = _args['mysql'].fetchall()
     if len(blocks) >= 20:
         result.AppendBytes([0x00, 0xC0]) # You cannot add anymore BOTS to your Block list. (Limit 20)
-        return _args['socket'].send(result.packet)
+        return _args['socket'].sendall(result.packet)
 
     # Attempt to find the target's character ID. We should exclude staff members from the scope of blockable users.
     _args['mysql'].execute('''SELECT `id`, `name` FROM `characters` WHERE `name` = %s AND `position` = 0''', [ username ])
@@ -37,7 +37,7 @@ def block_user(**_args):
     # Check if the target character exists and is not our own by checking the ID
     if target_character is None or target_character['id'] == _args['client']['character']['id']:
         result.AppendBytes([0x00, 0x33])
-        return _args['socket'].send(result.packet)
+        return _args['socket'].sendall(result.packet)
 
     # Create the block between the two users by adding it to the database, but only if the block does not exist
     # Additionally, do not allow to block anymore users if the amount of users this user has blocked is equal or greater than 20
@@ -56,12 +56,12 @@ def block_user(**_args):
     # If the affected row count is 0, the user was already blocked
     if _args['mysql'].rowcount == 0:
         result.AppendBytes([0x00, 0xBE]) # This bot is already on the list!
-        return _args['socket'].send(result.packet)
+        return _args['socket'].sendall(result.packet)
 
     # If the affected rows were higher than 0, the user has been blocked successfully. Send result packet.
     result.AppendBytes([0x01, 0x00])
     result.AppendString(target_character['name'], 15)
-    _args['socket'].send(result.packet)
+    _args['socket'].sendall(result.packet)
 
 '''
 Method:         unblock_user
@@ -87,12 +87,12 @@ def unblock_user(**_args):
     # If the affected row count is 0, the user was not unblocked. Send bot name error.
     if _args['mysql'].rowcount == 0:
         result.AppendBytes([0x00, 0x33])
-        return _args['socket'].send(result.packet)
+        return _args['socket'].sendall(result.packet)
 
     # If the affected rows were higher than 0, the user has been unblocked successfully. Send result packet.
     result.AppendBytes([0x01, 0x00])
     result.AppendString(username, 15)
-    _args['socket'].send(result.packet)
+    _args['socket'].sendall(result.packet)
 
 
 '''
@@ -120,4 +120,4 @@ def get_blocks(_args):
         result.AppendString(user['name'], 15)
 
     # Send result to client
-    _args['socket'].send(result.packet)
+    _args['socket'].sendall(result.packet)

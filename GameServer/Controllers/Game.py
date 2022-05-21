@@ -315,7 +315,7 @@ def use_item(**_args):
         # Send inventory full packet if we do not have an available slot
         if available_slot is None:
             pickup.AppendBytes(bytes=[0x00, 0x44])
-            return _args['socket'].send(pickup.packet)
+            return _args['socket'].sendall(pickup.packet)
 
         # If the item is gold, calculate what gold bar to award
         if item_type == CHEST_GOLD:
@@ -367,7 +367,7 @@ def use_item(**_args):
         # If the item hasn't been found, return an error
         if item is None:
             pickup.AppendBytes(bytes=[0x00, 0x00])
-            return _args['socket'].send(pickup.packet)
+            return _args['socket'].sendall(pickup.packet)
 
         # Add item to inventory of the user
         add_item(_args, item, available_slot)
@@ -377,7 +377,7 @@ def use_item(**_args):
         pickup.AppendInteger(item_id, 4, 'little')
         pickup.AppendInteger(0, 4, 'little')
         pickup.AppendInteger(Room.get_slot(_args, room) - 1, 2, 'little')
-        _args['socket'].send(pickup.packet)
+        _args['socket'].sendall(pickup.packet)
 
 '''
 This method allows players to use their field packs
@@ -455,7 +455,7 @@ def use_field_pack(**_args):
                 update_pack_times.AppendInteger(item['duration'], 4, 'little')
                 update_pack_times.AppendInteger(item['duration_type'], 1, 'little')
 
-            _args['socket'].send(update_pack_times.packet)
+            _args['socket'].sendall(update_pack_times.packet)
 
             # If the field pack has expired, delete it
             if wearing['items'][idx]['duration'] == 0:
@@ -575,7 +575,9 @@ def statistic_validation(**_args):
     attack_score = int(_args['packet'].ReadInteger(56, 2, 'little')) - 350
 
     # If the attack score is greater than the value we already have, update
-    if attack_score > room['player_data']['attack_points'][str(slot)]:
+    # We also check if our slot number is defined in the attack_points array
+    if str(slot) in room['player_data']['attack_points'] \
+            and attack_score > room['player_data']['attack_points'][str(slot)]:
         room['player_data']['attack_points'][str(slot)] = attack_score
 
     # Check if our client is the first slot number. For now, we'll only be running these checks for the first slot.
@@ -946,7 +948,7 @@ def game_end(_args, room, status=None):
             result.AddHeader([0x2A, 0x27])
             result.AppendInteger(status, 2, 'little')
             try:
-                room['slots'][slot]['client']['socket'].send(result.packet)
+                room['slots'][slot]['client']['socket'].sendall(result.packet)
             except Exception:
                 pass
 
@@ -1410,7 +1412,7 @@ def game_stats(_args, room, status=None):
 
         # Finally, append room-wide information and send to the client's socket
         packet.AppendBytes(room_results.data)
-        room['slots'][key]['client']['socket'].send(packet.packet)
+        room['slots'][key]['client']['socket'].sendall(packet.packet)
 
     # We must now send the packet to go back to room after 6 seconds
     time.sleep(6.5)

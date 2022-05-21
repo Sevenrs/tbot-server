@@ -64,7 +64,7 @@ def get_list(_args, mode=2, page=0, local=True):
     # If our own client is requesting the list, send the list to our client only.
     if local:
         _args['client']['lobby_data'] = {'mode': mode, 'page': page}
-        _args['socket'].send(result.packet)
+        _args['socket'].sendall(result.packet)
 
     # Otherwise, send the room list to all sockets in the lobby and those able to see this specific room
     else:
@@ -73,7 +73,7 @@ def get_list(_args, mode=2, page=0, local=True):
             # Check if the client is not in a room and if the client is able to see this change at all
             if 'room' not in client and client['lobby_data'] == {'mode': mode, 'page': page}:
                 try:
-                    client['socket'].send(result.packet)
+                    client['socket'].sendall(result.packet)
                 except Exception:
                     pass
 
@@ -258,7 +258,7 @@ def add_slot(_args, room_id, client, broadcast=False):
         # If the available slot is not greater than 0, tell our client that the room is full and stop the process
         if available_slot < 1:
             room_info.AppendBytes([0x00, 0x51])
-            client['socket'].send(room_info.packet)
+            client['socket'].sendall(room_info.packet)
             return
 
         # Tell our client about the room and its players
@@ -300,7 +300,7 @@ def add_slot(_args, room_id, client, broadcast=False):
             room_info.AppendInteger(countdown_times[room['time']], 4, 'little')
 
         # Notify our client about the room
-        client['socket'].send(room_info.packet)
+        client['socket'].sendall(room_info.packet)
 
         # Define the slot and character for easy access
         slot = room['slots'][str(available_slot)]
@@ -458,7 +458,7 @@ def create(**_args):
     for number in local_address:
         room.AppendInteger(int(number))
 
-    _args['socket'].send(room.packet)
+    _args['socket'].sendall(room.packet)
 
 '''
 This method will handle quick join requests
@@ -498,7 +498,7 @@ def quick_join(**_args):
     create_room = PacketWrite()
     create_room.AddHeader([0x28, 0x2F])
     create_room.AppendBytes([0x00, 0x3A])
-    _args['socket'].send(create_room.packet)
+    _args['socket'].sendall(create_room.packet)
 
 """
 This method will set the level for the room
@@ -527,7 +527,7 @@ def set_level(**_args):
         error = PacketWrite()
         error.AddHeader(bytearray([0xF3, 0x2E]))
         error.AppendBytes(bytearray([0x00, 0x3D]))
-        _args['socket'].send(error.packet)
+        _args['socket'].sendall(error.packet)
 
     # Set level for the room and broadcast to all clients in this room
     room['level'] = selected_level
@@ -706,7 +706,7 @@ def start_game(**_args):
     # If we are in Battle or Deathmatch mode, we'll have to check if we have more than one player
     if room['game_type'] in [MODE_BATTLE, MODE_DEATHMATCH] and len(room['slots']) < 2:
         start.AppendBytes([0x00, 0x50])
-        return _args['client']['socket'].send(start.packet)
+        return _args['client']['socket'].sendall(start.packet)
 
     # If we are in a game mode that relies on teams, check if each team has at least one player available
     elif room['game_type'] in [MODE_TEAM_BATTLE, MODE_MILITARY]:
@@ -720,13 +720,13 @@ def start_game(**_args):
         for team in team_players:
             if team_players[team] == 0:
                 start.AppendBytes([0x00, 0x6F])
-                return _args['client']['socket'].send(start.packet)
+                return _args['client']['socket'].sendall(start.packet)
 
     # Check if everyone is ready
     for key, slot in room['slots'].items():
         if not slot['ready'] and slot['client']['id'] != room['master']['id'] and int(_args['client']['character']['position']) != 1:
             start.AppendBytes(bytearray([0x00, 0x6C]))
-            return _args['client']['socket'].send(start.packet)
+            return _args['client']['socket'].sendall(start.packet)
 
     # If the room has stat_overrides, send all clients in the room their modified stats
     if len(room['stat_override']) > 0:
@@ -737,7 +737,7 @@ def start_game(**_args):
             sync.AddHeader([0xE5, 0x2E])
             sync.AppendBytes([0x01, 0x00])
             sync.AppendBytes(Character.construct_bot_data(_args, slot['client']['character'], room['stat_override']))
-            slot['client']['socket'].send(sync.packet)
+            slot['client']['socket'].sendall(sync.packet)
             slot['client']['needs_sync'] = True
 
     # Run through all possible callbacks run their registration methods
@@ -847,7 +847,7 @@ def kick_player(**_args):
     # If we are not the room master, send an error packet that does nothing so that the client will not lock up
     if room['master']['id'] != _args['client']['id']:
         error.AppendBytes(bytearray([0x00, 0x3A]))
-        return _args['client']['socket'].send(error.packet)
+        return _args['client']['socket'].sendall(error.packet)
 
     # Read slot number from the packet
     slot = int(_args['packet'].ReadInteger(17, 1, 'little'))
@@ -855,7 +855,7 @@ def kick_player(**_args):
     # Stop the room master from kicking themselves
     if slot + 1 == get_slot(_args, room):
         error.AppendBytes(bytearray([0x00, 0x73]))
-        return _args['client']['socket'].send(error.packet)
+        return _args['client']['socket'].sendall(error.packet)
 
     # Read slot number and remove player from the room
     if str(slot +1) in room['slots']:
@@ -899,7 +899,7 @@ def change_password(**_args):
     result.AppendBytes([0x01, 0x00])
     result.AppendString(password, 10)
 
-    _args['socket'].send(result.packet)
+    _args['socket'].sendall(result.packet)
 
 
 
@@ -930,12 +930,12 @@ def join_room(**_args):
             # If the room has a password, check if the entered password is correct
             if len(room['password']) > 0 and room['password'] != room_password and _args['client']['character']['position'] == 0:
                 join_result.AppendBytes([0x00, 0x3E])
-                return _args['client']['socket'].send(join_result.packet)
+                return _args['client']['socket'].sendall(join_result.packet)
 
             # Check if the game has started
             if room['status'] == 3:
                 join_result.AppendBytes([0x00, 0x3B])
-                return _args['client']['socket'].send(join_result.packet)
+                return _args['client']['socket'].sendall(join_result.packet)
 
             add_slot(_args, room['id'], _args['client'], True)
             sync_state(_args, room)

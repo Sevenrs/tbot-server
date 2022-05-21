@@ -28,7 +28,7 @@ def sync_cash(_args):
     coin_packet.AddHeader(bytearray([0x37, 0x2F]))
     coin_packet.AppendBytes(bytearray([0x01, 0x00]))
     coin_packet.AppendInteger(cash, 4, 'little')
-    _args['socket'].send(coin_packet.packet)
+    _args['socket'].sendall(coin_packet.packet)
 
 def sync_cash_rpc(**_args):
     sync_cash(_args)
@@ -40,7 +40,7 @@ def sync_cash_rpc(**_args):
         sync.AddHeader([0xE5, 0x2E])
         sync.AppendBytes([0x01, 0x00])
         sync.AppendBytes(Character.construct_bot_data(_args, _args['client']['character']))
-        _args['socket'].send(sync.packet)
+        _args['socket'].sendall(sync.packet)
 
 '''
 This method will sync the inventory.
@@ -60,7 +60,7 @@ def sync_inventory(_args, type='sell', state=1):
 
     # If there is an error, send the packet right now.
     if state != 1:
-        _args['socket'].send(result.packet)
+        _args['socket'].sendall(result.packet)
         return
 
     # Otherwise, continue constructing the packet
@@ -76,7 +76,7 @@ def sync_inventory(_args, type='sell', state=1):
         result.AppendBytes([0x00])
 
     result.AppendInteger(_args['client']['character']['currency_gigas'], 4, 'little')
-    _args['socket'].send(result.packet)
+    _args['socket'].sendall(result.packet)
 
 
 '''
@@ -277,12 +277,12 @@ def wear_item(**_args):
     if game_item is None or game_item['part_type'] == 0 \
             or (game_item['part_type'] in [1, 2, 3] and game_item['bot_type'] != _args['client']['character']['type']):
         result.AppendBytes([0x00, 0x42])
-        return _args['client']['socket'].send(result.packet)
+        return _args['client']['socket'].sendall(result.packet)
 
     # Check if we have the minimum level required to wear the item. If we do not meet the requirement, send an error.
     if game_item['level'] > _args['client']['character']['level']:
         result.AppendBytes([0x00, 0x65])
-        return _args['client']['socket'].send(result.packet)
+        return _args['client']['socket'].sendall(result.packet)
 
     # If we have a wearing merc, change the item type to merc2 to allow for wearing multiple mercs at once
     if item['type'] == 'merc1':
@@ -327,7 +327,7 @@ def wear_item(**_args):
 
     result.AppendBytes([0x01, 0x00])
     result.AppendBytes(Character.construct_bot_data(_args, _args['client']['character']))
-    _args['socket'].send(result.packet)
+    _args['socket'].sendall(result.packet)
 
 '''
 This method allows users to unwear their items
@@ -359,7 +359,7 @@ def unwear_item(**_args):
     # Return an error if we do not have a slot available for the item to go in
     if available_slot is None:
         result.AppendBytes([0x00, 0x44])
-        return _args['socket'].send(result.packet)
+        return _args['socket'].sendall(result.packet)
 
     # Retrieve our wearing items so we know what to remove
     wearing = Character.get_items(_args, _args['client']['character']['id'], 'wearing')
@@ -399,7 +399,7 @@ def unwear_item(**_args):
     # Send character information back to our client and the removal is complete
     result.AppendBytes([0x01, 0x00])
     result.AppendBytes(Character.construct_bot_data(_args, _args['client']['character']))
-    _args['socket'].send(result.packet)
+    _args['socket'].sendall(result.packet)
 
 '''
 In case the item has a used state and the expiration date is set, calculate the remaining seconds and store that.
@@ -447,7 +447,7 @@ def purchase_storage(**_args):
     storage_created.AddHeader([0x4C, 0x2F])
     storage_created.AppendBytes([0x01, 0x00])
     storage_created.AppendInteger((storage_count + 1), 2, 'little')
-    _args['socket'].send(storage_created.packet)
+    _args['socket'].sendall(storage_created.packet)
 
 '''
 This method will sync the server's storage(stash) state with the client so that the client is aware of which items
@@ -481,7 +481,7 @@ def sync_storage(_args, storage_number):
         storage.AppendInteger(storage_items[item]['duration_type'], 1, 'little')
 
     # Send state to the client
-    _args['socket'].send(storage.packet)
+    _args['socket'].sendall(storage.packet)
 
 '''
 This method will move an item from source to target
@@ -519,13 +519,13 @@ def storage_action(**_args):
     # If we do not have an available slot in our target, send a slot error. This means that there is no slot for the item we wish to be moving.
     if available_slot is None:
         result.AppendBytes([0x00, 0x44]) # No available slot
-        return _args['socket'].send(result.packet)
+        return _args['socket'].sendall(result.packet)
 
     # Get source and check if the slot is present in it. The source will be the inventory if the type is insert, else the source will be the storage/stash.
     source = Character.get_items(_args, _args['client']['character']['id'], 'inventory' if action_type == 'insert' else 'stash', storage_number)
     if source_slot not in source:
         result.AppendBytes([0x00, 0x42]) # Item not found
-        return _args['socket'].send(result.packet)
+        return _args['socket'].sendall(result.packet)
 
     # Retrieve target item from the source slot
     item = source[source_slot]
@@ -651,7 +651,7 @@ def union_parts(**_args):
     result.AddHeader([0xE4, 0x2E])
     result.AppendBytes([0x01, 0x00])
     result.AppendBytes(Character.construct_bot_data(_args, _args['client']['character']))
-    _args['socket'].send(result.packet)
+    _args['socket'].sendall(result.packet)
 
 '''
 This method will allow users to change their Bot's Race if they own the transformation coupon
@@ -763,11 +763,11 @@ def change_race(**_args):
         type_changed.AppendInteger(item['duration_type'], 1, 'little')
 
     # Send type changed packet to the client
-    _args['socket'].send(type_changed.packet)
+    _args['socket'].sendall(type_changed.packet)
 
     # Send item equip packet so that the character's statistics will be synced
     sync_stats = PacketWrite()
     sync_stats.AddHeader([0xE4, 0x2E])
     sync_stats.AppendBytes([0x01, 0x00])
     sync_stats.AppendBytes(Character.construct_bot_data(_args, _args['client']['character']))
-    _args['socket'].send(sync_stats.packet)
+    _args['socket'].sendall(sync_stats.packet)

@@ -73,7 +73,7 @@ class Handler:
         If we have given a packet, we will send it along
         """
         if result is not None and packet is not None:
-            result['socket'].send(packet)
+            result['socket'].sendall(packet)
     
         return result
 
@@ -87,7 +87,7 @@ class Handler:
         for client in self.GetClients():
             if 'room' in client and client['room'] == room_id:
                 try:
-                    client['socket'].send(packet)
+                    client['socket'].sendall(packet)
                 except Exception:
                     pass
     
@@ -110,7 +110,7 @@ class Handler:
             # Broadcast to all clients, if our target client has not been specified
             for connection in self.GetClients():
                 try:
-                    connection['socket'].send(notification.packet)
+                    connection['socket'].sendall(notification.packet)
                 except Exception:
                     pass
             

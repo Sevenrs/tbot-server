@@ -58,7 +58,7 @@ def RetrieveFriends(_args, client):
     
     """ Attempt to send the packet we built to the target client """
     try:
-        client['socket'].send(friends.packet)
+        client['socket'].sendall(friends.packet)
     except Exception as e:
         print('Failed to send friend list packet to client because: ', str(e))
     
@@ -79,7 +79,7 @@ def friend_request(**_args):
     friends = GetFriends(_args, _args['client']['character']['id']).fetchall()
     if len(friends) >= 10:
         error.AppendBytes([0x00, 0x55]) # Max friend list capacity reached (10)
-        return _args['socket'].send(error.packet)
+        return _args['socket'].sendall(error.packet)
 
     # Retrieve remote character's client handle
     remote_client = _args['connection_handler'].GetCharacterClient(receiver)
@@ -87,20 +87,20 @@ def friend_request(**_args):
     # Check if the client exists, is not in a room and is not our own client
     if remote_client is None or 'room' in remote_client or remote_client is _args['client']:
         error.AppendBytes([0x00, 0x53]) # Request denied or player can not accept at the moment
-        return _args['socket'].send(error.packet)
+        return _args['socket'].sendall(error.packet)
 
     # Check if the remote player still has any available slots for friends
     # If they do not, send an error to our own client
     remote_friends = GetFriends(_args, remote_client['character']['id']).fetchall()
     if len(remote_friends) >= 10:
         error.AppendBytes([0x00, 0x53]) # Request denied or player can not accept at the moment
-        return _args['socket'].send(error.packet)
+        return _args['socket'].sendall(error.packet)
 
     # Check if the remote player is already in our friends list. Refuse the packet if this is the case.
     for friend in friends:
         if friend['id'] == remote_client['character']['id']:
             error.AppendBytes([0x00, 0x3D]) # Request refused
-            return _args['socket'].send(error.packet)
+            return _args['socket'].sendall(error.packet)
 
     # Create friend request session that expires 20 seconds after being created
     session = _args['session_handler'].create(
@@ -144,7 +144,7 @@ def friend_request_result(**_args):
     # If the request session was not found, drop the packet and send an error
     if request_session is None:
         result.AppendBytes([0x00, 0x3D]) # Request refused
-        return _args['socket'].send(result.packet)
+        return _args['socket'].sendall(result.packet)
 
     # Destroy session and proceed with the request
     _args['session_handler'].destroy(request_session)
@@ -164,14 +164,14 @@ def friend_request_result(**_args):
         declined.AddHeader([0x28, 0x2F])
         declined.AppendBytes([0x00, 0x53])
         try:
-            request_session['data']['requester']['socket'].send(declined.packet)
+            request_session['data']['requester']['socket'].sendall(declined.packet)
         except Exception as e:
             print('Failed to send friend request declined packet to remote client because: ', str(e))
 
         # In case our friend list has reached its maximum capacity, send an error to our client as well
         if len(friends) >= 10:
             result.AppendBytes([0x00, 0x55])
-            _args['socket'].send(result.packet)
+            _args['socket'].sendall(result.packet)
 
         # Do not proceed with the request
         return
@@ -230,6 +230,6 @@ def PresenceNotification(_args):
         client = _args['connection_handler'].GetCharacterClient(friend['name'])
         if client is not None:
             try:
-                Lobby.ChatMessage(client, "[*Server*] Your friend {0} has just logged in!".format(_args['client']['character']['name']), 1)
+                Lobby.ChatMessage(client, "[Server] Your friend {0} has just logged in!".format(_args['client']['character']['name']), 1)
             except Exception as e:
                 print('Could not send PresenceNotification to remote client because: ', str(e))

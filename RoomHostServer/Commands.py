@@ -58,5 +58,5 @@ def host_update(**_args):
                     ports.AppendInteger(0 if 'p2p_host' not in room_client else room_client['p2p_host']['port'], 2, 'big')
                 else:
                     ports.AppendInteger(0, 2, 'big')
-            client['socket'].send(ports.packet)
+            client['socket'].sendall(ports.packet)
             break

@@ -16,12 +16,12 @@ def delete_character(**_args):
     # If we are a staff member, we can not delete our bot
     if _args['client']['character']['position'] > 0:
         result.AppendBytes([0x00, 0xBF])
-        return _args['socket'].send(result.packet)
+        return _args['socket'].sendall(result.packet)
 
     # If we are in a guild, we can not delete the bot
     if Guild.FetchGuild(_args, _args['client']['character']['id']) is not None:
         result.AppendBytes([0x00, 0xC4])
-        return _args['socket'].send(result.packet)
+        return _args['socket'].sendall(result.packet)
 
     # Retrieve inventory and wearing items for this character
     inventory   = Character.get_items(_args, _args['client']['character']['id'], 'inventory')
@@ -32,7 +32,7 @@ def delete_character(**_args):
         if wearing['items'][item]['type'] in ['field_pack', 'coin_head', 'coin_minibot'] \
             or wearing['items'][item]['duration_type'] == 1:
             result.AppendBytes([0x00, 0xC4])
-            return _args['socket'].send(result.packet)
+            return _args['socket'].sendall(result.packet)
 
     # Append all inventory items to the item id array
     item_ids = []
@@ -90,7 +90,7 @@ def delete_character(**_args):
 
     # Finalize the result packet and send to the client
     result.AppendBytes([0x01, 0x00])
-    _args['socket'].send(result.packet)
+    _args['socket'].sendall(result.packet)
 
     # Close connection
     _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)

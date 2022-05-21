@@ -49,7 +49,7 @@ def GetInbox(_args):
         message_packet.AppendString(message['date'].strftime('%Y-%m-%d %H:%M'), 17)
     
     # Send packet to our client
-    _args['client']['socket'].send(message_packet.packet)
+    _args['client']['socket'].sendall(message_packet.packet)
     
 """
 Method:         SendMessage
@@ -88,7 +88,7 @@ def SendMessage(**_args):
 
                 # Construct text notification and send to remote client
                 Lobby.ChatMessage(target=remote_client,
-                                  message='[*Server*] {0} has sent you a message'.format(
+                                  message='[Server] {0} has sent you a message'.format(
                                       _args['client']['character']['name']),
                                   color=1)
 
@@ -96,7 +96,7 @@ def SendMessage(**_args):
                 notification = PacketWrite()
                 notification.AddHeader([0x14, 0x2F])
                 notification.AppendBytes([0x01, 0x00])
-                remote_client['socket'].send(notification.packet)
+                remote_client['socket'].sendall(notification.packet)
 
             except Exception as e:
                 print('[InboxController] Could not send message notification to remote client because: ', str(e))
@@ -105,7 +105,7 @@ def SendMessage(**_args):
     except Exception as e:
         result.AppendBytes(bytearray([0x00, 0x33, 0x00, 0x00, 0x00]))
         
-    _args['socket'].send(result.packet)
+    _args['socket'].sendall(result.packet)
 
 """
 Method:         RequestMessage
@@ -135,7 +135,7 @@ def RequestMessage(**_args):
     message.AppendBytes(bytearray([0x01, 0x00]))
     message.AppendString(result['sender'], 15)
     message.AppendString(result['message'], 98)
-    _args['socket'].send(message.packet)
+    _args['socket'].sendall(message.packet)
 
     # Mark message as read
     _args['mysql'].execute('''UPDATE `inbox` SET `read` = 1 WHERE `id` = %s''', [result['id']])
@@ -182,6 +182,6 @@ def unread_message_notification(_args):
     notification = PacketWrite()
     notification.AddHeader([0x14, 0x2F])
     notification.AppendBytes([0x01, 0x00] if unread_messages > 0 else [0x00, 0x00, 0x00, 0x00, 0x00, 0x00])
-    _args['socket'].send(notification.packet)
+    _args['socket'].sendall(notification.packet)
 
     return unread_messages

@@ -38,7 +38,7 @@ class Session:
     def broadcast(self, session, packet):
         for client in session['clients']:
             try:
-                client['socket'].send(packet)
+                client['socket'].sendall(packet)
             except Exception as e:
                 print('Could not perform session broadcast to remote client because: ', str(e))
 

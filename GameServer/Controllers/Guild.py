@@ -101,7 +101,7 @@ def GetGuild(_args, client, get_notice=False):
         GuildState.AppendInteger(int(guild['is_leader']), 4, 'little')
     
     # Send the guild state packet to the client
-    client['socket'].send(GuildState.packet)
+    client['socket'].sendall(GuildState.packet)
     
     # If we are in a guild, and if we are not applying to a guild, it is time to send the guild information packet
     if guild is None or guild['applying'] == 1:
@@ -120,7 +120,7 @@ def GetGuild(_args, client, get_notice=False):
     GuildInfo.AppendInteger(int(guild['max_members']), 4, 'little')
     GuildInfo.AppendInteger(int(guild['guild_points']), 4, 'little')
     GuildInfo.AppendBytes(bytearray([0x01, 0x00, 0x00, 0x00]))
-    client['socket'].send(GuildInfo.packet)
+    client['socket'].sendall(GuildInfo.packet)
     
     # Build and send guild member list
     GuildMembers = PacketWrite()
@@ -141,7 +141,7 @@ def GetGuild(_args, client, get_notice=False):
             GuildMembers.AppendBytes(bytearray([0x00]))
 
     GuildMembers.AppendBytes(bytearray([0x00, 0x00, 0x00, 0x00]))
-    client['socket'].send(GuildMembers.packet)
+    client['socket'].sendall(GuildMembers.packet)
 
     if get_notice and guild['notice'] is not None and len(guild['notice']) > 0:
         Lobby.ChatMessage(_args['client'], "[Guild Notice] {}".format(guild['notice']), 8)
@@ -171,13 +171,13 @@ def Create(**_args):
     # Check if we have enough gold/gigas
     if _args['client']['character']['currency_gigas'] < 30000:
         result.AppendBytes(bytearray([0x00, 0x04]))
-        _args['socket'].send(result.packet)
+        _args['socket'].sendall(result.packet)
         return
 
     # Check if our character is at least level 30
     elif _args['client']['character']['level'] < 30:
         result.AppendBytes(bytearray([0x00, 0x05]))
-        _args['socket'].send(result.packet)
+        _args['socket'].sendall(result.packet)
         return
 
     # Attempt to find a guild with the same name in the database, if the guild with the same name exists, we should stop
@@ -208,7 +208,7 @@ def Create(**_args):
             result.AppendBytes(bytearray([0x00, 0x02]))
 
     # Send result no matter what
-    _args['socket'].send(result.packet)
+    _args['socket'].sendall(result.packet)
 
 def SendGuildApplication(**_args):
 
@@ -239,7 +239,7 @@ def SendGuildApplication(**_args):
         result.AppendBytes(bytearray([0x01, 0x00]))
 
     # Send result message packet
-    _args['socket'].send(result.packet)
+    _args['socket'].sendall(result.packet)
 
 def CancelGuildApplication(**_args):
 
@@ -258,7 +258,7 @@ def CancelGuildApplication(**_args):
     result = PacketWrite()
     result.AddHeader(bytearray([0x3C, 0x2F]))
     result.AppendBytes(bytearray([0x01, 0x00]))
-    _args['socket'].send(result.packet)
+    _args['socket'].sendall(result.packet)
 
     # Fetch guild status again
     GetGuild(_args, _args['client'])
@@ -297,7 +297,7 @@ def FetchGuildApplications(**_args):
         applications.AppendBytes(bytearray([0x00]))
 
     # Send packet to our client
-    _args['socket'].send(applications.packet)
+    _args['socket'].sendall(applications.packet)
 
 def AcceptApplication(**_args):
 
@@ -313,7 +313,7 @@ def AcceptApplication(**_args):
         full = PacketWrite()
         full.AddHeader([0x28, 0x2F])
         full.AppendBytes([0x00, 0x31])
-        _args['socket'].send(full.packet)
+        _args['socket'].sendall(full.packet)
         return
 
     # Read character name from packet
@@ -331,7 +331,7 @@ def AcceptApplication(**_args):
         client = _args['connection_handler'].GetCharacterClient(character_name)
         if client is not None:
             GetGuild(_args, client)
-            Lobby.ChatMessage(client, "[*Server*] You have been accepted into guild [{}]!"
+            Lobby.ChatMessage(client, "[Server] You have been accepted into guild [{}]!"
                               .format(guild['name']), 3)
 
 def RejectApplication(**_args):
@@ -404,7 +404,7 @@ def LeaveGuild(**_args):
                 client = _args['connection_handler'].GetCharacterClient(member['name'])
                 if client is not None:
                     GetGuild(_args, client)
-                    Lobby.ChatMessage(client, "[*Server*] Your guild leader [{}] has left the guild ({})! The new leader is [{}]"
+                    Lobby.ChatMessage(client, "[Server] Your guild leader [{}] has left the guild ({})! The new leader is [{}]"
                                       .format(_args['client']['character']['name'], guild['name'], new_leader['name']), 3)
 
     else:
@@ -412,7 +412,7 @@ def LeaveGuild(**_args):
         # Send the guild master a notification that a member has left
         client = _args['connection_handler'].GetCharacterClient(guild['guild_master'])
         if client is not None:
-            Lobby.ChatMessage(client, "[*Server*] [{}] has left your guild"
+            Lobby.ChatMessage(client, "[Server] [{}] has left your guild"
                               .format(_args['client']['character']['name']), 3)
 
         # Send the guild information packet to all online guild members including the master
@@ -463,7 +463,7 @@ def ExpelGuildMember(**_args):
                 withdrawal = PacketWrite()
                 withdrawal.AddHeader([0x42, 0x2F])
                 withdrawal.AppendBytes([0x01, 0x00])
-                remote_client['socket'].send(withdrawal.packet)
+                remote_client['socket'].sendall(withdrawal.packet)
 
 def UpdateGuildNotice(**_args):
 
@@ -535,7 +535,7 @@ def invite(**_args):
         full = PacketWrite()
         full.AddHeader([0x28, 0x2F])
         full.AppendBytes([0x00, 0x31])
-        return _args['socket'].send(full.packet)
+        return _args['socket'].sendall(full.packet)
 
     # Construct error packet, in the event that the remote client is unavailable
     error = PacketWrite()
@@ -554,12 +554,12 @@ def invite(**_args):
         3. Is not our own '''
     # Otherwise, we'll send an error indicating that the player can not respond at the moment
     if remote_client is None or 'room' in remote_client or remote_client is _args['client']:
-        return _args['socket'].send(error.packet)
+        return _args['socket'].sendall(error.packet)
 
     # Check if the remote client is already in a guild. If so, we'll have to send an error as well.
     remote_guild = FetchGuild(_args, remote_client['character']['id'])
     if remote_guild is not None:
-        return _args['socket'].send(error.packet)
+        return _args['socket'].sendall(error.packet)
 
     '''
     Create guild invite request session that expires after 12 seconds after being created
@@ -606,7 +606,7 @@ def invitation_response(**_args):
     # If we did not find any session, drop the packet and send an error
     if invitation_session is None:
         result.AppendBytes(bytes=[0x00, 0x00])  # Not logged in
-        _args['socket'].send(result.packet)
+        _args['socket'].sendall(result.packet)
         return
 
     # If we did find the session, destroy it and process the request further
@@ -618,7 +618,7 @@ def invitation_response(**_args):
 
         # Send packet to remote client
         try:
-            invitation_session['data']['requester']['socket'].send(result.packet)
+            invitation_session['data']['requester']['socket'].sendall(result.packet)
         except Exception as e:
             print('Failed to send invitation declined packet to remote client because: ', str(e))
         return
@@ -636,13 +636,13 @@ def invitation_response(**_args):
 
         # Success status
         result.AppendBytes(bytes=[0x01, 0x00])
-        invitation_session['data']['requester']['socket'].send(result.packet)
+        invitation_session['data']['requester']['socket'].sendall(result.packet)
 
         # Construct and send player added to guild packet
         player_added = PacketWrite()
         player_added.AddHeader([0x3D, 0x2F])
         player_added.AppendBytes([0x01, 0x00])
-        invitation_session['data']['requester']['socket'].send(player_added.packet)
+        invitation_session['data']['requester']['socket'].sendall(player_added.packet)
 
     except Exception as e:
         print('Failed to send guild sync packet to remote client because: ', str(e))

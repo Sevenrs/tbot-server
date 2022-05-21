@@ -72,7 +72,7 @@ def authenticate(**_args):
             # Append this status to the packet and send to the client
             result.AppendInteger(status, 1, 'little')
             result.AppendBytes(PACKET_FOOTER)
-            _args['client']['socket'].send(result.packet)
+            _args['client']['socket'].sendall(result.packet)
             return _args['client']['socket'].close()
 
         # If we have successfully logged in, check if we have a user on record with the web ID provided by the service
@@ -99,7 +99,7 @@ def authenticate(**_args):
         result.AppendInteger(RESPONSE_ERROR, 1, 'little')
         result.AppendBytes(PACKET_FOOTER)
 
-    _args['client']['socket'].send(result.packet)
+    _args['client']['socket'].sendall(result.packet)
     return _args['client']['socket'].close()
 
 

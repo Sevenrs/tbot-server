@@ -28,7 +28,7 @@ def trade_request(**_args):
             or remote_client is _args['client'] \
             or 'room' in remote_client \
             or 'trade_session' in remote_client:
-        return _args['socket'].send(error.packet)
+        return _args['socket'].sendall(error.packet)
 
     '''
     Create trade request session that automatically expires after 12 seconds
@@ -87,7 +87,7 @@ def trade_request_response(**_args):
     # If this is the case, we want to tell the client they refused the request no matter what.
     if request_session is None:
         result.AddHeader(bytes=[0x39, 0x2F]) # You have refused the trade request
-        return _args['socket'].send(result.packet)
+        return _args['socket'].sendall(result.packet)
 
     # Destroy the session
     _args['session_handler'].destroy(session)
@@ -97,7 +97,7 @@ def trade_request_response(**_args):
 
         # Send refusal packet to our own client
         result.AppendBytes(bytes=[0x00, 0x01])  # You have refused the trade request
-        _args['socket'].send(result.packet)
+        _args['socket'].sendall(result.packet)
 
         # Construct new packet of refusal and send to the remote client
         remote_result = PacketWrite()
@@ -105,7 +105,7 @@ def trade_request_response(**_args):
                                                     # so we're using the friend request response packet instead.
         remote_result.AppendBytes(bytes=[0x00, 0x1E])
         try:
-            session['data']['requester']['socket'].send(remote_result.packet)
+            session['data']['requester']['socket'].sendall(remote_result.packet)
         except Exception as e:
             print('Failed to send trade request denied packet to remote client because: ', str(e))
         return
@@ -142,7 +142,7 @@ def trade_request_response(**_args):
     result.AppendString(_args['client']['character']['name'], 15)
     result.AppendString(session['data']['requester']['character']['name'], 15)
     try:
-        session['data']['requester']['socket'].send(result.packet)
+        session['data']['requester']['socket'].sendall(result.packet)
     except Exception as e:
         print('Failed to send trade initialization packet to remove client because: ', str(e))
 
@@ -271,7 +271,7 @@ def sync_state(session):
 
         # Send state to the client
         try:
-            client['socket'].send(result.packet)
+            client['socket'].sendall(result.packet)
         except Exception as e:
             print('Failed to send sync_state() result to client because: ', str(e))
 
@@ -361,7 +361,7 @@ def confirm_trade(**_args):
         result.AddHeader([0x33, 0x27])
         for _ in range(100):
             result.AppendBytes([0x00])
-        _args['socket'].send(result.packet)
+        _args['socket'].sendall(result.packet)
 
     # Mutate completed state, should be the opposite of the current state
     session['data']['states'][local_character_id]['completed'] = \
@@ -427,7 +427,7 @@ def confirm_trade(**_args):
 
         # Send result packet to the client
         try:
-            client['socket'].send(result.packet)
+            client['socket'].sendall(result.packet)
         except Exception as e:
             print('Failed to send pool sync packet result to client because: ', str(e))
 
@@ -631,7 +631,7 @@ def approve_transaction(**_args):
         result.AppendInteger(client['character']['currency_botstract'], 4, 'little')
 
         try:
-            client['socket'].send(result.packet)
+            client['socket'].sendall(result.packet)
         except Exception as e:
             print('Failed to send inventory sync packet to client because: ', str(e))
 

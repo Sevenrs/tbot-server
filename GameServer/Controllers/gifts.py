@@ -37,7 +37,7 @@ def sync_state(_args):
         result.AppendInteger(inventory[item]['duration'], 4, 'little')
         result.AppendInteger(inventory[item]['duration_type'], 1, 'little')
 
-    _args['socket'].send(result.packet)
+    _args['socket'].sendall(result.packet)
 
 '''
 Method:         get_gifts_rpc
@@ -111,7 +111,7 @@ def get_gifts(_args):
             result.AppendBytes([0x00])
 
     # Send list to client
-    _args['socket'].send(result.packet)
+    _args['socket'].sendall(result.packet)
 
 '''
 Method:         receive_gift
@@ -139,7 +139,7 @@ def receive_gift(**_args):
     # If the gift wasn't found, send an error
     if gift is None:
         error.AppendBytes([0x42]) # Item does not exist
-        return _args['socket'].send(error.packet)
+        return _args['socket'].sendall(error.packet)
 
     # Handle item gifts
     if gift['type'] == TYPE_ITEM:
@@ -151,7 +151,7 @@ def receive_gift(**_args):
         # If we do not have an available inventory slot, send an error indicating that it is full
         if available_slot is None:
             error.AppendBytes([0x44]) # No available slot
-            return _args['socket'].send(error.packet)
+            return _args['socket'].sendall(error.packet)
 
         # Move item to inventory
         _args['mysql'].execute('''UPDATE `inventory` SET `item_{0}` = %s WHERE `character_id` = %s'''.format(str(available_slot + 1)), [
@@ -210,7 +210,7 @@ def send_gift(**_args):
     if receiver_character is None or receiver_character['id'] == _args['client']['character']['id'] \
         or receiver.lower() == _args['client']['character']['name'].lower():
             result.AppendBytes([0x00, 0x33])
-            return _args['socket'].send(result.packet)
+            return _args['socket'].sendall(result.packet)
 
     # Read gift message, type and contents
     message     = _args['packet'].ReadString()
@@ -227,7 +227,7 @@ def send_gift(**_args):
     # Check if the gift type is valid
     if gift_type not in gift_data.keys():
         result.AppendBytes([0x00, 0x05])
-        return _args['socket'].send(result.packet)
+        return _args['socket'].sendall(result.packet)
 
     # Default gift content variable. This variable should be overwritten.
     # Will be stored in the database.
@@ -245,7 +245,7 @@ def send_gift(**_args):
         # Check if there is an item in the inventory slot we received
         if gift_content not in inventory:
             result.AppendBytes([0x00, 0x42]) # Item not found
-            return _args['socket'].send(result.packet)
+            return _args['socket'].sendall(result.packet)
 
         # Fetch item and set content value
         item    = inventory[gift_content]
@@ -265,7 +265,7 @@ def send_gift(**_args):
         # Check if we have enough currency for this operation
         if int(gift_content) > _args['client']['character'][currency]:
             result.AppendBytes([0x00, 0x41])
-            return _args['socket'].send(result.packet)
+            return _args['socket'].sendall(result.packet)
 
         # Set gift content value
         content = int(gift_content)
@@ -317,7 +317,7 @@ def purchase_gift(**_args):
     if receiver_character is None or receiver_character['id'] == _args['client']['character']['id'] \
             or receiver.lower() == _args['client']['character']['name'].lower():
                 result.AppendBytes([0x00, 0x33])  # Bot name error
-                return _args['socket'].send(result.packet)
+                return _args['socket'].sendall(result.packet)
 
     # Attempt to find the item in the database
     _args['mysql'].execute('''SELECT `id`, `item_id`, `gold_price`, `cash_price`, `part_type`, `duration` FROM `game_items`
@@ -327,13 +327,13 @@ def purchase_gift(**_args):
     # Check if the item was found
     if item is None:
         result.AppendBytes([0x00, 0x42]) # Item not found
-        return _args['socket'].send(result.packet)
+        return _args['socket'].sendall(result.packet)
 
     # Check if we have enough currency to purchase the item
     if item['gold_price'] > _args['client']['character']['currency_gigas'] \
             or item['cash_price'] > get_cash(_args):
         result.AppendBytes([0x00, 0x41]) # Not enough game points
-        return _args['socket'].send(result.packet)
+        return _args['socket'].sendall(result.packet)
 
     # If the item's gold price is greater than 0, mutate the character's currency_gigas variable
     if item['gold_price'] > 0:

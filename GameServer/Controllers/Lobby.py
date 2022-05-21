@@ -9,6 +9,8 @@ from GameServer.Controllers.Character import get_items
 from GameServer.Controllers.data.lobby import LOBBY_MSG
 from GameServer.Controllers.Inbox import unread_message_notification
 from GameServer.Controllers.gifts import gift_count
+from ratelimit import CHAT_RATE_LIMIT
+from pyrate_limiter import BucketFullException
 import os
     
 """
@@ -32,7 +34,7 @@ def ChatMessage(target, message, color, return_packet=False):
 
     # Otherwise, send the packet to the intended target
     try:
-        target['socket'].send(result.packet)
+        target['socket'].sendall(result.packet)
     except Exception as e:
         pass
 """
@@ -49,15 +51,24 @@ def chat(**_args):
     if int(message_type) == 5:
         return Guild.Chat(_args, message)
 
-    # Determine the scope of the message we are about to send
-    clients = _args['connection_handler'].get_lobby_clients() if _args['client']['character']['position'] == 0 \
-        else _args['connection_handler'].GetClients()
+    # Consume chat rate limit point
+    try:
+        CHAT_RATE_LIMIT.try_acquire('CHAT_{0}'.format(_args['client']['account_id']))
 
-    # Broadcast message to all clients in the scope
-    for client in clients:
-        ChatMessage(target=client,
-                    message="[{0}] {1}".format(message_username, message[message.find(']') + 2:]),
-                    color=_args['client']['character']['position'])
+
+        # Determine the scope of the message we are about to send
+        clients = _args['connection_handler'].get_lobby_clients() if _args['client']['character']['position'] == 0 \
+            else _args['connection_handler'].GetClients()
+
+        # Broadcast message to all clients in the scope
+        for client in clients:
+            ChatMessage(target=client,
+                        message="[{0}] {1}".format(message_username, message[message.find(']') + 2:]),
+                        color=_args['client']['character']['position'])
+    except BucketFullException as err:
+
+        # Send warning message to the client
+        ChatMessage(target=_args['client'], message="[Warning] You are sending messages too fast.", color=2)
 
 def whisper(**_args):
     
@@ -96,10 +107,10 @@ def whisper(**_args):
         whisper_packet.AppendInteger(len(whisper_message), 2, 'little')
         whisper_packet.AppendString(whisper_message)
         whisper_packet.AppendBytes(bytearray([0x00]))
-        result['socket'].send(whisper_packet.packet)
+        result['socket'].sendall(whisper_packet.packet)
     
     # Always send the result to our client
-    _args['socket'].send(whisper_packet.packet)
+    _args['socket'].sendall(whisper_packet.packet)
 
 '''
 This method allows players to examine others in the lobby.
@@ -116,7 +127,7 @@ def examine_player(**_args):
 
     # If the character was not found send the user not found packet
     if character is None:
-        return  _args['socket'].send(bytearray([0x2B, 0x2F, 0x02, 0x00, 0x00, 0x33]))
+        return  _args['socket'].sendall(bytearray([0x2B, 0x2F, 0x02, 0x00, 0x00, 0x33]))
 
     # Attempt to retrieve the client by the username
     remote_client = _args['connection_handler'].GetCharacterClient(username)
@@ -157,13 +168,14 @@ def examine_player(**_args):
     examination.AppendString(character['name'], 15)                     # Character name
 
     # Send examination packet to the client
-    _args['socket'].send(examination.packet)
+    _args['socket'].sendall(examination.packet)
 
 
 """
 This method will load the lobby
 """
 def get_lobby(**_args):
+
     lobby_packet = PacketWrite()
 
     # Packet header
@@ -180,7 +192,7 @@ def get_lobby(**_args):
         lobby_packet.AppendBytes([0x01])
 
     lobby_packet.AppendBytes([0x02, 0x01, 0x00, 0x00, 0x00, 0x00])
-    _args['socket'].send(lobby_packet.packet)
+    _args['socket'].sendall(lobby_packet.packet)
 
     # For each player that is in a room, send an additional status packet
     for client in clients:
@@ -196,13 +208,7 @@ def get_lobby(**_args):
         status.AppendString(client['character']['name'], 15)
         status.AppendInteger(client['character']['type'], 1, 'little')
         status.AppendInteger(0, 1, 'little')
-        _args['socket'].send(status.packet)
-
-    # Load friends
-    Friend.RetrieveFriends(_args, _args['client'])
-
-    # Get guild membership
-    Guild.GetGuild(_args, _args['client'], True)
+        _args['socket'].sendall(status.packet)
 
     # If this is the first time that this client has requested the lobby, notify all their friends and retrieve the block list
     if _args['client']['new']:
@@ -221,7 +227,14 @@ def get_lobby(**_args):
 
     # Get amount of unread messages and gift count. Also send a message notification packet if we have to.
     unread_messages, gifts = unread_message_notification(_args), gift_count(_args)
-    ChatMessage(_args['client'], "[*Server*] You have {0} unread message(s) and {1} gift(s)".format(unread_messages, gifts), 1)
+    ChatMessage(_args['client'],
+                "[Server] You have {0} unread message(s) and {1} gift(s)".format(unread_messages, gifts), 1)
+
+    # Get guild membership
+    Guild.GetGuild(_args, _args['client'], True)
+
+    # Load friends
+    Friend.RetrieveFriends(_args, _args['client'])
 
 def room_list(**_args):
 
