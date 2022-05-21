@@ -524,7 +524,8 @@ PLANET_ASSISTS = {
     # [Lv61]Ship Takeover
     26: [
         33,
-        59
+        59,
+        93
     ],
 
     # [Lv63]MeraMountin
