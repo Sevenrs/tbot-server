@@ -9,10 +9,10 @@ from relay_tcp_server import connection as connection_handler
 def route(client, packet):
 
     print("[{0}] [client_id={1}] Got packet by ID: 0x{2} <{3}>".format(
-        _args['client']['server'].name,
-        _args['client']['id'],
-        _args['packet'].id,
-        _args['packet'].data
+        client['client']['server'].name,
+        client['id'],
+        packet.id,
+        packet.data
     ))
 
     packets = {
