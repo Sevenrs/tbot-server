@@ -8,6 +8,13 @@ from relay_tcp_server import connection as connection_handler
 
 def route(client, packet):
 
+    print("[{0}] [client_id={1}] Got packet by ID: 0x{2} <{3}>".format(
+        _args['client']['server'].name,
+        _args['client']['id'],
+        _args['packet'].id,
+        _args['packet'].data
+    ))
+
     packets = {
         '32a0': id_request,
         '36a0': check_connection,
@@ -204,5 +211,5 @@ def keep_alive(_args):
 
         # If the last ping was too long ago, disconnect the client
         if (datetime.datetime.now() - _args['client']['last_ping']).total_seconds() >= 90:
-            print('relay ping timeout!')
+            print('relay ping timeout from id: {0}!'.format(_args['client']['id']))
             return connection_handler.close_connection(_args['client'])
