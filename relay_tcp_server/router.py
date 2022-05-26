@@ -10,7 +10,7 @@ def route(client, packet):
 
     print("[{0}] [client_id={1}] Got packet by ID: 0x{2} <{3}>".format(
         client['server'].name,
-        client['id'],
+        client['id'] if 'id' in client else None,
         packet.id,
         packet.data
     ))
