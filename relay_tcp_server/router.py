@@ -209,6 +209,11 @@ def keep_alive(_args):
         # Wait 10 seconds before checking
         time.sleep(10)
 
+        ping_rpc = PacketWrite()
+        ping_rpc.AddHeader([0x01, 0x00])
+        ping_rpc.AppendBytes([0xCC])
+        _args['client']['socket'].sendall(ping_rpc.packet)
+
         # If the last ping was too long ago, disconnect the client
         if (datetime.datetime.now() - _args['client']['last_ping']).total_seconds() >= 90:
             print('relay ping timeout from id: {0}!'.format(_args['client']['id']))
