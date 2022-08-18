@@ -207,12 +207,7 @@ def keep_alive(_args):
     while _args['client'] in _args['client']['server'].clients:
 
         # Wait 10 seconds before checking
-        time.sleep(1)
-
-        ping_rpc = PacketWrite()
-        ping_rpc.AddHeader([0x1b, 0xfc])
-        ping_rpc.AppendBytes([0x01, 0x00])
-        _args['client']['socket'].sendall(ping_rpc.packet)
+        time.sleep(10)
 
         # If the last ping was too long ago, disconnect the client
         if (datetime.datetime.now() - _args['client']['last_ping']).total_seconds() >= 90:
