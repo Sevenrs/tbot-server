@@ -1,1 +1,1 @@
-LOBBY_MSG = '[Server] Welcome to T-Bot Rewritten! Join our Discord server at https://discord.gg/Fa2zgNtegV', 1
+LOBBY_MSG = '[Server] This project is no longer being maintained. Over time, services may become unavailable.', 1
