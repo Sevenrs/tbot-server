@@ -13,8 +13,9 @@ class Write:
     """
     Packet Writer Constructor
     """
-    def __init__(self):
-        self.header = bytearray()
+    def __init__(self, header = None):
+
+        self.header = bytearray() if header is None else header
         self.length = bytearray()
         self.data   = bytearray()
         

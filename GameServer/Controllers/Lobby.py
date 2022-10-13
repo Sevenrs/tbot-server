@@ -65,7 +65,7 @@ def chat(**_args):
             ChatMessage(target=client,
                         message="[{0}] {1}".format(message_username, message[message.find(']') + 2:]),
                         color=_args['client']['character']['position'])
-    except BucketFullException as err:
+    except BucketFullException:
 
         # Send warning message to the client
         ChatMessage(target=_args['client'], message="[Warning] You are sending messages too fast.", color=2)
