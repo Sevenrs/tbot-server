@@ -4,43 +4,43 @@ from GameServer.Controllers.data.drops import *
 # Structure: Level index, base experience, minutes, recommended level, minimum attack score to pass the level and minimum monster kills
 
 PLANET_MAP_TABLE = {
-    0: (60,     7.5,    1,  1100,   17),    # [Level 1] Training Ring
-    1: (60,     9,      3,  1400,   13),    # [Level 3] Base Camp
-    2: (80,     10.5,   6,  1800,   27),    # [Level 6] Camp Spike
-    3: (80,     15.5,   8,  1800,   38),    # [Level 8] Camp Escape
-    4: (120,    15,     10, 2000,   22),    # [Level 10] Planet Alderan
-    5: (160,    18,     13, 2600,   20),    # [Level 13] Mine Entrance
-    6: (160,    19.5,   16, 500,    24),    # [Level 16] Mine Alderan
-    7: (170,    19.5,   18, 500,    25),    # [Level 18] Inner Mine
-    8: (250,    21,     20, 3100,   25),    # [Level 20] Mine Exit
-    9: (290,    21,     23, 3100,   27),    # [Level 23] Lava Sea
-    10: (300,   22.5,   26, 500,    25),    # [Level 26] Lava Sea 2
-    11: (330,   22.5,   28, 800,    47),    # [Level 28] Lava Sea 3
-    12: (450,   22.5,   30, 800,    17),    # [Level 30] Acurin Ruins
-    13: (450,   22.5,   33, 1300,   31),    # [Level 33] Acurin Ruins 2
-    14: (450,   22.5,   35, 4500,   37),    # [Level 35] Acurin Ruins 3
-    15: (500,   22.5,   36, 4400,   62),    # [Level 36] Planet Acurin
-    16: (520,   22.5,   38, 4500,   48),    # [Level 38] Planet Acurin 2
-    17: (630,   24,     40, 4800,   41),    # [Level 40] Port Acurin
-    18: (630,   24,     43, 4900,   29),    # [Level 43] Escape Acurin
-    19: (650,   24,     46, 5500,   33),    # [Level 46] Planet MECA
-    20: (650,   24,     48, 5800,   64),    # [Level 48] Planet MECA 2
-    21: (700,   25.5,   50, 5500,   44),    # [Level 50] Hidden Archive
-    22: (700,   25.5,   53, 6000,   39),    # [Level 53] Secret Passage
-    23: (860,   25.5,   56, 10000,  8),     # [Level 56] Destroy MECA
-    24: (887,   25.5,   58, 6200,   39),    # [Level 58] Destroy MECA 2
-    25: (1288,  27,     60, 13000,  8),     # [Level 60] Escape from MECA
-    26: (1324,  27,     61, 4500,   15),    # [Level 61] Ship Takeover
-    27: (1395,  27,     63, 5800,   55),    # [Level 63] Mera Mountain
-    28: (1402,  27,     66, 600,    44),    # [Level 66] Mera Mountain 2
-    29: (1420,  27,     68, 900,    55),    # [Level 68] Mera Mountain 3
-    30: (2266,  27,     70, 1000,   60),    # [Level 70] Mera Mountain 4
+    0: (90,     7.5,    1,  1100,   17),    # [Level 1] Training Ring
+    1: (90,     9,      3,  1400,   13),    # [Level 3] Base Camp
+    2: (120,     10.5,   6,  1800,   27),   # [Level 6] Camp Spike
+    3: (120,     15.5,   8,  1800,   38),   # [Level 8] Camp Escape
+    4: (180,    15,     10, 2000,   22),    # [Level 10] Planet Alderan
+    5: (240,    18,     13, 2600,   20),    # [Level 13] Mine Entrance
+    6: (240,    19.5,   16, 500,    24),    # [Level 16] Mine Alderan
+    7: (255,    19.5,   18, 500,    25),    # [Level 18] Inner Mine
+    8: (375,    21,     20, 3100,   25),    # [Level 20] Mine Exit
+    9: (435,    21,     23, 3100,   27),    # [Level 23] Lava Sea
+    10: (450,   22.5,   26, 500,    25),    # [Level 26] Lava Sea 2
+    11: (495,   22.5,   28, 800,    47),    # [Level 28] Lava Sea 3
+    12: (675,   22.5,   30, 800,    17),    # [Level 30] Acurin Ruins
+    13: (675,   22.5,   33, 1300,   31),    # [Level 33] Acurin Ruins 2
+    14: (675,   22.5,   35, 4500,   37),    # [Level 35] Acurin Ruins 3
+    15: (750,   22.5,   36, 4400,   62),    # [Level 36] Planet Acurin
+    16: (780,   22.5,   38, 4500,   48),    # [Level 38] Planet Acurin 2
+    17: (945,   24,     40, 4800,   41),    # [Level 40] Port Acurin
+    18: (945,   24,     43, 4900,   29),    # [Level 43] Escape Acurin
+    19: (975,   24,     46, 5500,   33),    # [Level 46] Planet MECA
+    20: (975,   24,     48, 5800,   64),    # [Level 48] Planet MECA 2
+    21: (1050,   25.5,   50, 5500,   44),   # [Level 50] Hidden Archive
+    22: (1050,   25.5,   53, 6000,   39),   # [Level 53] Secret Passage
+    23: (1290,   25.5,   56, 10000,  8),    # [Level 56] Destroy MECA
+    24: (1331,   25.5,   58, 6200,   39),   # [Level 58] Destroy MECA 2
+    25: (1932,  27,     60, 13000,  8),     # [Level 60] Escape from MECA
+    26: (1986,  27,     61, 4500,   15),    # [Level 61] Ship Takeover
+    27: (2093,  27,     63, 5800,   55),    # [Level 63] Mera Mountain
+    28: (2103,  27,     66, 600,    44),    # [Level 66] Mera Mountain 2
+    29: (2130,  27,     68, 900,    55),    # [Level 68] Mera Mountain 3
+    30: (3399,  27,     70, 1000,   60),    # [Level 70] Mera Mountain 4
 
-    31: (120,   18,     8,  2800,   21),    # [Level 08] The Fallen (Elite)
-    32: (255,   36,     18, 3500,   27),    # [Level 18] Lava Field (Elite)
-    33: (495,   45,     28, 4000,   25),    # [Level 28] The Pirate (Elite)
-    34: (780,   45,     38, 5000,   40),    # [Level 38] Evil Port (Elite)
-    35: (975,   48,     48, 5200,   49),    # [Level 48] Bloodway (Elite)
+    31: (180,   18,     8,  2800,   21),    # [Level 08] The Fallen (Elite)
+    32: (383,   36,     18, 3500,   27),    # [Level 18] Lava Field (Elite)
+    33: (743,   45,     28, 4000,   25),    # [Level 28] The Pirate (Elite)
+    34: (1170,   45,     38, 5000,   40),   # [Level 38] Evil Port (Elite)
+    35: (1463,   48,     48, 5200,   49),   # [Level 48] Bloodway (Elite)
 }
 # This table contains the mob table from which to drop boxes from
 PLANET_BOX_MOBS = {
