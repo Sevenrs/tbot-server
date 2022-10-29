@@ -548,7 +548,7 @@ def file_validation(**_args):
         client_hash = _args['packet'].ReadString()
 
         # Compare hash. If they don't match, we disconnect the client.
-        if client_hash != hash:
+        if client_hash != hash and _args['client']['character']['position'] == 0:
             print("Invalid file hash. Expected: {0}, Got: {1}".format(hash, client_hash))
             return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
 
