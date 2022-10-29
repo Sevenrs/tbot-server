@@ -1,8 +1,8 @@
-CLIENT_VERSION  = '1.0.3.2'     # Client version
+CLIENT_VERSION  = '1.0.3.3'     # Client version
 PING_TIMEOUT    = 90            # Connection timeout in seconds
 
 CLIENT_FILE_HASHES = [
-    'f4bbf3e8c6c21c73f0b786e9619bdd98', # TbotShield.dll
+    '4b5336d1f1671aa51374d5803dc9af90', # TbotShield.dll
     'b6a4934b9d8f2ed02b5fd796b1bfd6ee', # script/dungeon/dungeon.bin
     '6fbada1f64ceb6db89f97fffea427103', # script/dungeon/p_monai.bin
     '32de15763d99e8ee86a24642d84de501', # script/dungeon/p_monimg.bin
