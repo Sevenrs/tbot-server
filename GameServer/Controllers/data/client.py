@@ -14,7 +14,7 @@ CLIENT_FILE_HASHES = [
     '8f47226333f09c85e6680fd2f17ab94f', # script/ftinfo.sys
     '6db5ec45577c8c476d5cd441806ee2f8', # script/item.bin
     'aa7da1bd9309f422f0b1fd9725dfa28d', # script/mercinfo.bin
-    'cea06dd6c2d06f10acf0b7f31e8fd59c', # script/shop.bin
+    '1527bdfa4f012b28fe941debc616274f', # script/shop.bin
     '443897a2bc6a8d0a0f208e0893dbbd1f', # script/skillpk.bin
     'b19d22b003ca6c9928799e81ba01efa1', # script/slangs.bin
     'ba093d81860a972acba81a488715c1bd', # script/string.bin
