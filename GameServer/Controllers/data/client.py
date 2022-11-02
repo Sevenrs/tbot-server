@@ -12,9 +12,9 @@ CLIENT_FILE_HASHES = [
     'e92b2c244d5c3c52b59c1199bacb99fa', # script/env_cloc.sys
     'cb530999438604690c39e9015496070e', # script/file.sds
     '8f47226333f09c85e6680fd2f17ab94f', # script/ftinfo.sys
-    'ed4cc92e3faf2bb37859c37a8e08eca0', # script/item.bin
+    '1ded3613a40abbd042c5b014b59c679e', # script/item.bin
     'aa7da1bd9309f422f0b1fd9725dfa28d', # script/mercinfo.bin
-    'efbc9d4d66100f2886cc6673c4aa6d1f', # script/shop.bin
+    'e89dc6f660e6846daf9e11455490af07', # script/shop.bin
     '443897a2bc6a8d0a0f208e0893dbbd1f', # script/skillpk.bin
     'b19d22b003ca6c9928799e81ba01efa1', # script/slangs.bin
     'ba093d81860a972acba81a488715c1bd', # script/string.bin
