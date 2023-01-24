@@ -7,31 +7,32 @@ from GameServer.Controllers import Guild, Character
 '''
 This method will delete our client's character entirely
 '''
-def delete_character(**_args):
 
+
+def delete_character(**_args):
     # Construct result packet
     result = PacketWrite()
-    result.AddHeader([0xE3, 0x2E])
+    result.add_header([0xE3, 0x2E])
 
     # If we are a staff member, we can not delete our bot
     if _args['client']['character']['position'] > 0:
-        result.AppendBytes([0x00, 0xBF])
+        result.append_bytes([0x00, 0xBF])
         return _args['socket'].sendall(result.packet)
 
     # If we are in a guild, we can not delete the bot
-    if Guild.FetchGuild(_args, _args['client']['character']['id']) is not None:
-        result.AppendBytes([0x00, 0xC4])
+    if Guild.fetch_guild(_args, _args['client']['character']['id']) is not None:
+        result.append_bytes([0x00, 0xC4])
         return _args['socket'].sendall(result.packet)
 
     # Retrieve inventory and wearing items for this character
-    inventory   = Character.get_items(_args, _args['client']['character']['id'], 'inventory')
-    wearing     = Character.get_items(_args, _args['client']['character']['id'], 'wearing')
+    inventory = Character.get_items(_args, _args['client']['character']['id'], 'inventory')
+    wearing = Character.get_items(_args, _args['client']['character']['id'], 'wearing')
 
     # Check if we are wearing coin items (if type in field_pack coin_head coin_minibot or duration type = 1)
     for item in wearing['items']:
         if wearing['items'][item]['type'] in ['field_pack', 'coin_head', 'coin_minibot'] \
-            or wearing['items'][item]['duration_type'] == 1:
-            result.AppendBytes([0x00, 0xC4])
+                or wearing['items'][item]['duration_type'] == 1:
+            result.append_bytes([0x00, 0xC4])
             return _args['socket'].sendall(result.packet)
 
     # Append all inventory items to the item id array
@@ -48,7 +49,7 @@ def delete_character(**_args):
     # Remove all IDs from character_items
     in_statement = ''
     for id in item_ids:
-        in_statement+="{0}, ".format(str(id))
+        in_statement += "{0}, ".format(str(id))
 
     # If the in statement has a length greater than 0, delete all of its IDs
     if len(in_statement) > 0:
@@ -89,8 +90,8 @@ def delete_character(**_args):
     ])
 
     # Finalize the result packet and send to the client
-    result.AppendBytes([0x01, 0x00])
+    result.append_bytes([0x01, 0x00])
     _args['socket'].sendall(result.packet)
 
     # Close connection
-    _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
+    _args['connection_handler'].update_player_status(_args['client'], 2)

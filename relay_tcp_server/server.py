@@ -4,6 +4,7 @@ from relay_tcp_server import router, connection
 from Packet.Read import Read as PacketRead
 import traceback
 
+
 class RelayTCPServer:
 
     def __init__(self, port):
@@ -16,6 +17,7 @@ class RelayTCPServer:
     '''
     Attempt to start a server on the port specified
     '''
+
     def listen(self):
         try:
 
@@ -33,12 +35,13 @@ class RelayTCPServer:
         except Exception as e:
             print("[{0}]: Failed to bind because: {1}".format(self.name, e))
 
+
 class RelayTCPClient:
 
     def __init__(self, socket, address, server):
-        self.socket     = socket
-        self.address    = address
-        self.server     = server
+        self.socket = socket
+        self.address = address
+        self.server = server
         self.handle()
 
     def handle(self):

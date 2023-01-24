@@ -9,7 +9,9 @@ from dotenv import dotenv_values
 """
 This method obtains the connector interface
 """
-def GetConnection():
+
+
+def get_connection():
     try:
 
         ''' Load database configuration from dotenv '''
@@ -23,7 +25,7 @@ def GetConnection():
             database=config["MYSQL_DATABASE"],
             connect_timeout=10
         )
-        
+
         connection.autocommit = True
         return connection
     except Exception as e:

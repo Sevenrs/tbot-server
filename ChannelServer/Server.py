@@ -7,14 +7,15 @@ import socket
 import _thread
 from . import Client
 
-class Socket:
 
+class Socket:
     """
-    ChannelServer contructor
+    ChannelServer constructor
     """
+
     def __init__(self, port, game_server):
-        self.port           = port
-        self.game_server    = game_server
+        self.port = port
+        self.game_server = game_server
 
         # Start the server
         self.listen()
@@ -22,23 +23,21 @@ class Socket:
     """
     This method will listen for new connections
     """
+
     def listen(self):
         try:
-            
+
             # Create Datagram server socket to act as as channel server
             server = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
             server.bind(('0.0.0.0', self.port))
-            
+
             print('[ChannelServer]: Started on port', self.port)
-            
+
             # Continue to listen for new connections
             while True:
-                
                 # Accept the new client and handle the connection in a separate thread
                 message, address = server.recvfrom(12)
                 _thread.start_new_thread(Client.Client, (message, address, server, self.game_server))
-                
-            # Free socket on application termination
-            server.close()
+
         except Exception as e:
             print('[ChannelServer]: Failed to start Channel Server. Perhaps the port is already in use. Exception:', e)

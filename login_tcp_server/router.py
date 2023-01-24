@@ -14,25 +14,27 @@ from ratelimit import LOGIN_RATE_LIMIT
 from dotenv import dotenv_values
 import requests
 
-def route(client, packet):
 
+def route(client, packet):
     packets = {
         'f82a': authenticate
     }.get(packet.id, unknown)(**locals())
 
+
 '''
 This method will give users the possibility to authenticate
 '''
-def authenticate(**_args):
 
+
+def authenticate(**_args):
     # Read username and password from the packet
-    username    = _args['packet'].ReadString()[1:]
-    password    = _args['packet'].ReadString()
+    username = _args['packet'].read_string()[1:]
+    password = _args['packet'].read_string()
 
     # Construct result packet
     result = PacketWrite()
-    result.AddHeader([0xEC, 0x2C])
-    result.AppendBytes([0x01, 0x00])
+    result.add_header([0xEC, 0x2C])
+    result.append_bytes([0x01, 0x00])
 
     # Read environment variables
     env = dotenv_values('.env')
@@ -45,9 +47,9 @@ def authenticate(**_args):
         # Send credentials to the internal web API
         response = requests.post("{0}/login".format(env['INTERNAL_ROOT_URL']),
                                  json={
-                                     "username":    username,
-                                     "password":    password,
-                                     "ip":          _args['client']['address'][0]
+                                     "username": username,
+                                     "password": password,
+                                     "ip": _args['client']['address'][0]
                                  },
 
                                  headers={
@@ -66,12 +68,12 @@ def authenticate(**_args):
                 raise Exception('Invalid response from API')
 
             # Read last error from response, retrieve the status code from the status map and send result to the client
-            error   = response['errors'][0]['msg']
-            status  = STATUS_MAP[error] if error in STATUS_MAP else RESPONSE_ERROR
+            error = response['errors'][0]['msg']
+            status = STATUS_MAP[error] if error in STATUS_MAP else RESPONSE_ERROR
 
             # Append this status to the packet and send to the client
-            result.AppendInteger(status, 1, 'little')
-            result.AppendBytes(PACKET_FOOTER)
+            result.append_integer(status, 1, 'little')
+            result.append_bytes(PACKET_FOOTER)
             _args['client']['socket'].sendall(result.packet)
             return _args['client']['socket'].close()
 
@@ -79,25 +81,30 @@ def authenticate(**_args):
         web_id = response.json()['web_id']
 
         # Create a new user if we have to
-        connection  = MySQL.GetConnection()
-        cursor      = connection.cursor(dictionary=True)
-        cursor.execute('''INSERT INTO `users` (`external_id`) SELECT %s FROM DUAL WHERE NOT EXISTS (SELECT * FROM `users` WHERE `external_id`= %s LIMIT 1) ''', [
-            web_id,
-            web_id
-        ])
+        connection = MySQL.get_connection()
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute(
+            '''INSERT INTO `users` (`external_id`) SELECT %s FROM DUAL WHERE NOT EXISTS (SELECT * FROM `users` WHERE 
+            `external_id`= %s LIMIT 1) ''',
+            [
+                web_id,
+                web_id
+            ])
 
         # Close MySQL connection
         connection.close()
 
-        result.AppendInteger(RESPONSE_SUCCESS, 1, 'little')                             # Append success status to the packet and send to the client and close the connection
-        result.AppendBytes([0x00, (0x01 if response.json()['warnet_bonus'] else 0x00)]) # Append warnet bonus status to the packet. It's 1 if there's a bonus, otherwise it's 0
-        result.AppendBytes(PACKET_FOOTER[2:])                                           # Skip the first two bytes because we've manually written those above
+        result.append_integer(RESPONSE_SUCCESS, 1, 'little')  # Add success status to the packet and send to the client
+
+        # Append war-net bonus status to the packet. It's 1 if there's a bonus,
+        result.append_bytes([0x00, (0x01 if response.json()['warnet_bonus'] else 0x00)])
+        result.append_bytes(PACKET_FOOTER[2:])  # Skip the first two bytes because we've manually written those above
 
     except Exception:
 
         # In case of an error, send the RESPONSE_ERROR status to the client
-        result.AppendInteger(RESPONSE_ERROR, 1, 'little')
-        result.AppendBytes(PACKET_FOOTER)
+        result.append_integer(RESPONSE_ERROR, 1, 'little')
+        result.append_bytes(PACKET_FOOTER)
 
     _args['client']['socket'].sendall(result.packet)
     return _args['client']['socket'].close()

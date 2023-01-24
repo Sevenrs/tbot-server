@@ -3,8 +3,9 @@ import socket
 '''
 This method will close a relay tcp client's connection and perform a clean-up as well
 '''
-def close_connection(client):
 
+
+def close_connection(client):
     # If the client is in the server's client container, remove it from the container
     if client in client['server'].clients:
         client['server'].clients.remove(client)

@@ -1,5 +1,5 @@
-MAX_LEVEL   = 70
-MAX_RANK    = 43
+MAX_LEVEL = 70
+MAX_RANK = 43
 
 
 # This table contains the amount of experience needed to reach a specific level

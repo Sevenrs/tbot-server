@@ -7,14 +7,15 @@ import socket
 import _thread
 from . import Client, Connection, session
 
-class Socket:
 
+class Socket:
     """
     GameServer constructor
     """
+
     def __init__(self, port, relay_tcp_server):
         self.port = port
-        
+
         # Client container
         self.clients = []
 
@@ -34,6 +35,7 @@ class Socket:
     """
     This method will listen for new connections
     """
+
     def listen(self):
         try:
 
@@ -42,9 +44,9 @@ class Socket:
                 server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                 server.bind(('0.0.0.0', self.port))
                 server.listen()
-                
+
                 print('[GameServer]: Started on port', self.port)
-                
+
                 # Create new instance of the connection handler
                 connection_handler = Connection.Handler(self)
 
@@ -53,12 +55,10 @@ class Socket:
 
                 # Listen for new connections
                 while True:
-                    
                     # Accept the new client and handle the connection in a separate thread
                     client, address = server.accept()
-                    _thread.start_new_thread(Client.Client, (client, address, self, connection_handler, self.session_handler,))
-                    
-                # Ensure the socket is freed once the application exits
-                server.close()
+                    _thread.start_new_thread(Client.Client,
+                                             (client, address, self, connection_handler, self.session_handler,))
+
         except Exception as e:
             print('[GameServer]: Failed to start Game Server. Perhaps the port is already in use. Exception:', e)

@@ -1,22 +1,27 @@
 #!/usr/bin/env python3
-__author__      = 'Icseon'
-__copyright__   = 'Copyright (C) 2021 Icseon'
-__version__     = '1.0'
+__author__ = 'Icseon'
+__copyright__ = 'Copyright (C) 2021 Icseon'
+__version__ = '1.0'
 
-from Packet.Write import Write as PacketWrite
+import _thread
+import datetime
+import random
+import time
+
+import MySQL.Interface as MySQL
+from GameServer.Controllers import Lobby, Room, Guild
+from GameServer.Controllers.Character import get_items, add_item, get_available_inventory_slot, remove_expired_items, \
+    remove_item, construct_bot_data
+from GameServer.Controllers.data.bot import *
+from GameServer.Controllers.data.client import CLIENT_FILE_HASHES
 from GameServer.Controllers.data.drops import *
 from GameServer.Controllers.data.exp import *
-from GameServer.Controllers.data.planet import PLANET_MAP_TABLE, PLANET_BOXES, PLANET_BOX_MOBS, PLANET_DROPS,\
-    PLANET_ASSISTS, PLANET_CANISTER_EXCEPTIONS
-from GameServer.Controllers.data.military import MILITARY_BASE
-from GameServer.Controllers.data.client import CLIENT_FILE_HASHES
 from GameServer.Controllers.data.game import *
-from GameServer.Controllers.data.bot import *
-from GameServer.Controllers.Character import get_items, add_item, get_available_inventory_slot, remove_expired_items, remove_item, construct_bot_data
-from GameServer.Controllers import Lobby, Room, Guild
+from GameServer.Controllers.data.military import MILITARY_BASE
+from GameServer.Controllers.data.planet import PLANET_MAP_TABLE, PLANET_BOXES, PLANET_BOX_MOBS, PLANET_DROPS, \
+    PLANET_ASSISTS, PLANET_CANISTER_EXCEPTIONS
 from GameServer.Controllers.handlers import moderation
-import MySQL.Interface as MySQL
-import random, time, datetime, _thread
+from Packet.Write import Write as PacketWrite
 
 """
 This controller is responsible for handling all game related actions
@@ -26,8 +31,9 @@ This controller is responsible for handling all game related actions
 This method will tell the room that the client has finished loading the map
 If all clients have finished loading, the game will be started.
 '''
-def load_finish_rpc(**_args):
 
+
+def load_finish_rpc(**_args):
     # Get room and check if we are in one
     room = Room.get_room(_args)
     if not room:
@@ -38,7 +44,7 @@ def load_finish_rpc(**_args):
 
     # Check if file validation passed. If not, disconnect client now.
     if not room['slots'][str(slot)]['file_validation_passed'] and _args['client']['character']['position'] == 0:
-        return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
+        return _args['connection_handler'].update_player_status(_args['client'], 2)
 
     # Get slot and update loading status
     room['slots'][str(slot)]['loaded'] = True
@@ -51,11 +57,13 @@ def load_finish_rpc(**_args):
     # If all slots have loaded the level, call load_finish and let the clients play the game
     load_finish(_args, room)
 
+
 '''
 This method will be called once all players have finished loading
 '''
-def load_finish(_args, room):
 
+
+def load_finish(_args, room):
     # If the game has already loaded, don't do anything
     if room['game_loaded']:
         return
@@ -67,9 +75,9 @@ def load_finish(_args, room):
 
     # If all clients are ready to play, send the ready packet
     ready = PacketWrite()
-    ready.AddHeader(bytearray([0x24, 0x2F]))
-    ready.AppendBytes(bytearray([0xCC]))
-    _args['connection_handler'].SendRoomAll(room['id'], ready.packet)
+    ready.add_header(bytearray([0x24, 0x2F]))
+    ready.append_bytes(bytearray([0xCC]))
+    _args['connection_handler'].room_broadcast(room['id'], ready.packet)
 
     # Start new countdown timer thread, but only for Planet and DeathMatch modes
     if room['game_type'] in [MODE_PLANET, MODE_DEATHMATCH]:
@@ -79,49 +87,51 @@ def load_finish(_args, room):
     if room['game_type'] in [MODE_BATTLE, MODE_TEAM_BATTLE]:
         _thread.start_new_thread(incremental_canister_drops, (_args, room,))
 
-    # If the game is deathmatch, send a story message
+    # If the game is death-match, send a story message
     if room['game_type'] == MODE_DEATHMATCH:
-        message = Lobby.ChatMessage(target=None,
-                                    message='DeathMatch! The player with the most kills wins!',
-                                    color=3,
-                                    return_packet=True)
-        _args['connection_handler'].SendRoomAll(room['id'], message)
+        message = Lobby.chat_message(target=None,
+                                     message='DeathMatch! The player with the most kills wins!',
+                                     color=3,
+                                     return_packet=True)
+        _args['connection_handler'].room_broadcast(room['id'], message)
+
 
 '''
 This method will handle monster deaths and broadcasts an acknowledgement to the room
 of the monster being killed.
 '''
-def monster_kill(**_args):
 
+
+def monster_kill(**_args):
     # If the client is not in a room or is not its master, drop the packet
     room = Room.get_room(_args)
     if not room:
         return
 
     # Read monster ID from the packet
-    monster_id  = _args['packet'].GetByte(0)
-    who         = _args['packet'].GetByte(4)
-    pushed      = _args['packet'].GetByte(6)
+    monster_id = _args['packet'].get_byte(0)
+    who = _args['packet'].get_byte(4)
+    pushed = _args['packet'].get_byte(6)
 
-    # Initialize assistant_multiplication variable that is used to increase drop chances
+    # Initialize assistant_multiplication variable that is used to increase drop rates
     # when planet mode is being played and an assistant is being killed.
     assistant_multiplication = 1.0
 
     # Construct base canister drop table and drop chances.
     drops = [
-        (CANISTER_HEALTH,   0.02),
-        (CANISTER_STUN,     0.01),
+        (CANISTER_HEALTH, 0.02),
+        (CANISTER_STUN, 0.01),
         (CANISTER_TRANS_UP, 0.01),
-        (CANISTER_AMMO,     0.01),
+        (CANISTER_AMMO, 0.01),
     ]
 
     # If we are playing planet mode, add additional drops such as rebirth and bombs.
     # Additionally, we'll be adding box drops in case that possibility exists.
     if room['game_type'] == MODE_PLANET:
-        drops+= [
-            (CANISTER_REBIRTH,  0.02),
-            (CANISTER_BOMB,     0.02),
-            (CHEST_GOLD,        0.007)
+        drops += [
+            (CANISTER_REBIRTH, 0.02),
+            (CANISTER_BOMB, 0.02),
+            (CHEST_GOLD, 0.007)
         ]
 
         # If the monster is a mob from which to drop boxes from, append the boxes array
@@ -135,7 +145,7 @@ def monster_kill(**_args):
     # If we are playing military mode, add gold to the drop table with no chance to drop.
     # We will only be making it a possible drop when a MILITARY_BASE has been killed.
     elif room['game_type'] == MODE_MILITARY:
-        drops+= [
+        drops += [
             (CHEST_GOLD, 0.00)
         ]
 
@@ -158,7 +168,8 @@ def monster_kill(**_args):
             (monster_id not in room['killed_mobs'] and pushed == 0) or
 
             # We are playing planet mode and the monster ID is in the PLANET_CANISTER_EXCEPTIONS array
-            (room['game_type'] == MODE_PLANET and room['level'] in PLANET_CANISTER_EXCEPTIONS and monster_id in PLANET_CANISTER_EXCEPTIONS[room['level']])
+            (room['game_type'] == MODE_PLANET and room['level'] in PLANET_CANISTER_EXCEPTIONS and monster_id in
+             PLANET_CANISTER_EXCEPTIONS[room['level']])
 
     ) and not room['game_over']:
 
@@ -171,8 +182,10 @@ def monster_kill(**_args):
                 if monster_id in room['killed_mobs'] and drop == CHEST_GOLD:
                     chance = 0.00
 
-                ''' If the monster ID is equal to the boss, we'll have to change the drop chances, but only if we are in planet mode '''
-                if room['level'] in PLANET_BOXES and monster_id == PLANET_BOX_MOBS[room['level']][len(PLANET_BOX_MOBS[room['level']]) - 1]:
+                '''If the monster ID is equal to the boss, we'll have to change the drop chances, but only if we are 
+                in planet mode '''
+                if room['level'] in PLANET_BOXES \
+                        and monster_id == PLANET_BOX_MOBS[room['level']][len(PLANET_BOX_MOBS[room['level']]) - 1]:
 
                     # If the drop is not a canister, increase chance by 5x
                     if drop >= BOX_ARMS:
@@ -186,9 +199,10 @@ def monster_kill(**_args):
                         if drop == CANISTER_REBIRTH:
                             chance = 1.00
 
-                # If we are playing hard or medium difficulty and the monster does not drop a box (barrels and bosses), decrease drop chance
-                # We will also be ignoring this check if the assistant_multiplication is not 1.0
-                elif room['difficulty'] in [ DIFFICULTY_MEDIUM, DIFFICULTY_HARD ] \
+                # If we are playing hard or medium difficulty and the monster does not drop a box (barrels and
+                # bosses), decrease drop chance We will also be ignoring this check if the assistant_multiplication
+                # is not 1.0
+                elif room['difficulty'] in [DIFFICULTY_MEDIUM, DIFFICULTY_HARD] \
                         and assistant_multiplication == 1.0 \
                         and monster_id not in PLANET_BOX_MOBS[room['level']]:
 
@@ -199,10 +213,12 @@ def monster_kill(**_args):
             elif room['game_type'] == MODE_MILITARY and monster_id in MILITARY_BASE and drop == CHEST_GOLD:
                 chance = 1.00
 
-            # If applicable, apply the assistant multiplication except if the drop type is greater or equal to CHEST_GOLD(18)
-            if random.random() < (chance * (assistant_multiplication if drop < BOX_ARMS else 1.0)) and room['drop_index'] < 256:
+            # If applicable, apply the assistant multiplication except if the drop type is greater or equal to
+            # CHEST_GOLD(18)
+            if random.random() < (chance * (assistant_multiplication if drop < BOX_ARMS else 1.0)) \
+                    and room['drop_index'] < 256:
                 monster_drops.append(bytes([room['drop_index'], drop, 0, 0, 0]))
-                room['drops'][room['drop_index']] = { 'type': drop, 'used': False }
+                room['drops'][room['drop_index']] = {'type': drop, 'used': False}
                 room['drop_index'] += 1
 
     # Construct drop bytes for the response packet
@@ -213,26 +229,28 @@ def monster_kill(**_args):
 
     # Create monster death response
     death = PacketWrite()
-    death.AddHeader(bytes=bytearray([0x25, 0x2F]))
-    death.AppendBytes(bytes=bytearray([0x01, 0x00]))
-    death.AppendInteger(integer=monster_id, length=2, byteorder='little')
-    death.AppendInteger(direction, 2, 'little')
-    death.AppendInteger(len(monster_drops), length=2, byteorder='little')
-    death.AppendBytes(drop_bytes)
+    death.add_header(bytes=bytearray([0x25, 0x2F]))
+    death.append_bytes(bytes=bytearray([0x01, 0x00]))
+    death.append_integer(integer=monster_id, length=2, byteorder='little')
+    death.append_integer(direction, 2, 'little')
+    death.append_integer(len(monster_drops), length=2, byteorder='little')
+    death.append_bytes(drop_bytes)
 
     # Broadcast the response to all sockets in the room
-    _args['connection_handler'].SendRoomAll(room['id'], death.packet)
+    _args['connection_handler'].room_broadcast(room['id'], death.packet)
 
-    # Count up the amount of mobs the slot has killed, but only if the slot is in the room and the mob isn't already registered as dead
-    if str(who +1) in room['slots'] and who != 65535 and monster_id not in room['killed_mobs'] and room['game_over'] == False:
-
+    # Count up the amount of mobs the slot has killed, but only if the slot is in the room and the mob isn't already
+    # registered as dead
+    if str(who + 1) in room['slots'] and who != 65535 and monster_id \
+            not in room['killed_mobs'] and room['game_over'] is False:
         # Increment the monster kill count by one for the slot in question
         room['slots'][str(who + 1)]['monster_kills'] += 1
 
         # Write the monster kill amount to the player data container as well
         room['player_data']['monster_kills'][str(who + 1)] = room['slots'][str(who + 1)]['monster_kills']
 
-    # Add the monster to the killed mob array, but only if we're in planet or military mode and if it isn't already in the array
+    # Add the monster to the killed mob array, but only if we're in planet or military mode and if it isn't already
+    # in the array
     if (room['game_type'] == MODE_PLANET or (room['game_type'] == MODE_MILITARY and monster_id != MILITARY_BASE)) \
             and monster_id not in room['killed_mobs']:
         room['killed_mobs'].append(monster_id)
@@ -242,26 +260,28 @@ def monster_kill(**_args):
             room['player_data']['pushed_mobs'].append(monster_id)
 
     # Execute monster kill callback, but only if we're playing planet mode and the game hasn't ended yet
-    if room['game_type'] == MODE_PLANET and room['game_over'] == False:
+    if room['game_type'] == MODE_PLANET and room['game_over'] is False:
         Room.execute_callbacks(_args, room, 'monster_kill')
+
 
 '''
 This method will handle picking up items which were dropped from monsters
 '''
-def use_item(**_args):
 
+
+def use_item(**_args):
     # If the client is not in a room, drop the packet
     room = Room.get_room(_args)
     if not room:
         return
 
     # Read item index and type from packet
-    item_index  = _args['packet'].GetByte(2)
-    item_type   = _args['packet'].GetByte(3)
+    item_index = _args['packet'].get_byte(2)
+    item_type = _args['packet'].get_byte(3)
 
     # Check if the drop is valid. If it is not, change the item type to 0 so nothing happens.
-    if item_index not in room['drops'] or room['drops'][item_index]['used'] == True \
-             or room['drops'][item_index]['type'] != item_type:
+    if item_index not in room['drops'] or room['drops'][item_index]['used'] is True \
+            or room['drops'][item_index]['type'] != item_type:
         item_type = 0
 
     # Mark the drop as used before further processing of the packet
@@ -271,11 +291,11 @@ def use_item(**_args):
 
     # Broadcast the use canister packet to the room
     use_canister = PacketWrite()
-    use_canister.AddHeader(bytearray([0x23, 0x2F]))
-    use_canister.AppendInteger(Room.get_slot(_args, room) - 1, 2, 'little')
-    use_canister.AppendInteger(item_index, 1, 'little')
-    use_canister.AppendInteger(item_type, 4, 'little')
-    _args['connection_handler'].SendRoomAll(room['id'], use_canister.packet)
+    use_canister.add_header(bytearray([0x23, 0x2F]))
+    use_canister.append_integer(Room.get_slot(_args, room) - 1, 2, 'little')
+    use_canister.append_integer(item_index, 1, 'little')
+    use_canister.append_integer(item_type, 4, 'little')
+    _args['connection_handler'].room_broadcast(room['id'], use_canister.packet)
 
     # If the item is a rebirth pack, make all players alive
     if item_type == CANISTER_REBIRTH:
@@ -284,9 +304,8 @@ def use_item(**_args):
 
     # If the item is OIL, process oil pickup
     if item_type in [OIL_YELLOW, OIL_ORANGE, OIL_BLUE, OIL_PINK]:
-
         # Container for the amount of oil a player receives per type
-        OIL_AWARDS = {
+        oil_awards = {
             OIL_YELLOW: 5,
             OIL_ORANGE: 15,
             OIL_BLUE: 20,
@@ -294,12 +313,13 @@ def use_item(**_args):
         }
 
         # Retrieve award amount and update the character
-        award = OIL_AWARDS[item_type]
+        award = oil_awards[item_type]
         _args['client']['character']['currency_botstract'] += award
-        _args['mysql'].execute("""UPDATE `characters` SET `currency_botstract` = (`currency_botstract` + %s) WHERE `id` = %s""", [
-            award,
-            _args['client']['character']['id']
-        ])
+        _args['mysql'].execute(
+            """UPDATE `characters` SET `currency_botstract` = (`currency_botstract` + %s) WHERE `id` = %s""", [
+                award,
+                _args['client']['character']['id']
+            ])
 
     # If the item type is equal or exceeds 18, process a box pickup
     if item_type >= 18:
@@ -310,11 +330,11 @@ def use_item(**_args):
 
         # Construct pickup packet
         pickup = PacketWrite()
-        pickup.AddHeader(bytes=[0x2C, 0x2F])
+        pickup.add_header(bytes=[0x2C, 0x2F])
 
         # Send inventory full packet if we do not have an available slot
         if available_slot is None:
-            pickup.AppendBytes(bytes=[0x00, 0x44])
+            pickup.append_bytes(bytes=[0x00, 0x44])
             return _args['socket'].sendall(pickup.packet)
 
         # If the item is gold, calculate what gold bar to award
@@ -350,7 +370,6 @@ def use_item(**_args):
 
         # Mutate the item ID to be of our bot type if the item type is either a HEAD, BODY or ARM
         if item_type in [BOX_HEAD, BOX_BODY, BOX_ARMS]:
-
             # Create a list of the item ID and append the character type to it
             new_item_id = list(str(item_id))
             new_item_id[1] = str(_args['client']['character']['type'])
@@ -366,24 +385,26 @@ def use_item(**_args):
 
         # If the item hasn't been found, return an error
         if item is None:
-            pickup.AppendBytes(bytes=[0x00, 0x00])
+            pickup.append_bytes(bytes=[0x00, 0x00])
             return _args['socket'].sendall(pickup.packet)
 
         # Add item to inventory of the user
         add_item(_args, item, available_slot)
 
         # Send pickup packet to the player
-        pickup.AppendBytes(bytes=[0x01, 0x00])
-        pickup.AppendInteger(item_id, 4, 'little')
-        pickup.AppendInteger(0, 4, 'little')
-        pickup.AppendInteger(Room.get_slot(_args, room) - 1, 2, 'little')
+        pickup.append_bytes(bytes=[0x01, 0x00])
+        pickup.append_integer(item_id, 4, 'little')
+        pickup.append_integer(0, 4, 'little')
+        pickup.append_integer(Room.get_slot(_args, room) - 1, 2, 'little')
         _args['socket'].sendall(pickup.packet)
+
 
 '''
 This method allows players to use their field packs
 '''
-def use_field_pack(**_args):
 
+
+def use_field_pack(**_args):
     # Get room and check if we are in a room
     room = Room.get_room(_args)
     if not room:
@@ -426,17 +447,18 @@ def use_field_pack(**_args):
 
                 # Construct rebirth packet and broadcast it to the room
                 rebirth = PacketWrite()
-                rebirth.AddHeader([0x3A, 0x27])
-                rebirth.AppendInteger(room_slot - 1, 1, 'little')
-                rebirth.AppendBytes([0x00, 0x01, 0x00])
-                _args['connection_handler'].SendRoomAll(room['id'], rebirth.packet)
+                rebirth.add_header([0x3A, 0x27])
+                rebirth.append_integer(room_slot - 1, 1, 'little')
+                rebirth.append_bytes([0x00, 0x01, 0x00])
+                _args['connection_handler'].room_broadcast(room['id'], rebirth.packet)
 
-                # Construct an acknowledge message that indicates that the rebirth pack was used
-                message = Lobby.ChatMessage(target=None,
-                                            message='{0} has used their revival pack'.format(_args['client']['character']['name']),
-                                            color=2,
-                                            return_packet=True)
-                _args['connection_handler'].SendRoomAll(room['id'], message)
+                # Construct an acknowledgment message that indicates that the rebirth pack was used
+                message = Lobby.chat_message(target=None,
+                                             message='{0} has used their revival pack'.format(
+                                                 _args['client']['character']['name']),
+                                             color=2,
+                                             return_packet=True)
+                _args['connection_handler'].room_broadcast(room['id'], message)
 
             # Subtract one from the duration. Ensure that the number never becomes lower than 0.
             wearing['items'][idx]['duration'] = wearing['items'][idx]['duration'] - 1
@@ -445,15 +467,15 @@ def use_field_pack(**_args):
 
             # Construct and send health packet
             update_pack_times = PacketWrite()
-            update_pack_times.AddHeader([0x1D, 0x2F])
-            update_pack_times.AppendBytes([0x01, 0x00])
+            update_pack_times.add_header([0x1D, 0x2F])
+            update_pack_times.append_bytes([0x01, 0x00])
 
             # Append item duration to the packet
             for i in range(11, 17):
                 item = wearing['items'][list(wearing['items'].keys())[i]]
-                update_pack_times.AppendInteger(item['id'], 4, 'little')
-                update_pack_times.AppendInteger(item['duration'], 4, 'little')
-                update_pack_times.AppendInteger(item['duration_type'], 1, 'little')
+                update_pack_times.append_integer(item['id'], 4, 'little')
+                update_pack_times.append_integer(item['duration'], 4, 'little')
+                update_pack_times.append_integer(item['duration_type'], 1, 'little')
 
             _args['socket'].sendall(update_pack_times.packet)
 
@@ -466,7 +488,7 @@ def use_field_pack(**_args):
 
                 # Subtract one from the remaining_times column for the item
                 _args['mysql'].execute("""UPDATE `character_items` SET `remaining_times` = (`remaining_times` - 1) 
-                    WHERE `id` = %s AND `remaining_times` > 0""", [ wearing['items'][idx]['character_item_id'] ])
+                    WHERE `id` = %s AND `remaining_times` > 0""", [wearing['items'][idx]['character_item_id']])
 
             break
 
@@ -474,8 +496,9 @@ def use_field_pack(**_args):
 '''
 This method will handle player deaths.
 '''
-def player_death_rpc(**_args):
 
+
+def player_death_rpc(**_args):
     # If the client is not in a room, drop the packet
     room = Room.get_room(_args)
     if not room:
@@ -483,18 +506,20 @@ def player_death_rpc(**_args):
 
     # If the game mode is not equal to 2, drop the packet and send a message to the client
     if room['game_type'] != MODE_PLANET:
-        Lobby.ChatMessage(_args['client'], 'You can only use the suicide button in planet mode', 2)
+        Lobby.chat_message(_args['client'], 'You can only use the suicide button in planet mode', 2)
         return
 
     # Kill player
     player_death(_args, room)
 
+
 '''
 This method will kill a player
 It works by reading the slot number and broadcasting that the player is dead to all room sockets
 '''
-def player_death(_args, room):
 
+
+def player_death(_args, room):
     # Get slot number from the room
     room_slot = Room.get_slot(_args, room)
 
@@ -507,16 +532,18 @@ def player_death(_args, room):
 
     # Let the room know about the death of this player
     death = PacketWrite()
-    death.AddHeader(bytearray([0x54, 0x2F]))
-    death.AppendBytes(bytes=bytearray([0x01, 0x00]))
-    death.AppendInteger(integer=(int(room_slot) - 1), length=2, byteorder='little')
-    _args['connection_handler'].SendRoomAll(room['id'], death.packet)
+    death.add_header(bytearray([0x54, 0x2F]))
+    death.append_bytes(bytes=bytearray([0x01, 0x00]))
+    death.append_integer(integer=(int(room_slot) - 1), length=2, byteorder='little')
+    _args['connection_handler'].room_broadcast(room['id'], death.packet)
+
 
 '''
 This method will update the score with the score sent from the client
 '''
-def set_score(**_args):
 
+
+def set_score(**_args):
     # Check if we are in a room and get our room slot
     room = Room.get_room(_args)
     if not room:
@@ -526,15 +553,17 @@ def set_score(**_args):
     room_slot = Room.get_slot(_args, room)
 
     # Retrieve score from the packet and set the score
-    score = int(_args['packet'].ReadInteger(0, 2, 'little')) - 200
+    score = int(_args['packet'].read_integer(0, 2, 'little')) - 200
     room['slots'][str(room_slot)]['points'] = score
+
 
 '''
 This method will receive the file hashes of every important file of the game and compare its hashes against what
 we have. If any hash is not matching, we disconnect the client.
 '''
-def file_validation(**_args):
 
+
+def file_validation(**_args):
     # Check if we are in a room and obtain our slot
     room = Room.get_room(_args)
     if not room:
@@ -545,15 +574,16 @@ def file_validation(**_args):
     for hash in CLIENT_FILE_HASHES:
 
         # Read hash received from the client
-        client_hash = _args['packet'].ReadString()
+        client_hash = _args['packet'].read_string()
 
         # Compare hash. If they don't match, we disconnect the client.
         if client_hash != hash and _args['client']['character']['position'] == 0:
             print("Invalid file hash. Expected: {0}, Got: {1}".format(hash, client_hash))
-            return _args['connection_handler'].UpdatePlayerStatus(_args['client'], 2)
+            return _args['connection_handler'].update_player_status(_args['client'], 2)
 
     # If we have passed validation, update our validation state to True (passed)
     room['slots'][str(room_slot)]['file_validation_passed'] = True
+
 
 '''
 This method will compare the incoming players' statistics and compare them to the values we have on our end.
@@ -561,8 +591,9 @@ If a mismatch occurs, we'll suspend the player for hacking.
 
 This only works for slot number 1 for now. So if the current client is not slot 1, we won't run this check.
 '''
-def statistic_validation(**_args):
 
+
+def statistic_validation(**_args):
     # Check if we are in a room and get the room
     room = Room.get_room(_args)
     if not room:
@@ -572,7 +603,7 @@ def statistic_validation(**_args):
     slot = Room.get_slot(_args, room)
 
     # Read attacks score
-    attack_score = int(_args['packet'].ReadInteger(56, 2, 'little')) - 350
+    attack_score = int(_args['packet'].read_integer(56, 2, 'little')) - 350
 
     # If the attack score is greater than the value we already have, update
     # We also check if our slot number is defined in the attack_points array
@@ -610,11 +641,12 @@ def statistic_validation(**_args):
             continue
 
         # Receive statistic from packet. We're already at offset four and each statistic is contained within 4 bytes.
-        received_stat = int(_args['packet'].ReadInteger(4 + (idx * 4), 4, 'little'))
+        received_stat = int(_args['packet'].read_integer(4 + (idx * 4), 4, 'little'))
 
-        # Retrieve actual statistic from the character object. It is a combination of the base stat and the specification statistic that comes from wearing items
-        expected_stat = _args['client']['character'][ statistic[STAT_KEY]] \
-                        + wearing_items['specifications'][ statistic[STAT_EFFECT_KEY] ]
+        # Retrieve actual statistic from the character object. It is a combination of the base stat and the
+        # specification statistic that comes from wearing items
+        expected_stat = _args['client']['character'][statistic[STAT_KEY]] + wearing_items['specifications'][
+            statistic[STAT_EFFECT_KEY]]
 
         # If the room has overwritten the expected stat, we must do the same here to stop a false detection
         if statistic[STAT_KEY] in room['stat_override']:
@@ -627,17 +659,18 @@ def statistic_validation(**_args):
 
 '''
 This method will link clients through relay when the clients indicate that they are not connected with each-other.
-It works by adding an array of clients to a container and looping through that array to figure out who to connect to who.
+It works by adding an array of clients to a container and looping through that array to figure out who to connect to who
 '''
-def network_state(**_args):
 
+
+def network_state(**_args):
     # Get the room we are currently in and check if we are in a room at all.
     room = Room.get_room(_args)
     if not room:
         return
 
     # Read request ID from the packet. The request ID is the aforementioned container's unique identifier.
-    request_id = int(_args['packet'].ReadInteger(6, 2, 'little'))
+    request_id = int(_args['packet'].read_integer(6, 2, 'little'))
 
     # Create the container of unlinked clients if such container was not previously created.
     # These containers will be cleaned up once the room is reset
@@ -691,12 +724,14 @@ def network_state(**_args):
             except Exception as e:
                 print('Failed to link connections because {0}'.format(str(e)))
 
+
 '''
 This method will handle the game end RPC. This acts as a caller for game_end through a packet instead of being
 called manually in the game code.
 '''
-def game_end_rpc(**_args):
 
+
+def game_end_rpc(**_args):
     # If the client is not in a room, drop the packet
     room = Room.get_room(_args)
     if not room:
@@ -712,7 +747,7 @@ def game_end_rpc(**_args):
     if room['game_type'] != MODE_PLANET:
 
         # Update death status (unless we're playing DeathMatch or Military)
-        if room['game_type'] not in [ MODE_DEATHMATCH, MODE_MILITARY ]:
+        if room['game_type'] not in [MODE_DEATHMATCH, MODE_MILITARY]:
             slot = room['slots'][str(room_slot)]
             slot['dead'] = True
 
@@ -721,7 +756,7 @@ def game_end_rpc(**_args):
             room['slots'][str(room_slot)]['deaths'] += 1
 
         # Retrieve who killed the player
-        who = int(_args['packet'].ReadInteger(4, 2, 'little'))
+        who = int(_args['packet'].read_integer(4, 2, 'little'))
 
         # If the player is in the room and the game hasn't ended, increment their kill count by one
         if str(who + 1) in room['slots'] and who != 65535 and not room['game_over']:
@@ -762,7 +797,6 @@ def game_end_rpc(**_args):
                 # Add drops to the drop result list
                 for idx, drop in enumerate(_drops):
                     if room['drop_index'] < 256:
-
                         # Create and append drop data to the result and modify room state to register the drop
                         drop_result.append(bytes([room['drop_index'], drop, 0, 0, 0]))
                         room['drops'][room['drop_index']] = {'type': drop, 'used': False}
@@ -776,24 +810,24 @@ def game_end_rpc(**_args):
 
             # Construct player death response to include aforementioned drops
             death = PacketWrite()
-            death.AddHeader([0x22, 0x2F])
-            death.AppendBytes(bytes=bytearray([0x01, 0x00]))
-            death.AppendInteger(integer=(int(room_slot) - 1), length=2, byteorder='little')
-            death.AppendInteger(direction, 2, 'little')
-            death.AppendInteger(len(drop_result), length=2, byteorder='little')
-            death.AppendBytes(drop_bytes)
-            _args['connection_handler'].SendRoomAll(room['id'], death.packet)
+            death.add_header([0x22, 0x2F])
+            death.append_bytes(bytes=bytearray([0x01, 0x00]))
+            death.append_integer(integer=(int(room_slot) - 1), length=2, byteorder='little')
+            death.append_integer(direction, 2, 'little')
+            death.append_integer(len(drop_result), length=2, byteorder='little')
+            death.append_bytes(drop_bytes)
+            _args['connection_handler'].room_broadcast(room['id'], death.packet)
 
         # Kill the player and update the score board if we are playing DeathMatch
         elif room['game_type'] == MODE_DEATHMATCH and (str(who + 1) in room['slots'] or who == 65535):
 
             # Update the score board
             update = PacketWrite()
-            update.AddHeader([0x5B, 0x2F])
-            update.AppendBytes(bytes=bytearray([0x01, 0x00]))
-            update.AppendInteger(integer=(int(room_slot) - 1), length=2, byteorder='little')    # Victim
-            update.AppendInteger(integer=who, length=2, byteorder='little')                     # Killer
-            _args['connection_handler'].SendRoomAll(room['id'], update.packet)
+            update.add_header([0x5B, 0x2F])
+            update.append_bytes(bytes=bytearray([0x01, 0x00]))
+            update.append_integer(integer=(int(room_slot) - 1), length=2, byteorder='little')  # Victim
+            update.append_integer(integer=who, length=2, byteorder='little')  # Killer
+            _args['connection_handler'].room_broadcast(room['id'], update.packet)
 
         # Death check for Battle
         if room['game_type'] == MODE_BATTLE:
@@ -821,14 +855,14 @@ def game_end_rpc(**_args):
 
             # Object containing the amount of alive players per team
             teams = {
-                TEAM_RED:   {'alive': 0},
-                TEAM_BLUE:  {'alive': 0}
+                TEAM_RED: {'alive': 0},
+                TEAM_BLUE: {'alive': 0}
             }
 
             # Retrieve amount of alive players per team
             for slot in room['slots']:
                 if not room['slots'][slot]['dead']:
-                    teams[room['slots'][slot]['team']]['alive'] +=1
+                    teams[room['slots'][slot]['team']]['alive'] += 1
 
             # Check if any team has no alive players, make opposite team win
             for team in teams:
@@ -854,9 +888,9 @@ def game_end_rpc(**_args):
                 if room['slots'][slot]['deaths'] < 5:
                     return
 
-            # If all players are really dead, end the game. There's no way to finish the game without at least one person.
+            # If all players are really dead, end the game. There's no way to finish the game without at least one
+            # person.
             game_end(_args=_args, room=room, status=0)
-
 
     # Planet Mode
     elif room['game_type'] == MODE_PLANET:
@@ -879,12 +913,14 @@ def game_end_rpc(**_args):
         # End the game
         game_end(_args=_args, room=room, status=status)
 
+
 '''
 This method will listen to the client to tell which team has won the match.
 Everyone in the winning team will be marked as a winner and the game will end.
 '''
-def military_win(**_args):
 
+
+def military_win(**_args):
     # If the client is not in a room, drop the packet
     room = Room.get_room(_args)
     if not room:
@@ -895,7 +931,7 @@ def military_win(**_args):
         return
 
     # Read winning team
-    winning_team = int(_args['packet'].ReadInteger(2, 2, 'little'))
+    winning_team = int(_args['packet'].read_integer(2, 2, 'little'))
 
     # If the winning team from the client is not valid, drop the packet
     if winning_team not in [TEAM_RED, TEAM_BLUE]:
@@ -909,12 +945,14 @@ def military_win(**_args):
     # End the game
     game_end(_args=_args, room=room)
 
+
 '''
 This method will send the correct packet to indicate what the game end result is to the room or specified client.
 After this, it will start a new thread that will run the post-game transaction and show the game stats to the clients.
 '''
-def game_end(_args, room, status=None):
 
+
+def game_end(_args, room, status=None):
     # If the game is already over, there is not anything to do.
     # We'll also do nothing if the room status is not 3 (started).
     if room['game_over'] or room['status'] != 3:
@@ -928,9 +966,9 @@ def game_end(_args, room, status=None):
 
         # Create game result packet and send it to all the room clients
         result = PacketWrite()
-        result.AddHeader(bytes=bytearray([0x2A, 0x27]))
-        result.AppendInteger(status, 2, 'little')
-        _args['connection_handler'].SendRoomAll(room['id'], result.packet)
+        result.add_header(bytes=bytearray([0x2A, 0x27]))
+        result.append_integer(status, 2, 'little')
+        _args['connection_handler'].room_broadcast(room['id'], result.packet)
 
         # If the status is equal to 1, then everyone has won. Set the won status of every player in the room to True
         if status == 1:
@@ -945,8 +983,8 @@ def game_end(_args, room, status=None):
 
             # Create result packet and send to this player
             result = PacketWrite()
-            result.AddHeader([0x2A, 0x27])
-            result.AppendInteger(status, 2, 'little')
+            result.add_header([0x2A, 0x27])
+            result.append_integer(status, 2, 'little')
             try:
                 room['slots'][slot]['client']['socket'].sendall(result.packet)
             except Exception:
@@ -955,10 +993,13 @@ def game_end(_args, room, status=None):
     # Start new thread for the game statistics
     _thread.start_new_thread(game_stats, (_args, room, status))
 
+
 '''
 This method will update all characters in the room with their new results (if applicable)
 Additionally, this method will return the results of the transaction in the form of a dictionary
 '''
+
+
 def post_game_transaction(_args, room, status=None):
 
     """
@@ -967,16 +1008,16 @@ def post_game_transaction(_args, room, status=None):
     ---
     What we'll do is overwrite the object that would have been our mysql object if we were in the main thread
     """
-    mysql_connection    = MySQL.GetConnection()
-    _args['mysql']      = mysql_connection.cursor(dictionary=True)
+    mysql_connection = MySQL.get_connection()
+    _args['mysql'] = mysql_connection.cursor(dictionary=True)
 
-    # Perform anti hacking checks before we continue, if we're playing planet mode
+    # Perform anti-hacking checks before we continue, if we're playing planet mode
     if room['game_type'] == MODE_PLANET and status == 1:
         anti_hack_check(_args, room)
 
     information = {}
 
-    # Calculate new experience, level, etc for all players in the room
+    # Calculate new experience, level, etc. for all players in the room
     for key, slot in room['slots'].items():
 
         # Retrieve character object belonging to this player
@@ -988,8 +1029,8 @@ def post_game_transaction(_args, room, status=None):
         ''' Calculate experience and giga gains for planet mode'''
         if room['game_type'] == MODE_PLANET:
 
-            ''' Calculate the amount of experience to award to the player. If the player's level has a difference of at least 10,
-                the experience is divided by four. Otherwise, the experience is not mutated. 
+            '''Calculate the amount of experience to award to the player. If the player's level has a difference of 
+                at least 10, the experience is divided by four. Otherwise, the experience is not mutated. 
                 
                 If there is an experience modifier present, it will be applied on top of the base experience.
                 Finally, if the player has lost the game, no experience will be awarded at all. '''
@@ -1000,16 +1041,17 @@ def post_game_transaction(_args, room, status=None):
             # We'll only be awarding experience if the player hasn't lost the game and if the level is valid
             if room['level'] in PLANET_MAP_TABLE.keys() and slot['won']:
 
-                # We'll increase the base experience by this amount, based on the difficulity
-                difficulity_multiplication = {
-                    DIFFICULTY_EASY:    1.00,
-                    DIFFICULTY_MEDIUM:  1.25,
-                    DIFFICULTY_HARD:    1.50
+                # We'll increase the base experience by this amount, based on the difficulty
+                difficulty_multiplication = {
+                    DIFFICULTY_EASY: 1.00,
+                    DIFFICULTY_MEDIUM: 1.25,
+                    DIFFICULTY_HARD: 1.50
                 }
 
                 # Retrieve base experience amount from the experience table
-                addition_experience = PLANET_MAP_TABLE[room['level']][0] * difficulity_multiplication[room['difficulty']] \
-                             * room['experience_modifier'] # We'll modify the base experience with the experience modifier when needed
+                # We'll modify the base experience with the experience modifier when needed
+                addition_experience = PLANET_MAP_TABLE[room['level']][0] * difficulty_multiplication[
+                    room['difficulty']] * room['experience_modifier']
 
                 # If the level difference between the recommended level and the users' level is equal or greater than 9
                 # we will apply a 75% experience reduction in order to encourage players to play on their own level.
@@ -1019,11 +1061,12 @@ def post_game_transaction(_args, room, status=None):
             # Ensure that the experience addition is always an integer
             addition_experience = int(addition_experience)
 
-            ''' Calculate the amount of gigas to award to the player. If the level difference is too large, the amount is reduced.
-                The base reward is equal to 1250 which a rate is applied on top of.'''
-            mv      = (PLANET_MAP_TABLE[room['level']][2] + 1) * 2
-            rate    = min(15.0, max(0.1, 1.0 + (float(mv - character['level']) / 3.0)))
-            reward  = int(1250 * rate / (1.00 if abs(PLANET_MAP_TABLE[room['level']][2] - character['level']) < 3 else 4.00))
+            ''' Calculate the amount of gigas to award to the player. If the level difference is too large, the amount 
+                is reduced. The base reward is equal to 1250 which a rate is applied on top of. '''
+            mv = (PLANET_MAP_TABLE[room['level']][2] + 1) * 2
+            rate = min(15.0, max(0.1, 1.0 + (float(mv - character['level']) / 3.0)))
+            reward = int(
+                1250 * rate / (1.00 if abs(PLANET_MAP_TABLE[room['level']][2] - character['level']) < 3 else 4.00))
             addition_gigas = reward if slot['won'] else 0
 
         # If the game mode is DeathMatch, calculate the rank addition
@@ -1043,7 +1086,7 @@ def post_game_transaction(_args, room, status=None):
                 We'll also want to randomize the experience multiplier with another multiplier (uniform)
                 to randomize the outcome as well. '''
             addition_experience = int(slot['player_kills'] * (experience_multiplier * random.uniform(1.0, 1.3)))
-            addition_gigas      = addition_experience * random.randrange(13, 16)
+            addition_gigas = addition_experience * random.randrange(13, 16)
 
             ''' Calculate additional experience for Military mode'''
             if room['game_type'] == MODE_MILITARY:
@@ -1065,13 +1108,13 @@ def post_game_transaction(_args, room, status=None):
         addition_experience += party_experience
 
         # Check if we have leveled up
-        level_up = character['level'] < MAX_LEVEL \
-                   and character['experience'] + addition_experience >= EXP_TABLE[character['level'] + 1]
+        level_up = character['level'] < MAX_LEVEL and character['experience'] + addition_experience >= EXP_TABLE[character['level'] + 1]
         if level_up:
 
             # Update our level and experience
             character['level'] += 1
             character['experience'] = 0
+
         else:
 
             # Update only our experience
@@ -1102,7 +1145,7 @@ def post_game_transaction(_args, room, status=None):
         # Construct IN statement
         for idx in wearing['items']:
             if wearing['items'][idx]['character_item_id'] is not None:
-                in_statement+= '{}, '.format(wearing['items'][idx]['character_item_id'])
+                in_statement += '{}, '.format(wearing['items'][idx]['character_item_id'])
 
         # Remove one remaining game from the total amount of remaining games, if applicable.
         if len(in_statement) > 0:
@@ -1113,7 +1156,8 @@ def post_game_transaction(_args, room, status=None):
         remove_expired_items(_args, character['id'])
 
         information[key] = {
-            'addition_experience': addition_experience - party_experience, # The regular experience count is not part of any additional bonus
+            'addition_experience': addition_experience - party_experience,
+            # The regular experience count is not part of any additional bonus
             'party_experience': party_experience,
             'addition_rank_experience': addition_rank_experience,
             'addition_gigas': addition_gigas,
@@ -1128,19 +1172,20 @@ def post_game_transaction(_args, room, status=None):
         }
 
         # Calculate and award guild points if character is in a guild
-        if Guild.FetchGuild(_args, character['id']) is not None:
-
+        if Guild.fetch_guild(_args, character['id']) is not None:
             # Calculate guild points based on the amount of experience and rank experience
             guild_points = int((addition_experience * .70) + (addition_rank_experience * 1.25))
 
             # Update guild points for this member
-            _args['mysql'].execute('''UPDATE `guild_members` SET `points` = (`points` + %s) WHERE `character_id` = %s''', [
-                guild_points,
-                character['id']
-            ])
+            _args['mysql'].execute(
+                '''UPDATE `guild_members` SET `points` = (`points` + %s) WHERE `character_id` = %s''', [
+                    guild_points,
+                    character['id']
+                ])
 
-        # In case the room game type is either Battle or Team Battle, we'll have to display experience as rank experience
-        # This is because the client uses the rank experience result screen for Battle too, instead of the traditional one.
+        # In case the room game type is either Battle or Team Battle, we'll have to display experience as rank
+        # experience This is because the client uses the rank experience result screen for Battle too, instead of the
+        # traditional one.
         if room['game_type'] in [MODE_BATTLE, MODE_TEAM_BATTLE]:
             information[key]['addition_rank_experience'] = information[key]['addition_experience']
 
@@ -1166,10 +1211,13 @@ def post_game_transaction(_args, room, status=None):
     mysql_connection.close()
     return information
 
+
 '''
-This method will perform post game checks to determine wheter or not potential hacking is occuring.
+This method will perform post game checks to determine whether or not potential hacking is occurring.
 If this check fails, all clients in the room will be kicked from the server.
 '''
+
+
 def anti_hack_check(_args, room):
 
     # If the room game type is equal to Planet mode, perform the attack score and minimum monster checks
@@ -1181,7 +1229,7 @@ def anti_hack_check(_args, room):
         '''
 
         # Retrieve minimum score from the planet map array
-        minimum_score = PLANET_MAP_TABLE[ room['level'] ][3]
+        minimum_score = PLANET_MAP_TABLE[room['level']][3]
 
         # Total score amount. We'll increase this with the attack score of every player in the room
         total_score = 0
@@ -1216,7 +1264,7 @@ def anti_hack_check(_args, room):
         Minimum monster kill validation:    The amount of killed mobs must be equal or greater
                                             than the value we store.
         '''
-        min_mob_kills   = PLANET_MAP_TABLE[ room['level'] ][4]
+        min_mob_kills = PLANET_MAP_TABLE[room['level']][4]
         total_mob_kills = 0
 
         # Calculate amount of total mob kills
@@ -1227,11 +1275,13 @@ def anti_hack_check(_args, room):
         if min_mob_kills > total_mob_kills:
             return anti_hack_fail(_args, room)
 
+
 '''
 This method will kick all clients in a room due to a failed anti hack check
 '''
-def anti_hack_fail(_args, room):
 
+
+def anti_hack_fail(_args, room):
     # Create a copy of the room slots in memory
     slots = list(room['slots'].items())
 
@@ -1252,13 +1302,13 @@ def anti_hack_fail(_args, room):
         moderation.suspend_player(slot['client']['web_id'], _args['connection_handler'], slot['client'])
 
 
-
 '''
 This method will show the game statistics and the result of the post game transaction which is also
 invoked in this method
 '''
-def game_stats(_args, room, status=None):
 
+
+def game_stats(_args, room, status=None):
     # To give players the chance to obtain items such as drops, we will be waiting a few seconds.
     time.sleep(6.5)
 
@@ -1274,24 +1324,28 @@ def game_stats(_args, room, status=None):
 
     # 8 bytes that tell which player won
     for i in range(8):
-        room_results.AppendInteger(0 if str(i + 1) not in information else (1 if information[str(i + 1)]['won'] else 0))
+        room_results.append_integer(
+            0 if str(i + 1) not in information else (1 if information[str(i + 1)]['won'] else 0))
 
     # 8 bytes that will tell which player leveled up
     for i in range(8):
-        room_results.AppendInteger(0 if str(i + 1) not in information else (1 if information[str(i + 1)]['leveled_up'] else 0))
+        room_results.append_integer(
+            0 if str(i + 1) not in information else (1 if information[str(i + 1)]['leveled_up'] else 0))
 
     # another 8 bytes which contain the new levels of said players
     for i in range(8):
-        room_results.AppendInteger(0 if str(i + 1) not in information else information[str(i + 1)]['level'], 1, 'little')
+        room_results.append_integer(0 if str(i + 1) not in information else information[str(i + 1)]['level'], 1,
+                                    'little')
 
     # new experience points for all players
     for i in range(8):
-        room_results.AppendInteger(0 if str(i + 1) not in information else information[str(i + 1)]['addition_experience'], 2, 'little')
+        room_results.append_integer(
+            0 if str(i + 1) not in information else information[str(i + 1)]['addition_experience'], 2, 'little')
 
     # new health amount for all players
     for i in range(8):
-        room_results.AppendInteger(0 if str(i + 1) not in information else room['slots'][str(i + 1)]['client']['character']['health']
-                             + information[str(i + 1)]['wearing_items']['specifications']['effect_health'], 2, 'little')
+        room_results.append_integer(
+            0 if str(i + 1) not in information else room['slots'][str(i + 1)]['client']['character']['health'] + information[str(i + 1)]['wearing_items']['specifications']['effect_health'], 2, 'little')
 
     # Attack points, obfuscate the actual value
     for i in range(8):
@@ -1303,62 +1357,72 @@ def game_stats(_args, room, status=None):
         if points > 0:
             points = (points + random.randrange(23, 89)) / 1.5
 
-        room_results.AppendInteger(int(points), 2, 'little')
+        room_results.append_integer(int(points), 2, 'little')
 
     # unknown
     for _ in range(8):
-        room_results.AppendInteger(0, 2, 'little')
+        room_results.append_integer(0, 2, 'little')
 
     # Player kills
     for _ in range(8):
-        room_results.AppendInteger(0, 2, 'little')
+        room_results.append_integer(0, 2, 'little')
 
     # Monster kills
     for i in range(8):
-        room_results.AppendInteger(0 if str(i + 1) not in information else room['slots'][str(i + 1)]['monster_kills'], 2, 'little')
+        room_results.append_integer(0 if str(i + 1) not in information else room['slots'][str(i + 1)]['monster_kills'],
+                                    2, 'little')
 
     # MVPs
-    room_results.AppendInteger(1 if len(room['slots']) >= 2 else 0, 2, 'little')    # MVP
-    room_results.AppendInteger(1 if len(room['slots']) >= 3 else 0, 2, 'little')    # Boss/Base killer number 1
+    room_results.append_integer(1 if len(room['slots']) >= 2 else 0, 2, 'little')  # MVP
+    room_results.append_integer(1 if len(room['slots']) >= 3 else 0, 2, 'little')  # Boss/Base killer number 1
 
     # Cash item experience
     for _ in range(8):
-        room_results.AppendInteger(0, 2, 'little')
+        room_results.append_integer(0, 2, 'little')
 
     # Party experience
     for i in range(8):
-        room_results.AppendInteger(0 if str(i + 1) not in information else information[str(i + 1)]['party_experience'], 2, 'little')
+        room_results.append_integer(0 if str(i + 1) not in information else information[str(i + 1)]['party_experience'],
+                                    2, 'little')
 
-    room_results.AppendBytes(bytearray([0x00, 0x00, 0x00, 0x00, 0x00])) # Unknown
+    room_results.append_bytes(bytearray([0x00, 0x00, 0x00, 0x00, 0x00]))  # Unknown
 
     # Player ranking and ranking experience
     for i in range(0, 8):
-        room_results.AppendInteger(0 if str(i + 1) not in information else room['slots'][str(i + 1)]['client']['character']['rank_exp'], 4, 'little')
-        room_results.AppendInteger(0 if str(i + 1) not in information else room['slots'][str(i + 1)]['client']['character']['rank'], 4, 'little')
+        room_results.append_integer(
+            0 if str(i + 1) not in information else room['slots'][str(i + 1)]['client']['character']['rank_exp'], 4,
+            'little')
+        room_results.append_integer(
+            0 if str(i + 1) not in information else room['slots'][str(i + 1)]['client']['character']['rank'], 4,
+            'little')
 
         # Rank points
-        room_results.AppendInteger(0 if str(i + 1) not in information else information[str(i + 1)]['addition_rank_experience'], 4, 'little')
+        room_results.append_integer(
+            0 if str(i + 1) not in information else information[str(i + 1)]['addition_rank_experience'], 4, 'little')
 
         # Kill points
-        room_results.AppendInteger(0, 4, 'little')
+        room_results.append_integer(0, 4, 'little')
 
         # Experience bonus
-        room_results.AppendInteger(0, 4, 'little')
+        room_results.append_integer(0, 4, 'little')
 
         # Unknown
-        room_results.AppendInteger(0, 4, 'little')
+        room_results.append_integer(0, 4, 'little')
 
         # Cash point
-        room_results.AppendInteger(0, 4, 'little')
+        room_results.append_integer(0, 4, 'little')
 
         # Rank experience points
-        room_results.AppendInteger(0 if str(i + 1) not in information else information[str(i + 1)]['addition_rank_experience'], 4, 'little')
+        room_results.append_integer(
+            0 if str(i + 1) not in information else information[str(i + 1)]['addition_rank_experience'], 4, 'little')
 
         # Kills
-        room_results.AppendInteger(0 if str(i + 1) not in information else room['slots'][str(i + 1)]['player_kills'], 4, 'little')
+        room_results.append_integer(0 if str(i + 1) not in information else room['slots'][str(i + 1)]['player_kills'],
+                                    4, 'little')
 
         # Deaths
-        room_results.AppendInteger(0 if str(i + 1) not in information else room['slots'][str(i + 1)]['deaths'], 4, 'little')
+        room_results.append_integer(0 if str(i + 1) not in information else room['slots'][str(i + 1)]['deaths'], 4,
+                                    'little')
 
         # Attack points, obfuscate the actual value
         points = 0 if str(i + 1) not in information else int(room['slots'][str(i + 1)]['points'])
@@ -1367,11 +1431,10 @@ def game_stats(_args, room, status=None):
         if points > 0:
             points = (points + random.randrange(23, 89)) / 1.5
 
-        room_results.AppendInteger(int(points), 4, 'little')
+        room_results.append_integer(int(points), 4, 'little')
 
         # Leveled up
-        room_results.AppendBytes(bytearray([0x00]))
-
+        room_results.append_bytes(bytearray([0x00]))
 
     for key, slot in room['slots'].items():
 
@@ -1380,38 +1443,40 @@ def game_stats(_args, room, status=None):
 
         # Create game result packet
         packet = PacketWrite()
-        packet.AddHeader(bytearray([0x1F, 0x2F]))
-        packet.AppendBytes(bytearray([0x01, 0x00, 0x00, 0x00]))
+        packet.add_header(bytearray([0x1F, 0x2F]))
+        packet.append_bytes(bytearray([0x01, 0x00, 0x00, 0x00]))
 
         # New gold amount
-        packet.AppendInteger(result_information['gold'], 4, 'little')
+        packet.append_integer(result_information['gold'], 4, 'little')
 
         # New level
-        packet.AppendInteger(result_information['level'], 2, 'little')
+        packet.append_integer(result_information['level'], 2, 'little')
 
         # New experience
-        packet.AppendInteger(result_information['experience'], 4, 'little')
+        packet.append_integer(result_information['experience'], 4, 'little')
 
         # New oil amount
-        packet.AppendInteger(result_information['oil'], 4, 'little')
-        packet.AppendBytes(bytearray([0x00, 0x00, 0x00, 0x00]))
+        packet.append_integer(result_information['oil'], 4, 'little')
+        packet.append_bytes(bytearray([0x00, 0x00, 0x00, 0x00]))
 
         # Remaining time for wearing items
         for idx in [17, 18, 11, 12, 13, 14, 15, 16, 3, 4, 5, 6, 7, 8, 9, 10]:
-            packet.AppendInteger(result_information['wearing_items']['items'][idx]['duration'], 4, 'little')
+            packet.append_integer(result_information['wearing_items']['items'][idx]['duration'], 4, 'little')
 
         # New character statistics
-        packet.AppendInteger(room['slots'][key]['client']['character']['att_min']
-                             + result_information['wearing_items']['specifications']['effect_att_min'], 2, 'little')
-        packet.AppendInteger(room['slots'][key]['client']['character']['att_max']
-                             + result_information['wearing_items']['specifications']['effect_att_max'], 2, 'little')
-        packet.AppendInteger(room['slots'][key]['client']['character']['att_trans_min']
-                             + result_information['wearing_items']['specifications']['effect_att_trans_min'], 2, 'little')
-        packet.AppendInteger(room['slots'][key]['client']['character']['att_trans_max']
-                             + result_information['wearing_items']['specifications']['effect_att_trans_max'], 2, 'little')
+        packet.append_integer(room['slots'][key]['client']['character']['att_min']
+                              + result_information['wearing_items']['specifications']['effect_att_min'], 2, 'little')
+        packet.append_integer(room['slots'][key]['client']['character']['att_max']
+                              + result_information['wearing_items']['specifications']['effect_att_max'], 2, 'little')
+        packet.append_integer(room['slots'][key]['client']['character']['att_trans_min']
+                              + result_information['wearing_items']['specifications']['effect_att_trans_min'], 2,
+                              'little')
+        packet.append_integer(room['slots'][key]['client']['character']['att_trans_max']
+                              + result_information['wearing_items']['specifications']['effect_att_trans_max'], 2,
+                              'little')
 
         # Finally, append room-wide information and send to the client's socket
-        packet.AppendBytes(room_results.data)
+        packet.append_bytes(room_results.data)
         room['slots'][key]['client']['socket'].sendall(packet.packet)
 
     # We must now send the packet to go back to room after 6 seconds
@@ -1424,24 +1489,26 @@ def game_stats(_args, room, status=None):
     # Reset room status and broadcast room status to lobby
     Room.reset(_args=_args, room=room)
     room['status'] = 0
-    Room.get_list(_args, mode=0 if room['game_type'] in [ MODE_BATTLE, MODE_TEAM_BATTLE ] else room['game_type'] - 1,
-             page=Room.get_list_page_by_room_id(room['id'], room['game_type']), local=False)
+    Room.get_list(_args, mode=0 if room['game_type'] in [MODE_BATTLE, MODE_TEAM_BATTLE] else room['game_type'] - 1,
+                  page=Room.get_list_page_by_room_id(room['id'], room['game_type']), local=False)
 
     # Broadcast the game exit packet to every peer in the room
     game_exit = PacketWrite()
-    game_exit.AddHeader(bytearray([0x2A, 0x2F]))
-    game_exit.AppendBytes(bytearray([0x00]))
-    _args['connection_handler'].SendRoomAll(room['id'], game_exit.packet)
+    game_exit.add_header(bytearray([0x2A, 0x2F]))
+    game_exit.append_bytes(bytearray([0x00]))
+    _args['connection_handler'].room_broadcast(room['id'], game_exit.packet)
 
     # Sync room state
     Room.sync_state(_args, room)
+
 
 '''
 This method is responsible for waiting for the time to be over in sessions.
 It uses polling due to having no ability to mutate the thread's state once it has been started.
 '''
-def countdown_timer(_args, room, minutes=None):
 
+
+def countdown_timer(_args, room, minutes=None):
     # Always wait for the game count down to conclude. That's when the timer starts on the client.
     time.sleep(2)
 
@@ -1461,16 +1528,19 @@ def countdown_timer(_args, room, minutes=None):
         if len(room['slots']) == 0 or room['game_over']: break
         time.sleep(1)
 
-    # If polling stopped while the game is not over, the game has ran out of time.
+    # If polling stopped while the game is not over, the game has run out of time.
     # Also check if there are actually any players in the room
     if len(room['slots']) > 0 and not room['game_over']:
         game_end(_args=_args, room=room, status=2 if room['game_type'] != MODE_DEATHMATCH else 3)
+
 
 '''
 This method is responsible for dropping canisters per set interval to give players canisters
 in DeathMatch and Battle mode. This method uses long polling due to having no ability to mutate the thread's state
 once it has been started.
 '''
+
+
 def incremental_canister_drops(_args, room):
     while True:
 
@@ -1501,7 +1571,6 @@ def incremental_canister_drops(_args, room):
         canisters = []
         for idx, drop in enumerate(drops):
             if room['drop_index'] < 256:
-
                 # Construct drop data
                 data = bytearray()
                 data.extend(idx.to_bytes(2, 'little'))
@@ -1517,17 +1586,19 @@ def incremental_canister_drops(_args, room):
 
         # Construct drop packet and send it to the room
         drop = PacketWrite()
-        drop.AddHeader([0x2B, 0x27])
-        drop.AppendInteger(len(canisters), length=2, byteorder='little')
-        drop.AppendBytes(drop_bytes)
-        _args['connection_handler'].SendRoomAll(room['id'], drop.packet)
+        drop.add_header([0x2B, 0x27])
+        drop.append_integer(len(canisters), length=2, byteorder='little')
+        drop.append_bytes(drop_bytes)
+        _args['connection_handler'].room_broadcast(room['id'], drop.packet)
+
 
 '''
 This thread will check clients' loading status in the background every second as a failsafe.
 Once all clients have loaded, the game will be started.
 '''
-def load_finish_thread(_args, room):
 
+
+def load_finish_thread(_args, room):
     # Keep checking while the game hasn't loaded yet
     while not room['game_loaded'] and len(room['slots']) > 0:
 
@@ -1550,18 +1621,20 @@ def load_finish_thread(_args, room):
         # Has everyone loaded the game? Start the game by calling load_finish
         load_finish(_args, room)
 
+
 '''
 This method will parse chat commands
 '''
-def chat_command(**_args):
 
+
+def chat_command(**_args):
     # Check if we are in a room, if not drop the packet
     room = Room.get_room(_args)
     if not room:
         return
 
     # Read message
-    message = _args['packet'].ReadString()
+    message = _args['packet'].read_string()
 
     if message.startswith('@'):
         command = message[1:]
@@ -1582,7 +1655,7 @@ def chat_command(**_args):
         elif command == 'timeout' and _args['client']['character']['position'] == 1:
             game_end(_args=_args, room=room, status=2)
 
-        # Force time over command (deathmatch variant), only available to staff members
+        # Force time over command (death-match variant), only available to staff members
         elif command == 'timeoutdm' and _args['client']['character']['position'] == 1:
             game_end(_args=_args, room=room, status=3)
 
@@ -1591,17 +1664,19 @@ def chat_command(**_args):
 
             # Check if we are the room master
             if room['master'] != _args['client']:
-                return Lobby.ChatMessage(_args['client'], 'Only room masters can change player statistics', 2)
+                return Lobby.chat_message(_args['client'], 'Only room masters can change player statistics', 2)
 
             # Check if the game mode is correct
-            elif room['game_type'] not in [ MODE_DEATHMATCH, MODE_BATTLE, MODE_TEAM_BATTLE ]:
-                return Lobby.ChatMessage(_args['client'], 'Player statistics can only be changed in Deathmatch, Battle and Team Battle', 2)
+            elif room['game_type'] not in [MODE_DEATHMATCH, MODE_BATTLE, MODE_TEAM_BATTLE]:
+                return Lobby.chat_message(_args['client'],
+                                          'Player statistics can only be changed in Death-match, Battle and Team Battle', 2)
 
             # Check if the game has already started
             elif room['status'] != 0:
-                return Lobby.ChatMessage(_args['client'], 'You can not change the statistics after the game has started', 2)
+                return Lobby.chat_message(_args['client'],
+                                          'You can not change the statistics after the game has started', 2)
 
-            # Split the command string so we can begin to read values
+            # Split the command string, so we can begin to read values
             command_split = command.split()
 
             # Read what we want to change
@@ -1612,18 +1687,19 @@ def chat_command(**_args):
                 room['stat_override'] = {}
 
                 # Send acknowledgement message to everyone in the room
-                message = Lobby.ChatMessage(target=None,
-                                            message='{0} has reset all custom statistics'.format(
-                                                _args['client']['character']['name']
-                                            ),
-                                            color=3,
-                                            return_packet=True)
-                return _args['connection_handler'].SendRoomAll(room['id'], message)
+                message = Lobby.chat_message(target=None,
+                                             message='{0} has reset all custom statistics'.format(
+                                                 _args['client']['character']['name']
+                                             ),
+                                             color=3,
+                                             return_packet=True)
+                return _args['connection_handler'].room_broadcast(room['id'], message)
 
-            # If the command_split length is not 2, quit executing the command. This means we have too many or too few arguments
+            # If the command_split length is not 2, quit executing the command. This means we have too many or too
+            # few arguments
             if len(command_split) != 2:
-                return Lobby.ChatMessage(_args['client'],
-                                         'Invalid arguments. We expect: @{0} <number>'.format(command[:5]), 2)
+                return Lobby.chat_message(_args['client'],
+                                          'Invalid arguments. We expect: @{0} <number>'.format(command[:5]), 2)
 
             # Read value from the command
             value = command_split[1]
@@ -1634,26 +1710,26 @@ def chat_command(**_args):
 
             # Check if the value is out of range
             if int(value) not in range(200, 8000):
-                return Lobby.ChatMessage(_args['client'],
-                                         'Argument <number> is out of range. It must be between 200 and 8000', 2)
+                return Lobby.chat_message(_args['client'],
+                                          'Argument <number> is out of range. It must be between 200 and 8000', 2)
 
             value_map = {
                 'speed': STAT_SPEED,
                 'gauge': STAT_ATT_TRANS_GAUGE
             }
 
-            room['stat_override'][ value_map[what][STAT_KEY] ] = int(value)
+            room['stat_override'][value_map[what][STAT_KEY]] = int(value)
 
             # Send acknowledgement message to everyone in the room
-            message = Lobby.ChatMessage(target=None,
-                                        message='{0} has changed everyone\'s {1} to {2}'.format(
-                                            _args['client']['character']['name'],
-                                            what,
-                                            value
-                                        ),
-                                        color=3,
-                                        return_packet=True)
-            _args['connection_handler'].SendRoomAll(room['id'], message)
+            message = Lobby.chat_message(target=None,
+                                         message='{0} has changed everyone\'s {1} to {2}'.format(
+                                             _args['client']['character']['name'],
+                                             what,
+                                             value
+                                         ),
+                                         color=3,
+                                         return_packet=True)
+            _args['connection_handler'].room_broadcast(room['id'], message)
 
         # Handle suicide requests
         elif command == 'suicide':
@@ -1666,9 +1742,9 @@ def chat_command(**_args):
             if room['game_type'] == MODE_PLANET:
                 result = player_death(_args, room)
                 if result is not False:
-                    Lobby.ChatMessage(_args['client'], 'You have just killed your player', 2)
+                    Lobby.chat_message(_args['client'], 'You have just killed your player', 2)
             else:
-                Lobby.ChatMessage(_args['client'], 'This command only works in planet mode', 2)
+                Lobby.chat_message(_args['client'], 'This command only works in planet mode', 2)
 
         # Handle kick requests
         elif command[:4] == 'kick':
@@ -1679,15 +1755,15 @@ def chat_command(**_args):
 
             # Check if we are the room master
             if room['master'] != _args['client']:
-                return Lobby.ChatMessage(_args['client'], 'Only room masters can kick players from their rooms', 2)
+                return Lobby.chat_message(_args['client'], 'Only room masters can kick players from their rooms', 2)
 
             # Retrieve the character name of the new room master and attempt to find the user in the room
-            who     = message[6:]
-            slots   = room['slots'].items()
+            who = message[6:]
+            slots = room['slots'].items()
 
             # If we are trying to kick ourselves, stop.
             if who == _args['client']['character']['name']:
-                return Lobby.ChatMessage(_args['client'], 'You can not kick yourself', 2)
+                return Lobby.chat_message(_args['client'], 'You can not kick yourself', 2)
 
             # Attempt to find the player we are trying to kick from the room
             for key, slot in slots:
@@ -1696,7 +1772,7 @@ def chat_command(**_args):
                     return
 
             # If we have passed the loop with no result, the player was not found
-            Lobby.ChatMessage(_args['client'], 'Player {0} not found'.format(who), 2)
+            Lobby.chat_message(_args['client'], 'Player {0} not found'.format(who), 2)
 
         elif command == 'help':
 
@@ -1730,7 +1806,7 @@ def chat_command(**_args):
             ]
 
             for command in commands:
-                Lobby.ChatMessage(_args['client'], '{0} -- {1}'.format(command['command'], command['description']), 2)
+                Lobby.chat_message(_args['client'], '{0} -- {1}'.format(command['command'], command['description']), 2)
 
         # Mirror of the help command except it only lists commands used for player statistic alterations
         elif command == 'stat-help':
@@ -1753,7 +1829,7 @@ def chat_command(**_args):
             ]
 
             for command in commands:
-                Lobby.ChatMessage(_args['client'], '{0} -- {1}'.format(command['command'], command['description']), 2)
+                Lobby.chat_message(_args['client'], '{0} -- {1}'.format(command['command'], command['description']), 2)
 
         else:
-            Lobby.ChatMessage(_args['client'], 'Unknown command. Type @help for a list of commands', 2)
+            Lobby.chat_message(_args['client'], 'Unknown command. Type @help for a list of commands', 2)

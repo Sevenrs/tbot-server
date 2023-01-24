@@ -1,13 +1,17 @@
-from Packet.Write import Write as PacketWrite
-from GameServer.Controllers.Room import get_slot
-from ratelimit import LOGIN_RATE_LIMIT
-import _thread, time, socket, datetime
-from dotenv import dotenv_values
+import _thread
+import datetime
 import requests
+import socket
+import time
+from dotenv import dotenv_values
+
+from GameServer.Controllers.Room import get_slot
+from Packet.Write import Write as PacketWrite
+from ratelimit import LOGIN_RATE_LIMIT
 from relay_tcp_server import connection as connection_handler
 
-def route(client, packet):
 
+def route(client, packet):
     print("[{0}] [client_id={1}] Got packet by ID: 0x{2} <{3}>".format(
         client['server'].name,
         client['id'] if 'id' in client else None,
@@ -21,19 +25,25 @@ def route(client, packet):
         '37a0': remove_connection
     }.get(packet.id, unknown)(**locals())
 
+
 '''
 Handle unknown packets by redirecting its contents to stdout
 '''
+
+
 def unknown(**_args):
     print("[{0}]: Unknown packet: <0x{1}[len={3}]::{2}>".format(_args['client']['server'].name, _args['packet'].id,
                                                                 _args['packet'].data, len(_args['packet'].data)))
+
+
 '''
 Retrieve first available ID and register the client for later access
 '''
-def id_request(**_args):
 
+
+def id_request(**_args):
     # Read account name from the packet
-    account = _args['packet'].ReadString()[1:]
+    account = _args['packet'].read_string()[1:]
 
     # Read environment variables
     env = dotenv_values('.env')
@@ -55,12 +65,12 @@ def id_request(**_args):
 
     # Create response packet
     result = PacketWrite()
-    result.AddHeader(bytes=[0x1A, 0xA4])
+    result.add_header(bytes=[0x1A, 0xA4])
 
     # Check if the user exists. If it does not, throw an exception which closes the connection
     if response.status_code != 200:
-        result.AppendBytes([0x00])
-        result.AppendInteger(50, 1, 'little') # Incorrect authentication
+        result.append_bytes([0x00])
+        result.append_integer(50, 1, 'little')  # Incorrect authentication
         _args['client']['socket'].sendall(result.packet)
         raise Exception('IP address {0} is not authorized to sign in with account {1}'.format(
             _args['client']['socket'].getpeername()[0],
@@ -78,9 +88,9 @@ def id_request(**_args):
         break
 
     # Fill our client object with relevant information
-    _args['client']['account']      = response.json()['username']
-    _args['client']['id']           = id
-    _args['client']['last_ping']    = datetime.datetime.now()
+    _args['client']['account'] = response.json()['username']
+    _args['client']['id'] = id
+    _args['client']['last_ping'] = datetime.datetime.now()
 
     # Add the client to our client container
     _args['client']['server'].clients.append(_args['client'])
@@ -93,27 +103,29 @@ def id_request(**_args):
             connection_handler.close_connection(client)
 
     # Send response to client
-    result.AppendBytes([0x01, 0x00])
-    result.AppendBytes([id & 0xFF, id >> 8 & 0xFF])
+    result.append_bytes([0x01, 0x00])
+    result.append_bytes([id & 0xFF, id >> 8 & 0xFF])
     _args['client']['socket'].sendall(result.packet)
 
     # Start keep-alive thread
     _thread.start_new_thread(keep_alive, (_args,))
 
+
 '''
 This method determines who is relayed and who is not
 If a client is relayed, their relay ID is pushed to the relay ID container
 '''
-def check_connection(**_args):
 
+
+def check_connection(**_args):
     # If our game client doesn't have a room, drop the packet
     if 'room' not in _args['client']['game_client']:
         return
 
     # Find our room, slot number and slot instance
-    room        = _args['client']['game_server'].rooms[str(_args['client']['game_client']['room'])]
-    slot_nr     = get_slot({'client': _args['client']['game_client']}, room)
-    room_slot   = room['slots'][str(slot_nr)]
+    room = _args['client']['game_server'].rooms[str(_args['client']['game_client']['room'])]
+    slot_nr = get_slot({'client': _args['client']['game_client']}, room)
+    room_slot = room['slots'][str(slot_nr)]
 
     # Reset relay IDs to an empty array, we're starting off clean
     room_slot['relay_ids'] = []
@@ -125,8 +137,8 @@ def check_connection(**_args):
         start = (17 * i) + 8
 
         # Read if the remote player is connected and their character name
-        connected       = int(_args['packet'].ReadInteger(start + 1, 1, 'little'))
-        character_name  = _args['packet'].ReadStringByRange(start + 2, (start + 17))
+        connected = int(_args['packet'].read_integer(start + 1, 1, 'little'))
+        character_name = _args['packet'].read_string_by_range(start + 2, (start + 17))
 
         if len(character_name) > 0:
             print("[relay_tcp_server@check_connection()] <from: {2}> :: remote character: {0}, connected: {1}".format(
@@ -144,7 +156,8 @@ def check_connection(**_args):
                 # Attempt to retrieve the remote client by looping through all clients.
                 for client in _args['client']['server'].clients:
 
-                    # Check if the game_client is not None to ensure it exists. We'll also be making sure this client has a character assigned to begin with.
+                    # Check if the game_client is not None to ensure it exists. We'll also be making sure this client
+                    # has a character assigned to begin with.
                     if 'game_client' in client and client['game_client'] is not None \
                             and 'character' in client['game_client'] and client['game_client']['character'] is not None:
 
@@ -155,32 +168,38 @@ def check_connection(**_args):
                             if client['id'] not in room_slot['relay_ids']:
                                 room_slot['relay_ids'].append(client['id'])
             except Exception as e:
-                print('Failed to add a relay ID to the container because: {0}. It is likely the remote client no longer exists'.format(str(e)))
+                print(
+                    'Failed to add a relay ID to the container because: {0}. It is likely the remote client no longer '
+                    'exists'.format(
+                        str(e)))
+
 
 '''
 This method removes a relay ID from the requesting client's relay ID container
 '''
-def remove_connection(**_args):
 
+
+def remove_connection(**_args):
     # If our game client doesn't have a room, drop the packet
     if 'room' not in _args['client']['game_client']:
         return
 
     # Read character name
-    character_name  = _args['packet'].ReadStringByRange(2, 17)
+    character_name = _args['packet'].read_string_by_range(2, 17)
 
     # Find our own room, slot number and slot instance
-    room        = _args['client']['game_server'].rooms[str(_args['client']['game_client']['room'])]
-    slot_nr     = get_slot({'client': _args['client']['game_client']}, room)
-    room_slot   = room['slots'][str(slot_nr)]
+    room = _args['client']['game_server'].rooms[str(_args['client']['game_client']['room'])]
+    slot_nr = get_slot({'client': _args['client']['game_client']}, room)
+    room_slot = room['slots'][str(slot_nr)]
 
     # Attempt to remove the relay ID from the room
     try:
         for client in _args['client']['server'].clients:
 
-            # Check if the client is not None and if the game_client is also not None. We'll also check if the client has a character assigned with it.
+            # Check if the client is not None and if the game_client is also not None. We'll also check if the client
+            # has a character assigned with it.
             if client is not None and 'game_client' in client and client['game_client'] is not None \
-                and 'character' in client['game_client'] and client['game_client']['character'] is not None:
+                    and 'character' in client['game_client'] and client['game_client']['character'] is not None:
 
                 # Check if the character name is equal to the name we received
                 if client['game_client']['character']['name'] == character_name:
@@ -189,7 +208,10 @@ def remove_connection(**_args):
                     if client['id'] in room_slot['relay_ids']:
                         room_slot['relay_ids'].remove(client['id'])
     except Exception as e:
-        print('Failed to remove a relay ID from the room because: {0}. It is likely that the remote client no longer exists.'.format(str(e)))
+        print(
+            'Failed to remove a relay ID from the room because: {0}. It is likely that the remote client no longer '
+            'exists.'.format(
+                str(e)))
 
     # It is possible that the connection was closed by the remote client causing the ID to be removed from
     # the state and not from the room, making the above snippet not work. This will loop through all IDs in the
@@ -201,9 +223,11 @@ def remove_connection(**_args):
                 if id not in _args['client']['server'].ids:
                     ids.remove(id)
 
-''' Check if our last ping timestamp is recent enough. If not, disconnect our client. '''
-def keep_alive(_args):
 
+''' Check if our last ping timestamp is recent enough. If not, disconnect our client. '''
+
+
+def keep_alive(_args):
     while _args['client'] in _args['client']['server'].clients:
 
         # Wait 10 seconds before checking

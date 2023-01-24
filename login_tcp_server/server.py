@@ -12,6 +12,7 @@ import _thread
 from login_tcp_server import router
 from Packet.Read import Read as PacketRead
 
+
 class LoginTCPServer:
 
     def __init__(self, port):
@@ -37,17 +38,19 @@ class LoginTCPServer:
         except Exception as e:
             print("[{0}]: Failed to bind because: {1}".format(self.name, e))
 
+
 class LoginTCPConnection:
 
     def __init__(self, socket, address, server):
-        self.socket     = socket
-        self.address    = address
-        self.server     = server
+        self.socket = socket
+        self.address = address
+        self.server = server
 
         # Handle connection
         self.handle()
 
     ''' This method will handle new connections '''
+
     def handle(self):
         print("[{0}]: New connection from {1}:{2}".format(self.server.name, self.address[0], self.address[1]))
 

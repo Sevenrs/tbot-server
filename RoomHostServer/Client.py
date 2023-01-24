@@ -6,33 +6,35 @@ __version__ = "1.0"
 from Packet.ReadDatagram import ReadDatagram as ReadDatagram
 from . import Commands
 
-class Client:
 
+class Client:
     """
     ChannelServer datagram client constructor
     """
+
     def __init__(self, data, addr, server, game_server, connection_handler):
-        self.data               = data
-        self.address            = addr
-        self.server             = server
-        self.game_server        = game_server
+        self.data = data
+        self.address = addr
+        self.server = server
+        self.game_server = game_server
         self.connection_handler = connection_handler
-        
+
         # Immediately handle the new client's connection
         self.handle()
 
     """
     This method will handle the client's data
     """
+
     def handle(self):
 
         try:
 
-            #print('[RoomHostServer] New connection from:', self.address)
+            # print('[RoomHostServer] New connection from:', self.address)
 
             # Obtain packet and execute the relevant command for it
             packet = ReadDatagram(self.data)
             Commands.execute(self.server, self.address, self.game_server, self.connection_handler, packet)
 
         except Exception as e:
-            print("[RoomHostServer] Failed to handle RoomHostServer UDP client because" , e)
+            print("[RoomHostServer] Failed to handle RoomHostServer UDP client because", e)

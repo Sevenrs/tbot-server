@@ -17,8 +17,9 @@ The supported modes are:
     
 This will return an easy to use object where items can be easily read and managed.
 '''
-def get_items(_args, character_id, mode = 'wearing', external_id=None):
 
+
+def get_items(_args, character_id, mode='wearing', external_id=None):
     # List with the obtained items from the database
     items = []
 
@@ -81,17 +82,17 @@ def get_items(_args, character_id, mode = 'wearing', external_id=None):
                                                     LEFT JOIN `character_items` citem   ON citem.`id` = cwear.`{0}`
                                                     LEFT JOIN `game_items` gitem        ON gitem.`id` = citem.`game_item`
                                                     WHERE cwear.`character_id` = %s""".format(item_type),
-                                                        [character_id])
+                                   [character_id])
             wearing[item_type] = _args['mysql'].fetchone()
 
             item = {
-                "item_id":              wearing[item_type]['item_id'],
-                'remaining_hours':      wearing[item_type]['remaining_hours'],
-                'remaining_games':      wearing[item_type]['remaining_games'],
-                'remaining_times':      wearing[item_type]['remaining_times'],
-                'used':                 wearing[item_type]['used'],
-                'part_type':            17 if item_type == 'merc2' else wearing[item_type]['part_type'],
-                'character_item_id':    wearing[item_type]['character_item_id']
+                "item_id": wearing[item_type]['item_id'],
+                'remaining_hours': wearing[item_type]['remaining_hours'],
+                'remaining_games': wearing[item_type]['remaining_games'],
+                'remaining_times': wearing[item_type]['remaining_times'],
+                'used': wearing[item_type]['used'],
+                'part_type': 17 if item_type == 'merc2' else wearing[item_type]['part_type'],
+                'character_item_id': wearing[item_type]['character_item_id']
             }
 
             # Modify specification summary
@@ -111,14 +112,14 @@ def get_items(_args, character_id, mode = 'wearing', external_id=None):
         # If we are trying to obtain a stash, overwrite the item range and where statement
         # We want to obtain the stash ordered by ID with an offset, because an account can have multiple stashes.
         if mode == 'stash':
-            item_range      = 11
+            item_range = 11
             where_statement = '`account_id` = %s ORDER BY `model`.`id` ASC LIMIT 1 OFFSET {0}'.format(external_id - 1)
-            sql_parameter   = _args['client']['account_id']
+            sql_parameter = _args['client']['account_id']
 
         elif mode == 'gifts':
-            item_range      = 2
+            item_range = 2
             where_statement = 'model.`id` = %s'
-            sql_parameter   = external_id
+            sql_parameter = external_id
 
         for i in range(1, item_range):
             _args['mysql'].execute("""SELECT    IFNULL(gitem.`item_id`, 0)                                      
@@ -142,7 +143,7 @@ def get_items(_args, character_id, mode = 'wearing', external_id=None):
                                                 LEFT JOIN `game_items`      gitem  
                                                     ON  gitem.`id` = citem.`game_item`
                                                 WHERE {2}""".format(mode, i, where_statement), [
-                                                    sql_parameter])
+                sql_parameter])
 
             items.append(_args['mysql'].fetchone())
 
@@ -170,11 +171,11 @@ def get_items(_args, character_id, mode = 'wearing', external_id=None):
             duration_type = 4
 
         result[idx] = {
-            "id":                   item['item_id'],
-            "duration":             duration,
-            "duration_type":        duration_type,
-            "type":                 types[int(item['part_type']) - 1] if item['part_type'] is not None else None,
-            'character_item_id':    item['character_item_id']
+            "id": item['item_id'],
+            "duration": duration,
+            "duration_type": duration_type,
+            "type": types[int(item['part_type']) - 1] if item['part_type'] is not None else None,
+            'character_item_id': item['character_item_id']
         }
 
     if mode == 'wearing':
@@ -185,10 +186,13 @@ def get_items(_args, character_id, mode = 'wearing', external_id=None):
 
     return result
 
+
 '''
 This method gets the first available inventory slot number
 This method also works for stashes/storages
 '''
+
+
 def get_available_inventory_slot(inventory):
     for item in inventory:
         if inventory[item]['id'] == 0:
@@ -196,11 +200,13 @@ def get_available_inventory_slot(inventory):
 
     return None
 
+
 '''
 This method inserts a new item into character_items and puts it in our inventory
 '''
-def add_item(_args, item, slot, inventory_insert=True):
 
+
+def add_item(_args, item, slot, inventory_insert=True):
     # Standard values. The used parameter is set only if the duration of the item is greater than 0
     remaining_games, remaining_times, used = None, None, (0 if item['duration'] > 0 else None)
 
@@ -232,24 +238,29 @@ def add_item(_args, item, slot, inventory_insert=True):
 
     # Insert item into the inventory of our character
     if inventory_insert:
-        _args['mysql'].execute("""UPDATE `inventory` SET `item_{0}` = %s WHERE `character_id` = %s""".format(str(slot + 1)), [
-            character_item_id,
-            _args['client']['character']['id']
-        ])
+        _args['mysql'].execute(
+            """UPDATE `inventory` SET `item_{0}` = %s WHERE `character_id` = %s""".format(str(slot + 1)), [
+                character_item_id,
+                _args['client']['character']['id']
+            ])
 
     return character_item_id
+
 
 '''
 This method removes an item from character_items and removes it from our inventory
 '''
-def remove_item(_args, character_item_id, slot=None):
 
+
+def remove_item(_args, character_item_id, slot=None):
     # Remove item from the inventory of our character, but only if the item id actually matches the slot index
     if slot is not None:
-        _args['mysql'].execute("""UPDATE `inventory` SET `item_{0}` = 0 WHERE `character_id` = %s AND `item_{0}` = %s""".format(str(slot + 1)), [
-            _args['client']['character']['id'],
-            character_item_id
-        ])
+        _args['mysql'].execute(
+            """UPDATE `inventory` SET `item_{0}` = 0 WHERE `character_id` = %s AND `item_{0}` = %s""".format(
+                str(slot + 1)), [
+                _args['client']['character']['id'],
+                character_item_id
+            ])
 
     # Remove item from character_items
     _args['mysql'].execute("""DELETE FROM `character_items` WHERE `id` = %s""", [character_item_id])
@@ -258,13 +269,14 @@ def remove_item(_args, character_item_id, slot=None):
 '''
 This method will remove expired items which we are wearing
 '''
-def remove_expired_items(_args, character_id):
 
+
+def remove_expired_items(_args, character_id):
     # Retrieve currently wearing items
     wearing_items = get_items(_args, character_id, 'wearing')['items']
 
     # Construct wearing table
-    wearing_table   = {}
+    wearing_table = {}
 
     for item in wearing_items:
 
@@ -282,7 +294,7 @@ def remove_expired_items(_args, character_id):
     # Construct IN statement for the query
     in_statement = ''
     for id in wearing_table.keys():
-        in_statement+="{0}, ".format(str(id))
+        in_statement += "{0}, ".format(str(id))
 
     # Retrieve expired items dynamically
     _args['mysql'].execute("""SELECT `id` FROM `character_items` WHERE (
@@ -294,44 +306,50 @@ def remove_expired_items(_args, character_id):
 
     # Remove the expired items from our character and from the game entirely
     for item in expired_items:
-
         # Remove item from our character and from the game
         _args['mysql'].execute("""UPDATE `character_wearing` SET `{0}` = 0 WHERE `character_id` = %s"""
                                .format(wearing_table[item['id']]), [character_id])
         remove_item(_args, item['id'])
 
+
 '''
 This method will get the amount of storages/stashes an account has
 '''
+
+
 def get_storage_count(_args, account_id):
     _args['mysql'].execute('SELECT `id` FROM `stash` WHERE `account_id` = %s', [account_id])
     return _args['mysql'].rowcount
 
+
 '''
 This method will return the requested statistic value and apply the statistic override where applicable
 '''
+
+
 def get_statistic_value(
         character,
         wearing_items,
         statistic,
         stat_override={}
 ):
-
     # Calculate the value by adding the default value as well as the value from the specification object
-    value = character[ statistic[STAT_KEY] ] + wearing_items['specifications'][ statistic[STAT_EFFECT_KEY] ]
+    value = character[statistic[STAT_KEY]] + wearing_items['specifications'][statistic[STAT_EFFECT_KEY]]
 
     # If the stat is defined in the stat override object, overwrite the stat with the value there
     if statistic[STAT_KEY] in stat_override:
-        value = stat_override[ statistic[STAT_KEY] ]
+        value = stat_override[statistic[STAT_KEY]]
 
     # Return the value to the stack
     return value
 
+
 '''
 This method constructs the bot data which can then be appended to a packet to send the character information sheet
 '''
-def construct_bot_data(_args, character, stat_override={}):
 
+
+def construct_bot_data(_args, character, stat_override={}):
     # Prepare bot packet
     bot = PacketWrite()
 
@@ -342,10 +360,10 @@ def construct_bot_data(_args, character, stat_override={}):
     wearing_items = get_items(_args, character['id'], 'wearing')
 
     # Append general character information to packet
-    bot.AppendString    (character['name'], 15)
-    bot.AppendInteger   (character['type'], 2, 'little')
-    bot.AppendInteger   (character['experience'], 4, 'little')
-    bot.AppendInteger   (character['level'], 2, 'little')
+    bot.append_string(character['name'], 15)
+    bot.append_integer(character['type'], 2, 'little')
+    bot.append_integer(character['experience'], 4, 'little')
+    bot.append_integer(character['level'], 2, 'little')
 
     # Append health, att_min, att_max, att_trans_min and att_trans_max to the packet
     for statistic in [
@@ -354,12 +372,13 @@ def construct_bot_data(_args, character, stat_override={}):
         STAT_ATT_MAX,
         STAT_ATT_TRANS_MIN,
         STAT_ATT_TRANS_MAX
-    ]: bot.AppendInteger(get_statistic_value(
-        character=character, wearing_items=wearing_items, statistic=statistic, stat_override=stat_override
-    ), 2, 'little')
+    ]:
+        bot.append_integer(get_statistic_value(
+            character=character, wearing_items=wearing_items, statistic=statistic, stat_override=stat_override
+        ), 2, 'little')
 
     # Defense statistic, 51.2% of incoming damage
-    bot.AppendInteger(512, 2, 'little')
+    bot.append_integer(512, 2, 'little')
 
     # Append character effects to the packet
     for statistic in [
@@ -373,60 +392,60 @@ def construct_bot_data(_args, character, stat_override={}):
         STAT_TRANS_SPEED,
         STAT_ATT_RANGED,
         STAT_LUCK
-    ]: bot.AppendInteger(get_statistic_value(
+    ]: bot.append_integer(get_statistic_value(
         character=character, wearing_items=wearing_items, statistic=statistic, stat_override=stat_override
     ), 2, 'little')
 
     # Append the amount of botstract to the packet
-    bot.AppendInteger(character['currency_botstract'], 4, 'little')
+    bot.append_integer(character['currency_botstract'], 4, 'little')
 
     for _ in range(4):
-        bot.AppendBytes([0x00, 0x00, 0x00, 0x00])
+        bot.append_bytes([0x00, 0x00, 0x00, 0x00])
 
     for i in range(0, 3):
         item = wearing_items['items'][list(wearing_items['items'].keys())[i]]
-        bot.AppendInteger(item['id'], 4, 'little')
-        bot.AppendInteger(item['duration'], 4, 'little')
-        bot.AppendInteger(item['duration_type'], 1, 'little')
+        bot.append_integer(item['id'], 4, 'little')
+        bot.append_integer(item['duration'], 4, 'little')
+        bot.append_integer(item['duration_type'], 1, 'little')
 
-    bot.AppendBytes([0x01, 0x00, 0x00])
+    bot.append_bytes([0x01, 0x00, 0x00])
 
     inventory = get_items(_args, character['id'], 'inventory')
     for item in inventory:
-        bot.AppendInteger(inventory[item]['id'], 4, 'little')
-        bot.AppendInteger(inventory[item]['duration'], 4, 'little')
-        bot.AppendInteger(inventory[item]['duration_type'], 1, 'little')
+        bot.append_integer(inventory[item]['id'], 4, 'little')
+        bot.append_integer(inventory[item]['duration'], 4, 'little')
+        bot.append_integer(inventory[item]['duration_type'], 1, 'little')
 
     for _ in range(904):
-        bot.AppendBytes([0x00])
+        bot.append_bytes([0x00])
 
     # Gigas
-    bot.AppendInteger(character['currency_gigas'], 4, 'little')
+    bot.append_integer(character['currency_gigas'], 4, 'little')
 
     for _ in range(242):
-        bot.AppendBytes([0x00])
+        bot.append_bytes([0x00])
 
     for i in range(3, 17):
         item = wearing_items['items'][list(wearing_items['items'].keys())[i]]
-        bot.AppendInteger(item['id'], 4, 'little')
-        bot.AppendInteger(item['duration'], 4, 'little')
-        bot.AppendInteger(item['duration_type'], 1, 'little')
+        bot.append_integer(item['id'], 4, 'little')
+        bot.append_integer(item['duration'], 4, 'little')
+        bot.append_integer(item['duration_type'], 1, 'little')
 
     for _ in range(200):
-        bot.AppendBytes([0x00])
+        bot.append_bytes([0x00])
 
     for i in range(17, 19):
         item = wearing_items['items'][list(wearing_items['items'].keys())[i]]
-        bot.AppendInteger(item['id'], 4, 'little')
-        bot.AppendInteger(item['duration'], 4, 'little')
-        bot.AppendInteger(item['duration_type'], 1, 'little')
+        bot.append_integer(item['id'], 4, 'little')
+        bot.append_integer(item['duration'], 4, 'little')
+        bot.append_integer(item['duration_type'], 1, 'little')
 
     for _ in range(30):
-        bot.AppendBytes([0x00])
+        bot.append_bytes([0x00])
 
     # Retrieve the amount of stashes we own and use that count to retrieve stash items
     stash_count = get_storage_count(_args, _args['client']['account_id'])
-    bot.AppendInteger(stash_count, 1, 'little')
+    bot.append_integer(stash_count, 1, 'little')
 
     # For every stash, send its items over the network
     for i in range(0, stash_count):
@@ -434,20 +453,20 @@ def construct_bot_data(_args, character, stat_override={}):
         # Get stash items with the stash number supplied.
         stash = get_items(_args, character['id'], 'stash', (i + 1))
         for item in stash:
-            bot.AppendInteger(stash[item]['id'], 4, 'little')
-            bot.AppendInteger(stash[item]['duration'], 4, 'little')
-            bot.AppendInteger(stash[item]['duration_type'], 1, 'little')
+            bot.append_integer(stash[item]['id'], 4, 'little')
+            bot.append_integer(stash[item]['duration'], 4, 'little')
+            bot.append_integer(stash[item]['duration_type'], 1, 'little')
 
     # For the stashes we do not have, we'll want to send null items.
     for _ in range((5 - stash_count) * 10):
-        bot.AppendInteger(0, 4, 'little')
-        bot.AppendInteger(0, 4, 'little')
-        bot.AppendInteger(0, 1, 'little')
+        bot.append_integer(0, 4, 'little')
+        bot.append_integer(0, 4, 'little')
+        bot.append_integer(0, 1, 'little')
 
     for _ in range(27):
-        bot.AppendBytes([0x00, 0x00, 0x00, 0x00])
+        bot.append_bytes([0x00, 0x00, 0x00, 0x00])
 
-    bot.AppendInteger(character['rank_exp'], 4, 'little')
-    bot.AppendInteger(character['rank'], 4, 'little')
+    bot.append_integer(character['rank_exp'], 4, 'little')
+    bot.append_integer(character['rank'], 4, 'little')
 
     return bot.data

@@ -2,20 +2,23 @@
 __author__ = "Icseon"
 __copyright__ = "Copyright (C) 2020 - 2021 Icseon"
 __version__ = "1.2"
+
 # This file is the entry point for the T-Bot Rewritten server
 
 import _thread
 import threading
-from login_tcp_server   import server as login_tcp_server
-from ChannelServer      import Server as ChannelServer
-from RoomHostServer     import Server as RoomHostServer
-from GameServer         import Server as GameServer
-from relay_tcp_server   import server as relay_tcp_server
-from relay_udp_server   import server as relay_udp_server
+from login_tcp_server import server as login_tcp_server
+from ChannelServer import Server as ChannelServer
+from RoomHostServer import Server as RoomHostServer
+from GameServer import Server as GameServer
+from relay_tcp_server import server as relay_tcp_server
+from relay_udp_server import server as relay_udp_server
 
 """
 This method will start all services
 """
+
+
 def main():
     print('[T-Bot Rewritten]: Server version:', __version__)
 
@@ -31,7 +34,7 @@ def main():
     '''
     game_server = GameServer.Socket(11002, relay_tcp)
     _thread.start_new_thread(game_server.listen, ())
-    
+
     # Start the Channel Server
     _thread.start_new_thread(ChannelServer.Socket, (11010, game_server))
 
@@ -44,7 +47,8 @@ def main():
 
     # Use the main thread as the login server
     (login_tcp_server.LoginTCPServer(11000)).listen()
-    
+
+
 # Only run the entry point code when needed
 if __name__ == '__main__':
     main()
