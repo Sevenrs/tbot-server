@@ -7,8 +7,9 @@ from dotenv import dotenv_values
 
 from GameServer.Controllers.Room import get_slot
 from Packet.Write import Write as PacketWrite
-from ratelimit import LOGIN_RATE_LIMIT
+from ratelimit import LOGIN_VERIFY_RATE_LIMIT
 from relay_tcp_server import connection as connection_handler
+import MySQL.Interface as MySQL
 
 
 def route(client, packet):
@@ -42,33 +43,35 @@ Retrieve first available ID and register the client for later access
 
 
 def id_request(**_args):
+
     # Read account name from the packet
     account = _args['packet'].read_string()[1:]
 
-    # Read environment variables
-    env = dotenv_values('.env')
-
     # Consume login rate limit point
-    LOGIN_RATE_LIMIT.try_acquire('LOGIN_RELAY_ID_REQUEST_{0}'.format(_args['client']['address'][0]))
+    LOGIN_VERIFY_RATE_LIMIT.try_acquire('LOGIN_RELAY_ID_REQUEST_{0}'.format(_args['client']['address'][0]))
 
-    # Check if we are authorized to use this account
-    response = requests.post("{0}/verify".format(env['INTERNAL_ROOT_URL']),
-                             json={
-                                 "username": account,
-                                 "ip": _args['client']['address'][0]
-                             },
+    # Create MySQL connection, so we can see if this IP address is allowed to access the account
+    connection = MySQL.get_connection()
+    cursor = connection.cursor(dictionary=True)
 
-                             headers={
-                                 "Content-Type": "application/json",
-                                 "Authorization": env['INTERNAL_ACCESS_TOKEN']
-                             })
+    # Attempt to find a user by the username where our IP matches the last one
+    cursor.execute('''SELECT `username` FROM `users` WHERE `username` = %s AND `last_ip` = %s''', [
+        account,
+        _args['client']['address'][0]
+    ])
+
+    # Fetch the user
+    user = cursor.fetchone()
+
+    # Close MySQL connection
+    connection.close()
 
     # Create response packet
     result = PacketWrite()
     result.add_header(bytes=[0x1A, 0xA4])
 
     # Check if the user exists. If it does not, throw an exception which closes the connection
-    if response.status_code != 200:
+    if user is None:
         result.append_bytes([0x00])
         result.append_integer(50, 1, 'little')  # Incorrect authentication
         _args['client']['socket'].sendall(result.packet)
@@ -88,7 +91,7 @@ def id_request(**_args):
         break
 
     # Fill our client object with relevant information
-    _args['client']['account'] = response.json()['username']
+    _args['client']['account'] = user['username']
     _args['client']['id'] = id
     _args['client']['last_ping'] = datetime.datetime.now()
 

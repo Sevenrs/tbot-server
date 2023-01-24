@@ -101,6 +101,9 @@ def login(**_args):
                                          ip_address=_args['client']['address'][0],
                                          mysql_cursor=cursor)
 
+    # Close MySQL connection
+    connection.close()
+
     # Construct result packet
     result = PacketWrite()
     result.add_header([0xEC, 0x2C])

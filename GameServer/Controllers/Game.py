@@ -654,7 +654,7 @@ def statistic_validation(**_args):
 
         # If the stats do not match, suspend the player for hacking
         if received_stat != expected_stat:
-            return moderation.suspend_player(_args['client']['web_id'], _args['connection_handler'], _args['client'])
+            return moderation.suspend_player(_args, _args['client']['account_id'], _args['connection_handler'], _args['client'])
 
 
 '''
@@ -1282,6 +1282,7 @@ This method will kick all clients in a room due to a failed anti hack check
 
 
 def anti_hack_fail(_args, room):
+
     # Create a copy of the room slots in memory
     slots = list(room['slots'].items())
 
@@ -1299,7 +1300,7 @@ def anti_hack_fail(_args, room):
 
     # Loop through every slot in the room and suspend the player from the server
     for key, slot in slots:
-        moderation.suspend_player(slot['client']['web_id'], _args['connection_handler'], slot['client'])
+        moderation.suspend_player(_args, slot['client']['account_id'], _args['connection_handler'], slot['client'])
 
 
 '''

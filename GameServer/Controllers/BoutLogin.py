@@ -14,7 +14,7 @@ import MySQL.Interface as MySQL
 from GameServer.Controllers import Character, Shop
 from GameServer.Controllers.data.client import CLIENT_VERSION, PING_TIMEOUT
 from Packet.Write import Write as PacketWrite
-from ratelimit import LOGIN_RATE_LIMIT
+from ratelimit import LOGIN_VERIFY_RATE_LIMIT
 
 """
 This method will send the new client its unique ID
@@ -35,40 +35,22 @@ def id_request(**_args):
     error.add_header(bytearray([0xE2, 0x2E]))
     error.append_bytes([0x00])
 
-    # Read environment variables
-    env = dotenv_values('.env')
-
     # Consume login rate limit point
-    LOGIN_RATE_LIMIT.try_acquire('LOGIN_GAME_ID_REQUEST_{0}'.format(_args['socket'].getpeername()[0]))
+    LOGIN_VERIFY_RATE_LIMIT.try_acquire('LOGIN_GAME_ID_REQUEST_{0}'.format(_args['socket'].getpeername()[0]))
 
     # Check if we are authorized to use this account
-    response = requests.post("{0}/verify".format(env['INTERNAL_ROOT_URL']),
-                             json={
-                                 "username": account,
-                                 "ip": _args['socket'].getpeername()[0]
-                             },
-
-                             headers={
-                                 "Content-Type": "application/json",
-                                 "Authorization": env['INTERNAL_ACCESS_TOKEN']
-                             })
-
-    # Get user and check if we have a result. Just disconnect the client if we do not.
-    if response.status_code != 200:
-        raise Exception('Verification failed')
-
-    # Fetch the response into a readable list
-    verification_response = response.json()
-
-    # Get internal user from the database
-    _args['mysql'].execute('SELECT `id` FROM `users` WHERE `external_id` = %s', [
-        verification_response['web_id']
+    _args['mysql'].execute('''SELECT `id`, `username`, `warnet_bonus` FROM `users` WHERE `username` = %s AND 
+    `last_ip` = %s''', [
+        account,
+        _args['socket'].getpeername()[0]
     ])
-    internal_user = _args['mysql'].fetchone()
 
-    # Check if the internal user was found
-    if internal_user is None:
-        raise Exception('Internal user could not be found')
+    # Fetch the user
+    user = _args['mysql'].fetchone()
+
+    # Check if our user was found
+    if user is None:
+        raise Exception('Verification failed')
 
     ''' If the client version is incorrect, we must send an error message and disconnect the client. '''
     if client_version != CLIENT_VERSION:
@@ -91,11 +73,12 @@ def id_request(**_args):
 
     # Update our socket to use this ID and assign the account to it as well
     _args['client']['id'] = id  # Client identification number
-    _args['client']['account'] = verification_response['username']  # The username from the website
-    _args['client']['web_id'] = verification_response['web_id']  # The website user ID
-    _args['client']['account_id'] = internal_user['id']  # User ID in our local database, not the web id
-    _args['client']['warnet_bonus'] = verification_response[
-        'warnet_bonus']  # Whether this user is eligible for the warnet bonus icon
+    _args['client']['account'] = user['username']  # Account username
+    _args['client']['account_id'] = user['id']
+
+    # Whether this user is eligible for the warnet bonus icon
+    _args['client']['warnet_bonus'] = user['warnet_bonus']
+
     _args['client']['character'] = None  # Character object
     _args['client']['new'] = True  # Whether we need to send the initial lobby message
     _args['client']['needs_sync'] = False  # Whether we need to send a character sync packet
@@ -177,6 +160,7 @@ This method will handle new character creation requests
 
 
 def create_character(**_args):
+
     # Character creation results
     character_create_success = bytearray([0x01, 0x00])
     character_create_name_taken = bytearray([0x00, 0x36])
@@ -186,32 +170,25 @@ def create_character(**_args):
     username = _args['packet'].read_string(6)[1:]
     character_name = _args['packet'].read_string()
 
-    # Read environment variables
-    env = dotenv_values('.env')
+    # Consume login rate limit point
+    LOGIN_VERIFY_RATE_LIMIT.try_acquire('LOGIN_GAME_ID_REQUEST_{0}'.format(_args['socket'].getpeername()[0]))
 
-    LOGIN_RATE_LIMIT.try_acquire('LOGIN_GAME_ID_REQUEST_{0}'.format(_args['socket'].getpeername()[0]))
+    # Check if we are authorized to create a bot for this account
+    _args['mysql'].execute('''SELECT `id` FROM `users` WHERE `username` = %s AND 
+        `last_ip` = %s''', [
+        username,
+        _args['socket'].getpeername()[0]
+    ])
 
-    # Verify if we have authorization to create a character for this user
-    response = requests.post("{0}/verify".format(env['INTERNAL_ROOT_URL']),
-                             json={
-                                 "username": username,
-                                 "ip": _args['socket'].getpeername()[0]
-                             },
+    # Fetch the user
+    user = _args['mysql'].fetchone()
 
-                             headers={
-                                 "Content-Type": "application/json",
-                                 "Authorization": env['INTERNAL_ACCESS_TOKEN']
-                             })
-
-    if response.status_code != 200:
+    # If we couldn't find the user, we are not authorized to make a bot
+    if user is None:
         raise Exception('Validation failed while trying to create a character')
 
-    # Find the internal user
-    _args['mysql'].execute('SELECT `id` FROM `users` WHERE `external_id` = %s', [response.json()['web_id']])
-    internal_user = _args['mysql'].fetchone()
-
     # Check if there's already a character connected to this account
-    _args['mysql'].execute('SELECT `id` FROM `characters` WHERE `user_id` = %s', [internal_user['id']])
+    _args['mysql'].execute('SELECT `id` FROM `characters` WHERE `user_id` = %s', [user['id']])
     if _args['mysql'].rowcount > 0:
         raise Exception('User attempted to create a character while already having a character')
 
@@ -240,7 +217,7 @@ def create_character(**_args):
 
         # Insert the new character in the database
         _args['mysql'].execute("""INSERT INTO `characters` (`user_id`, `name`, `type`) VALUES (%s, %s, %s)""",
-                               [internal_user['id'], character_name, character_type])
+                               [user['id'], character_name, character_type])
 
         # Retrieve character id of the character we just built and create a new wearing and inventory table for our
         # character
