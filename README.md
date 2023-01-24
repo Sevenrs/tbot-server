@@ -26,10 +26,12 @@ By doing so, you will face the following limitations:
 Alterations can be made to combat these limitations but is out of the scope of this publication.
 
 The latest T-Bot Rewritten client can be downloaded here: https://drive.google.com/file/d/1mwyJRZAcBjuXJzzC9EgoU6b-92iucymu/view
+
 _Note: The launcher will not work. This is because T-Bot Rewritten has ceased operations._
 
 ## Notes
 I wrote this code 3 years ago now. I'll be the first to admit that there are some bad practices in here. I've made the code PEP8 compliant and tried to remove most bad things without breaking the code.
 
 For any question, you may message me on Discord using the following link.: https://discord.gg/RyjSeanf
+
 _Note: This link will automatically add me to your Discord friend list. You can start messaging me immediately._
