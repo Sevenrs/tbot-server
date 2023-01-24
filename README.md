@@ -9,6 +9,8 @@ This repository does not and will not contain any website logic. I'm not willing
 3. Open `.env` and configure the server as you'd like it to be configured. Do note that `.env` is in `.gitignore` and will not be pushed to any git server for security reasons. Do not modify this behavior, as it is intended and good practice.
 4. Run `python main.py` to start all servers and use a suitable client to connect and start playing.
 
+A default account with username and password `icseon` is already available.
+
 ## Game Client Compatibility
 A suitable T-Bot Rewritten client is required to connect to the server. If you do for some reason not trust me, you can use a regular Bots client as well and remove the xor and modify the authentication code to not read the username from the client.
 
