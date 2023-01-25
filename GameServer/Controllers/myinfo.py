@@ -14,12 +14,13 @@ def delete_character(**_args):
     result = PacketWrite()
     result.add_header([0xE3, 0x2E])
 
-    # If we are a staff member, we can not delete our bot
-    if _args['client']['character']['position'] > 0:
+    # If we are a staff member, we can not delete our bot.
+    # We're also going to check if we are in a room. If we are, we can't proceed either.
+    if _args['client']['character']['position'] > 0 or 'room' in _args['client']:
         result.append_bytes([0x00, 0xBF])
         return _args['socket'].sendall(result.packet)
 
-    # If we are in a guild, we can not delete the bot
+    # If we are in a guild, we can not delete the bot (specific message for guilds)
     if Guild.fetch_guild(_args, _args['client']['character']['id']) is not None:
         result.append_bytes([0x00, 0xC4])
         return _args['socket'].sendall(result.packet)
