@@ -50,8 +50,8 @@ def get_inbox(_args):
     # Append all messages
     for index, message in enumerate(messages):
         message_packet.append_integer((index + 1), 4, 'little')
-        message_packet.append_integer(message['sender'], 15)
-        message_packet.append_integer(message['date'].strftime('%Y-%m-%d %H:%M'), 17)
+        message_packet.append_string(message['sender'], 15)
+        message_packet.append_string(message['date'].strftime('%Y-%m-%d %H:%M'), 17)
 
     # Send packet to our client
     _args['client']['socket'].sendall(message_packet.packet)
