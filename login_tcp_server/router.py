@@ -41,6 +41,10 @@ def authenticate(username, password, ip_address, mysql_cursor):
 
     try:
 
+        # Better yet, let's rate limit login all together. (I don't have a website to check other things,
+        # so this must do)
+        LOGIN_RATE_LIMIT.try_acquire('LOGIN_{0}'.format(ip_address))
+
         # If the user couldn't be found, we're going to return RESPONSE_USER_NOT_FOUND
         if user is None:
             state['status'] = RESPONSE_USER_NOT_FOUND
@@ -71,14 +75,11 @@ def authenticate(username, password, ip_address, mysql_cursor):
 
     # Handle incorrect passwords
     except argon2.exceptions.VerifyMismatchError:
+        state['status'] = RESPONSE_INCORRECT_PASSWORD
 
-        try:
-            LOGIN_RATE_LIMIT.try_acquire('LOGIN_{0}'.format(ip_address))
-            state['status'] = RESPONSE_INCORRECT_PASSWORD
-
-        # Handle rate limit
-        except BucketFullException:
-            state['status'] = RESPONSE_RATE_LIMIT
+    # Handle rate limit
+    except BucketFullException:
+        state['status'] = RESPONSE_RATE_LIMIT
 
     return state
 
