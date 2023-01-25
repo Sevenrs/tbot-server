@@ -71,12 +71,14 @@ def authenticate(username, password, ip_address, mysql_cursor):
 
     # Handle incorrect passwords
     except argon2.exceptions.VerifyMismatchError:
-        LOGIN_RATE_LIMIT.try_acquire('LOGIN_{0}'.format(ip_address))
-        state['status'] = RESPONSE_INCORRECT_PASSWORD
 
-    # Handle rate limit
-    except BucketFullException:
-        state['status'] = RESPONSE_RATE_LIMIT
+        try:
+            LOGIN_RATE_LIMIT.try_acquire('LOGIN_{0}'.format(ip_address))
+            state['status'] = RESPONSE_INCORRECT_PASSWORD
+
+        # Handle rate limit
+        except BucketFullException:
+            state['status'] = RESPONSE_RATE_LIMIT
 
     return state
 
