@@ -110,8 +110,7 @@ def id_request(**_args):
         return _args['connection_handler'].close_connection(_args['client'])
 
     # Construct ID request response and send it to the client
-    reply = PacketWrite()
-    reply.add_header(bytearray([0xE0, 0x2E]))
+    reply = PacketWrite(header=b'\xE0\x2E')
     reply.append_integer(id, 2, 'little')
     reply.append_bytes([0x01, 0x00])
     _args['socket'].sendall(reply.packet)

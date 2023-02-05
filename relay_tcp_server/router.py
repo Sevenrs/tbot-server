@@ -21,9 +21,9 @@ def route(client, packet):
     ))
 
     packets = {
-        '32a0': id_request,
-        '36a0': check_connection,
-        '37a0': remove_connection
+        '32a0': request_relay_login,
+        '36a0': request_relay_user_info,
+        '37a0': request_relay_user_exit
     }.get(packet.id, unknown)(**locals())
 
 
@@ -42,7 +42,7 @@ Retrieve first available ID and register the client for later access
 '''
 
 
-def id_request(**_args):
+def request_relay_login(**_args):
 
     # Read account name from the packet
     account = _args['packet'].read_string()[1:]
@@ -96,7 +96,7 @@ def id_request(**_args):
     _args['client']['last_ping'] = datetime.datetime.now()
 
     # Add the client to our client container
-    _args['client']['server'].clients.append(_args['client'])
+    _args['client']['server'].clients.insert(id, _args['client'])
 
     # It is possible that the duplication check in the game server does not find all relay clients
     # This is because it is possible to have relay clients without a game client.
@@ -120,7 +120,7 @@ If a client is relayed, their relay ID is pushed to the relay ID container
 '''
 
 
-def check_connection(**_args):
+def request_relay_user_info(**_args):
     # If our game client doesn't have a room, drop the packet
     if 'room' not in _args['client']['game_client']:
         return
@@ -144,7 +144,7 @@ def check_connection(**_args):
         character_name = _args['packet'].read_string_by_range(start + 2, (start + 17))
 
         if len(character_name) > 0:
-            print("[relay_tcp_server@check_connection()] <from: {2}> :: remote character: {0}, connected: {1}".format(
+            print("[relay_tcp_server@request_relay_user_info()] <from: {2}> :: remote character: {0}, connected: {1}".format(
                 character_name,
                 connected,
                 _args['client']['game_client']['character']['name']
@@ -182,7 +182,7 @@ This method removes a relay ID from the requesting client's relay ID container
 '''
 
 
-def remove_connection(**_args):
+def request_relay_user_exit(**_args):
     # If our game client doesn't have a room, drop the packet
     if 'room' not in _args['client']['game_client']:
         return
@@ -238,5 +238,4 @@ def keep_alive(_args):
 
         # If the last ping was too long ago, disconnect the client
         if (datetime.datetime.now() - _args['client']['last_ping']).total_seconds() >= 90:
-            print('relay ping timeout from id: {0}!'.format(_args['client']['id']))
             return connection_handler.close_connection(_args['client'])

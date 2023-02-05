@@ -6,8 +6,8 @@ import datetime
 def route(client, packet):
     packets = {
         '34a0': ping,
-        '35a0': add_peer_info,
-        '38a0': relay_action
+        '35a0': request_virtual_ip,
+        '38a0': command_relay
     }.get(packet.id, unknown)(**locals())
 
 
@@ -20,89 +20,71 @@ def unknown(**_args):
 
 
 def ping(**_args):
-    # Read relay client ID
+
+    # Read relay client ID from the packet
     relay_id = int.from_bytes(_args['packet'].data[:2], byteorder='little')
 
-    # Retrieve our relay client and update the last_ping timestamp with now
-    for client in _args['client']['server'].relay.clients:
+    # Get our own relay client
+    client = _args['client']['server'].relay.clients[relay_id]
 
-        # If the client ID matches the relay ID we received (and the UDP remote address is equal to the client
-        # then we can update the timestamp
-        if client['id'] == relay_id and client['socket'].getpeername()[0] == _args['client']['address'][0]:
-            client['last_ping'] = datetime.datetime.now()
+    # If the client's address information does not match with our own, we'll drop the packet
+    if client['socket'].getpeername()[0] != _args['client']['address'][0]:
+        return
+
+    # Set last ping timestamp
+    client['last_ping'] = datetime.datetime.now()
 
 
-''' Add peer information to the state of the relay TCP client so we can access that information later'''
 
 
-def add_peer_info(**_args):
-    # Read relay client ID
+def request_virtual_ip(**_args):
+
+    # Create the acknowledgment response and send it to our client. We don't have to do any processing on our end
+    # because we're already aware of who we are and what our address information is through the room host server.
+    acknowledgment = PacketWrite(header=b'\x1D\xA4')
+    acknowledgment.append_bytes(bytes=[0x01, 0xCC])
+    _args['client']['server'].socket.sendto(acknowledgment.packet, (_args['client']['address']))
+
+
+''' Send relay action packet to the destinations in the relay array for our player'''
+
+
+def command_relay(**_args):
+
+    # Get relay client ID from the information our client has supplied us with
     relay_id = int.from_bytes(_args['packet'].data[:2], byteorder='little')
 
-    # Find our client and assign the peer information to it
-    for client in _args['client']['server'].relay.clients:
+    # Read action data from the client which starts at offset 8 - this is what we need to send to the clients
+    action = _args['packet'].data[8:]
 
-        if client['id'] == relay_id and client['socket'].getpeername()[0] == _args['client']['address'][0]:
-            client['peer_info'] = {
-                'ip': _args['client']['address'][0],
-                'port': _args['client']['address'][1]
-            }
+    # Get our own relay client
+    client = _args['client']['server'].relay.clients[relay_id]
 
-            # Create the acknowledgment response and send it to our client
-            acknowledgment = PacketWrite()
-            acknowledgment.add_header(bytes=[0x1D, 0xA4])
-            acknowledgment.append_bytes(bytes=[0x01, 0xCC])
-            _args['client']['server'].socket.sendto(acknowledgment.packet, _args['client']['address'])
-            break
+    # If the client's address information does not match with our own, we'll drop the packet
+    if client['socket'].getpeername()[0] != _args['client']['address'][0]:
+        return
 
+    # If our client isn't in a room, we'll drop the packet as well
+    if 'room' not in client['game_client']:
+        return
 
-''' Send relay packet to the destinations in the relay array for our player'''
+    # Retrieve room and slot number
+    room = client['game_server'].rooms[str(client['game_client']['room'])]
+    slot = room['slots'][str(get_slot({'client': client['game_client']}, room))]
 
+    # Loop through the relay IDs and bein sending the action packet to each of them
+    for remote_relay_id in slot['relay_ids']:
 
-def relay_action(**_args):
-    # Read relay client ID
-    relay_id = int.from_bytes(_args['packet'].data[:2], byteorder='little')
+        # Get our remote client which will be receiving the action packet
+        remote_client = _args['client']['server'].relay.clients[remote_relay_id]
 
-    # Unknown, presumably checks of some kind
-    unk1 = int.from_bytes(_args['packet'].data[10:2], byteorder='little')
-    unk2 = int.from_bytes(_args['packet'].data[12:2], byteorder='little')
+        # We'll require p2p_host to be present in the remote's game client object. If this isn't present
+        # we can't send them their packet. We'll just wait for it to become present in the next packet.
+        if 'p2p_host' not in remote_client['game_client']:
+            continue
 
-    # Create new packet
-    action = PacketWrite()
-    action.append_integer(unk1, 2, 'little')
-    action.append_integer(unk2, 2, 'little')
-    action.append_bytes(bytes=_args['packet'].data)
+        # Retrieve peer information from the game client object. This information will be used to send the action packet.
+        peer_information = remote_client['game_client']['p2p_host']
 
-    # Construct final packet needed
-    answer = action.data[12:(12 + _args['packet'].length)]
-
-    # Retrieve our relay client to find the room we are in
-    for client in _args['client']['server'].relay.clients:
-
-        if client['id'] == relay_id and client['socket'].getpeername()[0] == _args['client']['address'][0]:
-
-            # Create a reference to the game client for easier access
-            game_client = client['game_client']
-            game_server = client['game_server']
-
-            # If the game_client is not in a room, don't do anything.
-            if 'room' not in game_client:
-                return
-
-            # Retrieve room and slot number
-            room = game_server.rooms[str(game_client['room'])]
-            slot = room['slots'][str(get_slot({'client': game_client}, room))]
-
-            # Retrieve the relay ids for the slot and loop through them to finally send the packet
-            relay_ids = slot['relay_ids']
-            for id in relay_ids:
-                for client_id in _args['client']['server'].relay.clients:
-
-                    # Check if the id matches and if the client's game_client has p2p information assigned to it.
-                    # It is possible the client adds themselves to the id list before having p2p information.
-                    if client_id['id'] == id and 'p2p_host' in client_id['game_client']:
-                        # Retrieve peer host information and forward packet
-                        p2p_host = client_id['game_client']['p2p_host']
-                        _args['client']['server'].room.socket.sendto(answer, (p2p_host['ip'], p2p_host['port']))
-                        break
-            break
+        # Send UDP action packet to the peer we have retrieved. We'll send it through the room host server
+        _args['client']['server'].room.socket.sendto(action, (peer_information['ip'], peer_information['port']))
