@@ -1,6 +1,6 @@
 import socket
 import _thread
-from relay_udp_server import router
+from relay_udp_server.router import UnreliableRelayRouter
 from Packet.ReadDatagram import ReadDatagram as ReadDatagram
 
 
@@ -40,6 +40,7 @@ class RelayUDPClient:
         self.address = address
         self.server = server
 
+        # Immediately handle the connection
         self.handle()
 
     '''
@@ -49,9 +50,12 @@ class RelayUDPClient:
     def handle(self):
         try:
 
-            # print("[{0}]: New connection from {1}:{2}".format(self.server.name, self.address[0], self.address[1]))
+            # Read packet data
             packet = ReadDatagram(self.data)
-            router.route(self.__dict__, packet)
+
+            # Handle packet through the UnreliableRelayRouter
+            router = UnreliableRelayRouter(self.__dict__, packet)
+            router.route()
 
         except Exception as e:
             print("[{0}]: Failed to handle connection because {1}".format(self.server.name, e))

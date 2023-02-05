@@ -18,7 +18,8 @@ class ReadDatagram:
                 raise Exception('Received an invalid packet')
 
             # Attempt to read the first two bytes which identify the packet by ID
-            self.id = "".join(map(chr, binascii.hexlify(self.packet[0:2])))
+            self.header = self.packet[0:2]
+            self.id = "".join(map(chr, binascii.hexlify(self.header)))
 
             # Obtain the packet length
             self.length = int.from_bytes(self.packet[2:4], 'little')
