@@ -11,7 +11,7 @@ class RelayTCPServer:
         self.port = port
         self.name = 'RelayTCPServer'
 
-        self.clients = []
+        self.clients = [None] * 65535
         self.ids = []
 
     '''

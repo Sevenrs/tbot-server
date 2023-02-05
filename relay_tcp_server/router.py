@@ -96,12 +96,12 @@ def request_relay_login(**_args):
     _args['client']['last_ping'] = datetime.datetime.now()
 
     # Add the client to our client container
-    _args['client']['server'].clients.insert(id, _args['client'])
+    _args['client']['server'].clients[id] = _args['client']
 
     # It is possible that the duplication check in the game server does not find all relay clients
     # This is because it is possible to have relay clients without a game client.
     # Disconnect any relay client that is connected with our account to stop the existence of multiple instances
-    for client in _args['client']['server'].clients:
+    for client in filter(None, _args['client']['server'].clients):
         if client['account'] == _args['client']['account'] and client is not _args['client']:
             connection_handler.close_connection(client)
 
@@ -157,7 +157,7 @@ def request_relay_user_info(**_args):
             try:
 
                 # Attempt to retrieve the remote client by looping through all clients.
-                for client in _args['client']['server'].clients:
+                for client in filter(None, _args['client']['server'].clients):
 
                     # Check if the game_client is not None to ensure it exists. We'll also be making sure this client
                     # has a character assigned to begin with.
@@ -197,7 +197,7 @@ def request_relay_user_exit(**_args):
 
     # Attempt to remove the relay ID from the room
     try:
-        for client in _args['client']['server'].clients:
+        for client in filter(None, _args['client']['server'].clients):
 
             # Check if the client is not None and if the game_client is also not None. We'll also check if the client
             # has a character assigned with it.

@@ -6,9 +6,10 @@ This method will close a relay tcp client's connection and perform a clean-up as
 
 
 def close_connection(client):
-    # If the client is in the server's client container, remove it from the container
+
+    # If the client is in the server's client container, remove it from the container (replace with None)
     if client in client['server'].clients:
-        client['server'].clients.remove(client)
+        client['server'].clients[ client['server'].clients.index(client) ] = None
 
     # If the ID is in the ID container, remove the ID from the container
     if 'id' in client and client['id'] in client['server'].ids:
