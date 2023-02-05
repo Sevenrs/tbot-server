@@ -2,7 +2,7 @@
 __author__ = "Icseon"
 
 from Packet.Write import Write as PacketWrite
-from GameServer.Controllers import Guild, Character
+from GameServer.Controllers import Guild, Character, Friend
 
 '''
 This method will delete our client's character entirely
@@ -84,11 +84,25 @@ def delete_character(**_args):
     for query in queries:
         _args['mysql'].execute(query, [_args['client']['character']['id']])
 
+    # Get our friends. We will have to notify them that we've deleted them as a friend.
+    friends = Friend.get_friends(_args, character_id=_args['client']['character']['id']).fetchall()
+
     # Remove friendships. We are doing that separately because there are two possible WHERE conditions
     _args['mysql'].execute('''DELETE FROM `friends` WHERE (`character_id_1` = %s OR `character_id_2` = %s)''', [
         _args['client']['character']['id'],
         _args['client']['character']['id']
     ])
+
+    # Refresh friend state on all of our friends' clients - if they exist
+    for friend in friends:
+
+        # Get friend's client and check if it was found. If so, we'll send the state
+        friend_client = _args['connection_handler'].get_character_client(friend['name'])
+
+        if friend_client:
+
+            # Send their friend state to them
+            Friend.retrieve_friends(_args, friend_client)
 
     # Finalize the result packet and send to the client
     result.append_bytes([0x01, 0x00])
