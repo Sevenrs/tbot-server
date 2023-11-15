@@ -1,6 +1,8 @@
 # T-Bot Rewritten Python Server
 This repository contains the source code for the T-Bot Rewritten Python server.
 
+Open sourced for everyone to use. I'm not coming back to the scene.
+
 This repository does not and will not contain any website logic. I'm not willing to share that portion as that is out of the scope of the project and portions of said code is still being using used for my current projects.
 
 ## Installation
