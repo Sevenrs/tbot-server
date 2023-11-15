@@ -1,5 +1,5 @@
 # T-Bot Rewritten Python Server
-This repository contains the source code for the T-Bot Rewritten Python server. Authorization has been given to Team Ohka to view, edit and use the contents of this repository, but distribution is not allowed and will be followed by a legal take-down if violated. This is not a joke.
+This repository contains the source code for the T-Bot Rewritten Python server.
 
 This repository does not and will not contain any website logic. I'm not willing to share that portion as that is out of the scope of the project and portions of said code is still being using used for my current projects.
 
@@ -33,7 +33,3 @@ _Note: The launcher will not work. This is because T-Bot Rewritten has ceased op
 
 ## Notes
 I wrote this code 3 years ago now. I'll be the first to admit that there are some bad practices in here. I've made the code PEP8 compliant and tried to remove most bad things without breaking the code.
-
-For any question, you may message me on Discord using the following link.: https://discord.gg/RyjSeanf
-
-_Note: This link will automatically add me to your Discord friend list. You can start messaging me immediately._
