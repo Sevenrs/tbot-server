@@ -25,14 +25,14 @@ def main():
     '''
     Create a new instance of the relay TCP server
     '''
-    relay_tcp = relay_tcp_server.RelayTCPServer(11004)
+    relay_tcp = relay_tcp_server.RelayTCPServer(11104)
     _thread.start_new_thread(relay_tcp.listen, ())
 
     '''
     Create a new instance of GameServer so we can access its values from any server
     Then, run the server on a new thread and inherit the state of the relay TCP server
     '''
-    game_server = GameServer.Socket(11002, relay_tcp)
+    game_server = GameServer.Socket(11102, relay_tcp)
     _thread.start_new_thread(game_server.listen, ())
 
     # Start the Channel Server
