@@ -12,7 +12,7 @@ def suspend_player(_args, user_id, connection_handler=None, client=None):
     print('[moderation@suspend_player()] :: suspending player with user id: {0}'.format(user_id))
 
     # Suspend the user
-    _args['mysql'].execute('''UPDATE `users` SET `suspended` = 1 WHERE `id` = ?''', [
+    _args['mysql'].execute('''UPDATE `users` SET `suspended` = 1 WHERE `id` = %s''', [
         user_id
     ])
 
