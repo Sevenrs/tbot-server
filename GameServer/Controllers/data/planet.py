@@ -4,6 +4,7 @@ from GameServer.Controllers.data.drops import *
 # minutes, recommended level, minimum attack score to pass the level and minimum monster kills
 
 PLANET_MAP_TABLE = {
+    #indexado , exp base , minutos , lvl recomendado , ataque minimo (verificación antihack) para que pase nivel y minimo de mounstros muertos
     0: (90, 7.5, 1, 1100, 17),  # [Level 1] Training Ring
     1: (90, 9, 3, 1400, 13),  # [Level 3] Base Camp
     2: (120, 10.5, 6, 1800, 27),  # [Level 6] Camp Spike
