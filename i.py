@@ -2,41 +2,54 @@ import os
 import sys
 import subprocess
 import re
+import shutil
 from pathlib import Path
 
-# Verificar e instalar dependencias antes de importar
+# Dependencias necesarias
+DEPENDENCIES = {
+    "python-dotenv": "latest",
+    "mysql-connector-python": "latest",
+    "pyrate-limiter": "latest",
+    "argon2-cffi": "latest",
+    "requests": "latest"
+}
+
 def ensure_package_installed(package, version="latest"):
     """Verifica si el paquete está instalado y lo instala si no está."""
     try:
         subprocess.run([sys.executable, "-m", "pip", "show", package], check=True, stdout=subprocess.DEVNULL)
     except subprocess.CalledProcessError:
-        print(f"Instalando {package}...")
+        print(f"📦 Instalando {package}...")
         install_cmd = [sys.executable, "-m", "pip", "install", f"{package}=={version}" if version != "latest" else package]
         subprocess.run(install_cmd, check=True, stdout=subprocess.DEVNULL)
-        print(f"{package} instalado correctamente.")
+        print(f"✅ {package} instalado correctamente.")
 
-# Instalar dotenv antes de importarlo
-ensure_package_installed("python-dotenv", "latest")
+# Instalar dependencias antes de importar
+for package, version in DEPENDENCIES.items():
+    ensure_package_installed(package, version)
 
-# Ahora que dotenv está instalado, podemos importarlo
-from dotenv import load_dotenv, set_key
+# Importar librerías después de la instalación
+from dotenv import load_dotenv
 import mysql.connector
-import argparse
 
-# Diccionario de dependencias
-DEPENDENCIES = {
-    "python-dotenv": "0.18.0",
-    "mysql-connector-python": "8.0.25",
-    "pyrate-limiter": "2.8.1",
-    "argon2-cffi": "21.3.0",
-    "requests": "latest"
-}
+def ensure_mysql_in_path():
+    """Verifica si MySQL está en el PATH. Si no, intenta agregarlo automáticamente."""
+    mysql_executable = shutil.which("mysql")
 
-def install_dependencies():
-    """Instala las dependencias necesarias."""
-    for package, version in DEPENDENCIES.items():
-        ensure_package_installed(package, version)
-    print("✅ Todas las dependencias han sido instaladas correctamente.")
+    if mysql_executable:
+        return mysql_executable  # MySQL ya está disponible en el sistema
+
+    # Ruta por defecto en Windows
+    mysql_default_path = r"C:\Program Files\MySQL\MySQL Server 8.0\bin"
+
+    if os.path.exists(mysql_default_path):
+        print(f"⚠️ MySQL no está en el PATH. Agregándolo temporalmente desde: {mysql_default_path}")
+        os.environ["PATH"] += os.pathsep + mysql_default_path
+        mysql_executable = os.path.join(mysql_default_path, "mysql.exe")
+        return mysql_executable
+
+    print(f"❌ No se encontró MySQL en '{mysql_default_path}'. Asegúrate de que MySQL esté instalado correctamente.")
+    sys.exit(1)
 
 def get_user_input(prompt, default=None):
     """Solicita entrada al usuario con opción de valor por defecto."""
@@ -85,21 +98,34 @@ def create_database_if_not_exists(mysql_data):
             port=mysql_data["MYSQL_PORT"]
         )
         cursor = connection.cursor()
-        cursor.execute(f"CREATE DATABASE IF NOT EXISTS `{mysql_data['MYSQL_DATABASE']}`")
+        cursor.execute("SHOW DATABASES")
+        databases = [db[0] for db in cursor.fetchall()]
+
+        if mysql_data['MYSQL_DATABASE'] not in databases:
+            cursor.execute(f"CREATE DATABASE `{mysql_data['MYSQL_DATABASE']}`")
+            print(f"✅ Base de datos '{mysql_data['MYSQL_DATABASE']}' creada.")
+        else:
+            print(f"✅ La base de datos '{mysql_data['MYSQL_DATABASE']}' ya existe.")
+        
         cursor.close()
         connection.close()
-        print(f"✅ Base de datos '{mysql_data['MYSQL_DATABASE']}' verificada o creada.")
     except mysql.connector.Error as err:
-        print(f"❌ Error al crear la base de datos: {err}")
+        print(f"❌ Error al crear/verificar la base de datos: {err}")
         sys.exit(1)
 
 def import_sql_file(file_path, mysql_data):
     """Importa un archivo SQL en la base de datos."""
+    if not Path(file_path).exists():
+        print(f"❌ Error: El archivo {file_path} no existe.")
+        sys.exit(1)
+
+    mysql_executable = ensure_mysql_in_path()
+
     try:
         command = (
-            f"mysql -h {mysql_data['MYSQL_HOST']} -u {mysql_data['MYSQL_USER']} "
-            f"-p{mysql_data['MYSQL_PASS']} -P {mysql_data['MYSQL_PORT']} "
-            f"{mysql_data['MYSQL_DATABASE']} < {file_path}"
+            f'"{mysql_executable}" -h {mysql_data["MYSQL_HOST"]} -u {mysql_data["MYSQL_USER"]} '
+            f'-p{mysql_data["MYSQL_PASS"]} -P {mysql_data["MYSQL_PORT"]} '
+            f'{mysql_data["MYSQL_DATABASE"]} < "{file_path}"'
         )
         subprocess.run(command, shell=True, check=True, stdout=subprocess.DEVNULL)
         print(f"✅ Archivo {file_path} importado correctamente.")
@@ -139,20 +165,7 @@ def create_env_file():
     import_sql_file("Migrations/tbot-base.sql", mysql_data)
 
 def main():
-    """Función principal del script."""
-    parser = argparse.ArgumentParser(description="🔧 Configuración inicial del proyecto.")
-    parser.add_argument("--install-deps", action="store_true", help="Instala las dependencias necesarias.")
-    parser.add_argument("--create-env", action="store_true", help="Crea el archivo .env y configura la base de datos.")
-    args = parser.parse_args()
-
-    if args.install_deps:
-        install_dependencies()
-    if args.create_env:
-        create_env_file()
-
-    if not args.install_deps and not args.create_env:
-        install_dependencies()
-        create_env_file()
+    create_env_file()
 
 if __name__ == "__main__":
     main()

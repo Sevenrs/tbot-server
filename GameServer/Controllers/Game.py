@@ -270,26 +270,25 @@ This method will handle picking up items which were dropped from monsters
 
 
 def use_item(**_args):
-    # If the client is not in a room, drop the packet
+    # Si el cliente no está en una sala, se descarta el paquete.
     room = Room.get_room(_args)
     if not room:
         return
 
-    # Read item index and type from packet
+    # Leer el índice y el tipo de ítem del paquete.
     item_index = _args['packet'].get_byte(2)
     item_type = _args['packet'].get_byte(3)
 
-    # Check if the drop is valid. If it is not, change the item type to 0 so nothing happens.
+    # Verificar si el drop es válido. Si no lo es, se cambia el tipo de ítem a 0.
     if item_index not in room['drops'] or room['drops'][item_index]['used'] is True \
             or room['drops'][item_index]['type'] != item_type:
         item_type = 0
 
-    # Mark the drop as used before further processing of the packet
-    # but only if the item index is actually registered
+    # Marcar el drop como usado antes de procesar el paquete.
     if item_index in room['drops']:
         room['drops'][item_index]['used'] = True
 
-    # Broadcast the use canister packet to the room
+    # Enviar el paquete de uso de canister a la sala.
     use_canister = PacketWrite()
     use_canister.add_header(bytearray([0x23, 0x2F]))
     use_canister.append_integer(Room.get_slot(_args, room) - 1, 2, 'little')
@@ -297,14 +296,14 @@ def use_item(**_args):
     use_canister.append_integer(item_type, 4, 'little')
     _args['connection_handler'].room_broadcast(room['id'], use_canister.packet)
 
-    # If the item is a rebirth pack, make all players alive
+    # Si el ítem es un paquete de renacimiento, revivir a todos los jugadores.
     if item_type == CANISTER_REBIRTH:
         for key, slot in room['slots'].items():
             slot['dead'] = False
 
-    # If the item is OIL, process oil pickup
+    # Si el ítem es OIL, procesar la recolección de OIL.
     if item_type in [OIL_YELLOW, OIL_ORANGE, OIL_BLUE, OIL_PINK]:
-        # Container for the amount of oil a player receives per type
+        # Contenedor para la cantidad de OIL que un jugador recibe por tipo.
         oil_awards = {
             OIL_YELLOW: 5,
             OIL_ORANGE: 15,
@@ -312,7 +311,7 @@ def use_item(**_args):
             OIL_PINK: 30
         }
 
-        # Retrieve award amount and update the character
+        # Obtener la cantidad de recompensa y actualizar el personaje.
         award = oil_awards[item_type]
         _args['client']['character']['currency_botstract'] += award
         _args['mysql'].execute(
@@ -321,23 +320,65 @@ def use_item(**_args):
                 _args['client']['character']['id']
             ])
 
-    # If the item type is equal or exceeds 18, process a box pickup
+    # Si el tipo de ítem es igual o mayor a 18, procesar la recolección de una caja.
     if item_type >= 18:
 
-        # Find available slot
+        # Encontrar un espacio disponible en el inventario.
         inventory = get_items(_args, _args['client']['character']['id'], 'inventory')
         available_slot = get_available_inventory_slot(inventory)
 
-        # Construct pickup packet
-        pickup = PacketWrite()
-        pickup.add_header(bytes=[0x2C, 0x2F])
-
-        # Send inventory full packet if we do not have an available slot
+        # Si no hay espacio en el inventario, preguntar al jugador si desea vender el ítem.
         if available_slot is None:
-            pickup.append_bytes(bytes=[0x00, 0x44])
-            return _args['socket'].sendall(pickup.packet)
+            # Enviar un mensaje al jugador preguntándole si desea vender el ítem.
+            message = Lobby.chat_message(
+                target=_args['client'],
+                message="Inventario lleno. ¿Deseas vender el ítem? (sí/no)",
+                color=2,
+                return_packet=True
+            )
+            _args['socket'].sendall(message.packet)
 
-        # If the item is gold, calculate what gold bar to award
+            # Esperar la respuesta del jugador.
+            response = wait_for_player_response(_args['client'])
+
+            # Si el jugador responde "sí", vender el ítem.
+            if response.lower() in ["sí", "si", "s", "yes", "y"]:
+                # Calcular el valor de venta del ítem.
+                if item_type == CHEST_GOLD:
+                    gigas_awarded = 1000  # Valor de venta del oro.
+                else:
+                    gigas_awarded = 500  # Valor de venta de la caja.
+
+                # Actualizar la cantidad de gigas del jugador.
+                _args['client']['character']['currency_gigas'] += gigas_awarded
+                _args['mysql'].execute(
+                    """UPDATE `characters` SET `currency_gigas` = (`currency_gigas` + %s) WHERE `id` = %s""", [
+                        gigas_awarded,
+                        _args['client']['character']['id']
+                    ])
+
+                # Enviar un mensaje al jugador indicando que el ítem ha sido vendido.
+                message = Lobby.chat_message(
+                    target=_args['client'],
+                    message=f"El ítem ha sido vendido por {gigas_awarded} gigas.",
+                    color=2,
+                    return_packet=True
+                )
+                _args['socket'].sendall(message.packet)
+                return
+
+            # Si el jugador responde "no", no hacer nada.
+            elif response.lower() in ["no", "n"]:
+                message = Lobby.chat_message(
+                    target=_args['client'],
+                    message="El ítem no ha sido recolectado.",
+                    color=2,
+                    return_packet=True
+                )
+                _args['socket'].sendall(message.packet)
+                return
+
+        # Si hay espacio en el inventario, recolectar el ítem como en la versión original.
         if item_type == CHEST_GOLD:
             item_id = [
                 6000001,
@@ -345,59 +386,72 @@ def use_item(**_args):
                 6000003
             ][random.randint(0, 2)]
         else:
-
-            # If we do not have this item type in the drop table, do nothing
             if item_type not in PLANET_DROPS[room['level']]:
                 return
 
-            # Retrieve random drop and calculate the chance
             drops = PLANET_DROPS[room['level']][item_type]
-
-            # Calculate the chance
             sc = random.random()
             last_chance = 0.0
 
-            # Based on the randomized chance, retrieve the item we are going to award
             item_id = 0
             for iid, chance in drops:
                 if sc <= (chance + last_chance):
                     item_id = iid
                     break
                 else:
-
-                    # No match? Try again with a higher chance
                     last_chance += chance
 
-        # Mutate the item ID to be of our bot type if the item type is either a HEAD, BODY or ARM
         if item_type in [BOX_HEAD, BOX_BODY, BOX_ARMS]:
-            # Create a list of the item ID and append the character type to it
             new_item_id = list(str(item_id))
             new_item_id[1] = str(_args['client']['character']['type'])
-
-            # Convert the item ID back to an integer
             item_id = int("".join(new_item_id))
 
-        # Find item in the database
         _args['mysql'].execute(
             '''SELECT `id`, `item_id`, `buyable`, `gold_price`, `cash_price`, `part_type`, `duration` FROM `game_items` WHERE `item_id` = %s''',
             [item_id])
         item = _args['mysql'].fetchone()
 
-        # If the item hasn't been found, return an error
         if item is None:
             pickup.append_bytes(bytes=[0x00, 0x00])
             return _args['socket'].sendall(pickup.packet)
 
-        # Add item to inventory of the user
         add_item(_args, item, available_slot)
 
-        # Send pickup packet to the player
+        pickup = PacketWrite()
+        pickup.add_header(bytes=[0x2C, 0x2F])
         pickup.append_bytes(bytes=[0x01, 0x00])
         pickup.append_integer(item_id, 4, 'little')
         pickup.append_integer(0, 4, 'little')
         pickup.append_integer(Room.get_slot(_args, room) - 1, 2, 'little')
         _args['socket'].sendall(pickup.packet)
 
+
+def wait_for_player_response(client):
+    """
+    Espera la respuesta del jugador en el chat.
+    """
+    # Simulación de espera de respuesta (esto debe implementarse según tu sistema de chat).
+    # Aquí asumimos que el servidor puede capturar mensajes del jugador.
+    response = None
+    while response is None:
+        # Capturar el mensaje del jugador (esto depende de tu implementación).
+        # Por ejemplo, podrías usar un sistema de colas o eventos.
+        response = capture_player_message(client)
+        time.sleep(0.1)  # Evitar un bucle infinito sin espera.
+
+    return response
+
+
+def capture_player_message(client):
+    """
+    Captura el mensaje del jugador (esto es un ejemplo y debe adaptarse a tu sistema).
+    """
+    # Aquí debes implementar la lógica para capturar el mensaje del jugador.
+    # Por ejemplo, podrías usar una cola de mensajes o un sistema de eventos.
+    # Este es solo un ejemplo simplificado.
+    if has_new_message(client):
+        return get_last_message(client)
+    return None
 
 '''
 This method allows players to use their field packs

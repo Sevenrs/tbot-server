@@ -14,8 +14,6 @@
 
 
 -- Dumping database structure for tbot-game-local
-CREATE DATABASE IF NOT EXISTS `tbot-game-local` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */;
-USE `tbot-game-local`;
 
 -- Dumping structure for table tbot-game-local.blocked
 CREATE TABLE IF NOT EXISTS `blocked` (
