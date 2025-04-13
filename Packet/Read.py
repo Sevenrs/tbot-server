@@ -27,8 +27,7 @@ class Read:
         # De-xor every byte in the buffer
         # al parecer cada cliente utiliza un porpio metodo de encriptación
         for i in range(len(data)):
-            result.append(0x00 ^ data[i])#ohka-bot
-            #result.append(0xED ^ data[i])#t-bot 
+            result.append(0xED ^ data[i])
         
 
         return result
