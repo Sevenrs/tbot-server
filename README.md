@@ -29,7 +29,7 @@ By doing so, you will face the following limitations:
 
 Alterations can be made to combat these limitations but is out of the scope of this publication.
 
-The latest T-Bot Rewritten client can be downloaded here: https://drive.google.com/file/d/1mwyJRZAcBjuXJzzC9EgoU6b-92iucymu/view
+The latest T-Bot Rewritten client can be downloaded here: https://mega.nz/file/7BNQhKZI#1cr-kSlJMzj6CAf19EGk8GfG9J1SQdUhUbtYF0w_EiY
 
 _Note: The launcher will not work. This is because T-Bot Rewritten has ceased operations._
 
