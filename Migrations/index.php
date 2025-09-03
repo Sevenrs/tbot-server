@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Usuario</title>
+    <title>User Registration</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -61,86 +61,96 @@
             color: green;
             margin-top: 10px;
         }
+        .activation-link {
+            margin-top: 15px;
+            font-size: 0.95em;
+            word-wrap: break-word;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Registro de Usuario</h1>
+        <h1>User Registration</h1>
         
         <form method="POST" action="">
-            <label for="username">Nombre de Usuario:</label>
+            <label for="username">Username:</label>
             <input type="text" id="username" name="username" required>
 
-            <label for="email">Correo Electrónico:</label>
+            <label for="email">Email Address:</label>
             <input type="email" id="email" name="email" required>
 
-            <label for="password">Contraseña:</label>
+            <label for="password">Password:</label>
             <input type="password" id="password" name="password" required>
 
-            <label for="re_password">Confirmar Contraseña:</label>
+            <label for="re_password">Confirm Password:</label>
             <input type="password" id="re_password" name="re_password" required>
 
-            <button type="submit" name="register">Registrar</button>
+            <button type="submit" name="register">Register</button>
         </form>
 
         <?php
         if ($_SERVER["REQUEST_METHOD"] == "POST") {
-            // Configuración de la base de datos
+            // Database config
             $servername = "localhost";
-            $usernameDB = "root";  // Cambia a tu usuario de MySQL
-            $passwordDB = "ascent";      // Cambia a tu contraseña de MySQL
-            $dbname = "tbot-game-local";
+            $usernameDB = "root";
+            $passwordDB = "ascent";
+            $dbname = "tbot_base";
 
-            // Conectar a la base de datos
+            // Connect to DB
             $conn = new mysqli($servername, $usernameDB, $passwordDB, $dbname);
 
-            // Verificar la conexión
+            // Check connection
             if ($conn->connect_error) {
-                die("Error de conexión: " . $conn->connect_error);
+                die("Connection failed: " . $conn->connect_error);
             }
 
-            // Verificar si los campos existen en $_POST antes de acceder a ellos
             $username = isset($_POST['username']) ? $conn->real_escape_string($_POST['username']) : '';
             $email = isset($_POST['email']) ? $conn->real_escape_string($_POST['email']) : '';
             $password = isset($_POST['password']) ? $_POST['password'] : '';
             $re_password = isset($_POST['re_password']) ? $_POST['re_password'] : '';
             $last_ip = $_SERVER['REMOTE_ADDR'];
 
-            // Verificar si las contraseñas coinciden
             if ($password !== $re_password) {
-                echo "<p class='error'>Las contraseñas no coinciden.</p>";
+                echo "<p class='error'>Passwords do not match.</p>";
             } else {
-                // Hash de la contraseña usando Argon2i
+                // Hash password with Argon2i
                 $hashed_password = password_hash($password, PASSWORD_ARGON2I);
 
-                // Generar un código único de activación
-                $activation_code = bin2hex(random_bytes(16)); // 32 caracteres hexadecimales
+                // Generate activation code
+                $activation_code = bin2hex(random_bytes(16));
 
-                // Preparar la consulta de inserción
+                // Insert new user
                 $sql = "INSERT INTO users (username, password, email, last_ip, activation_code, activated) 
                         VALUES ('$username', '$hashed_password', '$email', '$last_ip', '$activation_code', 0)";
 
                 if ($conn->query($sql) === TRUE) {
-                    echo "<p class='success'>Registro exitoso. Por favor, revisa tu correo electrónico para activar tu cuenta.</p>";
+                    echo "<p class='success'>Registration successful. Please check your email to activate your account.</p>";
 
-                    // Enviar el correo de activación
-                    $activation_link = "http://127.0.0.1/activar.php?code=$activation_code";
-                    $subject = "Activación de cuenta";
-                    $message = "Hola, $username. Para activar tu cuenta, por favor haz clic en el siguiente enlace: $activation_link";
+                    // Build activation link dynamically with current host
+                    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
+                    $host = $_SERVER['HTTP_HOST'];
+                    $activation_link = $protocol . $host . "/activate.php?code=$activation_code";
+
+                    echo "<div class='activation-link'> 
+                            <strong>Activation Link:</strong><br>
+                            <a href='$activation_link'>$activation_link</a>
+                          </div>";
+
+                    // Send activation email
+                    $subject = "Account Activation";
+                    $message = "Hello, $username. To activate your account, please click the following link: $activation_link";
                     $headers = "From: admin@admin";
 
-                    // Usar la función mail() de PHP para enviar el correo
                     if (mail($email, $subject, $message, $headers)) {
-                        echo "<p class='success'>Se ha enviado un correo de activación.</p>";
+                        echo "<p class='success'>An activation email has been sent.</p>";
                     } else {
-                        echo "<p class='error'>Error al enviar el correo de activación.</p>";
+                        echo "<p class='error'>Failed to send activation email.</p>";
                     }
                 } else {
                     echo "<p class='error'>Error: " . $conn->error . "</p>";
                 }
             }
 
-            // Cerrar la conexión
             $conn->close();
         }
         ?>
