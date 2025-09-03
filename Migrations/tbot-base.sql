@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS `characters` (
 -- Dumping data for table tbot-game-local.characters: ~0 rows (approximately)
 /*!40000 ALTER TABLE `characters` DISABLE KEYS */;
 REPLACE INTO `characters` (`id`, `user_id`, `name`, `position`, `type`, `experience`, `level`, `rank_exp`, `rank`, `health`, `luck`, `speed`, `att_min`, `att_max`, `att_trans_min`, `att_trans_max`, `att_critical`, `att_evade`, `att_ranged`, `trans_special`, `trans_guage`, `trans_def`, `trans_att`, `trans_speed`, `currency_botstract`, `currency_gigas`) VALUES
-	(1, 1, 'GM', 1, 3, 132600, 70, 29400, 53, 5500, 0, 1000, 350, 490, 700, 980, 0, 0, 1000, 0, 1000, 0, 1000, 0, 0, 1170);
+	(1, 1, 'GM Andrew', 1, 3, 132600, 70, 29400, 53, 5500, 0, 1000, 350, 490, 700, 980, 0, 0, 1000, 0, 1000, 0, 1000, 0, 0, 1170);
 /*!40000 ALTER TABLE `characters` ENABLE KEYS */;
 
 -- Dumping structure for table tbot-game-local.character_items
@@ -2444,7 +2444,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 -- Dumping data for table tbot-game-local.users: ~0 rows (approximately)
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
 REPLACE INTO `users` (`id`, `suspended`, `username`, `password`, `email`, `email_verified`, `last_ip`, `warnet_bonus`, `cash`) VALUES
-	(1, 0, 'admin', '$argon2d$v=19$m=12,t=3,p=1$bTg5YnppOXNwNzAwMDAwMA$ZrNmh2Xhuk1a/xYzg9cvkQ', 'me@test.com', 1, '127.0.0.1', 1, 90000);
+	(1, 0, 'admin', '$argon2i$v=19$m=65536,t=4,p=1$Sll1dGpFOXVDLjVQZWRNag$XR3P9rg67FZ1HCpS44jnyDb0Crebi4+jrEk5x7Ro6Xs', 'me@test.com', 1, '127.0.0.1', 1, 90000);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
