@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Activación de Cuenta</title>
+    <title>Account Activation</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -19,14 +19,21 @@
             padding: 30px;
             border-radius: 8px;
             box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
+            max-width: 450px;
             width: 100%;
             text-align: center;
         }
         h1 {
             font-size: 1.8em;
             color: #333;
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-size: 0.95em;
+            color: #555;
             margin-bottom: 20px;
+            word-wrap: break-word;
         }
         .success, .error {
             font-size: 1.2em;
@@ -49,42 +56,51 @@
 <body>
 
 <div class="container">
-    <h1>Activación de Cuenta</h1>
+    <h1>Account Activation</h1>
+
+    <label>
+        Example activation link:<br>
+        <?php
+        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
+        $host = $_SERVER['HTTP_HOST'];
+        echo $protocol . $host . "/activate.php?code=yourcode";
+        ?>
+    </label>
 
     <?php
-    // Conectar a la base de datos
+    // Connect to the database
     $servername = "localhost";
     $usernameDB = "root";  
     $passwordDB = "ascent";     
-    $dbname = "tbot-game-local";
+    $dbname = "tbot_base";
     $conn = new mysqli($servername, $usernameDB, $passwordDB, $dbname);
 
-    // Verificar la conexión
+    // Check connection
     if ($conn->connect_error) {
-        die("Error de conexión: " . $conn->connect_error);
+        die("Connection error: " . $conn->connect_error);
     }
 
     if (isset($_GET['code'])) {
         $activation_code = $conn->real_escape_string($_GET['code']);
         
-        // Verificar si el código de activación existe en la base de datos y si el correo no está verificado
+        // Verify if the activation code exists in the database and the email is not yet verified
         $sql = "SELECT * FROM users WHERE activation_code = '$activation_code' AND email_verified = 0";
         $result = $conn->query($sql);
 
         if ($result->num_rows > 0) {
-            // Usuario encontrado, proceder con la activación
+            // User found, proceed with activation
             $sql_update = "UPDATE users SET email_verified = 1, activation_code = NULL WHERE activation_code = '$activation_code'";
 
             if ($conn->query($sql_update) === TRUE) {
-                echo "<p class='success'>Tu cuenta ha sido activada exitosamente. Ahora puedes iniciar sesión.</p>";
+                echo "<p class='success'>Your account has been successfully activated. You can now log in.</p>";
             } else {
-                echo "<p class='error'>Error al activar la cuenta. Intenta nuevamente más tarde.</p>";
+                echo "<p class='error'>Error activating the account. Please try again later.</p>";
             }
         } else {
-            echo "<p class='error'>Código de activación inválido o ya utilizado.</p>";
+            echo "<p class='error'>Invalid or already used activation code.</p>";
         }
     } else {
-        echo "<p class='error'>No se ha proporcionado un código de activación válido.</p>";
+        echo "<p class='error'>No valid activation code was provided.</p>";
     }
 
     $conn->close();
