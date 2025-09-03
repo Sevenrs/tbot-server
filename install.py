@@ -4,26 +4,26 @@ import subprocess
 import re
 from pathlib import Path
 
-# Verificar e instalar dependencias antes de importar
+# Ensure dependencies are installed before importing
 def ensure_package_installed(package, version="latest"):
-    """Verifica si el paquete está instalado y lo instala si no está."""
+    """Check if a package is installed and install it if not."""
     try:
         subprocess.run([sys.executable, "-m", "pip", "show", package], check=True, stdout=subprocess.DEVNULL)
     except subprocess.CalledProcessError:
-        print(f"Instalando {package}...")
+        print(f"Installing {package}...")
         install_cmd = [sys.executable, "-m", "pip", "install", f"{package}=={version}" if version != "latest" else package]
         subprocess.run(install_cmd, check=True, stdout=subprocess.DEVNULL)
-        print(f"{package} instalado correctamente.")
+        print(f"{package} installed successfully.")
 
-# Instalar dotenv antes de importarlo
+# Install dotenv before importing it
 ensure_package_installed("python-dotenv", "latest")
 
-# Ahora que dotenv está instalado, podemos importarlo
-from dotenv import load_dotenv, set_key
+# Now we can import dotenv
+from dotenv import load_dotenv
 import mysql.connector
 import argparse
 
-# Diccionario de dependencias
+# Dependencies dictionary
 DEPENDENCIES = {
     "python-dotenv": "0.18.0",
     "mysql-connector-python": "8.0.25",
@@ -33,34 +33,34 @@ DEPENDENCIES = {
 }
 
 def install_dependencies():
-    """Instala las dependencias necesarias."""
+    """Install required dependencies."""
     for package, version in DEPENDENCIES.items():
         ensure_package_installed(package, version)
-    print("✅ Todas las dependencias han sido instaladas correctamente.")
+    print(" All dependencies were installed successfully.")
 
 def get_user_input(prompt, default=None):
-    """Solicita entrada al usuario con opción de valor por defecto."""
+    """Request input from the user with an optional default value."""
     while True:
         value = input(f'{prompt} [{default}]: ') if default else input(f'{prompt}: ')
         if value.strip():
             return value.strip()
         elif default is not None:
             return default
-        print("El valor no puede estar vacío. Inténtalo de nuevo.")
+        print("Value cannot be empty. Please try again.")
 
 def validate_mysql_dbname(dbname):
-    """Valida el nombre de la base de datos."""
+    """Validate database name."""
     return bool(re.match(r'^[a-zA-Z0-9_]+$', dbname))
 
 def confirm_data(data):
-    """Muestra los datos y solicita confirmación."""
-    print("\n📋 Verifique los datos ingresados:")
+    """Show entered data and request confirmation."""
+    print("\n Please verify the entered data:")
     for key, value in data.items():
         print(f"{key}: {value}")
-    return input("¿Los datos son correctos? (S/N): ").strip().lower() == 's'
+    return input("Is the data correct? (Y/N): ").strip().lower() == 'y'
 
 def verify_mysql_connection(mysql_data):
-    """Verifica si la conexión a MySQL es válida."""
+    """Check if MySQL connection is valid."""
     try:
         connection = mysql.connector.connect(
             host=mysql_data["MYSQL_HOST"],
@@ -69,14 +69,14 @@ def verify_mysql_connection(mysql_data):
             port=mysql_data["MYSQL_PORT"]
         )
         connection.close()
-        print("✅ Conexión a MySQL verificada correctamente.")
+        print("MySQL connection verified successfully.")
         return True
     except mysql.connector.Error as err:
-        print(f"❌ Error de conexión a MySQL: {err}")
+        print(f"MySQL connection error: {err}")
         return False
 
 def create_database_if_not_exists(mysql_data):
-    """Crea la base de datos si no existe."""
+    """Create the database if it does not exist."""
     try:
         connection = mysql.connector.connect(
             host=mysql_data["MYSQL_HOST"],
@@ -88,61 +88,46 @@ def create_database_if_not_exists(mysql_data):
         cursor.execute(f"CREATE DATABASE IF NOT EXISTS `{mysql_data['MYSQL_DATABASE']}`")
         cursor.close()
         connection.close()
-        print(f"✅ Base de datos '{mysql_data['MYSQL_DATABASE']}' verificada o creada.")
+        print(f"Database '{mysql_data['MYSQL_DATABASE']}' verified or created.")
     except mysql.connector.Error as err:
-        print(f"❌ Error al crear la base de datos: {err}")
-        sys.exit(1)
-
-def import_sql_file(file_path, mysql_data):
-    """Importa un archivo SQL en la base de datos."""
-    try:
-        command = (
-            f"mysql -h {mysql_data['MYSQL_HOST']} -u {mysql_data['MYSQL_USER']} "
-            f"-p{mysql_data['MYSQL_PASS']} -P {mysql_data['MYSQL_PORT']} "
-            f"{mysql_data['MYSQL_DATABASE']} < {file_path}"
-        )
-        subprocess.run(command, shell=True, check=True, stdout=subprocess.DEVNULL)
-        print(f"✅ Archivo {file_path} importado correctamente.")
-    except subprocess.CalledProcessError as err:
-        print(f"❌ Error al importar {file_path}: {err}")
+        print(f" Error creating database: {err}")
         sys.exit(1)
 
 def create_env_file():
-    """Crea o actualiza el archivo .env con los valores de MySQL."""
+    """Create or update the .env file with MySQL values."""
     env_path = Path('.') / '.env'
     env_path.touch(exist_ok=True)
     load_dotenv(dotenv_path=env_path)
     
     while True:
         mysql_data = {
-            "MYSQL_HOST": get_user_input("Ingrese el host de MySQL", os.getenv("MYSQL_HOST", "localhost")),
-            "MYSQL_USER": get_user_input("Ingrese el usuario de MySQL", os.getenv("MYSQL_USER", "root")),
-            "MYSQL_PASS": get_user_input("Ingrese la contraseña de MySQL", os.getenv("MYSQL_PASS", "")),
-            "MYSQL_DATABASE": get_user_input("Ingrese el nombre de la base de datos", os.getenv("MYSQL_DATABASE", "tbot_local")),
-            "MYSQL_PORT": get_user_input("Ingrese el puerto de MySQL", os.getenv("MYSQL_PORT", "3306"))
+            "MYSQL_HOST": get_user_input("Enter MySQL host", os.getenv("MYSQL_HOST", "localhost")),
+            "MYSQL_USER": get_user_input("Enter MySQL user", os.getenv("MYSQL_USER", "root")),
+            "MYSQL_PASS": get_user_input("Enter MySQL password", os.getenv("MYSQL_PASS", "")),
+            "MYSQL_DATABASE": get_user_input("Enter database name", os.getenv("MYSQL_DATABASE", "tbot_local")),
+            "MYSQL_PORT": get_user_input("Enter MySQL port", os.getenv("MYSQL_PORT", "3306"))
         }
         
         if not validate_mysql_dbname(mysql_data["MYSQL_DATABASE"]):
-            print("⚠️ Nombre de base de datos inválido. Solo se permiten letras, números y guiones bajos (_).")
+            print("Invalid database name. Only letters, numbers, and underscores (_) are allowed.")
             continue
         
         if confirm_data(mysql_data) and verify_mysql_connection(mysql_data):
             break
-        print("🔄 Datos incorrectos, intente nuevamente.")
+        print("Invalid data, please try again.")
     
     with env_path.open("w") as env_file:
         for key, value in mysql_data.items():
             env_file.write(f"{key}={value}\n")
     
-    print("✅ Archivo .env creado correctamente.")
+    print(".env file created successfully.")
     create_database_if_not_exists(mysql_data)
-    import_sql_file("Migrations/tbot-base.sql", mysql_data)
 
 def main():
-    """Función principal del script."""
-    parser = argparse.ArgumentParser(description="🔧 Configuración inicial del proyecto.")
-    parser.add_argument("--install-deps", action="store_true", help="Instala las dependencias necesarias.")
-    parser.add_argument("--create-env", action="store_true", help="Crea el archivo .env y configura la base de datos.")
+    """Main function of the script."""
+    parser = argparse.ArgumentParser(description="🔧 Initial project setup.")
+    parser.add_argument("--install-deps", action="store_true", help="Install required dependencies.")
+    parser.add_argument("--create-env", action="store_true", help="Create the .env file and configure the database.")
     args = parser.parse_args()
 
     if args.install_deps:
