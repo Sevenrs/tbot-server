@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-__author__ = 'Icseon'
+__author__ = 'Icseon, AndrewC'
 __copyright__ = 'Copyright (C) 2021 Icseon'
-__version__ = '1.0'
+__version__ = '1.1'
 
 import _thread
 import datetime
