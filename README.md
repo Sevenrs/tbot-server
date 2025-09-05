@@ -34,3 +34,8 @@ One of the latest additions is the command:
 🔧 Initial Modifications: AndrewC
 
 ⚡ Recent Improvements (@autosell and maintenance): AndrewC.
+
+## 📜 License
+
+This project is licensed under the **GNU GPL v2** (same spirit as AzerothCore).  
+You are free to use, modify, and share this code, but any derivative work must also remain open source under the same license.
