@@ -7,8 +7,8 @@ This repository does not and will not include any website logic. That part is st
 
 A default account is already available with the following credentials:
 
-Username: icseon  
-Password: icseon
+Username: admin  
+Password: admin
 
 🎮 Game Client Compatibility
 
