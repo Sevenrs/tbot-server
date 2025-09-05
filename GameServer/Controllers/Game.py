@@ -103,11 +103,10 @@ of the monster being killed.
 
 
 def monster_kill(**_args):
-    # If the client is not in a room or is not its master, drop the packet
     room = Room.get_room(_args)
     if not room:
         return
-
+    
     # Read monster ID from the packet
     monster_id = _args['packet'].get_byte(0)
     who = _args['packet'].get_byte(4)
@@ -199,9 +198,9 @@ def monster_kill(**_args):
                         if drop == CANISTER_REBIRTH:
                             chance = 1.00
 
-                # If we are playing hard or medium difficulty and the monster does not drop a box (barrels and
-                # bosses), decrease drop chance We will also be ignoring this check if the assistant_multiplication
-                # is not 1.0
+                # Si estamos jugando en dificultad difícil o media y el monstruo no suelta una caja (barriles y jefes), 
+                # disminuiremos la probabilidad de caída. También ignoraremos esta verificación si la multiplicación 
+                # del asistente no es 1.0.
                 elif room['difficulty'] in [DIFFICULTY_MEDIUM, DIFFICULTY_HARD] \
                         and assistant_multiplication == 1.0 \
                         and monster_id not in PLANET_BOX_MOBS[room['level']]:
@@ -270,130 +269,150 @@ This method will handle picking up items which were dropped from monsters
 
 
 def use_item(**_args):
-    # Si el cliente no está en una sala, se descarta el paquete.
+    # Si el cliente no está en una sala, descartamos el paquete
     room = Room.get_room(_args)
     if not room:
+        print("El cliente no está en una sala, descartando el paquete.")
         return
 
-    # Leer el índice y el tipo de ítem del paquete.
+    # Leer el índice y tipo de ítem desde el paquete
     item_index = _args['packet'].get_byte(2)
     item_type = _args['packet'].get_byte(3)
 
-    # Verificar si el drop es válido. Si no lo es, se cambia el tipo de ítem a 0.
+    # Verificar si el ítem está en los drops de la sala y si ya fue usado
     if item_index not in room['drops'] or room['drops'][item_index]['used'] is True \
             or room['drops'][item_index]['type'] != item_type:
-        item_type = 0
+        print(f"Ítem no válido o ya usado. Índice: {item_index}, Tipo: {item_type}")
+        return
 
-    # Marcar el drop como usado antes de procesar el paquete.
-    if item_index in room['drops']:
-        room['drops'][item_index]['used'] = True
+    # Marcar el ítem como usado
+    room['drops'][item_index]['used'] = True
 
-    # Enviar el paquete de uso de canister a la sala.
+    # Broadcast del uso del ítem a todos los jugadores en la sala
     use_canister = PacketWrite()
-    use_canister.add_header(bytearray([0x23, 0x2F]))
+    use_canister.add_header(bytearray([0x23, 0x2F]))  # Los encabezados del paquete
     use_canister.append_integer(Room.get_slot(_args, room) - 1, 2, 'little')
     use_canister.append_integer(item_index, 1, 'little')
     use_canister.append_integer(item_type, 4, 'little')
     _args['connection_handler'].room_broadcast(room['id'], use_canister.packet)
 
-    # Si el ítem es un paquete de renacimiento, revivir a todos los jugadores.
+    # Procesamiento adicional para ítems especiales
+
+    # Si el ítem es un rebirth pack, hacer que todos los jugadores estén vivos
     if item_type == CANISTER_REBIRTH:
         for key, slot in room['slots'].items():
             slot['dead'] = False
+        print("Rebirth pack utilizado, todos los jugadores están vivos ahora.")
 
-    # Si el ítem es OIL, procesar la recolección de OIL.
-    if item_type in [OIL_YELLOW, OIL_ORANGE, OIL_BLUE, OIL_PINK]:
-        # Contenedor para la cantidad de OIL que un jugador recibe por tipo.
+    # Si el ítem es OIL, procesar la recolección de aceite
+    elif item_type in [OIL_YELLOW, OIL_ORANGE, OIL_BLUE, OIL_PINK]:
         oil_awards = {
             OIL_YELLOW: 5,
             OIL_ORANGE: 15,
             OIL_BLUE: 20,
             OIL_PINK: 30
         }
-
-        # Obtener la cantidad de recompensa y actualizar el personaje.
         award = oil_awards[item_type]
         _args['client']['character']['currency_botstract'] += award
         _args['mysql'].execute(
-            """UPDATE `characters` SET `currency_botstract` = (`currency_botstract` + %s) WHERE `id` = %s""", [
-                award,
-                _args['client']['character']['id']
-            ])
+            """UPDATE `characters` SET `currency_botstract` = (`currency_botstract` + %s) WHERE `id` = %s""",
+            [award, _args['client']['character']['id']]
+        )
+        print(f"Se ha otorgado {award} de aceite a {item_type}.")
 
-    # Si el tipo de ítem es igual o mayor a 18, procesar la recolección de una caja.
-    if item_type >= 18:
-
-        # Encontrar un espacio disponible en el inventario.
+    # Si el ítem es un ítem tipo 'BOX', procesar la recolección de un item desde la caja
+    elif item_type >= 18:
+        # Encontrar un slot disponible
         inventory = get_items(_args, _args['client']['character']['id'], 'inventory')
         available_slot = get_available_inventory_slot(inventory)
 
-        # Si no hay espacio en el inventario, preguntar al jugador si desea vender el ítem.
+        # Si no hay espacio disponible, verificar si el autosell está activo
         if available_slot is None:
-            # Enviar un mensaje al jugador preguntándole si desea vender el ítem.
-            message = Lobby.chat_message(
-                target=_args['client'],
-                message="Inventario lleno. ¿Deseas vender el ítem? (sí/no)",
-                color=2,
-                return_packet=True
-            )
-            _args['socket'].sendall(message.packet)
+            if _args['client']['character'].get('settings', {}).get('autosell', False):
+                # Autosell está activo, vender el ítem automáticamente
+                item_id = [6000001, 6000002, 6000003][random.randint(0, 2)] if item_type == CHEST_GOLD else None
 
-            # Esperar la respuesta del jugador.
-            response = wait_for_player_response(_args['client'])
+                if item_id is None:
+                    # Si no es una caja de oro, obtener el ítem aleatorio de los drops
+                    if item_type not in PLANET_DROPS[room['level']]:
+                        print(f"No se encuentran drops para el ítem de tipo {item_type} en la sala.")
+                        return
 
-            # Si el jugador responde "sí", vender el ítem.
-            if response.lower() in ["sí", "si", "s", "yes", "y"]:
-                # Calcular el valor de venta del ítem.
-                if item_type == CHEST_GOLD:
-                    gigas_awarded = 1000  # Valor de venta del oro.
-                else:
-                    gigas_awarded = 500  # Valor de venta de la caja.
+                    # Obtener el drop aleatorio y calcular la probabilidad
+                    drops = PLANET_DROPS[room['level']][item_type]
+                    sc = random.random()
+                    last_chance = 0.0
+                    item_id = 0
 
-                # Actualizar la cantidad de gigas del jugador.
-                _args['client']['character']['currency_gigas'] += gigas_awarded
+                    for iid, chance in drops:
+                        if sc <= (chance + last_chance):
+                            item_id = iid
+                            break
+                        else:
+                            last_chance += chance
+
+                # Mutar el ID del ítem si es de tipo 'HEAD', 'BODY' o 'ARMS' (tipo de bot)
+                if item_type in [BOX_HEAD, BOX_BODY, BOX_ARMS]:
+                    new_item_id = list(str(item_id))
+                    new_item_id[1] = str(_args['client']['character']['type'])
+                    item_id = int("".join(new_item_id))
+
+                # Obtener datos del ítem desde la base de datos
                 _args['mysql'].execute(
-                    """UPDATE `characters` SET `currency_gigas` = (`currency_gigas` + %s) WHERE `id` = %s""", [
-                        gigas_awarded,
-                        _args['client']['character']['id']
-                    ])
-
-                # Enviar un mensaje al jugador indicando que el ítem ha sido vendido.
-                message = Lobby.chat_message(
-                    target=_args['client'],
-                    message=f"El ítem ha sido vendido por {gigas_awarded} gigas.",
-                    color=2,
-                    return_packet=True
+                    '''SELECT `id`, `item_id`, `name`, `buyable`, `gold_price`, `selling_price`, `cash_price`, `part_type`, `duration` FROM `game_items` WHERE `item_id` = %s''',
+                    [item_id]
                 )
-                _args['socket'].sendall(message.packet)
-                return
+                item = _args['mysql'].fetchone()
 
-            # Si el jugador responde "no", no hacer nada.
-            elif response.lower() in ["no", "n"]:
-                message = Lobby.chat_message(
-                    target=_args['client'],
-                    message="El ítem no ha sido recolectado.",
-                    color=2,
-                    return_packet=True
+                if item is None:
+                    print(f"Ítem con ID {item_id} no encontrado en la base de datos.")
+                    return
+
+                # Vender el ítem automáticamente
+                sell_price = item['selling_price']  # Obtener el precio de venta del ítem
+                _args['client']['character']['currency_gigas'] += sell_price
+                _args['mysql'].execute(
+                    """UPDATE `characters` SET `currency_gigas` = (`currency_gigas` + %s) WHERE `id` = %s""",
+                    [sell_price, _args['client']['character']['id']]
                 )
-                _args['socket'].sendall(message.packet)
-                return
 
-        # Si hay espacio en el inventario, recolectar el ítem como en la versión original.
+                # Mostrar mensaje al cliente y en la consola
+                message = f"El ítem {item['name']} fue vendido por {sell_price} gigas."
+                Lobby.chat_message(_args['client'], f"{item['name']}, vendido por {sell_price} gigas.", 4)
+                #Lobby.chat_message(_args['client'], message, 2)
+                print(message)
+
+                # Enviar paquete de recolección al jugador
+                pickup = PacketWrite()
+                pickup.add_header(bytes=[0x2C, 0x2F])
+                pickup.append_bytes(bytes=[0x01, 0x00])
+                pickup.append_integer(item_id, 4, 'little')
+                pickup.append_integer(0, 4, 'little')
+                pickup.append_integer(Room.get_slot(_args, room) - 1, 2, 'little')
+                _args['socket'].sendall(pickup.packet)
+            else:
+                # Autosell está desactivado, mostrar mensaje de inventario lleno
+                pickup = PacketWrite()
+                pickup.add_header(bytes=[0x2C, 0x2F])
+                pickup.append_bytes(bytes=[0x00, 0x44])
+                _args['socket'].sendall(pickup.packet)
+            return
+
+        # Si el ítem es de tipo gold, elegir un ítem aleatorio
         if item_type == CHEST_GOLD:
-            item_id = [
-                6000001,
-                6000002,
-                6000003
-            ][random.randint(0, 2)]
+            item_id = [6000001, 6000002, 6000003][random.randint(0, 2)]
         else:
+            # Si no tenemos este tipo de ítem en la tabla de drops, no hacer nada
             if item_type not in PLANET_DROPS[room['level']]:
+                print(f"No se encuentran drops para el ítem de tipo {item_type} en la sala.")
                 return
 
+            # Obtener el drop aleatorio y calcular la probabilidad
             drops = PLANET_DROPS[room['level']][item_type]
             sc = random.random()
             last_chance = 0.0
-
             item_id = 0
+
             for iid, chance in drops:
                 if sc <= (chance + last_chance):
                     item_id = iid
@@ -401,22 +420,30 @@ def use_item(**_args):
                 else:
                     last_chance += chance
 
+        # Mutar el ID del ítem si es de tipo 'HEAD', 'BODY' o 'ARMS' (tipo de bot)
         if item_type in [BOX_HEAD, BOX_BODY, BOX_ARMS]:
             new_item_id = list(str(item_id))
             new_item_id[1] = str(_args['client']['character']['type'])
             item_id = int("".join(new_item_id))
 
+        # Obtener datos del ítem desde la base de datos
         _args['mysql'].execute(
             '''SELECT `id`, `item_id`, `buyable`, `gold_price`, `cash_price`, `part_type`, `duration` FROM `game_items` WHERE `item_id` = %s''',
-            [item_id])
+            [item_id]
+        )
         item = _args['mysql'].fetchone()
 
+        # Si el ítem no existe, devolver un error
         if item is None:
+            pickup = PacketWrite()
+            pickup.add_header(bytes=[0x2C, 0x2F])
             pickup.append_bytes(bytes=[0x00, 0x00])
             return _args['socket'].sendall(pickup.packet)
 
+        # Añadir el ítem al inventario
         add_item(_args, item, available_slot)
 
+        # Enviar paquete de recolección al jugador
         pickup = PacketWrite()
         pickup.add_header(bytes=[0x2C, 0x2F])
         pickup.append_bytes(bytes=[0x01, 0x00])
@@ -425,36 +452,15 @@ def use_item(**_args):
         pickup.append_integer(Room.get_slot(_args, room) - 1, 2, 'little')
         _args['socket'].sendall(pickup.packet)
 
+        print(f"Se ha recolectado el ítem {item_id} y se ha añadido al inventario.")
 
-def wait_for_player_response(client):
-    """
-    Espera la respuesta del jugador en el chat.
-    """
-    # Simulación de espera de respuesta (esto debe implementarse según tu sistema de chat).
-    # Aquí asumimos que el servidor puede capturar mensajes del jugador.
-    response = None
-    while response is None:
-        # Capturar el mensaje del jugador (esto depende de tu implementación).
-        # Por ejemplo, podrías usar un sistema de colas o eventos.
-        response = capture_player_message(client)
-        time.sleep(0.1)  # Evitar un bucle infinito sin espera.
+    # Si el ítem no es de ningún tipo especial, se considera un ítem común y se procesa de forma estándar
+    else:
+        print(f"Ítem de tipo {item_type} procesado normalmente.")
 
-    return response
-
-
-def capture_player_message(client):
-    """
-    Captura el mensaje del jugador (esto es un ejemplo y debe adaptarse a tu sistema).
-    """
-    # Aquí debes implementar la lógica para capturar el mensaje del jugador.
-    # Por ejemplo, podrías usar una cola de mensajes o un sistema de eventos.
-    # Este es solo un ejemplo simplificado.
-    if has_new_message(client):
-        return get_last_message(client)
-    return None
 
 '''
-This method allows players to use their field packs
+Este método permite a los jugadores usar sus paquetes de campo.
 '''
 
 
@@ -568,8 +574,8 @@ def player_death_rpc(**_args):
 
 
 '''
-This method will kill a player
-It works by reading the slot number and broadcasting that the player is dead to all room sockets
+Este método matará a un jugador. Funciona leyendo el número de ranura y transmitiendo 
+a todos los sockets de la sala que el jugador está muerto.
 '''
 
 
@@ -593,7 +599,7 @@ def player_death(_args, room):
 
 
 '''
-This method will update the score with the score sent from the client
+Este método actualizará la puntuación con la puntuación enviada desde el cliente.
 '''
 
 
@@ -612,8 +618,8 @@ def set_score(**_args):
 
 
 '''
-This method will receive the file hashes of every important file of the game and compare its hashes against what
-we have. If any hash is not matching, we disconnect the client.
+Este método recibirá los hashes de todos los archivos importantes del juego y los comparará
+con los que tenemos. Si algún hash no coincide, desconectaremos al cliente.
 '''
 
 
@@ -640,10 +646,11 @@ def file_validation(**_args):
 
 
 '''
-This method will compare the incoming players' statistics and compare them to the values we have on our end.
-If a mismatch occurs, we'll suspend the player for hacking.
+Este método comparará las estadísticas de los jugadores entrantes con los valores que tenemos nosotros.
+Si ocurre una discrepancia, suspenderemos al jugador por hackeo.
 
-This only works for slot number 1 for now. So if the current client is not slot 1, we won't run this check.
+Actualmente, esto solo funciona para el número de ranura 1. Por lo tanto, si el cliente actual 
+no está en la ranura 1, no ejecutaremos esta comprobación.
 '''
 
 
@@ -712,8 +719,9 @@ def statistic_validation(**_args):
 
 
 '''
-This method will link clients through relay when the clients indicate that they are not connected with each-other.
-It works by adding an array of clients to a container and looping through that array to figure out who to connect to who
+Este método enlazará a los clientes a través del relé cuando los clientes indiquen que no 
+están conectados entre sí. Funciona agregando una matriz de clientes a un contenedor 
+y recorriendo esa matriz para determinar quién debe conectarse con quién.
 '''
 
 
@@ -780,8 +788,8 @@ def network_state(**_args):
 
 
 '''
-This method will handle the game end RPC. This acts as a caller for game_end through a packet instead of being
-called manually in the game code.
+Este método manejará la RPC de fin de juego.  Actúa como una llamada para game_end 
+a través de un paquete, en lugar de ser llamado manualmente en el código del juego
 '''
 
 
@@ -969,8 +977,8 @@ def game_end_rpc(**_args):
 
 
 '''
-This method will listen to the client to tell which team has won the match.
-Everyone in the winning team will be marked as a winner and the game will end.
+Este método escuchará al cliente para indicar qué equipo ha ganado la partida.
+Todos los miembros del equipo ganador serán marcados como ganadores y el juego terminará.
 '''
 
 
@@ -1001,8 +1009,9 @@ def military_win(**_args):
 
 
 '''
-This method will send the correct packet to indicate what the game end result is to the room or specified client.
-After this, it will start a new thread that will run the post-game transaction and show the game stats to the clients.
+Este método enviará el paquete correcto para indicar cuál es el resultado del final del juego 
+a la sala o cliente especificado. Después de esto, iniciará un nuevo hilo que ejecutará la transacción 
+posterior al juego y mostrará las estadísticas del juego a los clientes.
 '''
 
 
@@ -1047,18 +1056,17 @@ def game_end(_args, room, status=None):
     # Start new thread for the game statistics
     _thread.start_new_thread(game_stats, (_args, room, status))
 
-
 '''
-This method will update all characters in the room with their new results (if applicable)
-Additionally, this method will return the results of the transaction in the form of a dictionary
+Este método actualizará a todos los personajes en la sala con sus nuevos resultados (si aplica).
+Adicionalmente, este método retornará los resultados de la transacción en forma de un diccionario.
 '''
 
 
 def post_game_transaction(_args, room, status=None):
 
     """
-    Because we are not in the main thread, the database connection is not available to this method.
-    We'll have to connect again in order to perform a database transaction.
+    Debido a que no estamos en el hilo principal, la conexión a la base de datos no está disponible 
+    para este método. Tendremos que conectarnos nuevamente para realizar una transacción en la base de datos.
     ---
     What we'll do is overwrite the object that would have been our mysql object if we were in the main thread
     """
@@ -1080,43 +1088,43 @@ def post_game_transaction(_args, room, status=None):
         # Default experience addition and giga addition values
         addition_experience, addition_gigas, addition_rank_experience, party_experience = 0, 0, 0, 0
 
-        ''' Calculate experience and giga gains for planet mode'''
+        ''' calcula las ganancias de experiencia y gigas para el modo planeta.'''
         if room['game_type'] == MODE_PLANET:
 
-            '''Calculate the amount of experience to award to the player. If the player's level has a difference of 
-                at least 10, the experience is divided by four. Otherwise, the experience is not mutated. 
-                
-                If there is an experience modifier present, it will be applied on top of the base experience.
-                Finally, if the player has lost the game, no experience will be awarded at all. '''
+            '''Calcula la cantidad de experiencia para otorgar al jugador. Si el nivel del jugador tiene una 
+            diferencia de al menos 10 con respecto al nivel del enemigo, la experiencia se divide por cuatro. 
+            De lo contrario, la experiencia no se modifica.
+            Si hay un modificador de experiencia presente, se aplicará por encima de la experiencia base.
+            Finalmente, si el jugador ha perdido el juego, no se otorgará ninguna experiencia. '''
 
             # Default experience addition
             addition_experience = 0
 
-            # We'll only be awarding experience if the player hasn't lost the game and if the level is valid
+            # Solo otorgaremos experiencia si el jugador no ha perdido el juego y si el nivel es válido.
             if room['level'] in PLANET_MAP_TABLE.keys() and slot['won']:
 
-                # We'll increase the base experience by this amount, based on the difficulty
+                # Incrementaremos la experiencia base en esta cantidad, según la dificultad.
                 difficulty_multiplication = {
                     DIFFICULTY_EASY: 1.00,
                     DIFFICULTY_MEDIUM: 1.25,
                     DIFFICULTY_HARD: 1.50
                 }
 
-                # Retrieve base experience amount from the experience table
-                # We'll modify the base experience with the experience modifier when needed
+                # Recuperar la cantidad de experiencia base de la tabla de experiencia
+                # Modificaremos la experiencia base con el modificador de experiencia cuando sea necesario
                 addition_experience = PLANET_MAP_TABLE[room['level']][0] * difficulty_multiplication[
                     room['difficulty']] * room['experience_modifier']
 
-                # If the level difference between the recommended level and the users' level is equal or greater than 9
-                # we will apply a 75% experience reduction in order to encourage players to play on their own level.
+                # Si la diferencia de nivel entre el nivel recomendado y el nivel del usuario es igual o mayor que 9.
+                # aplicaremos una reducción del 75% de la experiencia para alentar a los jugadores a jugar en su propio nivel.
                 if abs(PLANET_MAP_TABLE[room['level']][2] - character['level']) >= 9:
                     addition_experience = addition_experience * 0.25
 
-            # Ensure that the experience addition is always an integer
+            # Asegúrate de que la adición de experiencia sea siempre un número entero.
             addition_experience = int(addition_experience)
 
-            ''' Calculate the amount of gigas to award to the player. If the level difference is too large, the amount 
-                is reduced. The base reward is equal to 1250 which a rate is applied on top of. '''
+            ''' Calcula la cantidad de gigas para otorgar al jugador. Si la diferencia de nivel es demasiado grande, 
+            la cantidad se reduce. La recompensa base es igual a 1250, sobre la cual se aplica una tasa. '''
             mv = (PLANET_MAP_TABLE[room['level']][2] + 1) * 2
             rate = min(15.0, max(0.1, 1.0 + (float(mv - character['level']) / 3.0)))
             reward = int(
@@ -1267,8 +1275,8 @@ def post_game_transaction(_args, room, status=None):
 
 
 '''
-This method will perform post game checks to determine whether or not potential hacking is occurring.
-If this check fails, all clients in the room will be kicked from the server.
+Este método realizará comprobaciones posteriores al juego para determinar si se está produciendo
+o no un posible hackeo. Si esta comprobación falla, todos los clientes en la sala serán expulsados del servidor.
 '''
 
 
@@ -1358,8 +1366,7 @@ def anti_hack_fail(_args, room):
 
 
 '''
-This method will show the game statistics and the result of the post game transaction which is also
-invoked in this method
+Este método mostrará las estadísticas del juego y el resultado de la transacción posterior al juego, la cual también se invoca en este método.
 '''
 
 
@@ -1558,8 +1565,8 @@ def game_stats(_args, room, status=None):
 
 
 '''
-This method is responsible for waiting for the time to be over in sessions.
-It uses polling due to having no ability to mutate the thread's state once it has been started.
+Este método es responsable de esperar a que termine el tiempo en las sesiones.
+Utiliza polling debido a que no tiene la capacidad de modificar el estado del hilo una vez que ha comenzado.
 '''
 
 
@@ -1648,8 +1655,8 @@ def incremental_canister_drops(_args, room):
 
 
 '''
-This thread will check clients' loading status in the background every second as a failsafe.
-Once all clients have loaded, the game will be started.
+Este hilo verificará el estado de carga de los clientes en segundo plano cada segundo 
+como medida de seguridad. Una vez que todos los clientes hayan cargado, el juego comenzará.
 '''
 
 
@@ -1678,213 +1685,204 @@ def load_finish_thread(_args, room):
 
 
 '''
-This method will parse chat commands
+Este método analizará los comandos del chat.
 '''
 
 
 def chat_command(**_args):
-    # Check if we are in a room, if not drop the packet
-    room = Room.get_room(_args)
-    if not room:
-        return
+    try:
+        room = Room.get_room(_args)
+        if not room:
+            return
 
-    # Read message
-    message = _args['packet'].read_string()
+        message = _args['packet'].read_string()
 
-    if message.startswith('@'):
-        command = message[1:]
+        if message.startswith('@'):
+            command = message[1:]
 
-        # Handle exit requests
-        if command == 'exit':
-            Room.remove_slot(_args, _args['client']['room'], _args['client'])
+            # Comando de salir de la sala
+            if command == 'exit':
+                Room.remove_slot(_args, _args['client']['room'], _args['client'])
 
-        # Force win command, only available to staff members
-        elif command == 'win' and _args['client']['character']['position'] == 1:
-            game_end(_args=_args, room=room, status=1)
+            # Comando de ganar la partida (solo disponible para administradores)
+            elif command == 'win' and _args['client']['character']['position'] == 1:
+                game_end(_args=_args, room=room, status=1)
 
-        # Force lose command, only available to staff members
-        elif command == 'lose' and _args['client']['character']['position'] == 1:
-            game_end(_args=_args, room=room, status=0)
+            # Comando de perder la partida (solo disponible para administradores)
+            elif command == 'lose' and _args['client']['character']['position'] == 1:
+                game_end(_args=_args, room=room, status=0)
 
-        # Force time over command, only available to staff members
-        elif command == 'timeout' and _args['client']['character']['position'] == 1:
-            game_end(_args=_args, room=room, status=2)
+            # Comando de tiempo agotado (solo disponible para administradores)
+            elif command == 'timeout' and _args['client']['character']['position'] == 1:
+                game_end(_args=_args, room=room, status=2)
 
-        # Force time over command (death-match variant), only available to staff members
-        elif command == 'timeoutdm' and _args['client']['character']['position'] == 1:
-            game_end(_args=_args, room=room, status=3)
+            # Comando de tiempo agotado (variante de deathmatch, solo para administradores)
+            elif command == 'timeoutdm' and _args['client']['character']['position'] == 1:
+                game_end(_args=_args, room=room, status=3)
 
-        # Statistic modification for player battle modes
-        elif command[:5] in ['speed', 'gauge', 'reset']:
+            # Comandos para modificar estadísticas de jugadores en modo de batalla
+            elif command[:5] in ['speed', 'gauge', 'reset']:
 
-            # Check if we are the room master
-            if room['master'] != _args['client']:
-                return Lobby.chat_message(_args['client'], 'Only room masters can change player statistics', 2)
+                # Verificar si somos el maestro de la sala
+                if room['master'] != _args['client']:
+                    return Lobby.chat_message(_args['client'], 'Solo los maestros de la sala pueden cambiar las estadísticas de los jugadores', 2)
 
-            # Check if the game mode is correct
-            elif room['game_type'] not in [MODE_DEATHMATCH, MODE_BATTLE, MODE_TEAM_BATTLE]:
-                return Lobby.chat_message(_args['client'],
-                                          'Player statistics can only be changed in Death-match, Battle and Team Battle', 2)
+                # Verificar si el modo de juego es válido
+                elif room['game_type'] not in [MODE_DEATHMATCH, MODE_BATTLE, MODE_TEAM_BATTLE]:
+                    return Lobby.chat_message(_args['client'],
+                                              'Las estadísticas de los jugadores solo se pueden cambiar en Death-match, Battle y Team Battle', 2)
 
-            # Check if the game has already started
-            elif room['status'] != 0:
-                return Lobby.chat_message(_args['client'],
-                                          'You can not change the statistics after the game has started', 2)
+                # Verificar si el juego ya ha comenzado
+                elif room['status'] != 0:
+                    return Lobby.chat_message(_args['client'],
+                                              'No se pueden cambiar las estadísticas después de que el juego ha comenzado', 2)
 
-            # Split the command string, so we can begin to read values
-            command_split = command.split()
+                # Dividir el comando para leer los valores
+                command_split = command.split()
 
-            # Read what we want to change
-            what = command_split[0]
+                # Leer lo que queremos cambiar
+                what = command_split[0]
 
-            # Handle statistic reset requests
-            if what == 'reset':
-                room['stat_override'] = {}
+                # Manejar la solicitud de reinicio de estadísticas
+                if what == 'reset':
+                    room['stat_override'] = {}
 
-                # Send acknowledgement message to everyone in the room
+                    # Enviar mensaje de confirmación a todos en la sala
+                    message = Lobby.chat_message(target=None,
+                                                 message='{0} ha restablecido todas las estadísticas personalizadas'.format(
+                                                     _args['client']['character']['name']
+                                                 ),
+                                                 color=3,
+                                                 return_packet=True)
+                    return _args['connection_handler'].room_broadcast(room['id'], message)
+
+                # Verificar que el comando esté bien escrito
+                if len(command_split) != 2:
+                    return Lobby.chat_message(_args['client'],
+                                              'Argumentos inválidos. Se espera: @{0} <número>'.format(command[:5]), 2)
+
+                # Leer el valor del comando
+                value = command_split[1]
+
+                # Si el valor no es un número, no hacer nada
+                if not value.isdigit():
+                    return
+
+                # Verificar que el valor esté dentro del rango permitido
+                if int(value) not in range(200, 8000):
+                    return Lobby.chat_message(_args['client'],
+                                              'El argumento <número> está fuera de rango. Debe estar entre 200 y 8000', 2)
+
+                value_map = {
+                    'speed': STAT_SPEED,
+                    'gauge': STAT_ATT_TRANS_GAUGE
+                }
+
+                room['stat_override'][value_map[what][STAT_KEY]] = int(value)
+
+                # Enviar mensaje de confirmación a todos en la sala
                 message = Lobby.chat_message(target=None,
-                                             message='{0} has reset all custom statistics'.format(
-                                                 _args['client']['character']['name']
+                                             message='{0} ha cambiado la estadística de {1} a {2}'.format(
+                                                 _args['client']['character']['name'],
+                                                 what,
+                                                 value
                                              ),
                                              color=3,
                                              return_packet=True)
-                return _args['connection_handler'].room_broadcast(room['id'], message)
+                _args['connection_handler'].room_broadcast(room['id'], message)
 
-            # If the command_split length is not 2, quit executing the command. This means we have too many or too
-            # few arguments
-            if len(command_split) != 2:
-                return Lobby.chat_message(_args['client'],
-                                          'Invalid arguments. We expect: @{0} <number>'.format(command[:5]), 2)
+            # Comando de suicidio (matar al personaje)
+            elif command == 'suicide':
 
-            # Read value from the command
-            value = command_split[1]
-
-            # If the value is not an integer, do nothing
-            if not value.isdigit():
-                return
-
-            # Check if the value is out of range
-            if int(value) not in range(200, 8000):
-                return Lobby.chat_message(_args['client'],
-                                          'Argument <number> is out of range. It must be between 200 and 8000', 2)
-
-            value_map = {
-                'speed': STAT_SPEED,
-                'gauge': STAT_ATT_TRANS_GAUGE
-            }
-
-            room['stat_override'][value_map[what][STAT_KEY]] = int(value)
-
-            # Send acknowledgement message to everyone in the room
-            message = Lobby.chat_message(target=None,
-                                         message='{0} has changed everyone\'s {1} to {2}'.format(
-                                             _args['client']['character']['name'],
-                                             what,
-                                             value
-                                         ),
-                                         color=3,
-                                         return_packet=True)
-            _args['connection_handler'].room_broadcast(room['id'], message)
-
-        # Handle suicide requests
-        elif command == 'suicide':
-
-            # Drop packet if the game has not started
-            if room['status'] != 3:
-                return
-
-            # This command is only supposed to work in planet mode
-            if room['game_type'] == MODE_PLANET:
-                result = player_death(_args, room)
-                if result is not False:
-                    Lobby.chat_message(_args['client'], 'You have just killed your player', 2)
-            else:
-                Lobby.chat_message(_args['client'], 'This command only works in planet mode', 2)
-
-        # Handle kick requests
-        elif command[:4] == 'kick':
-
-            # Check message length
-            if len(message) < 6:
-                return
-
-            # Check if we are the room master
-            if room['master'] != _args['client']:
-                return Lobby.chat_message(_args['client'], 'Only room masters can kick players from their rooms', 2)
-
-            # Retrieve the character name of the new room master and attempt to find the user in the room
-            who = message[6:]
-            slots = room['slots'].items()
-
-            # If we are trying to kick ourselves, stop.
-            if who == _args['client']['character']['name']:
-                return Lobby.chat_message(_args['client'], 'You can not kick yourself', 2)
-
-            # Attempt to find the player we are trying to kick from the room
-            for key, slot in slots:
-                if slot['client']['character']['name'] == who:
-                    Room.remove_slot(_args, room['id'], slot['client'], 2)
+                # Dejar caer el paquete si el juego no ha comenzado
+                if room['status'] != 3:
                     return
 
-            # If we have passed the loop with no result, the player was not found
-            Lobby.chat_message(_args['client'], 'Player {0} not found'.format(who), 2)
+                # Este comando solo debería funcionar en modo planeta
+                if room['game_type'] == MODE_PLANET:
+                    result = player_death(_args, room)
+                    if result is not False:
+                        Lobby.chat_message(_args['client'], 'Has matado a tu personaje', 2)
+                else:
+                    Lobby.chat_message(_args['client'], 'Este comando solo funciona en modo planeta', 2)
 
-        elif command == 'help':
+            # Comando de expulsar a un jugador
+            elif command[:4] == 'kick':
 
-            # List of commands
-            commands = [
+                # Verificar la longitud del mensaje
+                if len(message) < 6:
+                    return
 
-                {
-                    "command": "@help",
-                    "description": "Show a list of available commands"
-                },
+                # Verificar si somos el maestro de la sala
+                if room['master'] != _args['client']:
+                    return Lobby.chat_message(_args['client'], 'Solo los maestros de la sala pueden expulsar jugadores', 2)
 
-                {
-                    "command": "@exit",
-                    "description": "Leaves the current room you are in"
-                },
+                # Obtener el nombre del jugador a expulsar
+                who = message[6:]
+                slots = room['slots'].items()
 
-                {
-                    "command": "@suicide",
-                    "description": "Kills your player"
-                },
+                # Si intentamos expulsarnos a nosotros mismos, detener el proceso
+                if who == _args['client']['character']['name']:
+                    return Lobby.chat_message(_args['client'], 'No puedes expulsarte a ti mismo', 2)
 
-                {
-                    "command": "@kick <name>",
-                    "description": "Kicks a player from your room"
-                },
+                # Intentar encontrar al jugador a expulsar
+                for key, slot in slots:
+                    if slot['client']['character']['name'] == who:
+                        Room.remove_slot(_args, room['id'], slot['client'], 2)
+                        return
 
-                {
-                    "command": "@stat-help",
-                    "description": "Tells you more about the ability to change player's statistics in Battle modes"
-                }
-            ]
+                # Si no encontramos al jugador, enviar mensaje de error
+                Lobby.chat_message(_args['client'], 'Jugador {0} no encontrado'.format(who), 2)
 
-            for command in commands:
-                Lobby.chat_message(_args['client'], '{0} -- {1}'.format(command['command'], command['description']), 2)
+            # Comando de ayuda
+            elif command == 'help':
 
-        # Mirror of the help command except it only lists commands used for player statistic alterations
-        elif command == 'stat-help':
+                commands = [
+                    {"command": "@help", "description": "Muestra una lista de comandos disponibles"},
+                    {"command": "@exit", "description": "Deja la sala en la que te encuentras"},
+                    {"command": "@win", "description": "Finaliza el juego y marca la victoria"},
+                    {"command": "@lose", "description": "Finaliza el juego y marca la derrota"},
+                    {"command": "@timeout", "description": "Finaliza el juego por tiempo agotado"},
+                    {"command": "@timeoutdm", "description": "Finaliza el juego por tiempo agotado en deathmatch"},
+                    {"command": "@autosell", "description": "Activa o desactiva la venta automática de objetos"},
+                    {"command": "@kick <nombre>", "description": "Expulsa a un jugador de la sala"},
+                    {"command": "@suicide", "description": "Mata a tu personaje en el juego"}
+                ]
 
-            commands = [
-                {
-                    "command": "@speed <number>",
-                    "description": "Changes players' speed"
-                },
+                for command in commands:
+                    Lobby.chat_message(_args['client'], '{0} -- {1}'.format(command['command'], command['description']), 2)
 
-                {
-                    "command": "@gauge <number>",
-                    "description": "Changes players' transformation gauge"
-                },
+            # Comando para obtener ayuda sobre estadísticas
+            elif command == 'stat-help':
 
-                {
-                    "command": "@reset",
-                    "description": "Resets all custom player statistics"
-                }
-            ]
+                commands = [
+                    {"command": "@speed <número>", "description": "Cambia la velocidad del jugador"},
+                    {"command": "@gauge <número>", "description": "Cambia la barra de transformación del jugador"},
+                    {"command": "@reset", "description": "Restablece todas las estadísticas personalizadas de los jugadores"}
+                ]
 
-            for command in commands:
-                Lobby.chat_message(_args['client'], '{0} -- {1}'.format(command['command'], command['description']), 2)
+                for command in commands:
+                    Lobby.chat_message(_args['client'], '{0} -- {1}'.format(command['command'], command['description']), 2)
 
-        else:
-            Lobby.chat_message(_args['client'], 'Unknown command. Type @help for a list of commands', 2)
+            # Comando de autosell
+            elif command == 'autosell':
+
+                # Verificar si el jugador tiene configurada la opción de autosell
+                if 'settings' not in _args['client']['character']:
+                    _args['client']['character']['settings'] = {}  # Inicializar settings si no existe
+
+                # Alternar el estado de autosell
+                _args['client']['character']['settings']['autosell'] = not _args['client']['character']['settings'].get('autosell', False)
+
+                # Confirmación
+                state = "activada" if _args['client']['character']['settings']['autosell'] else "desactivada"
+                Lobby.chat_message(_args['client'], f"La venta automática ha sido {state}.", 2)
+
+            # Comando desconocido
+            else:
+                Lobby.chat_message(_args['client'], 'Comando desconocido. Escribe @help para ver la lista de comandos', 2)
+
+    except Exception as e:
+        print(f"Error en chat_command: {str(e)}")
+        Lobby.chat_message(_args['client'], f'Ocurrió un error en el procesamiento del comando: {str(e)}', 2)
+
