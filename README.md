@@ -16,7 +16,7 @@ The latest T-Bot Rewritten client can be downloaded here:
 🔗 https://mega.nz/file/7BNQhKZI#1cr-kSlJMzj6CAf19EGk8GfG9J1SQdUhUbtYF0w_EiY
 
 📺 Tutorial video (credits to icseon and AndrewC for modifying the original code):
-🔗 https://www.youtube.com/watch?v=dQw4w9WgXcQ
+🔗 https://kick.com/rksmw-6/videos/ff6e85ef-5d28-48bf-88cf-981166625e8c
 
 ⚠️ The launcher will not work, as T-Bot Rewritten has ceased operations.
 
